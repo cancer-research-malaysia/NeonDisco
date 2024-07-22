@@ -1,0 +1,12 @@
+name: base_fc
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.11
+  - gmap
+  - gsnap
+  - fusioncatcher
+  - numpy
+  - pip

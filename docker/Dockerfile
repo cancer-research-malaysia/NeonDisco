@@ -1,0 +1,25 @@
+FROM --platform=linux/x86_64 trinityctat/fusioninspector:latest
+USER root
+LABEL maintainer="Suffian Azizan"
+
+
+# update Linux OS packages and install additional Linux system utilities with procps and also add parallel and finally remove cached package lists
+RUN apt-get update && apt-get -y install sudo && apt-get install -y procps && apt-get install -y parallel && rm -rf /var/lib/apt/lists/*
+
+# install micromamba
+RUN "${SHELL}" <(curl -L micro.mamba.pm/install.sh)
+
+# Configure Micromamba to use a single thread for package extraction
+RUN micromamba config set extract_threads 1
+
+# copy the env file into the container 
+COPY --chown=$MAMBA_USER:$MAMBA_USER base_fc.yaml /tmp/base_fc.yaml
+
+# Create a new environment named 'myenv' based on the YAML file
+RUN micromamba install -y -n base_fc -f /tmp/base_fc.yaml && micromamba clean --all --yes
+
+# activate the environment during container startup
+ARG MAMBA_DOCKERFILE_ACTIVATE=1
+#RUN echo "source activate base_env" >> /root/.bashrc
+
+ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
