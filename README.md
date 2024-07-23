@@ -16,3 +16,5 @@ neoantigen targets appear to be highly individualized, with little overlap betwe
 patients. Another main challenge is that acquired resistance to individual targets develops
 quickly due to tumour evolution. Thus, a multi-target, highly combinatorial
 approach is likely to work best towards finding a generalized set of neoantigens for cancer vaccine development. 
+
+## Overall Neoantigen Identification Workflow
