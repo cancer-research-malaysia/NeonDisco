@@ -8,6 +8,7 @@ of particular interest for the potential for the discovery and deployment of
 universal cancer vaccines that can be used “off-the-shelf", in contrast to other highly
 personalized approaches such as adoptive cell therapies that are likely to be too resource-
 intensive and expensive to be scaled up for general use outside first world countries.
+
 The hunt for a universal cancer vaccine continues to be a major focus area for cancer
 immunotherapy, and various biotarget candidates have been proposed, including cancer neoantigens, tumour-associated antigens, tumour-associated viral
 antigens, and more recently, “dark” transient epigenetically driven antigens. One of the main challenges towards developing universal cancer vaccines is that most
