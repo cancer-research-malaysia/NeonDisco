@@ -2,7 +2,6 @@ name: fusioncatcher
 channels:
   - conda-forge
   - bioconda
-  - defaults
 dependencies:
   - python=2.7.18
 

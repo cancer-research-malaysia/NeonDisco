@@ -2,20 +2,16 @@ name: base
 channels:
   - conda-forge
   - bioconda
-  - defaults
 dependencies:
   - python=3.12
   - openjdk
   - samtools
   - bowtie2
-  - bioconda::jellyfish
   - bioconda::picard
   - bioconda::salmon
   - numpy
-  - star=2.7.8a
+  - star=2.7.10a
   - arriba=2.3.0
   - pip
-  - pip:
-    - requests
-    - igv-reports==1.8.0
+  
 

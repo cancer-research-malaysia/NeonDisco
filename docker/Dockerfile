@@ -31,14 +31,19 @@ COPY --chown=$MAMBA_USER:$MAMBA_USER base_fusins.yaml /tmp/base_fusins.yaml
 COPY --chown=$MAMBA_USER:$MAMBA_USER fcat_env.yaml /tmp/fcat_env.yaml
 
 # Create a new base environment based on the YAML file
-RUN micromamba install -y -n base -f /tmp/base_fusins.yaml && \
-micromamba install -y -n fusioncatcher -f /tmp/fcat_env.yaml && micromamba clean --all --yes
+RUN micromamba install -y -f /tmp/base_fusins.yaml && \
+micromamba create -y -f /tmp/fcat_env.yaml && \
+micromamba clean --all --yes
 
 # activate the environment during container startup
 ARG MAMBA_DOCKERFILE_ACTIVATE=1
 
 # add conda bins to PATH
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
+
+# install pip packages
+RUN micromamba activate
+RUN pip install --no-cache-dir requests igv-reports==1.8.0
 
 ## set up tool config and deployment area
 ENV SRC /usr/local/src
@@ -74,11 +79,11 @@ RUN R -e 'install.packages("circlize")'
 # rm -r bowtie2-2.3.3.1-linux-x86_64
 
 ## Jellyfish
-# WORKDIR $SRC
-# RUN wget https://github.com/gmarcais/Jellyfish/releases/download/v2.2.7/jellyfish-2.2.7.tar.gz && \
-# tar xvf jellyfish-2.2.7.tar.gz && \
-# cd jellyfish-2.2.7/ && \
-# ./configure && make && make install
+WORKDIR $SRC
+RUN wget https://github.com/gmarcais/Jellyfish/releases/download/v2.2.7/jellyfish-2.2.7.tar.gz && \
+tar xvf jellyfish-2.2.7.tar.gz && \
+cd jellyfish-2.2.7/ && \
+./configure && make && make install
             
 ## Salmon
 # WORKDIR $SRC
