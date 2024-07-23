@@ -3,7 +3,7 @@ USER root
 LABEL maintainer="Suffian Azizan"
 
 # update Linux OS packages and install additional Linux system utilities with procps and also add parallel and finally remove cached package lists
-RUN apt-get update && apt-get -y install sudo && apt-get install -y gcc g++ automake make parallel procps wget curl libdb-dev bzip2 zlibc zlib1g zlib1g-dev unzip libbz2-dev liblzma-dev gfortran libreadline-dev libcurl4-openssl-dev libx11-dev \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y sudo && apt-get install -y gcc g++ automake make parallel procps wget curl libdb-dev bzip2 zlib1g zlib1g-dev unzip libbz2-dev liblzma-dev gfortran libreadline-dev libcurl4-openssl-dev libx11-dev \
 libxt-dev x11-common libcairo2-dev libpng-dev libjpeg-dev pkg-config \
 libxml2-dev libssl-dev libcurl4-openssl-dev pbzip2 git \
 libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev \
