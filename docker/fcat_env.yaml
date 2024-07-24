@@ -1,8 +1,0 @@
-name: fusioncatcher
-channels:
-  - conda-forge
-  - bioconda
-dependencies:
-  - python=2.7.18
-
-

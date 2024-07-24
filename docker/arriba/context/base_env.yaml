@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - python=3.12
+  - python
   - openjdk
   - samtools
   - bowtie2
@@ -12,6 +12,9 @@ dependencies:
   - numpy
   - star=2.7.10a
   - arriba=2.3.0
+  - bioconda::igv-reports=1.8.0
+  - requests
   - pip
+  
   
 

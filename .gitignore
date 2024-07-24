@@ -1,0 +1,101 @@
+# Bioinformatics .gitignore
+# Adapted for DNA, RNA, and protein sequences
+ 
+# Compiled binaries (because even code needs a protein shake)
+*.o
+*.pyc
+*.class
+ 
+# Virtual environments (because we're all just bits in a simulation)
+venv/
+env/
+.venv/
+.conda/
+ 
+# Bioinformatics data files (because FASTA is faster without distractions)
+*.fasta
+*.fastq
+*.fq
+*.fa
+*.sam
+*.bam
+*.vcf
+*.bed
+*.wig
+*.wiggle
+*.wig.gz
+*.bw
+*.gff
+*.gff3
+*.gtf
+*.gtf.gz
+*.bedGraph
+*.bedGraph.gz
+*.bigWig
+*.bai
+*.tbi
+*.bai
+*.csi
+*.crai
+*.sra
+*.ab1
+*.ab1.gz
+*.ab1.zip
+*.ab1.tar.gz
+*.ab1.tgz
+*.ab1.bz2
+*.ab1.tar.bz2
+*.ab1.tar
+*.ab1.tar.xz
+*.ab1.xz
+*.ab1.gz
+*.ab1.bz2
+*.ab1.zip
+*.ab1.tar.gz
+*.ab1.tgz
+*.ab1.tar.bz2
+*.ab1.tar
+*.ab1.tar.xz
+*.ab1.xz
+ 
+# Bioinformatics tools (because sometimes they're just too clingy)
+bin/
+build/
+dist/
+lib/
+include/
+share/
+*.egg-info/
+*.egg
+*.so
+*.dll
+*.dylib
+*.a
+*.lib
+ 
+# Jupyter notebooks checkpoints (because even code needs a safety net)
+.ipynb_checkpoints/
+ 
+# Bioinformatics databases (because we're not sharing our BLAST secrets)
+db/
+blastdb/
+*.sqlite
+*.sqlite3
+ 
+# Bioinformatics configuration files (because our settings are as unique as our genes)
+config.yaml
+config.json
+*.conf
+*.ini
+*.cfg
+*.toml
+ 
+# Bioinformatics logs (because even logs deserve privacy)
+*.log
+*.log.*
+*.out
+*.err
+ 
+# Ignore any other bioinformatics-specific files or directories you use
+docker/*/src/*
+

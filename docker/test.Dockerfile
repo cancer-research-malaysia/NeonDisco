@@ -3,11 +3,12 @@ USER root
 LABEL maintainer="Suffian Azizan"
 
 # update Linux OS packages and install additional Linux system utilities with procps and also add parallel and finally remove cached package lists
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y sudo && apt-get install -y gcc g++ automake make parallel procps wget curl libdb-dev bzip2 zlib1g zlib1g-dev unzip libbz2-dev liblzma-dev gfortran libreadline-dev libcurl4-openssl-dev libx11-dev \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y sudo && apt-get install -y gcc g++ perl automake make parallel procps wget curl libdb-dev bzip2 zlib1g zlib1g-dev unzip libbz2-dev liblzma-dev gfortran libreadline-dev libcurl4-openssl-dev libx11-dev \
 libxt-dev x11-common libcairo2-dev libpng-dev libjpeg-dev pkg-config \
 libxml2-dev libssl-dev libcurl4-openssl-dev pbzip2 git \
 libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev \
-&& rm -rf /var/lib/apt/lists/*
+&& apt-get install -y r-base r-base-dev && \
+rm -rf /var/lib/apt/lists/*
 
 ## perl lib installations
 
@@ -20,8 +21,8 @@ RUN cpanm install URI::Escape
 RUN cpanm install Carp::Assert
 RUN cpanm install JSON::XS.pm
 
-# install micromamba
-RUN "${SHELL}" <(curl -L micro.mamba.pm/install.sh)
+# change user
+USER $MAMBA_USER
 
 # Configure Micromamba to use a single thread for package extraction
 RUN micromamba config set extract_threads 1
@@ -42,9 +43,10 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 
 # install pip packages
-RUN micromamba activate
-RUN pip install --no-cache-dir requests igv-reports==1.8.0
+# RUN pip install --no-cache-dir requests igv-reports==1.8.0
 
+
+USER root
 ## set up tool config and deployment area
 ENV SRC /usr/local/src
 ENV BIN /usr/local/bin
@@ -52,18 +54,25 @@ ENV DATA /usr/local/data
 RUN mkdir $DATA
 
 ## R installation:
-WORKDIR $SRC
-ENV R_VERSION=R-4.4.0
+# WORKDIR $SRC
+# ENV R_VERSION=R-4.4.0
 
-RUN curl https://cran.r-project.org/src/base/R-4/$R_VERSION.tar.gz -o $R_VERSION.tar.gz && tar xvf $R_VERSION.tar.gz && cd $R_VERSION && ./configure && make && make install
+# RUN curl https://cran.r-project.org/src/base/R-4/$R_VERSION.tar.gz -o $R_VERSION.tar.gz && tar xvf $R_VERSION.tar.gz && cd $R_VERSION && ./configure && make && make install
+
+RUN R -e 'install.packages('littler', dependencies=TRUE)'
+RUN install2.r --error --deps TRUE BiocManager
+RUN install2.r --error --deps TRUE argparse
+RUN install2.r --error --deps TRUE tidyverse
+RUN install2.r --error --deps TRUE cowplot
+RUN install2.r --error --deps TRUE ranger
     
-RUN R -e 'install.packages("BiocManager", repos="http://cran.us.r-project.org")'
-RUN R -e 'BiocManager::install("argparse")'
-RUN R -e 'BiocManager::install("tidyverse")'
-RUN R -e 'BiocManager::install("cowplot")'
-RUN R -e 'BiocManager::install("ranger")'
-RUN R -e 'BiocManager::install(c("GenomicRanges", "GenomicAlignments"))'
-RUN R -e 'install.packages("circlize")'
+# RUN R --error -e 'install.packages("BiocManager", repos="http://cran.us.r-project.org")'
+# RUN R --error -e 'BiocManager::install("argparse")'
+# RUN R --error -e 'install.packages("tidyverse", repos="https://cran.csiro.au/")'
+# RUN R --error -e 'BiocManager::install("cowplot")'
+# RUN R --error -e 'BiocManager::install("ranger")'
+RUN R --error -e 'BiocManager::install(c("GenomicRanges", "GenomicAlignments"))'
+RUN R --error -e 'install.packages("circlize", repos="https://cran.csiro.au/")'
 
 
 ######################
@@ -105,7 +114,7 @@ mv ./minimap2-2.28_x64-linux/minimap2 $BIN/
 
 # K8 (original author used 0.2.4)
 RUN curl -L https://github.com/attractivechaos/k8/releases/download/v1.2/k8-1.2.tar.bz2 | tar -jxf - && \
-cp k8-1.2/k8-`uname -s` $BIN/k8
+cp k8-1.2/k8-x86_64-`uname -s` $BIN/k8
 
 # ## Salmon
 # WORKDIR $SRC
@@ -123,15 +132,12 @@ COPY sam_readname_cleaner.py $BIN/
 # ENV FI_VERSION=2.9.0
 # ENV FI_HASH=a43480df8dac6cfae0c01c2b636fd11de0d7bb98
 
-ENV FI_VERSION=2.8.0
-ENV FI_HASH=f798c9d9b51ddfdbe44e24094ad7dfb7f42b598c
+# ENV FI_VERSION=2.8.0
+# ENV FI_HASH=f798c9d9b51ddfdbe44e24094ad7dfb7f42b598c
 
-RUN git clone --recursive https://github.com/FusionInspector/FusionInspector.git && \
-cd FusionInspector/ && \
-git checkout ${FI_HASH} && \
-git submodule init && git submodule update && \
-make && \
-mv * $BIN
-
-RUN micromamba activate fusioncatcher
-RUN download-human-db.sh
+# RUN git clone --recursive https://github.com/FusionInspector/FusionInspector.git && \
+# cd FusionInspector/ && \
+# git checkout ${FI_HASH} && \
+# git submodule init && git submodule update && \
+# make && \
+# mv * $BIN
