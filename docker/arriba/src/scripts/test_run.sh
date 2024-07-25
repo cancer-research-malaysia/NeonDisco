@@ -2,8 +2,8 @@
 
 CTAT_LIB="/tmp/libs"
 FASTQS="/data"
-ARR_OUTDIR="/outputs"
-ARRIBA_PKG=""
+ARR_OUTDIR="/out"
+ARRIBA_PKG="/opt/conda/var/lib/arriba"
 
 # run STAR then pipe into arriba
 STAR --runThreadN 8 \
@@ -26,7 +26,7 @@ STAR --runThreadN 8 \
 --chimScoreSeparation 1 \
 --chimSegmentReadGapMax 3 \
 --chimMultimapNmax 50 \
---outFileNamePrefix ${ARR_OUTDIR}/out/ --outTmpDir /tmp/arr/ | arriba -x /dev/stdin -o ${ARR_OUTDIR}/arriba-fusions.tsv -O ${ARR_OUTDIR}/fusions.discarded.tsv -a ${CTAT_LIB}/ref_genome.fa \
+--outFileNamePrefix ${ARR_OUTDIR} --outTmpDir /tmp/arr/ | arriba -x /dev/stdin -o ${ARR_OUTDIR}/arriba-fusions.tsv -O ${ARR_OUTDIR}/fusions.discarded.tsv -a ${CTAT_LIB}/ref_genome.fa \
 -g ${CTAT_LIB}/ref_annot.gtf \
 -b ${ARRIBA_PKG}/blacklist_hg38_GRCh38_v2.3.0.tsv.gz \
 -k ${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz \
