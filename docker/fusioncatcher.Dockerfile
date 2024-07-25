@@ -39,15 +39,12 @@ RUN pip install xlrd
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 
 USER $MAMBA_USER
-WORKDIR /tmp
-# now run bootstrap.py from fusioncatcher
-# RUN wget http://sf.net/projects/fusioncatcher/files/bootstrap.py -O bootstrap.py && python bootstrap.py -t --download -y
 
-# copy database download script
-COPY --chown=$MAMBA_USER:$MAMBA_USER --chmod=0755 fusioncatcher/src/download-human-db-patched.sh /tmp/dl-human-db-patched.sh
-# change dir
-WORKDIR /tmp
-RUN ./dl-human-db-patched.sh
+# # copy database download script
+# COPY --chown=$MAMBA_USER:$MAMBA_USER --chmod=0755 fusioncatcher/src/download-human-db-patched.sh /tmp/dl-human-db-patched.sh
+# # change dir
+# WORKDIR /tmp
+# RUN ./dl-human-db-patched.sh
 
 # change start dir
-WORKDIR /home/$MAMBA_USER/db
+WORKDIR /home/$MAMBA_USER
