@@ -47,7 +47,7 @@ WORKDIR /tmp
 COPY --chown=$MAMBA_USER:$MAMBA_USER --chmod=0755 fusioncatcher/src/download-human-db-patched.sh /tmp/dl-human-db-patched.sh
 # change dir
 WORKDIR /tmp
-RUN dl-human-db-patched.sh
+RUN ./dl-human-db-patched.sh
 
 # change start dir
 WORKDIR /home/$MAMBA_USER/db
