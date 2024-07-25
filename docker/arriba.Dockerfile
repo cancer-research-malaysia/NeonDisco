@@ -29,7 +29,6 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 # add conda bins to PATH
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:/opt/conda/var/lib/arriba:$PATH"
 
-
 # R package installation
 USER root
 
@@ -39,5 +38,6 @@ RUN R -e 'BiocManager::install(c("GenomicRanges", "GenomicAlignments"))'
 RUN R -e 'install.packages("circlize", repos="https://cran.csiro.au/")'
 
 USER $MAMBA_USER
-WORKDIR /home
+WORKDIR /home/$MAMBA_USER
 
+#RUN download_references.sh
