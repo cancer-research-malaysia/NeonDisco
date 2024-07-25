@@ -97,5 +97,6 @@ config.json
 *.err
  
 # Ignore any other bioinformatics-specific files or directories you use
-docker/*/src/*
+# docker/*/src/*
+*.tar.gz
 
