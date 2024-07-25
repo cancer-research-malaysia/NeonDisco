@@ -7,8 +7,7 @@ LABEL description="container image of Arriba program v2.3.0 for CRM"
 # change to root user
 USER root
 # update Debian OS packages and install additional Linux system utilities with procps; also install R, then finally remove cached package lists
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y sudo && apt-get install -y gcc g++ perl automake make parallel procps wget curl bzip2 git \
-&& apt-get install -y r-base r-base-dev \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends procps curl r-base \
 && rm -rf /var/lib/apt/lists/*
 
 # change user
@@ -38,3 +37,7 @@ RUN R -e 'install.packages("BiocManager", repos="http://cran.us.r-project.org")'
 RUN R -e 'BiocManager::install("argparse")'
 RUN R -e 'BiocManager::install(c("GenomicRanges", "GenomicAlignments"))'
 RUN R -e 'install.packages("circlize", repos="https://cran.csiro.au/")'
+
+USER $MAMBA_USER
+WORKDIR /home
+
