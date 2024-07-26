@@ -6,7 +6,7 @@ if [ -z "$1" ]; then
   echo "No argument provided. Please provide an argument."
   exit 1
 else
-  $1="/refs"
+  DB_DIR=$1
   # FusionCatcher v1.33
   #
   cd "$(dirname "$(realpath -s "$0")")"
@@ -35,7 +35,7 @@ else
   rm -f human_v102.tar.gz
   rm -f human_v102.md5
 
-  if mv human_v102 /references; then
+  if mv human_v102 "${DB_DIR}"; then
     "References have been set up. Ready to run Fusioncatcher!"
   else
     "References failed to be set up. Redownload again."
