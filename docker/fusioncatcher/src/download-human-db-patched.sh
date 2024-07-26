@@ -36,9 +36,8 @@ else
   rm -f human_v102.md5
 
   if mv human_v102 "${DB_DIR}"; then
-    "References have been set up. Ready to run Fusioncatcher!"
+    echo "References have been set up. Ready to run Fusioncatcher!"
   else
-    "References failed to be set up. Redownload again."
+    echo "References failed to be set up. Redownload again."
   fi
-
 fi
