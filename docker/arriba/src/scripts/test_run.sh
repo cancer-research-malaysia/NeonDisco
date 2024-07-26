@@ -1,8 +1,8 @@
 #!/usr/bin/bash
 
 CTAT_LIB="/tmp/libs"
-FASTQS="/data"
-ARR_OUTDIR="/out"
+FASTQS="/tmp/data"
+ARR_OUTDIR="/tmp/out"
 ARRIBA_PKG="/opt/conda/var/lib/arriba"
 
 # run STAR then pipe into arriba
