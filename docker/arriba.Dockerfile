@@ -37,7 +37,6 @@ RUN R -e 'BiocManager::install("argparse")'
 RUN R -e 'BiocManager::install(c("GenomicRanges", "GenomicAlignments"))'
 RUN R -e 'install.packages("circlize", repos="https://cran.csiro.au/")'
 
-USER $MAMBA_USER
-WORKDIR /home/$MAMBA_USER
+WORKDIR /tmp
 
 #RUN download_references.sh
