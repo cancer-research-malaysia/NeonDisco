@@ -38,7 +38,7 @@ RUN pip install xlrd
 # add conda bins to PATH
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 
-USER $MAMBA_USER
+USER root
 
 # # copy database download script
 # COPY --chown=$MAMBA_USER:$MAMBA_USER --chmod=0755 fusioncatcher/src/download-human-db-patched.sh /tmp/dl-human-db-patched.sh
@@ -46,5 +46,3 @@ USER $MAMBA_USER
 # WORKDIR /tmp
 # RUN ./dl-human-db-patched.sh
 
-# change start dir
-WORKDIR /home/$MAMBA_USER
