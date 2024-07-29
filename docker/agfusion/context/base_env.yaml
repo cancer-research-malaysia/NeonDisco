@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - python3
+  - python
   - matplotlib>=3.6.1
   - pandas>=1.5.1
   - biopython>=1.79
