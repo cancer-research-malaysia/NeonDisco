@@ -39,6 +39,4 @@ STAR --runThreadN 8 \
 -b ${ARRIBA_PKG}/blacklist_hg38_GRCh38_v2.3.0.tsv.gz \
 -k ${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz \
 -t ${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz \
--p ${ARRIBA_PKG}/protein_domains_hg38_GRCh38_v2.3.0.gff3
-
-#>> ${ARR_OUTDIR}/arr_1T-test.log.txt 2>&1
+-p ${ARRIBA_PKG}/protein_domains_hg38_GRCh38_v2.3.0.gff3 2>&1 | tee ${ARR_OUTDIR}/arriba-test.log.txt
