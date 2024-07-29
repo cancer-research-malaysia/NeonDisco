@@ -5,6 +5,8 @@ FASTQS="/tmp/data"
 ARR_OUTDIR="/tmp/out"
 ARRIBA_PKG="/opt/conda/var/lib/arriba"
 
+echo "Environment variables set! Running STAR..."
+
 # run STAR then pipe into arriba
 STAR --runThreadN 8 \
 --genomeDir ${CTAT_LIB}/ref_genome.fa.star.idx \
@@ -31,4 +33,7 @@ STAR --runThreadN 8 \
 -b ${ARRIBA_PKG}/blacklist_hg38_GRCh38_v2.3.0.tsv.gz \
 -k ${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz \
 -t ${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz \
--p ${ARRIBA_PKG}/protein_domains_hg38_GRCh38_v2.3.0.gff3 >> ${ARR_OUTDIR}/arr_1T-test.log.txt 2>&1
+-p ${ARRIBA_PKG}/protein_domains_hg38_GRCh38_v2.3.0.gff3
+
+#
+#>> ${ARR_OUTDIR}/arr_1T-test.log.txt 2>&1
