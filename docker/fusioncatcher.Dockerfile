@@ -8,10 +8,6 @@ LABEL description="container image of FusionCatcher program v1.33"
 USER root
 # update Debian OS packages and install additional Linux system utilities, then finally remove cached package lists
 
-# RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential libncurses5-dev default-jdk gawk gcc g++ bzip2 \
-# make cmake automake gzip zip unzip zlib1g-dev zlib1g wget curl \
-# pigz tar parallel libtbb-dev libtbbmalloc2 \
-
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
 tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps \
 && rm -rf /var/lib/apt/lists/*
