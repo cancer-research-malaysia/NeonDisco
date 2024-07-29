@@ -29,7 +29,7 @@ run_star_and_arriba() {
   --chimScoreSeparation 1 \
   --chimSegmentReadGapMax 3 \
   --chimMultimapNmax 50 \
-  --outFileNamePrefix "${ARR_OUTDIR}"/"${SAMPLE}" --outTmpDir "${STAR_TMPDIR}" | arriba \
+  --outTmpDir "${STAR_TMPDIR}" | tee "${ARR_OUTDIR}"/"${SAMPLE}"-Aligned.out.bam | arriba \
   -x /dev/stdin \
   -o "${ARR_OUTDIR}"/"${SAMPLE}"/arriba-fusions.tsv" \
   -O "${ARR_OUTDIR}"/"${SAMPLE}"/fusions.discarded.tsv" \
