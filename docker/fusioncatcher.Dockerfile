@@ -13,7 +13,7 @@ USER root
 # pigz tar parallel libtbb-dev libtbbmalloc2 \
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-tar wget curl pigz gzip zip unzip gcc g++ bzip2 \
+tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps \
 && rm -rf /var/lib/apt/lists/*
 
 # change user
