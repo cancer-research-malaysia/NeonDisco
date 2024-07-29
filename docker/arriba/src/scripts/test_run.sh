@@ -3,7 +3,7 @@
 CTAT_LIB="/tmp/libs"
 FASTQS="/tmp/data"
 ARR_OUTDIR="/tmp/out"
-STAR_TMPDIR="/tmp/star"
+STAR_TMPDIR="/tmp/out/star"
 ARRIBA_PKG="/opt/conda/var/lib/arriba"
 
 echo "Environment variables set! Running STAR..."
