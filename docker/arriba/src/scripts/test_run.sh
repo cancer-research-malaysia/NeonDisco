@@ -13,6 +13,7 @@ STAR --runThreadN 8 \
 --genomeDir ${CTAT_LIB}/ref_genome.fa.star.idx \
 --genomeLoad NoSharedMemory \
 --readFilesIn ${FASTQS}/2T_r1.fq.gz ${FASTQS}/2T_r2.fq.gz \
+--readFilesCommand zcat \
 --outStd BAM_Unsorted \
 --outSAMtype BAM Unsorted \
 --outSAMunmapped Within \
@@ -29,12 +30,15 @@ STAR --runThreadN 8 \
 --chimScoreSeparation 1 \
 --chimSegmentReadGapMax 3 \
 --chimMultimapNmax 50 \
---outFileNamePrefix ${ARR_OUTDIR} --outTmpDir ${STAR_TMPDIR} | arriba -x /dev/stdin -o ${ARR_OUTDIR}/arriba-fusions.tsv -O ${ARR_OUTDIR}/fusions.discarded.tsv -a ${CTAT_LIB}/ref_genome.fa \
+--outFileNamePrefix ${ARR_OUTDIR} --outTmpDir ${STAR_TMPDIR} | arriba \
+-x /dev/stdin \
+-o ${ARR_OUTDIR}/arriba-fusions.tsv \
+-O ${ARR_OUTDIR}/fusions.discarded.tsv \
+-a ${CTAT_LIB}/ref_genome.fa \
 -g ${CTAT_LIB}/ref_annot.gtf \
 -b ${ARRIBA_PKG}/blacklist_hg38_GRCh38_v2.3.0.tsv.gz \
 -k ${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz \
 -t ${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz \
 -p ${ARRIBA_PKG}/protein_domains_hg38_GRCh38_v2.3.0.gff3
 
-#
 #>> ${ARR_OUTDIR}/arr_1T-test.log.txt 2>&1
