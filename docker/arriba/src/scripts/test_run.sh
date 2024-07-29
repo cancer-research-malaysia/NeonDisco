@@ -11,7 +11,7 @@ echo "Environment variables set! Running STAR..."
 STAR --runThreadN 8 \
 --genomeDir ${CTAT_LIB}/ref_genome.fa.star.idx \
 --genomeLoad NoSharedMemory \
---readFilesIn ${FASTQS}/1T_r1.fq.gz ${FASTQS}/1T_r2.fq.gz \
+--readFilesIn ${FASTQS}/2T_r1.fq.gz ${FASTQS}/2T_r2.fq.gz \
 --outStd BAM_Unsorted \
 --outSAMtype BAM Unsorted \
 --outSAMunmapped Within \
