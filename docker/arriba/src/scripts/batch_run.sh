@@ -29,10 +29,10 @@ run_star_and_arriba() {
   --chimScoreSeparation 1 \
   --chimSegmentReadGapMax 3 \
   --chimMultimapNmax 50 \
-  --outTmpDir "${STAR_TMPDIR}" | tee "${ARR_OUTDIR}"/"${SAMPLE}"-Aligned.out.bam | arriba \
+  --outTmpDir "${STAR_TMPDIR}" | tee "${ARR_OUTDIR}/${SAMPLE}-Aligned.out.bam" | arriba \
   -x /dev/stdin \
-  -o "${ARR_OUTDIR}"/"${SAMPLE}"/arriba-fusions.tsv" \
-  -O "${ARR_OUTDIR}"/"${SAMPLE}"/fusions.discarded.tsv" \
+  -o "${ARR_OUTDIR}/${SAMPLE}/arriba-fusions.tsv" \
+  -O "${ARR_OUTDIR}/${SAMPLE}/fusions.discarded.tsv" \
   -a "${CTAT_LIB}/ref_genome.fa" \
   -g "${CTAT_LIB}/ref_annot.gtf" \
   -b "${ARRIBA_PKG}/blacklist_hg38_GRCh38_v2.3.0.tsv.gz" \
@@ -71,6 +71,7 @@ if [[ $(find "$FASTQS" \( -name '*.fastq.gz' -o -name '*.fq.gz' \) -type f) ]]; 
         for prefix in "${SAMPLE_ID[@]}"; do
             echo "Sample ID: ${prefix}"
             echo "Running STAR while piping to Arriba..."
+            mkdir -p "${ARR_OUTDIR}/${prefix}"
             # Measure execution time
             STARTTIME=$(date +%s)
             if run_star_and_arriba "${CTAT_LIB}" "${FASTQS}" "${prefix}" "${ARRIBA_PKG}" "${ARR_OUTDIR}" "${STAR_TMPDIR}"; then
