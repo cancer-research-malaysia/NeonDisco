@@ -59,19 +59,19 @@ if [[ $(find "$FASTQS" \( -name '*.fastq.gz' -o -name '*.fq.gz' \) -type f) ]]; 
     find "$FASTQS" -mindepth 1 -type f \( -name '*.fastq.gz' -o -name '*.fq.gz' \)
     echo "Total number of files: $(find "$FASTQS" -mindepth 1 -type f \( -name '*.fastq.gz' -o -name '*.fq.gz' \) | wc -l)"
     # extract read1 group number of files
-    find ./ -mindepth 1 -type f \( -name '*.fastq.gz' -o -name '*.fq.gz' \) | xargs -n 1 basename | awk -F'_' '/r1/ {print $1}' | sort | uniq | wc -l > /tmp/r1.count && R1_COUNT=$(cat /tmp/r1.count)
+    R1_COUNT=$(find /data/ -mindepth 1 -type f \( -name '*.fastq.gz' -o -name '*.fq.gz' \) | xargs -n 1 basename | awk -F'_' '/r1/ {print $1}' | sort | uniq | wc -l) && echo $R1_COUNT
     echo "Total number of R1 files: $R1_COUNT"
     # extract read2 group number of files
-    find ./ -mindepth 1 -type f \( -name '*.fastq.gz' -o -name '*.fq.gz' \) | xargs -n 1 basename | awk -F'_' '/r2/ {print $1}' | sort | uniq | wc -l > /tmp/r2.count && R2_COUNT=$(cat /tmp/r2.count)
+    R2_COUNT=$(find /data/ -mindepth 1 -type f \( -name '*.fastq.gz' -o -name '*.fq.gz' \) | xargs -n 1 basename | awk -F'_' '/r2/ {print $1}' | sort | uniq | wc -l) && echo $R2_COUNT
     echo "Total number of R2 files: $R2_COUNT"
     # extract sample IDs into an array
-    readarray -t SAMPLE_ID < <(find ./ -mindepth 1 -type f \( -name '*.fastq.gz' -o -name '*.fq.gz' \) | xargs -n 1 basename | awk -F'_' '/r2/ {print $1}' | sort | uniq)
+    readarray -t SAMPLE_ID < <(find /data/ -mindepth 1 -type f \( -name '*.fastq.gz' -o -name '*.fq.gz' \) | xargs -n 1 basename | awk -F'_' '/r2/ {print $1}' | sort | uniq)
     # print out the sample IDs
     echo "Sample IDs: ${SAMPLE_ID[@]}"
 
     # Check if R1_COUNT == R2_COUNT (implying paired reads data)
     if (( R1_COUNT == R2_COUNT )); then
-        if (( R1_COUNT != 0 && R2_COUNT != 0 )); then 
+        if (( R1_COUNT == 0 && R2_COUNT == 0 )); then 
             echo "The counts are zeroes. Something is wrong. Check your input files."
             exit 1
         else
