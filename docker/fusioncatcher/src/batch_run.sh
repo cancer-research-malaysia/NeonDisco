@@ -62,13 +62,13 @@ else
                     mkdir -p "${OUTDIR_PREFIX}/${prefix}"
                     # measure execution time
                     STARTTIME=$(date +%s)
-                    # if run_fuscat "${DB}" "${FILE_R1}" "${FILE_R2}" "${OUTDIR_PREFIX}/${prefix}"; then
-                    #     ENDTIME=$(date +%s)
-                    #     ELAP=$(( ENDTIME - STARTTIME ))
-                    #     echo "FusionCatcher run completed successfully. Time taken: ${ELAP}. Check log file for run details."
-                    # else
-                    #     echo "Something went wrong during FusionCatcher run. Check log file."
-                    # fi
+                    if run_fuscat "${DB}" "${FILE_R1}" "${FILE_R2}" "${OUTDIR_PREFIX}/${prefix}"; then
+                        ENDTIME=$(date +%s)
+                        ELAP=$(( ENDTIME - STARTTIME ))
+                        echo "FusionCatcher run completed successfully. Time taken: ${ELAP}. Check log file for run details."
+                    else
+                        echo "Something went wrong during FusionCatcher run. Check log file."
+                    fi
                 else
                     echo "Paired fastq files not found for ${prefix}. Skipping..."
                     continue
