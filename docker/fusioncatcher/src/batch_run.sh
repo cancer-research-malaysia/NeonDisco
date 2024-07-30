@@ -47,7 +47,7 @@ else
                 export prefix
                 echo "Sample ID: ${prefix}"
                 # find the paired fastq files for the sample ID and assign to variables
-                FASTQS=$(find "$INP_DIR" -mindepth 1 -type f \( -name "*${prefix}*fastq.gz" -o -name "*${prefix}*.fq.gz" \))
+                FASTQS=$(find "$INP_DIR" -mindepth 1 -type f \( -name "*${prefix}*fastq.gz" -o -name "*${prefix}*.fq.gz" \) | sort)
                 echo "Paired fastq files: ${FASTQS}"
                 export FASTQS
                 # Extract the first two lines
