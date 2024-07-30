@@ -59,29 +59,38 @@ if [[ $(find "$FASTQS" \( -name '*.fastq.gz' -o -name '*.fq.gz' \) -type f) ]]; 
     find "$FASTQS" -mindepth 1 -type f \( -name '*.fastq.gz' -o -name '*.fq.gz' \)
     echo "Total number of files: $(find "$FASTQS" -mindepth 1 -type f \( -name '*.fastq.gz' -o -name '*.fq.gz' \) | wc -l)"
     # extract read1 group number of files
-    R1_COUNT=$(find ./ -mindepth 1 -type f \( -name '*.fastq.gz' -o -name '*.fq.gz' \) | xargs -n 1 basename | awk -F'_' '/r1/ {print $1}' | sort | uniq | wc -l)
+    find ./ -mindepth 1 -type f \( -name '*.fastq.gz' -o -name '*.fq.gz' \) | xargs -n 1 basename | awk -F'_' '/r1/ {print $1}' | sort | uniq | wc -l > /tmp/r1.count && R1_COUNT=$(cat /tmp/r1.count)
+    echo "Total number of R1 files: $R1_COUNT"
     # extract read2 group number of files
-    R2_COUNT=$(find ./ -mindepth 1 -type f \( -name '*.fastq.gz' -o -name '*.fq.gz' \) | xargs -n 1 basename | awk -F'_' '/r2/ {print $1}' | sort | uniq | wc -l)
+    find ./ -mindepth 1 -type f \( -name '*.fastq.gz' -o -name '*.fq.gz' \) | xargs -n 1 basename | awk -F'_' '/r2/ {print $1}' | sort | uniq | wc -l > /tmp/r2.count && R2_COUNT=$(cat /tmp/r2.count)
+    echo "Total number of R2 files: $R2_COUNT"
     # extract sample IDs into an array
-    SAMPLE_ID=($(find ./ -mindepth 1 -type f \( -name '*.fastq.gz' -o -name '*.fq.gz' \) | xargs -n 1 basename | awk -F'_' '/r2/ {print $1}' | sort | uniq))
+    readarray -t SAMPLE_ID < <(find ./ -mindepth 1 -type f \( -name '*.fastq.gz' -o -name '*.fq.gz' \) | xargs -n 1 basename | awk -F'_' '/r2/ {print $1}' | sort | uniq)
+    # print out the sample IDs
+    echo "Sample IDs: ${SAMPLE_ID[@]}"
 
     # Check if R1_COUNT == R2_COUNT (implying paired reads data)
     if (( R1_COUNT == R2_COUNT )); then
-        echo "The input files appear to be paired. Looping through the sample ID array..."
-        for prefix in "${SAMPLE_ID[@]}"; do
-            echo "Sample ID: ${prefix}"
-            echo "Running STAR while piping to Arriba..."
-            mkdir -p "${ARR_OUTDIR}/${prefix}"
-            # Measure execution time
-            STARTTIME=$(date +%s)
-            if run_star_and_arriba "${CTAT_LIB}" "${FASTQS}" "${prefix}" "${ARRIBA_PKG}" "${ARR_OUTDIR}" "${STAR_TMPDIR}"; then
-                ENDTIME=$(date +%s)
-                ELAP=$(( ENDTIME - STARTTIME ))
-                echo "Arriba run completed successfully. Time taken: ${ELAP}. Check log file for run details."
-            else
-                echo "Something went wrong during Arriba run. Check log file."
-            fi
-        done
+        if (( R1_COUNT != 0 && R2_COUNT != 0 )); then 
+            echo "The counts are zeroes. Something is wrong. Check your input files."
+            exit 1
+        else
+            echo "The input files appear to be paired. Looping through the sample ID array..."
+            for prefix in "${SAMPLE_ID[@]}"; do
+                echo "Sample ID: ${prefix}"
+                echo "Running STAR while piping to Arriba..."
+                mkdir -p "${ARR_OUTDIR}/${prefix}"
+                # Measure execution time
+                STARTTIME=$(date +%s)
+                if run_star_and_arriba "${CTAT_LIB}" "${FASTQS}" "${prefix}" "${ARRIBA_PKG}" "${ARR_OUTDIR}" "${STAR_TMPDIR}"; then
+                    ENDTIME=$(date +%s)
+                    ELAP=$(( ENDTIME - STARTTIME ))
+                    echo "Arriba run completed successfully. Time taken: ${ELAP}. Check log file for run details."
+                else
+                    echo "Something went wrong during Arriba run. Check log file."
+                fi
+            done
+        fi
     else
         echo "The number of files is odd. Make sure the input files are paired before proceeding."
         exit 1
