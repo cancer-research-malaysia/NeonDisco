@@ -79,16 +79,16 @@ if [[ $(find "$FASTQS" \( -name '*.fastq.gz' -o -name '*.fq.gz' \) -type f) ]]; 
             for prefix in "${SAMPLE_ID[@]}"; do
                 echo "Sample ID: ${prefix}"
                 echo "Running STAR while piping to Arriba..."
-                #mkdir -p "${ARR_OUTDIR}/${prefix}"
-                # Measure execution time
-                #STARTTIME=$(date +%s)
-                # if run_star_and_arriba "${CTAT_LIB}" "${FASTQS}" "${prefix}" "${ARRIBA_PKG}" "${ARR_OUTDIR}" "${STAR_TMPDIR}"; then
-                #     ENDTIME=$(date +%s)
-                #     ELAP=$(( ENDTIME - STARTTIME ))
-                #     echo "Arriba run completed successfully. Time taken: ${ELAP}. Check log file for run details."
-                # else
-                #     echo "Something went wrong during Arriba run. Check log file."
-                # fi
+                mkdir -p "${ARR_OUTDIR}/${prefix}"
+                # measure execution time
+                STARTTIME=$(date +%s)
+                if run_star_and_arriba "${CTAT_LIB}" "${FASTQS}" "${prefix}" "${ARRIBA_PKG}" "${ARR_OUTDIR}" "${STAR_TMPDIR}"; then
+                    ENDTIME=$(date +%s)
+                    ELAP=$(( ENDTIME - STARTTIME ))
+                    echo "Arriba run completed successfully. Time taken: ${ELAP}. Check log file for run details."
+                else
+                    echo "Something went wrong during Arriba run. Check log file."
+                fi
             done
         fi
     else
