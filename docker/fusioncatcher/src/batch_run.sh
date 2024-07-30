@@ -16,7 +16,7 @@ export OUTDIR_PREFIX="/out"
 echo "Environment variables set and exported! Finding fastq files..."
 
 # Check if the subdirectory contains a .fastq.gz or fq.gz file
-FILES=$(find "$INP_DIR" \( -name '*.fastq.gz' -o -name '*.fq.gz' \) -type f > found.txt && found.txt | wc -l)
+FILES=$(find "$INP_DIR" \( -name '*.fastq.gz' -o -name '*.fq.gz' \) -type f > found.txt && cat found.txt | wc -l)
 
 # check if FILES is zero or not
 if [[ ${FILES} -eq 0 ]]; then
