@@ -5,4 +5,6 @@ channels:
 dependencies:
   - python
   - bowtie2
+  - samtools
+  - bioconda::picard
   - pip

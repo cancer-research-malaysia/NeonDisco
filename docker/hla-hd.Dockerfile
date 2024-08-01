@@ -39,3 +39,16 @@ RUN tar -zvxf /tmp/hlahd.1.7.0.tar.gz && rm /tmp/hlahd.1.7.0.tar.gz && cd /tmp/h
 
 # export to PATH
 ENV PATH="$PATH:/tmp/hlahd.1.7.0/bin"
+
+# Set user and group
+ARG user=appuser
+ARG group=appuser
+ARG uid=1000
+ARG gid=1000
+RUN groupadd -g ${gid} ${group}
+RUN useradd -u ${uid} -g ${group} -s /bin/sh -m ${user} 
+# the '-m' create a user home directory
+
+# Switch to user
+USER ${uid}
+
