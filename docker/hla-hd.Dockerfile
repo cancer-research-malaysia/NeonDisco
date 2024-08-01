@@ -30,13 +30,12 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 # add conda bins to PATH
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 
-
 USER root
 # copy the HLA-HD source code to the container image
 COPY hla-hd/src/hlahd.1.7.0.tar.gz /tmp/hlahd.1.7.0.tar.gz
 
 # unpack tar
-RUN tar -zvxf /tmp/hlahd.1.7.0.tar.gz && cd /tmp/hlahd.1.7.0 && sh install.sh
+RUN tar -zvxf /tmp/hlahd.1.7.0.tar.gz && rm /tmp/hlahd.1.7.0.tar.gz && cd /tmp/hlahd.1.7.0 && sh install.sh
 
 # export to PATH
 ENV PATH="$PATH:/tmp/hlahd.1.7.0/bin"
