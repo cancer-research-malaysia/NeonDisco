@@ -34,3 +34,14 @@ RUN pip install agfusion
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 
 USER root
+# Set user and group
+ARG user=appuser
+ARG group=appuser
+ARG uid=1000
+ARG gid=1000
+RUN groupadd -g ${gid} ${group}
+RUN useradd -u ${uid} -g ${group} -s /bin/sh -m ${user} 
+# the '-m' create a user home directory
+
+# Switch to user
+USER ${uid}
