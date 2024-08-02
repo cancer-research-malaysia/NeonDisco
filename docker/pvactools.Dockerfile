@@ -9,7 +9,7 @@ USER root
 
 # update Debian OS packages and install additional Linux system utilities, then finally remove cached package lists
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps tcsh gawk \
+tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps tcsh gawk git \
 && rm -rf /var/lib/apt/lists/*
 
 # change user
@@ -29,8 +29,7 @@ micromamba clean --all --yes
 ARG MAMBA_DOCKERFILE_ACTIVATE=1
 
 # install pip packages
-RUN pip install pvactools
-RUN pip install tensorflow==1.5.0
+RUN pip install pvactools==4.0.4
 RUN pip install git+https://github.com/griffithlab/bigmhc.git#egg=bigmhc
 RUN pip install git+https://github.com/griffithlab/deepimmuno.git#egg=deepimmuno
 
@@ -44,9 +43,8 @@ cd mhc_i && \
 ./configure
 
 RUN wget https://downloads.iedb.org/tools/mhcii/3.1.11/IEDB_MHC_II-3.1.11.tar.gz && \
-tar -zxvf IEDB_MHC_II-3.1.11.tar.gz && \
-cd mhc_ii && \
-./configure.py
+tar -zxvf IEDB_MHC_II-3.1.11.tar.gz && cd mhc_ii
+RUN ./configure.py
 
 # download mhcflurry datasets and trained models
 RUN mhcflurry-downloads fetch
