@@ -43,8 +43,7 @@ cd mhc_i && \
 ./configure
 
 RUN wget https://downloads.iedb.org/tools/mhcii/3.1.11/IEDB_MHC_II-3.1.11.tar.gz && \
-tar -zxvf IEDB_MHC_II-3.1.11.tar.gz && cd mhc_ii
-RUN ./configure.py
+tar -zxvf IEDB_MHC_II-3.1.11.tar.gz && cd mhc_ii && python configure.py
 
 # download mhcflurry datasets and trained models
 RUN mhcflurry-downloads fetch
