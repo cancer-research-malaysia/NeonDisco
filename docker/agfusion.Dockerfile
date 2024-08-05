@@ -1,4 +1,4 @@
-FROM --platform=linux/x86_64 mambaorg/micromamba
+FROM --platform=linux/x86_64 mambaorg/micromamba:git-911a014-bookworm-slim
 USER root
 LABEL maintainer="Suffian Azizan"
 LABEL version="1.0"
@@ -33,15 +33,21 @@ RUN pip install agfusion
 # add conda bins to PATH
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 
-USER nonroot
-WORKDIR /launchpad
+# Docker suffers from absolutely atrocious way of consolidating the paradigm of restricting privileges when running containers (rootless mode) with writing outputs to bound host volumes without using Docker volumes or other convoluted workarounds.
 
-# # Set user and group
-# ARG user=appuser
-# ARG group=appuser
-# ARG uid=1000
-# ARG gid=1000
-# RUN groupadd -g ${gid} ${group}
-# RUN useradd -u ${uid} -g ${group} -s /bin/sh -m ${user} 
-# # the '-m' create a user home directory
+# Fortunately there is this tool that removes this altogether and helps matches the UID and GID of whoever is running the container image on a host machine
 
+USER root
+# Install MatchHostFsOwner. Using version 1.0.1
+# See https://github.com/FooBarWidget/matchhostfsowner/releases
+ADD https://github.com/FooBarWidget/matchhostfsowner/releases/download/v1.0.1/matchhostfsowner-1.0.1-x86_64-linux.gz /sbin/matchhostfsowner.gz
+RUN gunzip /sbin/matchhostfsowner.gz && \
+  chown root: /sbin/matchhostfsowner && \
+  chmod +x /sbin/matchhostfsowner
+RUN addgroup --gid 9999 app && \
+  adduser --uid 9999 --gid 9999 --disabled-password --gecos App app
+
+# set workdir
+WORKDIR /work
+
+ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "/sbin/matchhostfsowner"]
