@@ -41,7 +41,6 @@ RUN R -e 'install.packages("circlize", repos="https://cran.csiro.au/")'
 
 # Fortunately there is this tool that removes this altogether and helps matches the UID and GID of whoever is running the container image on a host machine
 
-USER root
 # Install MatchHostFsOwner. Using version 1.0.1
 # See https://github.com/FooBarWidget/matchhostfsowner/releases
 ADD https://github.com/FooBarWidget/matchhostfsowner/releases/download/v1.0.1/matchhostfsowner-1.0.1-x86_64-linux.gz /sbin/matchhostfsowner.gz
