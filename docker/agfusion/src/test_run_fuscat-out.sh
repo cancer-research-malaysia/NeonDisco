@@ -12,4 +12,3 @@ if agfusion batch -f "${TSVINPUT}/final-list_candidate-fusion-genes.txt" -a ${TO
 else
     echo "AGFusion run failed."
 fi
-
