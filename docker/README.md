@@ -7,10 +7,10 @@ As most of the bioinformatics tools used in this neoantigen identification workf
 
 <table>
     <tr>
-        <td>Purpose </td>
-        <td>Tool </td>
-        <td>Databases  </td>
-        <td>Input Data </td>
+        <th><b>Purpose</b></th>
+        <th><b>Tool</b></th>
+        <th><b>Databases</b></th>
+        <th><b>Input Data</b></th>
     </tr>
     <tr>
         <td>Determination of HLA-alleles </td>
@@ -19,10 +19,10 @@ As most of the bioinformatics tools used in this neoantigen identification workf
         <td>.bam files of MHC region reads and unmapped reads extracted from WES or RNA-Seq data </td>
     </tr>
     <tr>
-        <td>Detection of fusion transcripts </td>
+        <td rowspan="2">Detection of fusion transcripts </td>
         <td>Arriba (v2.3.0) </td>
         <td>STAR Index Directory, CTAT Genome Library &amp; Arriba database  </td>
-        <td>.fastq file of RNA-Seq data (raw file, or converted from bam but make sure that unmapped reads are not discarded) </td>
+        <td rowspan="2">.fastq file of RNA-Seq data (raw file, or converted from bam but make sure that unmapped reads are not discarded) </td>
     </tr>
     <tr>
         <td></td>
