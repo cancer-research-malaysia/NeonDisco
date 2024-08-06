@@ -25,10 +25,8 @@ As most of the bioinformatics tools used in this neoantigen identification workf
         <td rowspan="2">.fastq file of RNA-Seq data (raw file, or converted from bam but make sure that unmapped reads are not discarded) </td>
     </tr>
     <tr>
-        <td></td>
         <td>FusionCatcher (v1.33) </td>
         <td>FusionCatcher database</td>
-        <td></td>
     </tr>
     <tr>
         <td>In silico validation of fusion calls </td>
