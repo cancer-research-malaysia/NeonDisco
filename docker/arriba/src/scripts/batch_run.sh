@@ -38,17 +38,17 @@ run_star_and_arriba() {
   -b "${ARRIBA_PKG}/blacklist_hg38_GRCh38_v2.3.0.tsv.gz" \
   -k "${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz" \
   -t "${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz" \
-  -p "${ARRIBA_PKG}/protein_domains_hg38_GRCh38_v2.3.0.gff3" 2>&1 | tee "${ARR_OUTDIR}/${SAMPLE}/arriba-test.log.txt"
+  -p "${ARRIBA_PKG}/protein_domains_hg38_GRCh38_v2.3.0.gff3" 2>&1 | tee "${ARR_OUTDIR}/${SAMPLE}/arriba-run.log-$(date +%Y%m%d_%H-%M-%S).txt"
 }
 
 # Example usage:
 # run_star_and_arriba "/path/to/CTAT_LIB" "/path/to/FASTQS" "/path/to/ARRIBA_PKG" "/path/to/ARR_OUTDIR" "/path/to/STAR_TMPDIR"
 
 # Set env variables
-CTAT_LIB="/libs"
-FASTQS="/data"
-ARR_OUTDIR="/out"
-STAR_TMPDIR="/star"
+CTAT_LIB="/work/libs"
+FASTQS="/work/data"
+ARR_OUTDIR="/work/out"
+STAR_TMPDIR="/work/star"
 ARRIBA_PKG="/opt/conda/var/lib/arriba"
 
 echo "Environment variables set! Listing fastq files..."

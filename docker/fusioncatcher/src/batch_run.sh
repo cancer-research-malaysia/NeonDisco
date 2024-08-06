@@ -6,13 +6,13 @@ run_fuscat() {
   local FASTQ_R2_FILE=$3
   local OUTDIR=$4
 
-  fusioncatcher -d ${DB} --input ${FASTQ_R1_FILE},${FASTQ_R2_FILE} --output ${OUTDIR}
+  fusioncatcher -d ${DB} --input ${FASTQ_R1_FILE},${FASTQ_R2_FILE} --output ${OUTDIR} 2>&1 | tee "${OUTDIR}/fuscat-run.log-$(date +%Y%m%d_%H-%M-%S).txt"
 }
 
 # Set env variables
-export DB="/db"
-export INP_DIR="/in"
-export OUTDIR_PREFIX="/out"
+export DB="/work/db"
+export INP_DIR="/work/in"
+export OUTDIR_PREFIX="/work/out"
 echo "Environment variables set and exported! Finding fastq files..."
 
 # Check if the subdirectory contains a .fastq.gz or fq.gz file
