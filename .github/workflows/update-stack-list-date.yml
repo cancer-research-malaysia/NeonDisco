@@ -1,0 +1,23 @@
+name: Update Stack List Date
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docker/README.md'
+
+jobs:
+  update-date:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Update Stack List Date
+        run: |
+          DATE=$(date +'%Y-%m-%d')
+          sed -i "s/DATE_PLACEHOLDER/$DATE/g" README.md
+      - name: Commit Date Update
+        uses: EndBug/add-and-commit@v9
+        with:
+          default_author: github_actions
+          message: "Update date in docker/README.md"
