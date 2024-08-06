@@ -15,7 +15,7 @@ jobs:
       - name: Update Stack List Date
         run: |
           DATE=$(date +'%Y-%m-%d')
-          sed -i "s/DATE_PLACEHOLDER/$DATE/g" README.md
+          sed -i "s/DATE_PLACEHOLDER/$DATE/g" docker/README.md
       - name: Commit Date Update
         uses: EndBug/add-and-commit@v9
         with:
