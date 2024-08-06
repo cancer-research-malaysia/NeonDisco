@@ -50,7 +50,7 @@ run_star_and_arriba() {
 CTAT_LIB="/work/libs"
 FASTQS="/work/data"
 ARR_OUTDIR="/work/out"
-STAR_TMPDIR="/work/star"
+STAR_TMPDIR="/work/out/star"
 ARRIBA_PKG="/opt/conda/var/lib/arriba"
 
 echo "Environment variables set! Listing fastq files..."
