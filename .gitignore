@@ -100,3 +100,4 @@ config.json
 # docker/*/src/*
 *.tar.gz
 
+.vscode/

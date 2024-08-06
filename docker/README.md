@@ -1,7 +1,11 @@
-# Building a Minimal Docker Container Image for the Pipeline
+# Building a Software Stack for the Pipeline
 ## Preface
 
-As most of the bioinformatics tools used in this neoantigen identification workflow are CLI programs, we would like to package them all into one container so the whole pipeline can be shipped around without much installation fuss. As AWS instances support Docker, we decided to use Docker for containerization. Singularity images would still work with the Nextflow pipelines in general, and Singularity is able to convert Docker images on the go so starting off with a Docker image is the best course of action. 
+As most of the bioinformatics tools used in this neoantigen identification workflow are CLI programs, it would be more convenient and allows a more replicable pipeline if the software components needed to run the pipeline are bundled together as a set of Docker container images. I decided to custom-build the Docker images as several software components that make up the stack described in the workflow are now a few official releases ahead from the versions that were used in the original fusion transcript detection workflow. This does not incur additional time cost at all as many of the tools used in the workflow are trivially installable via Conda. I decided to use the slim Debian Linux image that is shipped with Micromamba environment/package manager as base image for every Docker container image I built in the software stack. The ease of Docker builder also allows us to rebuild each Docker image if we decide to change or upgrade the version of the tool used as part of the software stack for the workflow. Docker is chosen as the image building platform due to its ease of use (with Dockerfiles), and the fact that Apptainer/Singularity can make use of Docker images on the fly, would also enable direct compatibility of this software stack for running on high performance computing (HPC) clusters. 
+
+### Software Stack (currently used versions as of )
+
+
 
 ## The Steps:
 
