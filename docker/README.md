@@ -5,6 +5,35 @@ As most of the bioinformatics tools used in this neoantigen identification workf
 
 ### Software Stack (currently used versions as of DATE_PLACEHOLDER)
 
+|Purpose| |
+|:----|:----|
+|Tool| |
+|Input Data| |
+|Some Dependencies(refer documentations for the full list)| |
+|Installation typeDetermination of HLA-alleles| |
+|HLA-HD (v1.7.0)| |
+|.bam files of MHC region reads and unmapped reads extracted from WES or RNA-Seq data| |
+|HLA-HD database| |
+|Downloaded pre-compiled binary; added to PATHDetection of fusion transcripts| |
+|Arriba (v2.3.0)| |
+|.fastq file of RNA-Seq data (raw file, or converted from bam but make sure that unmapped reads are not discarded)| |
+|STARCTAT_Genome_Lib & Arriba database| |
+|Downloaded pre-compiled binary; added to PATHFusionCatcher (v1.33)| |
+|Python 2.7.x (>2.6, <3.0)FusionCatcher database| |
+|Downloaded pre-compiled binary; added to PATH (Python based – executed within conda env)In silico validation of fusion calls| |
+|FusionInspector (v2.8.0)| |
+|.fastq or RNA-Seq data (raw file);list of fusions (e.g. A--B, C--D)| |
+|CTAT_Genome_Lib| |
+|Singularity imagePrediction of fusion transcript coding potential| |
+|AGFusion (v1.4.1)| |
+|Raw output file from Arriba / FusionCatcher| |
+|Python >=3.7AGFusion database| |
+|Downloaded pre-compiled binary; added to PATH (Python based – executed within conda env)Prediction of immunogenic fusion neoantigen| |
+|pVacFuse (v4.0.4)| |
+|Output folder from AGFusion| |
+|--| |
+|Docker image |
+
 
 
 ## The Steps:
