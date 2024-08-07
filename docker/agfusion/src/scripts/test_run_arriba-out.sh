@@ -18,7 +18,7 @@ OUTDIR="/work/out"
 
 # This script is used to run AGFusion on multiple samples in a loop
 # first search the data space for unique sample directories
-export SAMPLE_DIRS=($(find "${TSVINPUT}" -maxdepth 1 -type d))
+export SAMPLE_DIRS=($(find "${TSVINPUT}" -mindepth 1 -maxdepth 1 -type d))
 # this command expects all directories under ${TSVINPUT} to be sample directories
 for SAMPLE in "${SAMPLE_DIRS[@]}"; do
     SAMPLE_NAME=$(basename "${SAMPLE}")
