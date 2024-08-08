@@ -6,9 +6,9 @@ OUTDIR="/work/out"
 SAMTOUT="/work/samtools-out"
 
 #################################################
-samtools --help
-picard SamToFastq --help
-hlahd.sh --help
+# samtools --help
+# picard SamToFastq --help
+# hlahd.sh --help
 
 # This script is used to run HLA-HD for multiple samples in a loop
 # first search the data space for unique bam files
@@ -44,12 +44,13 @@ else
         #         echo "Running HLA-HD for sample ${SAMPLE_NAME}."
                 
         #         mkdir -p "${OUTDIR}/logs/"
+        #         mkdir -p "${OUTDIR}/hla-hd-out"
 
         #         # measure execution time
         #         STARTTIME=$(date +%s)
 
         #         # run HLA-HD (8 threads, discard reads <30bp)
-        #         if hlahd.sh -t 8 -m 30 -f ${HLAHD_DIR}/freq_data/ "${OUTDIR}/merged-${SAMPLE_NAME}-MHC-WES-b2f-R1.fq" "${OUTDIR}/merged-${SAMPLE_NAME}-MHC-WES-b2f-R2.fq" "${HLAHD_DIR}/HLA_gene.split.3.50.0.txt" "${HLAHD_DIR}/dictionary/" "${OUTDIR}/${SAMPLE_NAME}_WES-MHC-bam" ${OUTDIR} 2>&1 | tee "${OUTDIR}/logs/${SAMPLE_NAME}-HLAHD-run.log-$(date +%Y%m%d_%H-%M-%S).txt"; then
+        #         if hlahd.sh -t 8 -m 30 -f ${HLAHD_DIR}/freq_data/ "${OUTDIR}/merged-${SAMPLE_NAME}-MHC-WES-b2f-R1.fq" "${OUTDIR}/merged-${SAMPLE_NAME}-MHC-WES-b2f-R2.fq" "${HLAHD_DIR}/HLA_gene.split.3.50.0.txt" "${HLAHD_DIR}/dictionary/" "${SAMPLE_NAME}_WES-MHC-bam" "${OUTDIR}/hla-hd-out" 2>&1 | tee "${OUTDIR}/logs/${SAMPLE_NAME}-HLAHD-run.log-$(date +%Y%m%d_%H-%M-%S).txt"; then
         #             echo "HLA-HD run successfully for sample ${SAMPLE_NAME}."
         #             ENDTIME=$(date +%s)
         #             ELAP=$(( ENDTIME - STARTTIME ))
