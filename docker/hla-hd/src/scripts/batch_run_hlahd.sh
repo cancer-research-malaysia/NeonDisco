@@ -7,7 +7,6 @@ SAMTOUT="/work/samtools-out"
 #################################################
 # samtools --help
 # picard SamToFastq --help
-# hlahd.sh --help
 
 # This script is used to run HLA-HD for multiple samples in a loop
 # first search the data space for unique bam files
