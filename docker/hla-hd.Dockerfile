@@ -48,6 +48,9 @@ RUN rm /tmp/hlahd.1.7.0/update.dictionary.sh && mv /tmp/update.dictionary.custom
 # rename the custom script and move hla dict dat file to this directory
 RUN cd /tmp/hlahd.1.7.0/ && mv update.dictionary.custom.sh update.dictionary.sh && mv /tmp/IMGTHLA-3.50.0/hla.dat .
 
+# there is an issue with permission of the main binary hlahd.sh so lets give it +x
+RUN chmod +x /tmp/hlahd.1.7.0/bin/hlahd.sh
+
 # export to PATH
 ENV PATH="$PATH:/tmp/hlahd.1.7.0/bin"
 
