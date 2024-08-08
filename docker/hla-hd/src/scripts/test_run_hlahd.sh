@@ -27,16 +27,16 @@ else
         echo "Processing sample: ${SAMPLE_NAME}"
         # # first preprocess WES data
         # # use "chr6:28477797-33448354" for hg19
-        # samtools view -b -h "$SAMPLE" "chr6:28510120-33480577" > "${SAMT-OUT}/MHC-${SAMPLE_NAME}.bam" 
-        # samtools view -b -f 4 "$SAMPLE" > "${SAMT-OUT}/unmapped-${SAMPLE_NAME}.bam"
-        # samtools merge -o "${SAMT-OUT}/merged-${SAMPLE_NAME}.bam" "${SAMT-OUT}/MHC-${SAMPLE_NAME}.bam" "${SAMT-OUT}/unmapped-${SAMPLE_NAME}.bam"
+        # samtools view -b -h "$SAMPLE" "chr6:28510120-33480577" > "${SAMTOUT}/MHC-${SAMPLE_NAME}.bam" 
+        # samtools view -b -f 4 "$SAMPLE" > "${SAMTOUT}/unmapped-${SAMPLE_NAME}.bam"
+        # samtools merge -o "${SAMTOUT}/merged-${SAMPLE_NAME}.bam" "${SAMTOUT}/MHC-${SAMPLE_NAME}.bam" "${SAMTOUT}/unmapped-${SAMPLE_NAME}.bam"
 
         # # run Picard conversion
-        # if picard SamToFastq I="${SAMT-OUT}/merged-${SAMPLE_NAME}.bam" F="${SAMT-OUT}/merged-${SAMPLE_NAME}_R1.fq" F2="${SAMT-OUT}/merged-${SAMPLE_NAME}_R2.fq"; then
+        # if picard SamToFastq I="${SAMTOUT}/merged-${SAMPLE_NAME}.bam" F="${SAMTOUT}/merged-${SAMPLE_NAME}_R1.fq" F2="${SAMTOUT}/merged-${SAMPLE_NAME}_R2.fq"; then
         #     echo "Picard conversion successful for sample ${SAMPLE_NAME}."
         #     # relabel records with awk
-        #     awk '{if(NR%4 == 1){O=$0; gsub("/1","1",O); print O}else{print $0}}' "${SAMT-OUT}/merged-${SAMPLE_NAME}_R1.fq" > "${OUTDIR}/merged-${SAMPLE_NAME}-MHC-WES-b2f-R1.fq" && \
-        #     awk '{if(NR%4 == 1){O=$0; gsub("/2","2",O); print O}else{print $0}}' "${SAMT-OUT}/merged-${SAMPLE_NAME}_R2.fq" > "${OUTDIR}/merged-${SAMPLE_NAME}-MHC-WES-b2f-R2.fq"
+        #     awk '{if(NR%4 == 1){O=$0; gsub("/1","1",O); print O}else{print $0}}' "${SAMTOUT}/merged-${SAMPLE_NAME}_R1.fq" > "${OUTDIR}/merged-${SAMPLE_NAME}-MHC-WES-b2f-R1.fq" && \
+        #     awk '{if(NR%4 == 1){O=$0; gsub("/2","2",O); print O}else{print $0}}' "${SAMTOUT}/merged-${SAMPLE_NAME}_R2.fq" > "${OUTDIR}/merged-${SAMPLE_NAME}-MHC-WES-b2f-R2.fq"
             
         #     HLAHD_DIR="/tmp/hlahd.1.7.0"
         #     # check R1 and R2 fq file existence 
