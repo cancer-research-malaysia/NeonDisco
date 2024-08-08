@@ -3,8 +3,7 @@
 # Set env variables
 TSVINPUT="/work/data"
 OUTDIR="/work/out"
-SAMT-OUT="${OUTDIR}/samtools-out"
-mkdir ${SAMT-OUT}
+SAMT-OUT="/work/samtools-out"
 
 #################################################
 samtools --help
