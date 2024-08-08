@@ -48,15 +48,30 @@ As most of the bioinformatics tools used in this neoantigen identification workf
     </tr>
 </table>
 
+## Software Stack Building Strategy
+
+Follow the steps below to replicate the containerization processes. Note that some binaries/programs need to be downloaded first as packages locally prior to container image building. This section serves primarily to document what I have carried out to build the software stack, as ideally, an end-user of the Nextflow pipeline would only need to pull the built container images off my personal Dockerhub. 
+
+1. Write App-specific Dockerfiles under One Build Context
+
+Docker `build` allows direct reference of the Dockerfile from which a particular image is to be built with the `-f` flag so we make make use of this by writing several Dockerfiles even under the same build context (i.e. one docker directory). 
+
+All of the Docker container images has a minimal Linux image (`debian-slim`) with `micromamba` installed from [micromamba.org](https://micromamba-docker.readthedocs.io). The currently used version is `mambaorg/micromamba:git-911a014-bookworm-slim`. 
+
+Each Dockerfile follows roughly the same layering structure, with minimal Linux package updating and installation followed by micromamba installation and setup. Under each app-specific subcontext lies an app-specific `base_env.yml` that is used for the Micromamba base environment setup. Several apps require additional database downloads (*pvactools*, *HLA-HD*) so this process is run following Micromamba environment setup. 
+
+Finally, each Dockerfile's framework incorporate a tiny program called **Matchhostfsowner** to enable instant matching of user IDs on the host machine where each containerized app is run, with the internal container's file permissions. This will be expounded later. 
+
+2. Build Application Images for the Stack
+
+Using Docker's build engine, these Dockerfiles can act as the blueprint for the building of the containerized app images. Simply run:
+
+```bash
+docker build --no-cache -f APP.Dockerfile  -t DOCKERHUB-USER/APP-IMAGE .
+```
+
+> Note: The `.` implies '*current directory*' so run this command inside the `docker` directory of this repo. Additionally, the option `--no-cache` can be omitted when rebuilding images after editing Dockerfiles, which would only build changed layers and circumvent redownloading large resources again.
 
 
-## The Steps:
 
-Follow the steps below to replicate the containerization processes. Note that some binaries/programs need to be downloaded first prior to these steps.
 
-1. Write a Dockerfile
-
-### Strategy
-a) Pull a minimal Linux image with micromamba installed from [micromamba.org](https://micromamba-docker.readthedocs.io), and then set up a base environment for FusionInspector and Arriba. 
-
-b) Then switch to another environment specially made for `fusioncatcher` program and finish downloading its requisite database. 
