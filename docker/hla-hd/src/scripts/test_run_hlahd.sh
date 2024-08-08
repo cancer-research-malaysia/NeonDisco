@@ -15,17 +15,17 @@ mkdir ${SAMT-OUT}
 
 #################################################
 samtools --help
-SamToFastq --help
+picard SamToFastq --help
 
 # This script is used to run HLA-HD for multiple samples in a loop
 # first search the data space for unique bam files
-export BAMS=($(find "${TSVINPUT}" -mindepth 1 -maxdepth 1 -type f -name '*.bam'))
+export BAMS=($(find "${TSVINPUT}" -mindepth 1 -maxdepth 1 -type f -name '*.fq.gz'))
 echo "Found ${#BAMS[@]} BAM files in the input directory."
 
 # Loop through each BAM file
 for SAMPLE in "${BAMS[@]}"; do
     # Extract the sample name from the file path
-    SAMPLE_NAME=$(basename "${SAMPLE}" .bam)
+    SAMPLE_NAME=$(basename "${SAMPLE}" .fq.gz)
     echo "Processing sample: ${SAMPLE_NAME}"
     
 
