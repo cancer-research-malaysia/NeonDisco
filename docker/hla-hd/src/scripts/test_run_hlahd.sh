@@ -3,13 +3,9 @@
 # Set env variables
 TSVINPUT="/work/data"
 OUTDIR="/work/out"
+SAMT-OUT="${OUTDIR}/samtools-out"
+mkdir ${SAMT-OUT}
 
-# # first preprocess WES data
-# mkdir "${OUTDIR}/samtools-out"
-# # use "chr6:28477797-33448354" for hg19
-# samtools view -b -h in.bam "chr6:28510120-33480577" > "${OUTDIR}/samtools-out/MHC.bam" 
-# samtools view -b -f 4 in.bam > unmapped.bam
-# samtools merge -o merged.bam MHC.bam unmapped.bam
 # SamToFastq I=merged.bam F=merged_R1.fq F2=merged_R2.fq
 # awk '{if(NR%4 == 1){O=$0; gsub("/1","1",O); print O}else{print $0}}' merged_R1.fq > ${sample-id}-MHC_WES-b2f-R1.fq
 # awk '{if(NR%4 == 1){O=$0; gsub("/2","2",O); print O}else{print $0}}' merged_R2.fq > ${sample-id}-MHC_WES-b2f-R2.fq
@@ -18,18 +14,28 @@ OUTDIR="/work/out"
 # dir}/HLA_gene.split.3.50.0.txt ${hlahd-dir}/dictionary/ ${sample-id}_WES-MHC-bam ${outdir} >> log.txt 2>&1
 
 #################################################
-
+samtools --help
+SamToFastq --help
 
 # This script is used to run HLA-HD for multiple samples in a loop
 # first search the data space for unique bam files
 export BAMS=($(find "${TSVINPUT}" -mindepth 1 -maxdepth 1 -type f -name '*.bam'))
+echo "Found ${#BAMS[@]} BAM files in the input directory."
 
+# Loop through each BAM file
 for SAMPLE in "${BAMS[@]}"; do
     # Extract the sample name from the file path
     SAMPLE_NAME=$(basename "${SAMPLE}" .bam)
     echo "Processing sample: ${SAMPLE_NAME}"
-    samtools --help
-    SamToFastq --help
+    
+
+    # first preprocess WES data
+    # use "chr6:28477797-33448354" for hg19
+    # samtools view -b -h "$SAMPLE" "chr6:28510120-33480577" > "${SAMT-OUT}/MHC-${SAMPLE_NAME}.bam" 
+    # samtools view -b -f 4 "$SAMPLE" > "${SAMT-OUT}/unmapped-${SAMPLE_NAME}.bam"
+    # samtools merge -o "${SAMT-OUT}/merged-${SAMPLE_NAME}.bam" "${SAMT-OUT}/MHC-${SAMPLE_NAME}.bam" "${SAMT-OUT}/unmapped-${SAMPLE_NAME}.bam"
+
+
 #     if [ -f "${SAMPLE}/arriba-fusions.tsv" ]; then
 #         echo "Fusion file found for sample ${SAMPLE_NAME}."
 #         # Run AGFusion on the sample
