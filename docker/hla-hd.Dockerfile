@@ -35,12 +35,24 @@ ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 USER root
 # copy the HLA-HD source code to the container image
 COPY hla-hd/src/hlahd.1.7.0.tar.gz /tmp/hlahd.1.7.0.tar.gz
+# also copy the specific dat file of HLA dictionary for this version and a custom update.dict.sh
+COPY hla-hd/src/IMGTHLA-3.50.0/ /tmp/IMGTHLA-3.50.0/
+COPY hla-hd/src/scripts/update.dictionary.custom.sh /tmp/update.dictionary.custom.sh
 
 # unpack tar
 RUN tar -zvxf /tmp/hlahd.1.7.0.tar.gz && rm /tmp/hlahd.1.7.0.tar.gz && cd /tmp/hlahd.1.7.0 && sh install.sh
 
+# now remove the original update.dictionary.sh script
+RUN rm /tmp/hlahd.1.7.0/update.dictionary.sh && mv /tmp/update.dictionary.custom.sh /tmp/hlahd.1.7.0/
+
+# rename the custom script and move hla dict dat file to this directory
+RUN cd /tmp/hlahd.1.7.0/ && mv update.dictionary.custom.sh update.dictionary.sh && mv /tmp/IMGTHLA-3.50.0/hla.dat .
+
 # export to PATH
 ENV PATH="$PATH:/tmp/hlahd.1.7.0/bin"
+
+# now install HLA dictionary; use the custom update.dictionary.sh 
+RUN cd /tmp/hlahd.1.7.0/ && sh update.dictionary.sh
 
 # Docker suffers from absolutely atrocious way of consolidating the paradigm of restricting privileges when running containers (rootless mode) with writing outputs to bound host volumes without using Docker volumes or other convoluted workarounds.
 
