@@ -26,7 +26,7 @@ else
         # first preprocess WES data
         # use "chr6:28477797-33448354" for hg19
         echo $SAMPLE
-        samtools view -b -h "$SAMPLE" "chr6:28510120-33480577" > "${SAMTOUT}/MHC-${SAMPLE_NAME}.bam" 
+        samtools view -b -h "$SAMPLE" "6:28510120-33480577" > "${SAMTOUT}/MHC-${SAMPLE_NAME}.bam" 
         samtools view -b -f 4 "$SAMPLE" > "${SAMTOUT}/unmapped-${SAMPLE_NAME}.bam"
         samtools merge -o "${SAMTOUT}/merged-${SAMPLE_NAME}.bam" "${SAMTOUT}/MHC-${SAMPLE_NAME}.bam" "${SAMTOUT}/unmapped-${SAMPLE_NAME}.bam"
 
