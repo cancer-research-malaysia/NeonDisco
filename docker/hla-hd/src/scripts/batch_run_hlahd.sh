@@ -31,7 +31,7 @@ else
         samtools merge -o "${SAMTOUT}/merged-${SAMPLE_NAME}.bam" "${SAMTOUT}/MHC-${SAMPLE_NAME}.bam" "${SAMTOUT}/unmapped-${SAMPLE_NAME}.bam"
 
         # run Picard conversion
-        if picard SamToFastq I="${SAMTOUT}/merged-${SAMPLE_NAME}.bam" F="${SAMTOUT}/merged-${SAMPLE_NAME}_R1.fq" F2="${SAMTOUT}/merged-${SAMPLE_NAME}_R2.fq"; then
+        if picard SamToFastq I="${SAMTOUT}/merged-${SAMPLE_NAME}.bam" F="${SAMTOUT}/merged-${SAMPLE_NAME}_R1.fq" F2="${SAMTOUT}/merged-${SAMPLE_NAME}_R2.fq" VALIDATION_STRINGENCY=SILENT; then
             echo "Picard conversion successful for sample ${SAMPLE_NAME}."
             # relabel records with awk
             awk '{if(NR%4 == 1){O=$0; gsub("/1","1",O); print O}else{print $0}}' "${SAMTOUT}/merged-${SAMPLE_NAME}_R1.fq" > "${OUTDIR}/merged-${SAMPLE_NAME}-MHC-WES-b2f-R1.fq" && \
