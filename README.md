@@ -17,4 +17,24 @@ patients. Another main challenge is that acquired resistance to individual targe
 quickly due to tumour evolution. Thus, a multi-target, highly combinatorial
 approach is likely to work best towards finding a generalized set of neoantigens for cancer vaccine development. 
 
-## Overall Neoantigen Identification Workflowls
+## Overall Neoantigen Identification Workflow
+
+```mermaid
+flowchart TD
+    subgraph "`*Fusion transcript calling*`"
+    A[RNA-seq raw reads] -->|Arriba| B(Fusion transcripts)
+    A[RNA-seq raw reads] -->|FusionCatcher| B(Candidate fusion transcripts)
+    end
+    subgraph "`*HLA genotyping*`"
+    A2[WES aligned reads] --> |HLA-HD| B2(HLA allele haplotypes)
+    end
+    B2 --> |shared allele filtering| C(Top 5% HLA alleles in MyBRCA)
+    B --> |AGFusion| C2(Annotated fusion transcripts)
+
+    subgraph "neoantigen binding prediction"
+    C ---> D(Common HLA alleles in MyBRCA + cancer-specific coding fusion transcripts)
+    C2 ---> D
+    D ---> |pVacFuse| E(Predicted immunogenic fusion neoantigens)
+    end
+
+```
