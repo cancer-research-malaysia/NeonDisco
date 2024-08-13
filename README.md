@@ -31,7 +31,7 @@ flowchart TD
     B2 --> |shared allele filtering| C(Top 5% HLA alleles in MyBRCA)
     B --> |AGFusion| C2(Annotated fusion transcripts)
 
-    subgraph "neoantigen binding prediction"
+    subgraph "`*neoantigen prediction*`"
     C ---> D(Common HLA alleles in MyBRCA + cancer-specific coding fusion transcripts)
     C2 ---> D
     D ---> |pVacFuse| E(Predicted immunogenic fusion neoantigens)
