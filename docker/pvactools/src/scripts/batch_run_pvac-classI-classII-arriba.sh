@@ -17,20 +17,20 @@ for DIR in "${AGF_DIRS[@]}"; do
     SAMPLE_NAME="${SAMPLE_DIRNAME##agf_output_}"
     SAMPLE_NAME="${SAMPLE_NAME%%_arriba}"
     echo "Processing sample: ${SAMPLE_NAME}"
-    # mkdir -p ${OUTDIR}/${SAMPLE_NAME}
+    mkdir -p ${OUTDIR}/${SAMPLE_NAME}
     
     # measure execution time
     STARTTIME=$(date +%s)
 
     # run pvacfuse
-    # if pvacfuse run -e1 8,9,10,11,12,13,14 -e2 11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30 --iedb-install-directory /tmp/ -k -t 8 ${INDIR} pvf_${SAMPLE_NAME}_${TOOL} ${ALLELES} NetMHCpan NetMHCIIpan ${OUTDIR}/${SAMPLE_NAME} 2>&1 | tee "${OUTDIR}/${SAMPLE_NAME}/pvf-${SAMPLE_NAME}-arriba-run-$(date +%Y%m%d_%H-%M-%S).txt"; then
-    #     echo "pVacFuse finished successfully for sample ${SAMPLE_NAME}."
-    #     ENDTIME=$(date +%s)
-    #     ELAP=$(( ENDTIME - STARTTIME ))
-    #     echo "Time taken: ${ELAP}. Check log file for run details."
-    # else
-    #     echo "pVacFuse run failed for sample ${SAMPLE_NAME}."
-    #     exit 1
-    # fi
+    if pvacfuse run -e1 8,9,10,11,12,13,14 -e2 11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30 --iedb-install-directory /tmp/ -k -t 8 ${INDIR} pvf_${SAMPLE_NAME}_${TOOL} ${ALLELES} NetMHCpan NetMHCIIpan ${OUTDIR}/${SAMPLE_NAME} 2>&1 | tee "${OUTDIR}/${SAMPLE_NAME}/pvf-${SAMPLE_NAME}-arriba-run-$(date +%Y%m%d_%H-%M-%S).txt"; then
+        echo "pVacFuse finished successfully for sample ${SAMPLE_NAME}."
+        ENDTIME=$(date +%s)
+        ELAP=$(( ENDTIME - STARTTIME ))
+        echo "Time taken: ${ELAP}. Check log file for run details."
+    else
+        echo "pVacFuse run failed for sample ${SAMPLE_NAME}."
+        exit 1
+    fi
 done
 
