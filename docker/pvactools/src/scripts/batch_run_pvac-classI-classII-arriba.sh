@@ -17,7 +17,7 @@ for DIR in "${AGF_DIRS[@]}"; do
     SAMPLE_NAME="${SAMPLE_DIRNAME##agf_output_}"
     SAMPLE_NAME="${SAMPLE_NAME%%_arriba}"
     echo "Processing sample: ${SAMPLE_NAME}"
-    mkdir -p ${OUTDIR}/${SAMPLE_NAME}
+    # mkdir -p ${OUTDIR}/${SAMPLE_NAME}
     
     # measure execution time
     STARTTIME=$(date +%s)
