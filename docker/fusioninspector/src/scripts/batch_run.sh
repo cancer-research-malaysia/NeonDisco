@@ -2,56 +2,26 @@
 
 echo $(id)
 
-run_star_and_arriba() {
+run_fusionInspector() {
   local CTAT_LIB=$1
   local FASTQS=$2
   local SAMPLE=$3
-  local ARRIBA_PKG=$4
+  local THREADS=$4
   local ARR_OUTDIR=$5
-  local STAR_TMPDIR=$6
 
-  STAR --runThreadN 8 \
-  --genomeDir "${CTAT_LIB}/ref_genome.fa.star.idx" \
-  --genomeLoad NoSharedMemory \
-  --readFilesIn "${FASTQS}/${SAMPLE}_r1.fq.gz" "${FASTQS}/${SAMPLE}_r2.fq.gz" \
-  --readFilesCommand zcat \
-  --outStd BAM_Unsorted \
-  --outSAMtype BAM Unsorted \
-  --outSAMunmapped Within \
-  --outBAMcompression 0 \
-  --outFilterMultimapNmax 50 \
-  --peOverlapNbasesMin 10 \
-  --alignSplicedMateMapLminOverLmate 0.5 \
-  --alignSJstitchMismatchNmax 5 -1 5 5 \
-  --chimSegmentMin 10 \
-  --chimOutType WithinBAM HardClip \
-  --chimJunctionOverhangMin 10 \
-  --chimScoreDropMax 30 \
-  --chimScoreJunctionNonGTAG 0 \
-  --chimScoreSeparation 1 \
-  --chimSegmentReadGapMax 3 \
-  --chimMultimapNmax 50 \
-  --outTmpDir "${STAR_TMPDIR}" | tee "${ARR_OUTDIR}/${SAMPLE}-Aligned.out.bam" | arriba \
-  -x /dev/stdin \
-  -o "${ARR_OUTDIR}/${SAMPLE}/arriba-fusions.tsv" \
-  -O "${ARR_OUTDIR}/${SAMPLE}/fusions.discarded.tsv" \
-  -a "${CTAT_LIB}/ref_genome.fa" \
-  -g "${CTAT_LIB}/ref_annot.gtf" \
-  -b "${ARRIBA_PKG}/blacklist_hg38_GRCh38_v2.3.0.tsv.gz" \
-  -k "${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz" \
-  -t "${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz" \
-  -p "${ARRIBA_PKG}/protein_domains_hg38_GRCh38_v2.3.0.gff3" 2>&1 | tee "${ARR_OUTDIR}/${SAMPLE}/arriba-run.log-$(date +%Y%m%d_%H-%M-%S).txt"
+  FusionInspector --annotate --examine_coding_effect --predict_cosmic_like --include_Trinity --vis \
+  --CPU ${THREADS} --cleanup --only_fusion_reads --extract_fusion_reads_file sample_${ID} \
+  --fusions /home/coding_transcripts.txt \
+  --genome_lib_dir "${CTAT_LIB}" \
+  --left_fq "${FASTQS}/${SAMPLE}_r1.fq.gz" --right_fq "${FASTQS}/${SAMPLE}_r2.fq.gz" \
+  --out_prefix sample_${ID} -O /home/sample_${ID}/ >> ${fc-outdir}/sample_${ID}/sample_${ID}.log.txt 2>&1 
 }
-
-# Example usage:
-# run_star_and_arriba "/path/to/CTAT_LIB" "/path/to/FASTQS" "/path/to/ARRIBA_PKG" "/path/to/ARR_OUTDIR" "/path/to/STAR_TMPDIR"
 
 # Set env variables
 CTAT_LIB="/work/libs"
 FASTQS="/work/data"
+THREADS="8"
 ARR_OUTDIR="/work/out"
-STAR_TMPDIR="/work/out/star"
-ARRIBA_PKG="/opt/conda/var/lib/arriba"
 
 echo "Environment variables set! Listing fastq files..."
 
