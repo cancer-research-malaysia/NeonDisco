@@ -11,7 +11,7 @@ run_fusionInspector() {
 
   FusionInspector --annotate --examine_coding_effect --predict_cosmic_like --include_Trinity --vis \
   --CPU ${THREADS} --cleanup --only_fusion_reads --extract_fusion_reads_file sample_${ID} \
-  --fusions "${FUSIONLIST_DIR}" \
+  --fusions "${FUSIONLIST_DIR}/fusionlist_${ID}.txt" \
   --genome_lib_dir "${CTAT_LIB}" \
   --left_fq "${FASTQS}/${ID}_r1.fq.gz" --right_fq "${FASTQS}/${ID}_r2.fq.gz" \
   --out_prefix sample_${ID} -O "${OUTDIR}/" >> ${OUTDIR}/sample_${ID}/sample_${ID}.arriba.log.txt 2>&1 
