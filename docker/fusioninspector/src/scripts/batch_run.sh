@@ -14,7 +14,7 @@ run_fusionInspector() {
   --fusions "${FUSIONLIST_DIR}/fusionlist_${ID}.txt" \
   --genome_lib_dir "${CTAT_LIB}" \
   --left_fq "${FASTQS}/${ID}_r1.fq.gz" --right_fq "${FASTQS}/${ID}_r2.fq.gz" \
-  --out_prefix sample_${ID} -O "${OUTDIR}/" >> ${OUTDIR}/sample_${ID}/sample_${ID}.arriba.log.txt 2>&1 
+  --out_prefix sample_${ID} -O "${OUTDIR}/" > ${OUTDIR}/sample_${ID}/sample_${ID}.arriba.log.txt 2>&1 
 }
 
 # Set env variables
