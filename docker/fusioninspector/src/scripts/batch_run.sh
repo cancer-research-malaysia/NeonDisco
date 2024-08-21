@@ -5,23 +5,25 @@ echo $(id)
 run_fusionInspector() {
   local CTAT_LIB=$1
   local FASTQS=$2
-  local SAMPLE=$3
+  local ID=$3
   local THREADS=$4
-  local ARR_OUTDIR=$5
+  local OUTDIR=$5
 
   FusionInspector --annotate --examine_coding_effect --predict_cosmic_like --include_Trinity --vis \
   --CPU ${THREADS} --cleanup --only_fusion_reads --extract_fusion_reads_file sample_${ID} \
-  --fusions /home/coding_transcripts.txt \
+  --fusions "${FUSIONLIST_DIR}" \
   --genome_lib_dir "${CTAT_LIB}" \
-  --left_fq "${FASTQS}/${SAMPLE}_r1.fq.gz" --right_fq "${FASTQS}/${SAMPLE}_r2.fq.gz" \
-  --out_prefix sample_${ID} -O /home/sample_${ID}/ >> ${fc-outdir}/sample_${ID}/sample_${ID}.log.txt 2>&1 
+  --left_fq "${FASTQS}/${ID}_r1.fq.gz" --right_fq "${FASTQS}/${ID}_r2.fq.gz" \
+  --out_prefix sample_${ID} -O "${OUTDIR}/" >> ${OUTDIR}/sample_${ID}/sample_${ID}.arriba.log.txt 2>&1 
 }
 
 # Set env variables
+TOOL="arriba"
 CTAT_LIB="/work/libs"
 FASTQS="/work/data"
+FUSIONLIST_DIR="/work/fusionlist"
 THREADS="8"
-ARR_OUTDIR="/work/out"
+OUTDIR="/work/out"
 
 echo "Environment variables set! Listing fastq files..."
 
@@ -50,17 +52,17 @@ if [[ $(find "$FASTQS" \( -name '*.fastq.gz' -o -name '*.fq.gz' \) -type f) ]]; 
             echo "The input files appear to be paired. Looping through the sample ID array..."
             for prefix in "${SAMPLE_ID[@]}"; do
                 echo "Sample ID: ${prefix}"
-                echo "Running STAR while piping to Arriba..."
-                mkdir -p "${ARR_OUTDIR}/${prefix}"
+                echo "Running FusionInspector..."
+                mkdir -p "${OUTDIR}/from-${TOOL}/${prefix}"
                 # measure execution time
                 STARTTIME=$(date +%s)
-                if run_star_and_arriba "${CTAT_LIB}" "${FASTQS}" "${prefix}" "${ARRIBA_PKG}" "${ARR_OUTDIR}" "${STAR_TMPDIR}"; then
-                    ENDTIME=$(date +%s)
-                    ELAP=$(( ENDTIME - STARTTIME ))
-                    echo "Arriba run completed successfully. Time taken: ${ELAP}. Check log file for run details."
-                else
-                    echo "Something went wrong during Arriba run. Check log file."
-                fi
+                # if run_fusionInspector "${CTAT_LIB}" "${FASTQS}" "${prefix}" "${THREADS}" "${OUTDIR}/from-${TOOL}/${prefix}"; then
+                #     ENDTIME=$(date +%s)
+                #     ELAP=$(( ENDTIME - STARTTIME ))
+                #     echo "FusionInspector run on ${TOOL} outputs completed successfully. Time taken: ${ELAP}. Check log file for run details."
+                # else
+                #     echo "Something went wrong. Check log file."
+                # fi
             done
         fi
     else
