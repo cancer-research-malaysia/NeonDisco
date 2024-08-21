@@ -56,13 +56,13 @@ if [[ $(find "$FASTQS" \( -name '*.fastq.gz' -o -name '*.fq.gz' \) -type f) ]]; 
                 mkdir -p "${OUTDIR}/from-${TOOL}/${prefix}"
                 # measure execution time
                 STARTTIME=$(date +%s)
-                # if run_fusionInspector "${CTAT_LIB}" "${FASTQS}" "${prefix}" "${THREADS}" "${OUTDIR}/from-${TOOL}/${prefix}"; then
-                #     ENDTIME=$(date +%s)
-                #     ELAP=$(( ENDTIME - STARTTIME ))
-                #     echo "FusionInspector run on ${TOOL} outputs completed successfully. Time taken: ${ELAP}. Check log file for run details."
-                # else
-                #     echo "Something went wrong. Check log file."
-                # fi
+                if run_fusionInspector "${CTAT_LIB}" "${FASTQS}" "${prefix}" "${THREADS}" "${OUTDIR}/from-${TOOL}/${prefix}"; then
+                    ENDTIME=$(date +%s)
+                    ELAP=$(( ENDTIME - STARTTIME ))
+                    echo "FusionInspector run on ${TOOL} outputs completed successfully. Time taken: ${ELAP}. Check log file for run details."
+                else
+                    echo "Something went wrong. Check log file."
+                fi
             done
         fi
     else
