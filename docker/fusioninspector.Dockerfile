@@ -5,7 +5,7 @@ LABEL version="1.0"
 LABEL description="container image of FusionInspector program v2.8.0"
 
 # update Linux OS packages and install additional Linux system utilities with procps and also add parallel and finally remove cached package lists
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y sudo && apt-get install -y gcc g++ perl automake make parallel procps wget curl libdb-dev bzip2 zlib1g zlib1g-dev unzip libbz2-dev liblzma-dev gfortran libreadline-dev libcurl4-openssl-dev libx11-dev \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y sudo && apt-get install -y gcc g++ perl automake make cmake parallel procps wget curl libdb-dev bzip2 zlib1g zlib1g-dev unzip libbz2-dev liblzma-dev gfortran libreadline-dev libcurl4-openssl-dev libx11-dev \
 libxt-dev x11-common libcairo2-dev libpng-dev libjpeg-dev pkg-config \
 libxml2-dev libssl-dev libcurl4-openssl-dev pbzip2 git \
 libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev \
@@ -69,6 +69,38 @@ RUN R --error -e 'BiocManager::install("ranger")'
 ## Tool installations: #Only uncomment if they need to be custom installed and are not installed via micromamba
 ######################
 
+#### INSTALL TRINITY
+WORKDIR $SRC
+ENV TRINITY_VERSION="2.15.2"
+ENV TRINITY_CO=4be803497fd22ce8461a9637eff46bc3b75a594a
+
+WORKDIR $SRC
+
+RUN git clone --recursive https://github.com/trinityrnaseq/trinityrnaseq.git && \
+    cd trinityrnaseq && \
+    git checkout ${TRINITY_CO} && \
+    git submodule init && git submodule update && \
+    git submodule foreach --recursive git submodule init && \
+    git submodule foreach --recursive git submodule update && \
+    rm -rf ./trinity_ext_sample_data && \
+    make && make plugins && \
+    make install && \
+    cd ../ && rm -r trinityrnaseq
+
+ENV TRINITY_HOME /usr/local/bin
+
+ENV PATH=${TRINITY_HOME}:${PATH}
+
+## GMAP
+ENV GSNAP_VER 2021-07-23
+WORKDIR $SRC
+RUN GMAP_URL="http://research-pub.gene.com/gmap/src/gmap-gsnap-$GSNAP_VER.tar.gz" && \
+wget $GMAP_URL && \
+tar xvf gmap-gsnap-$GSNAP_VER.tar.gz && \
+cd gmap-$GSNAP_VER && ./configure --prefix=`pwd` && make && make install && \
+cp bin/* $BIN/
+
+
 ## Bowtie2
 # WORKDIR $SRC
 # RUN wget https://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.3.3.1/bowtie2-2.3.3.1-linux-x86_64.zip/download -O bowtie2-2.3.3.1-linux-x86_64.zip && \
@@ -77,28 +109,10 @@ RUN R --error -e 'BiocManager::install("ranger")'
 # rm *.zip && \
 # rm -r bowtie2-2.3.3.1-linux-x86_64
 
-## Jellyfish
-WORKDIR $SRC
-RUN wget https://github.com/gmarcais/Jellyfish/releases/download/v2.2.7/jellyfish-2.2.7.tar.gz && \
-tar xvf jellyfish-2.2.7.tar.gz && \
-cd jellyfish-2.2.7/ && \
-./configure && make && make install
-
 ## Picard tools
 # WORKDIR $SRC
 # RUN wget https://github.com/broadinstitute/picard/releases/download/2.20.3/picard.jar
 # ENV PICARD_HOME $SRC
-
-########
-## Minimap2 (original author used v2.26)
-
-WORKDIR $SRC
-RUN curl -L https://github.com/lh3/minimap2/releases/download/v2.28/minimap2-2.28_x64-linux.tar.bz2 | tar -jxvf - && \
-mv ./minimap2-2.28_x64-linux/minimap2 $BIN/
-
-# K8 (original author used 0.2.4)
-RUN curl -L https://github.com/attractivechaos/k8/releases/download/v1.2/k8-1.2.tar.bz2 | tar -jxf - && \
-cp k8-1.2/k8-x86_64-`uname -s` $BIN/k8
 
 # ## Salmon
 # WORKDIR $SRC
@@ -108,13 +122,31 @@ cp k8-1.2/k8-x86_64-`uname -s` $BIN/k8
 # tar xvf Salmon-${SALMON_VERSION}_linux_x86_64.tar.gz && \
 # ln -sf $SRC/salmon-${SALMON_VERSION}_linux_x86_64/bin/salmon $BIN/.
 
-# finally, copy a custom script made by FusionInspector authors to the image bin
-COPY fusioninspector/src/sam_readname_cleaner.py $BIN/
+## Jellyfish
+WORKDIR $SRC
+RUN wget https://github.com/gmarcais/Jellyfish/releases/download/v2.2.7/jellyfish-2.2.7.tar.gz && \
+tar xvf jellyfish-2.2.7.tar.gz && \
+cd jellyfish-2.2.7/ && \
+./configure && make && make install
 
+########
+## Minimap2 (original author used v2.26)
+WORKDIR $SRC
+RUN curl -L https://github.com/lh3/minimap2/releases/download/v2.28/minimap2-2.28_x64-linux.tar.bz2 | tar -jxvf - && \
+mv ./minimap2-2.28_x64-linux/minimap2 $BIN/
+
+# K8 (original author used 0.2.4)
+RUN curl -L https://github.com/attractivechaos/k8/releases/download/v1.2/k8-1.2.tar.bz2 | tar -jxf - && \
+cp k8-1.2/k8-x86_64-`uname -s` $BIN/k8
+
+
+# copy a custom script made by FusionInspector authors to the image bin
+COPY fusioninspector/src/scripts/sam_readname_cleaner.py $BIN/
+
+####### NOW INSTALL FUSIONINSPECTOR
 # FusionInspector
 # ENV FI_VERSION=2.9.0
 # ENV FI_HASH=a43480df8dac6cfae0c01c2b636fd11de0d7bb98
-
 ENV FI_VERSION=2.8.0
 ENV FI_HASH=f798c9d9b51ddfdbe44e24094ad7dfb7f42b598c
 
