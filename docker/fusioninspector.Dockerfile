@@ -182,6 +182,10 @@ make && \
 mkdir ${BIN}/FusionInspector_${FI_VERSION}-pkg && \
 mv * ${BIN}/FusionInspector_${FI_VERSION}-pkg/
 
+# set Fusion Inspector executable in PATH
+ENV FINSPEC ${BIN}/FusionInspector_${FI_VERSION}-pkg/
+ENV PATH=${FINSPEC}:${PATH}
+
 # copy a custom script made by FusionInspector authors to the image bin
 COPY fusioninspector/src/scripts/sam_readname_cleaner.py ${BIN}/FusionInspector_${FI_VERSION}-pkg/
 
