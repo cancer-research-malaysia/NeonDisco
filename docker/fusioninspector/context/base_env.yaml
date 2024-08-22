@@ -10,6 +10,8 @@ dependencies:
   - bowtie2
   - bioconda::salmon==0.9.1
   - bioconda::picard
+  - bioconda::htseq
+  - bioconda::multiqc
   - numpy
   - star
   - pip
