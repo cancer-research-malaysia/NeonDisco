@@ -2,12 +2,12 @@
 
 ## Background
 
-Cancer vaccines are an emerging therapeutic option for cancer with clear potential for converting
-immune “cold” tumours to “hot” tumours in combination with immune checkpoint inhibitor immunotherapy. They are also
-of particular interest for the potential for the discovery and deployment of
+Cancer vaccines are an emerging therapeutic option for tumor diseases with a potential to convert
+immune-“cold” tumours to immune-“hot” tumours in combination with immune checkpoint inhibitor immunotherapy. They are also
+of particular interest in the quest for the generation of
 universal cancer vaccines that can be used “off-the-shelf", in contrast to other highly
 personalized approaches such as adoptive cell therapies that are likely to be too resource-
-intensive and expensive to be scaled up for general use outside first world countries.
+intensive and expensive to be scaled up for general use outside first-world countries.
 
 The hunt for a universal cancer vaccine continues to be a major focus area for cancer
 immunotherapy. Various biotarget candidates have been proposed, including cancer neoantigens, tumour-associated antigens, tumour-associated viral
