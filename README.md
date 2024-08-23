@@ -10,7 +10,7 @@ personalized approaches such as adoptive cell therapies that are likely to be to
 intensive and expensive to be scaled up for general use outside first world countries.
 
 The hunt for a universal cancer vaccine continues to be a major focus area for cancer
-immunotherapy, and various biotarget candidates have been proposed, including cancer neoantigens, tumour-associated antigens, tumour-associated viral
+immunotherapy. Various biotarget candidates have been proposed, including cancer neoantigens, tumour-associated antigens, tumour-associated viral
 antigens, and more recently, “dark” transient epigenetically driven antigens. One of the main challenges towards developing universal cancer vaccines is that most
 neoantigen targets appear to be highly individualized, with little overlap between different
 patients. Another main challenge is that acquired resistance to individual targets develops
