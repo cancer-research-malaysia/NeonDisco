@@ -61,15 +61,16 @@ zlib1g-dev \
 && \
 rm -rf /var/lib/apt/lists/* /var/log/dpkg.log
 
-## perl lib installations
-RUN curl -L https://cpanmin.us | perl - App::cpanminus
+# ## perl lib installations
+##### install via conda instead due to conflicts
+# RUN curl -L https://cpanmin.us | perl - App::cpanminus
 
-RUN cpanm install PerlIO::gzip
-RUN cpanm install Set::IntervalTree
-RUN cpanm install DB_File
-RUN cpanm install URI::Escape
-RUN cpanm install Carp::Assert
-RUN cpanm install JSON::XS.pm
+# RUN cpanm install PerlIO::gzip
+# RUN cpanm install Set::IntervalTree
+# RUN cpanm install DB_File
+# RUN cpanm install URI::Escape
+# RUN cpanm install Carp::Assert
+# RUN cpanm install JSON::XS.pm
 
 # change user
 USER $MAMBA_USER
@@ -178,7 +179,8 @@ RUN git clone --recursive https://github.com/FusionInspector/FusionInspector.git
 cd FusionInspector/ && \
 git checkout ${FI_HASH} && \
 git submodule init && git submodule update && \
-make && \
+make && \ 
+#mv * ${BIN}
 mkdir ${BIN}/FusionInspector_${FI_VERSION}-pkg && \
 mv * ${BIN}/FusionInspector_${FI_VERSION}-pkg/
 

@@ -12,6 +12,12 @@ dependencies:
   - bioconda::picard
   - bioconda::htseq
   - bioconda::multiqc
+  - bioconda::perl-io-gzip
+  - bioconda::perl-set-intervaltree
+  - bioconda::perl-db-file
+  - bioconda::perl-uri
+  - bioconda::perl-carp
+  - bioconda::perl-json
   - numpy
   - star
   - pip
