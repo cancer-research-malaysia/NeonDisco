@@ -154,10 +154,15 @@ cp bin/* $BIN/
 
 ## Jellyfish
 WORKDIR $SRC
-RUN wget https://github.com/gmarcais/Jellyfish/releases/download/v2.2.7/jellyfish-2.2.7.tar.gz && \
-tar xvf jellyfish-2.2.7.tar.gz && \
-cd jellyfish-2.2.7/ && \
+# note that the original FusInspec Dockerfile uses 2.2.7
+ENV JELLY_VERSION=2.3.1
+RUN wget https://github.com/gmarcais/Jellyfish/releases/download/v${JELLY_VERSION}/jellyfish-${JELLY_VERSION}.tar.gz && \
+tar xvf jellyfish-${JELLY_VERSION}.tar.gz && \
+cd jellyfish-${JELLY_VERSION}/ && \
 ./configure && make && make install
+
+# need to update shared library cache for some reason
+RUN sudo ldconfig
 
 ###############################################
 ## Minimap2 (original author used v2.26)
