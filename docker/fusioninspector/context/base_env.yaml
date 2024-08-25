@@ -17,6 +17,7 @@ dependencies:
   - bioconda::perl-db-file
   - bioconda::perl-uri
   - bioconda::perl-carp
+  - conda-forge::perl-carp-assert
   - bioconda::perl-json
   - numpy
   - star
