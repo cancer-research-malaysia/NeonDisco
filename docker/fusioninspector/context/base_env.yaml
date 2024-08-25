@@ -8,7 +8,7 @@ dependencies:
   - igv-reports==1.8.0
   - samtools==1.9
   - bowtie2
-  - bioconda::salmon==0.9.1
+  - bioconda::salmon==1.10.0
   - bioconda::picard
   - bioconda::htseq
   - bioconda::multiqc
