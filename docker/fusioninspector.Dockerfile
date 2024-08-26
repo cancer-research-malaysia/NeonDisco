@@ -175,8 +175,9 @@ RUN curl -L https://github.com/attractivechaos/k8/releases/download/v1.2/k8-1.2.
 cp k8-1.2/k8-x86_64-`uname -s` $BIN/k8
 
 ####### NOW INSTALL FUSIONINSPECTOR ################
-ENV FI_VERSION=2.9.0
-ENV FI_HASH=a43480df8dac6cfae0c01c2b636fd11de0d7bb98
+ENV FI_VERSION=2.8.0-latest
+# this is a specific commit that fixes a naming error when running igv-reports, this commit is not released yet
+ENV FI_HASH=245d5c278a56bf7464296b28ad0c60255a1ec6cc
 # ENV FI_VERSION=2.8.0
 # ENV FI_HASH=f798c9d9b51ddfdbe44e24094ad7dfb7f42b598c
 
