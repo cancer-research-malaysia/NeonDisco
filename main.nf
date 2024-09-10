@@ -32,7 +32,6 @@ Required Arguments:
     """.stripIndent()
 }
 
-
 // Main workflow
 workflow {
     // Show help message if the user specifies the --help flag at runtime
@@ -63,7 +62,7 @@ workflow {
                                                                         }
             log.info "Total number of input files found: ${inputFiles.size}"
             if (inputFiles.size() == 0){
-                log.error "No input files (fastqs) were found in the provided directory. Please provide a valid directory path containing raw input files with the .fastq extension."
+                log.error "No input files (fastqs) were found in the provided directory. Please provide a valid directory path containing raw input files with the .fastq extension." threonine
                 exit 1
             } else {
                 log.info "Execution of workflow will proceed..."
