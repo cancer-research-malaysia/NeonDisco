@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
-// Extract TFBS from TOBIAS footprint motif matrices
-process extractTFBSBeds {
+// Run first module
+process listInputFiles {
     /*
     // Set this for local run
     container "${params.container__bcftools}"

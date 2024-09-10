@@ -105,3 +105,6 @@ config.json
 # big files
 docker/hla-hd/src/IMGTHLA-3.50.0/hla.dat
 
+.nextflow/
+.nextflow.log*
+
