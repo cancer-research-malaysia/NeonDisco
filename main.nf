@@ -2,7 +2,7 @@
 
 // All of the default parameters are being set in `nextflow.config`
 // Import sub-workflows
-include { listInputFiles } from './modules/listInputFiles'
+include { callFusionTranscripts } from './modules/callFusionTranscripts'
 //include { generateBAMPaths } from './modules/generateBAMPaths'
 //include { callVariants } from './modules/callVariants'
 
@@ -69,6 +69,24 @@ workflow {
             read_pairs_ch.view { sample_id, files -> 
                 "Sample: $sample_id, READ 1: ${files[0].name}, READ 2: ${files[1].name}"
                 }
+
+            /////////// BEGIN WORKFLOW ////////////////
+
+            // call fusion transcripts
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
         else {
             log.error "The input file directory does not exist. Please provide a valid directory path."
@@ -76,8 +94,6 @@ workflow {
         }
     }
 }
-
-
 
 workflow.onComplete {
     println "Pipeline completed at: $workflow.complete"
