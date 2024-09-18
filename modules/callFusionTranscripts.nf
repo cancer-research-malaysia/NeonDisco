@@ -22,6 +22,6 @@ process callFusionTranscripts {
     echo "Path to input read file 1: ${readFiles[0]}"
     echo "Path to input read file 2: ${readFiles[1]}"
     docker --version
-    docker images
+    docker run 
     """
 }

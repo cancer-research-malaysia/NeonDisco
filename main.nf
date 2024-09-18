@@ -79,17 +79,6 @@ workflow {
 
             callFusionTranscripts(read_pairs_ch)
 
-
-
-
-
-
-
-
-
-
-
-
         }
         else {
             log.error "The input file directory does not exist. Please provide a valid directory path."
