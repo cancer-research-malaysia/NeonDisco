@@ -20,6 +20,7 @@ process callFusionTranscripts {
     script:
     """
     echo "Path to input file: $readFile"
-    
+    docker --version
+    docker images
     """
 }
