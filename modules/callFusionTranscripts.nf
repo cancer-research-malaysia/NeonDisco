@@ -15,13 +15,11 @@ process callFusionTranscripts {
     // publishDir "${params.output_dir}/sorted_beds/", mode: 'copy'
     
     input:
-        tuple val(motifid), path(matrix)
-
-    output:
-        path("${motifid}_TOBIAS_TF_binding_sites-sorted.bed")
+        path readFile
 
     script:
     """
-    extractTFBSRegions.py $matrix $motifid && sortBeds.sh "${motifid}_TOBIAS_TF_binding_sites-unsorted.bed"
+    echo "Path to input file: $readFile"
+    
     """
 }

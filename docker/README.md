@@ -72,6 +72,17 @@ docker build --no-cache -f APP.Dockerfile  -t DOCKERHUB-USER/APP-IMAGE .
 
 > Note: The `.` implies '*current directory*' so run this command inside the `docker` directory of this repo. Additionally, the option `--no-cache` can be omitted when rebuilding images after editing Dockerfiles, which would only build changed layers and circumvent redownloading large resources again.
 
+3. Check Application Images and Push to Dockerhub
+
+With `docker run --rm -it sufyazi/fusioninspector-crm` for example, we can check the built image locally and see if all the required tools have been installed within the image. If all is fine then the image can then be pushed to Dockerhub by just doing `docker push sufyazi/fusioninspector-crm` for instance. Make sure that you have previously logged onto Dockerhub with your credentials and you are pushing to your own hub.
+
+
+### Bonus Guide: How to run a command in a containerized instance
+
+These dockerized images will be used to run commands in a containerized environment. This means we need to first spin up a container instance using `docker run`, and then running `docker exec` to send commands you want to run into the container. 
+
+As we need to run as our own UID (Docker runs as root by default) we need to instantiate a restricted container to make use of the *Matchhostofowner* application we installed into each app image. To do so we need to run `docker run` with a modified host UID and GID and then run `docker exec` with the `-u` flag that sets up an instance-internal ID called `app`. 
+
 
 
 
