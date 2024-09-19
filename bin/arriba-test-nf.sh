@@ -19,10 +19,10 @@ echo "READ2 File: $READ2"
 echo "Sample ID: $SAMPLE_ID"
 
 ###### TESTING ########
-touch "${ARR_OUTDIR}/${SAMPLE_ID}-sample.txt"
-echo "Sample file created!"
-echo "${READ1} & ${READ2}: The sample ID is ${SAMPLE_ID}" > "${ARR_OUTDIR}/${SAMPLE_ID}-sample.txt"
-echo "Done!"
+# touch "${ARR_OUTDIR}/${SAMPLE_ID}-sample.txt"
+# echo "Sample file created!"
+# echo "${READ1} & ${READ2}: The sample ID is ${SAMPLE_ID}" > "${ARR_OUTDIR}/${SAMPLE_ID}-sample.txt"
+# echo "Done!"
 ########################
 
 run_star_and_arriba() {
@@ -67,15 +67,15 @@ run_star_and_arriba() {
   -p "${ARRIBA_PKG}/protein_domains_hg38_GRCh38_v2.3.0.gff3" 2>&1 | tee "${ARR_OUTDIR}/${SAMPLE_ID}/arriba-run-nf.log-$(date +%Y%m%d_%H-%M-%S).txt"
 }
 
-# echo "Running STAR while piping to Arriba..."
-# mkdir -p "${ARR_OUTDIR}/${SAMPLE_ID}"
+echo "Running STAR while piping to Arriba..."
+mkdir -p "${ARR_OUTDIR}/${SAMPLE_ID}"
 
-# # measure execution time
-# STARTTIME=$(date +%s)
-# if run_star_and_arriba "${READ1}" "${READ2}" "${SAMPLE_ID}" "${CTAT_LIB}" "${ARRIBA_PKG}" "${ARR_OUTDIR}" "${STAR_TMPDIR}"; then
-#     ENDTIME=$(date +%s)
-#     ELAP=$(( ENDTIME - STARTTIME ))
-#     echo "Arriba run of ${SAMPLE_ID} completed successfully. Time taken: ${ELAP}. Check log file for run details."
-# else
-#     echo "Something went wrong during Arriba run of ${SAMPLE_ID}. Check log file."
-# fi
+# measure execution time
+STARTTIME=$(date +%s)
+if run_star_and_arriba "${READ1}" "${READ2}" "${SAMPLE_ID}" "${CTAT_LIB}" "${ARRIBA_PKG}" "${ARR_OUTDIR}" "${STAR_TMPDIR}"; then
+    ENDTIME=$(date +%s)
+    ELAP=$(( ENDTIME - STARTTIME ))
+    echo "Arriba run of ${SAMPLE_ID} completed successfully. Time taken: ${ELAP}. Check log file for run details."
+else
+    echo "Something went wrong during Arriba run of ${SAMPLE_ID}. Check log file."
+fi

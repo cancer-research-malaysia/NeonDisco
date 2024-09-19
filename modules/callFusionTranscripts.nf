@@ -2,7 +2,8 @@
 
 // Run first module
 process callFusionTranscripts {
-    
+    //publishDir "${params.output_dir}/${sampleName}", mode: 'copy'
+
     if ( params.ftcaller == 'arriba' ){
         container "${params.container__arriba}"
         containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name arriba-ftcall -v ${params.arriba_db}:/work/libs -v ${params.input_dir}:/work/data -v ${params.output_dir}:/work/out -v ${params.bin_dir}:/work/scripts"
@@ -13,6 +14,9 @@ process callFusionTranscripts {
     
     input:
         tuple val(sampleName), path(readFiles)
+
+    output:
+        path 'arriba-fusions.tsv', emit: arriba_fusion_file
 
     script:
     """
