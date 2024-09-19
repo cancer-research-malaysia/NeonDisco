@@ -1,0 +1,1 @@
+2T_r1.fq.gz & 2T_r2.fq.gz

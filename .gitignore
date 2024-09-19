@@ -59,7 +59,6 @@ env/
 *.ab1.xz
  
 # Bioinformatics tools (because sometimes they're just too clingy)
-bin/
 build/
 dist/
 lib/

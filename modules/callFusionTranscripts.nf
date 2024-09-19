@@ -3,16 +3,13 @@
 // Run first module
 process callFusionTranscripts {
     
-    if ( params.ft_caller == 'arriba' ){
+    if ( params.ftcaller == 'arriba' ){
         container "${params.container__arriba}"
-    } else if ( params.ft_caller == 'fusioncatcher' ){
+        containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name arriba-ftcall -v ${params.arriba_db}:/work/libs -v ${params.input_dir}:/work/data -v ${params.output_dir}:/work/out -v ${params.bin_dir}:/work/scripts"
+    } else if ( params.ftcaller == 'fusioncatcher' ){
         container "${params.container__fuscat}"
+        containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name fuscat-ftcall -v ${params.fuscat_db}:/work/libs -v ${params.input_dir}:/work/data -v ${params.output_dir}:/work/out -v ${params.bin_dir}:/work/scripts"
     }
-    
-    // Set this for cluster run
-    // clusterOptions '-l select=1:ncpus=1:mem=16GB -l walltime=4:00:00 -P 12003580 -q normal'
-    // maxForks 40
-    // publishDir "${params.output_dir}/sorted_beds/", mode: 'copy'
     
     input:
         tuple val(sampleName), path(readFiles)
@@ -21,7 +18,6 @@ process callFusionTranscripts {
     """
     echo "Path to input read file 1: ${readFiles[0]}"
     echo "Path to input read file 2: ${readFiles[1]}"
-    docker --version
-    docker run 
+    bash /work/scripts/arriba-test-nf.sh ${readFiles[0]} ${readFiles[1]}
     """
 }
