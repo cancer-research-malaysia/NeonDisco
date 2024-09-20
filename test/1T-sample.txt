@@ -1,1 +1,0 @@
-1T_r1.fq.gz & 1T_r2.fq.gz: The sample ID is 1T

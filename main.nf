@@ -16,15 +16,11 @@ nextflow run main.nf <--OPTION NAME> <ARGUMENT>
 Required Arguments:
 ---------------
   Input paths:
-    --input_dir                     Path to base directory where directories of datasets containing BAM files [MANDATORY]
-    --genome_fasta                Path to the reference genome fasta file [MANDATORY]
-    --fpscore_matrix              Globbed path to base directory (path/to/dir/*.ext) where the merged footprint score matrix files of all studied motifs are located (saved as parquet files) [MANDATORY]
-
-  Input manifest:
-    --dataset_id_list             Path to a list of dataset IDs to work on. Required if [--run_mode] is set to `subset`
+    --input_dir                   Path to base directory where directories of datasets containing BAM files [MANDATORY]
+    --ftcaller                    Name of the fusion caller to be run. Either <arriba> or <fusioncatcher> [MANDATORY]
 
   Output path:
-    --output_dir                  Directory path for output VCF files [MANDATORY]
+    --output_dir                  Directory path for output files [MANDATORY]
 
 ---------------
     --help                        Print this help message and exit
@@ -41,8 +37,8 @@ workflow {
         helpMessage()
         // Exit out and do not run anything else
         exit 1
-    } else if ( !params.input_dir ) {
-        log.error "The input_dir parameter is not set. Please provide a valid input directory path."
+    } else if ( !params.input_dir ) || ( !params.ftcaller ){
+        log.error "The input_dir or the fusion caller parameter is not set. Please provide a valid input directory path or fusion caller name."
         exit 1
     } else {
         log.info "Initializing workflow..."
