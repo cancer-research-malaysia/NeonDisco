@@ -32,7 +32,7 @@ run_star_and_arriba() {
   local ARRIBA_PKG=$5
   local ARR_OUTDIR=$6
 
-  if STAR --runThreadN 8 \
+  STAR --runThreadN 4 \
   --genomeDir "${CTAT_LIB}/ref_genome.fa.star.idx" \
   --genomeLoad NoSharedMemory \
   --readFilesIn "${READ1}" "${READ2}" \
@@ -53,19 +53,16 @@ run_star_and_arriba() {
   --chimScoreSeparation 1 \
   --chimSegmentReadGapMax 3 \
   --chimMultimapNmax 50 \
-  --outFileNamePrefix "${ARR_OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}-STAR_"; then
-    echo "STAR run completed successfully. Running Arriba now..."
-    # arriba \
-    #   -x "${ARR_OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}-STAR_Aligned.out.bam" \
-    #   -o "${ARR_OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}-arriba-fusions.tsv" \
-    #   -O "${ARR_OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}-fusions.discarded.tsv" \
-    #   -a "${CTAT_LIB}/ref_genome.fa" \
-    #   -g "${CTAT_LIB}/ref_annot.gtf" \
-    #   -b "${ARRIBA_PKG}/blacklist_hg38_GRCh38_v2.3.0.tsv.gz" \
-    #   -k "${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz" \
-    #   -t "${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz" \
-    #   -p "${ARRIBA_PKG}/protein_domains_hg38_GRCh38_v2.3.0.gff3" 2>&1 | tee "${ARR_OUTDIR}/${SAMPLE_ID}/arriba-run-nf.log-$(date +%Y%m%d_%H-%M-%S).txt"
-  fi
+  --outFileNamePrefix "${ARR_OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}-STAR_" | arriba \
+      -x - \
+      -o "${ARR_OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}-arriba-fusions.tsv" \
+      -O "${ARR_OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}-fusions.discarded.tsv" \
+      -a "${CTAT_LIB}/ref_genome.fa" \
+      -g "${CTAT_LIB}/ref_annot.gtf" \
+      -b "${ARRIBA_PKG}/blacklist_hg38_GRCh38_v2.3.0.tsv.gz" \
+      -k "${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz" \
+      -t "${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz" \
+      -p "${ARRIBA_PKG}/protein_domains_hg38_GRCh38_v2.3.0.gff3" 2>&1 | tee "${ARR_OUTDIR}/${SAMPLE_ID}/arriba-run-nf.log-$(date +%Y%m%d_%H-%M-%S).txt"
 }
 
 echo "Running STAR while piping to Arriba..."

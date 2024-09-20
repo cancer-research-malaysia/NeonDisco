@@ -78,9 +78,9 @@ workflow {
                     "Total number of valid input file pairs found: $count" 
                     }
                 // View 
-                read_pairs_ch.view { sample_id, files -> 
-                    "Sample: $sample_id, READ 1: ${files[0].name}, READ 2: ${files[1].name}"
-                    }
+                // read_pairs_ch.view { sample_id, files -> 
+                //     "Sample: $sample_id, READ 1: ${files[0].name}, READ 2: ${files[1].name}"
+                //     }
 
                 // view channel raw
                 //read_pairs_ch.view()
@@ -88,7 +88,7 @@ workflow {
                 /////////// BEGIN WORKFLOW ////////////////
 
                 // call fusion transcripts
-                //callFusionTranscripts(read_pairs_ch)
+                callFusionTranscripts(read_pairs_ch)
 
             }
         }
