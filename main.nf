@@ -37,7 +37,7 @@ workflow {
         helpMessage()
         // Exit out and do not run anything else
         exit 1
-    } else if ( !params.input_dir ) || ( !params.ftcaller ){
+    } else if ( !params.input_dir || !params.ftcaller ){
         log.error "The input_dir or the fusion caller parameter is not set. Please provide a valid input directory path or fusion caller name."
         exit 1
     } else {
@@ -48,33 +48,39 @@ workflow {
         if ( file(params.input_dir).exists() == true && file(params.input_dir).isDirectory() == true ) {
             log.info "The input file directory provided is valid."
 
-            // Create input file channel
-            read_pairs_ch = Channel
+            // check if fusion caller is valid; ftcaller should either be 'arriba' or 'fusioncatcher'
+            if (!(params.ftcaller in ['arriba', 'fusioncatcher'])) {
+                log.info "The fusion caller specified does not exist. Please specify either <arriba> or <fusioncatcher> only."
+                exit 1
+            } else {
+                log.info "Fusion caller specified. Getting input files..."
+                
+                // Create input file channel
+                read_pairs_ch = Channel
                     .fromFilePairs("${params.input_dir}/*{R,r}{1,2}*.{fastq,fq}{,.gz}", checkIfExists: true)
                     .ifEmpty { 
                             log.error "No valid input FASTQ read files found in ${params.input_dir}. Please check your input directory."
                             exit 1
                         }
-
-            // Count and display the number of file pairs
-            read_pairs_ch.count().view { count -> 
+                
+                // Count and display the number of file pairs
+                read_pairs_ch.count().view { count -> 
                     "Total number of valid input file pairs found: $count" 
                     }
-            
-            // View 
-            read_pairs_ch.view { sample_id, files -> 
-                "Sample: $sample_id, READ 1: ${files[0].name}, READ 2: ${files[1].name}"
-                }
-            
-            // view channel raw
-            //read_pairs_ch.view()
+                // View 
+                read_pairs_ch.view { sample_id, files -> 
+                    "Sample: $sample_id, READ 1: ${files[0].name}, READ 2: ${files[1].name}"
+                    }
 
-            /////////// BEGIN WORKFLOW ////////////////
+                // view channel raw
+                //read_pairs_ch.view()
 
-            // call fusion transcripts
+                /////////// BEGIN WORKFLOW ////////////////
 
-            callFusionTranscripts(read_pairs_ch)
+                // call fusion transcripts
+                callFusionTranscripts(read_pairs_ch)
 
+            }
         }
         else {
             log.error "The input file directory does not exist. Please provide a valid directory path."
@@ -82,6 +88,7 @@ workflow {
         }
     }
 }
+
 
 workflow.onComplete {
     println "Pipeline completed at: $workflow.complete"

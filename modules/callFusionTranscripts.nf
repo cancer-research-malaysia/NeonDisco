@@ -2,7 +2,7 @@
 
 // Run first module
 process callFusionTranscripts {
-    //publishDir "${params.output_dir}/${sampleName}", mode: 'copy'
+    publishDir "${params.output_dir}/${sampleName}", mode: 'copy'
 
     if ( params.ftcaller == 'arriba' ){
         container "${params.container__arriba}"
@@ -16,7 +16,7 @@ process callFusionTranscripts {
         tuple val(sampleName), path(readFiles)
 
     output:
-        path "${params.output_dir}/arriba-fusions.tsv", emit: arriba_fusion_file
+        path "arriba-fusions.tsv", emit: arriba_fusion_file
 
     script:
     """

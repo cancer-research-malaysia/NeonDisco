@@ -6,7 +6,6 @@ echo $(id)
 CTAT_LIB="/work/libs"
 FASTQS="/work/data"
 ARR_OUTDIR="/work/out"
-STAR_TMPDIR="/work/out/star"
 ARRIBA_PKG="/opt/conda/var/lib/arriba"
 
 READ1=$1
@@ -32,7 +31,6 @@ run_star_and_arriba() {
   local CTAT_LIB=$4
   local ARRIBA_PKG=$5
   local ARR_OUTDIR=$6
-  local STAR_TMPDIR=$7
 
   STAR --runThreadN 8 \
   --genomeDir "${CTAT_LIB}/ref_genome.fa.star.idx" \
@@ -55,7 +53,7 @@ run_star_and_arriba() {
   --chimScoreSeparation 1 \
   --chimSegmentReadGapMax 3 \
   --chimMultimapNmax 50 \
-  --outTmpDir "${STAR_TMPDIR}" | tee "${ARR_OUTDIR}/${SAMPLE_ID}-Aligned.out.bam" | arriba \
+  --outFileNamePrefix "${ARR_OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}-STAR-" | arriba \
   -x /dev/stdin \
   -o "${ARR_OUTDIR}/${SAMPLE_ID}/arriba-fusions.tsv" \
   -O "${ARR_OUTDIR}/${SAMPLE_ID}/fusions.discarded.tsv" \
@@ -68,11 +66,10 @@ run_star_and_arriba() {
 }
 
 echo "Running STAR while piping to Arriba..."
-mkdir -p "${ARR_OUTDIR}/${SAMPLE_ID}"
 
 # measure execution time
 STARTTIME=$(date +%s)
-if run_star_and_arriba "${READ1}" "${READ2}" "${SAMPLE_ID}" "${CTAT_LIB}" "${ARRIBA_PKG}" "${ARR_OUTDIR}" "${STAR_TMPDIR}"; then
+if run_star_and_arriba "${READ1}" "${READ2}" "${SAMPLE_ID}" "${CTAT_LIB}" "${ARRIBA_PKG}" "${ARR_OUTDIR}"; then
     ENDTIME=$(date +%s)
     ELAP=$(( ENDTIME - STARTTIME ))
     echo "Arriba run of ${SAMPLE_ID} completed successfully. Time taken: ${ELAP}. Check log file for run details."
