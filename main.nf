@@ -62,6 +62,16 @@ workflow {
                             log.error "No valid input FASTQ read files found in ${params.input_dir}. Please check your input directory."
                             exit 1
                         }
+                    // Sort the channel elements based on the first object of each tuple,
+                    // that is, the sample name, and convert to a channel with a single
+                    // element which is a list of tuples
+                    .toSortedList( { a, b -> a[0] <=> b[0] } ) // <=> is an operator for comparison
+                    // flatten the single-element channel to a channel with as many elements
+                    // as there are samples, which is the original structure provided by
+                    // fromFilePairs
+                    .flatMap()
+                    // View the channel elements by printing it to the screen
+                    .view()
                 
                 // Count and display the number of file pairs
                 read_pairs_ch.count().view { count -> 
