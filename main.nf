@@ -88,7 +88,7 @@ workflow {
                 /////////// BEGIN WORKFLOW ////////////////
 
                 // call fusion transcripts
-                callFusionTranscripts(read_pairs_ch)
+                //callFusionTranscripts(read_pairs_ch)
 
             }
         }
