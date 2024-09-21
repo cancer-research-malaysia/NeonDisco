@@ -5,7 +5,7 @@ echo $(id)
 # Set env variables
 CTAT_LIB="/work/libs"
 FASTQS="/work/data"
-ARR_OUTDIR="/work/out"
+ARR_OUTDIR="/work/nf_work"
 ARRIBA_PKG="/opt/conda/var/lib/arriba"
 
 READ1=$1
@@ -53,12 +53,12 @@ run_star_and_arriba() {
   --chimScoreSeparation 1 \
   --chimSegmentReadGapMax 3 \
   --chimMultimapNmax 50 \
-  --outFileNamePrefix "${ARR_OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}-STAR_"; then
+  --outFileNamePrefix "${ARR_OUTDIR}/${SAMPLE_ID}-STAR_"; then
   echo "STAR run of ${SAMPLE_ID} completed successfully. Running Arriba..."
   arriba \
-      -x "${ARR_OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}-STAR_Aligned.out.bam" \
-      -o "${ARR_OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}-arriba-fusions.tsv" \
-      -O "${ARR_OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}-fusions.discarded.tsv" \
+      -x "${ARR_OUTDIR}/${SAMPLE_ID}-STAR_Aligned.out.bam" \
+      -o "${ARR_OUTDIR}/${SAMPLE_ID}-arriba-fusions.tsv" \
+      -O "${ARR_OUTDIR}/${SAMPLE_ID}-fusions.discarded.tsv" \
       -a "${CTAT_LIB}/ref_genome.fa" \
       -g "${CTAT_LIB}/ref_annot.gtf" \
       -b "${ARRIBA_PKG}/blacklist_hg38_GRCh38_v2.3.0.tsv.gz" \

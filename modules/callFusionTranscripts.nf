@@ -6,17 +6,17 @@ process callFusionTranscripts {
 
     if ( params.ftcaller == 'arriba' ){
         container "${params.container__arriba}"
-        containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name arriba-ftcall -v ${params.arriba_db}:/work/libs -v ${params.input_dir}:/work/data -v ${params.output_dir}:/work/out -v ${params.bin_dir}:/work/scripts"
+        containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name arriba-ftcall -v ${params.arriba_db}:/work/libs -v ${params.input_dir}:/work/data -v ${params.output_dir}:/work/out -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
     } else if ( params.ftcaller == 'fusioncatcher' ){
         container "${params.container__fuscat}"
-        containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name fuscat-ftcall -v ${params.fuscat_db}:/work/libs -v ${params.input_dir}:/work/data -v ${params.output_dir}:/work/out -v ${params.bin_dir}:/work/scripts"
+        containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name fuscat-ftcall -v ${params.fuscat_db}:/work/libs -v ${params.input_dir}:/work/data -v ${params.output_dir}:/work/out -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
     }
     
     input:
         tuple val(sampleName), path(readFiles)
 
     output:
-        path "*-arriba-fusions.tsv", emit: arriba_fusion_files
+        path "${sampleName}-arriba-fusions.tsv", emit: arriba_fusion_file
 
     script:
     """
