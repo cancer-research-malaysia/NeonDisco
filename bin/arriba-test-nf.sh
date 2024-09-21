@@ -32,9 +32,9 @@ run_star_and_arriba() {
   local ARRIBA_PKG=$5
   local ARR_OUTDIR=$6
 
-  STAR --runThreadN 4 \
+  if STAR --runThreadN 8 \
   --genomeDir "${CTAT_LIB}/ref_genome.fa.star.idx" \
-  --genomeLoad NoSharedMemory \
+  --genomeLoad LoadAndRemove \
   --readFilesIn "${READ1}" "${READ2}" \
   --readFilesCommand zcat \
   --outStd BAM_Unsorted \
@@ -53,8 +53,10 @@ run_star_and_arriba() {
   --chimScoreSeparation 1 \
   --chimSegmentReadGapMax 3 \
   --chimMultimapNmax 50 \
-  --outFileNamePrefix "${ARR_OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}-STAR_" | arriba \
-      -x - \
+  --outFileNamePrefix "${ARR_OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}-STAR_"; then
+  echo "STAR run of ${SAMPLE_ID} completed successfully. Running Arriba..."
+  arriba \
+      -x "${ARR_OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}-STAR_Aligned.out.bam" \
       -o "${ARR_OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}-arriba-fusions.tsv" \
       -O "${ARR_OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}-fusions.discarded.tsv" \
       -a "${CTAT_LIB}/ref_genome.fa" \
@@ -63,16 +65,16 @@ run_star_and_arriba() {
       -k "${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz" \
       -t "${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz" \
       -p "${ARRIBA_PKG}/protein_domains_hg38_GRCh38_v2.3.0.gff3" 2>&1 | tee "${ARR_OUTDIR}/${SAMPLE_ID}/arriba-run-nf.log-$(date +%Y%m%d_%H-%M-%S).txt"
+  fi
 }
 
-echo "Running STAR while piping to Arriba..."
-
+echo "Starting STAR and then Arriba..."
 # measure execution time
 STARTTIME=$(date +%s)
 if run_star_and_arriba "${READ1}" "${READ2}" "${SAMPLE_ID}" "${CTAT_LIB}" "${ARRIBA_PKG}" "${ARR_OUTDIR}"; then
     ENDTIME=$(date +%s)
     ELAP=$(( ENDTIME - STARTTIME ))
-    echo "Arriba run of ${SAMPLE_ID} completed successfully. Time taken: ${ELAP}. Check log file for run details."
+    echo "Arriba run of ${SAMPLE_ID} completed successfully. Time taken: ${ELAP} seconds. Check log file for run details."
 else
     echo "Something went wrong during Arriba run of ${SAMPLE_ID}. Check log file."
 fi
