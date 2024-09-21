@@ -37,7 +37,7 @@ run_star_and_arriba() {
   --genomeLoad LoadAndRemove \
   --readFilesIn "${READ1}" "${READ2}" \
   --readFilesCommand zcat \
-  --outStd BAM_Unsorted \
+  --outStd Log \
   --outSAMtype BAM Unsorted \
   --outSAMunmapped Within \
   --outBAMcompression 0 \
