@@ -32,7 +32,7 @@ run_star_and_arriba() {
   local ARRIBA_PKG=$5
   local ARR_OUTDIR=$6
 
-  if STAR --runThreadN 8 \
+  if STAR --runThreadN 4 \
   --genomeDir "${CTAT_LIB}/ref_genome.fa.star.idx" \
   --genomeLoad LoadAndRemove \
   --readFilesIn "${READ1}" "${READ2}" \
