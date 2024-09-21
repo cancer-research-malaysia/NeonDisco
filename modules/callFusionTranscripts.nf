@@ -15,7 +15,7 @@ process callFusionTranscripts {
     input:
         tuple val(sampleName), path(readFiles)
 
-    //output:
+    output:
         path "*-arriba-fusions.tsv", emit: arriba_fusion_files
 
     script:
