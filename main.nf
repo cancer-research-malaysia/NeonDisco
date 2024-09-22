@@ -90,6 +90,8 @@ workflow {
                 // call fusion transcripts
                 callFusionTranscripts(read_pairs_ch)
 
+                arriba_fusion_file.view()
+
             }
         }
         else {
