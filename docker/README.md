@@ -32,7 +32,7 @@ As most of the bioinformatics tools used in this neoantigen identification workf
         <td>In silico validation of fusion calls </td>
         <td>FusionInspector (v2.8.0) </td>
         <td>CTAT Genome Library</td>
-        <td>.fastq of RNA-Seq data (raw file);  </td>
+        <td>.fastq of RNA-Seq data (raw file)  </td>
     </tr>
     <tr>
         <td>Prediction of fusion transcript coding potential </td>

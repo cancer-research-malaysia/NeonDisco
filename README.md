@@ -95,5 +95,13 @@ flowchart TD
     C2 ---> D
     D ---> |pVacFuse| E(Predicted immunogenic fusion neoantigens)
     end
+    subgraph "`*neoepitope shortlisting*`"
+    E ---> F(Fusion transcripts)
+    F ---> |median IC50 <500nM| G(Fusion neoepitopes with coding potential)
+    G ---> H1(Sample occurrence = 1)
+    G ---> H2(Sample occurrence >= 2)
+    H2 ---> I1(Reference proteome match)
+    H2 --->I2(Novel peptide)
+    end
 
 ```
