@@ -2,7 +2,8 @@
 
 // All of the default parameters are being set in `nextflow.config`
 // Import sub-workflows
-include { callFusionTranscripts } from './modules/callFusionTranscripts'
+include { callFusionTranscriptsAR } from './modules/callFusionTranscriptsAR'
+include { callFusionTranscriptsFC } from './modules/callFusionTranscriptsFC'
 //include { generateBAMPaths } from './modules/generateBAMPaths'
 //include { callVariants } from './modules/callVariants'
 
@@ -38,7 +39,7 @@ workflow {
         // Exit out and do not run anything else
         exit 1
     } else if ( !params.input_dir || !params.ftcaller ){
-        log.error "The input_dir or the fusion caller parameter is not set. Please provide a valid input directory path or fusion caller name."
+        log.error "The input_dir or the fusion caller parameter is not set. Please provide a valid input directory path or fusion caller parameter."
         exit 1
     } else {
         log.info "Initializing workflow..."
@@ -48,9 +49,9 @@ workflow {
         if ( file(params.input_dir).exists() == true && file(params.input_dir).isDirectory() == true ) {
             log.info "The input file directory provided is valid."
 
-            // check if fusion caller is valid; ftcaller should either be 'arriba' or 'fusioncatcher'
-            if (!(params.ftcaller in ['arriba', 'fusioncatcher'])) {
-                log.info "The fusion caller specified does not exist. Please specify either <arriba> or <fusioncatcher> only."
+            // check if fusion caller is valid; ftcaller should either be 'arriba' or 'fusioncatcher' or 'both'
+            if (!(params.ftcaller in ['arriba', 'fusioncatcher', 'both'])) {
+                log.info "The fusion caller specified does not exist. Please specify either <arriba> or <fusioncatcher> or <both> only. <both> is set as default."
                 exit 1
             } else {
                 log.info "Fusion caller specified. Getting input files..."
@@ -88,9 +89,8 @@ workflow {
                 /////////// BEGIN WORKFLOW ////////////////
 
                 // call fusion transcripts
-                callFusionTranscripts(read_pairs_ch)
-
-                arriba_fusion_file.view()
+                callFusionTranscriptsAR(read_pairs_ch)
+                callFusionTranscriptsFC(read_pairs_ch)
 
             }
         }
