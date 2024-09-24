@@ -88,10 +88,20 @@ workflow {
 
                 /////////// BEGIN WORKFLOW ////////////////
 
-                // call fusion transcripts
-                callFusionTranscriptsAR(read_pairs_ch)
-                callFusionTranscriptsFC(read_pairs_ch)
-
+                log.info "Starting fusion transcript calls..."
+                
+                if ( params.ftcaller == 'both' ){
+                    // call fusion transcripts
+                    log.info "<both> is specified so running Arriba and Fusioncatcher callers..."
+                    callFusionTranscriptsAR(read_pairs_ch)
+                    callFusionTranscriptsFC(read_pairs_ch)
+                } else if ( params.ftcaller == 'arriba' ){
+                    log.info "Running Arriba only..."
+                    callFusionTranscriptsAR(read_pairs_ch)
+                } else if ( params.ftcaller == 'fusioncatcher' ){
+                    log.info "Running Fusioncatcher only..."
+                    callFusionTranscriptsFC(read_pairs_ch)
+                }
             }
         }
         else {
