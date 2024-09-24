@@ -10,7 +10,7 @@ process callFusionTranscriptsFC {
         tuple val(sampleName), path(readFiles)
 
     output:
-        path "final-list_candidate_fusion_genes.txt", emit: fuscat_fusion_file
+        path "final-list_candidate-fusion-genes.txt", emit: fuscat_fusion_file
 
     script:
     """
