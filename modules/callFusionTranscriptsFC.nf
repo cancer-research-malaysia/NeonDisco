@@ -9,8 +9,8 @@ process callFusionTranscriptsFC {
     input:
         tuple val(sampleName), path(readFiles)
 
-    //output:
-        //path "${sampleName}-arriba-fusions.tsv", emit: arriba_fusion_file
+    output:
+        path "${sampleName}/final-list_candidate_fusion_genes.txt", emit: fuscat_fusion_file
 
     script:
     """

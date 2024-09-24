@@ -5,6 +5,7 @@ echo $(id)
 # get script arguments
 READ1=$1
 READ2=$2
+SAMPLE_ID="${READ1%%_*}"
 
 run_fuscat() {
   local FASTQ_R1_FILE=$1
@@ -19,6 +20,7 @@ run_fuscat() {
 export DB="/work/db"
 export INP_DIR="/work/in"
 export OUTDIR_PREFIX="/work/nf_work"
+export OUTDIR="${OUTDIR_PREFIX}/${SAMPLE_ID}"
 echo "Environment variables set and exported!"
 
 # measure execution time
