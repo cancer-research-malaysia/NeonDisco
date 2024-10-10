@@ -105,3 +105,9 @@ flowchart TD
     end
 
 ```
+
+## Running the Pipeline Minimally
+A `nextflow.config` file is already created containing the default values of many parameters so this pipeline can be minimally run using this command:
+
+> nextflow run main.nf --input_dir [PATH to where the fastq or fq raw sequencing files are stored] --output_dir [PATH to store the copies of important output files]
+

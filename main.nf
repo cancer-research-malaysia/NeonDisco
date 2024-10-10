@@ -17,8 +17,8 @@ nextflow run main.nf <--OPTION NAME> <ARGUMENT>
 Required Arguments:
 ---------------
   Input paths:
-    --input_dir                   Path to base directory where directories of datasets containing BAM files [MANDATORY]
-    --ftcaller                    Name of the fusion caller to be run. Either <arriba> or <fusioncatcher> [MANDATORY]
+    --input_dir                   Path to base directory where directories of datasets containing raw fastq or fq files. [MANDATORY]
+    --ftcaller                    Name of the fusion caller to be run. Either <arriba> or <fusioncatcher> or <both>. Defaults to <both>.
 
   Output path:
     --output_dir                  Directory path for output files [MANDATORY]
@@ -38,8 +38,8 @@ workflow {
         helpMessage()
         // Exit out and do not run anything else
         exit 1
-    } else if ( !params.input_dir || !params.ftcaller ){
-        log.error "The input_dir or the fusion caller parameter is not set. Please provide a valid input directory path or fusion caller parameter."
+    } else if ( !params.input_dir || !params.output_dir ){
+        log.error "The input directory path (--input_dir) or the output directory path (--output_dir) is not provided. Please provide a valid input path for any (or both) of these parameters."
         exit 1
     } else {
         log.info "Initializing workflow..."
@@ -51,7 +51,7 @@ workflow {
 
             // check if fusion caller is valid; ftcaller should either be 'arriba' or 'fusioncatcher' or 'both'
             if (!(params.ftcaller in ['arriba', 'fusioncatcher', 'both'])) {
-                log.info "The fusion caller specified does not exist. Please specify either <arriba> or <fusioncatcher> or <both> only. <both> is set as default."
+                log.info "The fusion caller specified does not exist. Please specify either <arriba> or <fusioncatcher> or <both> only. <both> is set by default."
                 exit 1
             } else {
                 log.info "Fusion caller specified. Getting input files..."
@@ -82,9 +82,6 @@ workflow {
                 // read_pairs_ch.view { sample_id, files -> 
                 //     "Sample: $sample_id, READ 1: ${files[0].name}, READ 2: ${files[1].name}"
                 //     }
-
-                // view channel raw
-                //read_pairs_ch.view()
 
                 /////////// BEGIN WORKFLOW ////////////////
 
