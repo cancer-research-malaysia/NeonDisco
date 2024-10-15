@@ -10,7 +10,7 @@ process callFusionTranscriptsFC {
         tuple val(sampleName), path(readFiles)
 
     output:
-        path "${sampleName}_fc.tsv", emit: fuscat_fusion_file
+        tuple val(sampleName), path("${sampleName}_fc.tsv"), emit: fuscat_fusion_tuple
 
     script:
     """

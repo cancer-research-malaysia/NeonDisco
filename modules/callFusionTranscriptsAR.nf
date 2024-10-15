@@ -10,7 +10,7 @@ process callFusionTranscriptsAR {
         tuple val(sampleName), path(readFiles)
 
     output:
-        path "${sampleName}_arr.tsv", emit: arriba_fusion_file
+        tuple val(sampleName), path("${sampleName}_arr.tsv"), emit: arriba_fusion_tuple
 
     script:
     """

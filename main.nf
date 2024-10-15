@@ -87,25 +87,46 @@ workflow {
 
                 log.info "Starting fusion transcript calls..."
                 
-                if ( params.ftcaller == 'both' ){
-                    // call fusion transcripts
-                    log.info "<both> is specified so running Arriba and Fusioncatcher callers..."
-                    arResultFile = callFusionTranscriptsAR(read_pairs_ch)
-                    fcResultFile = callFusionTranscriptsFC(read_pairs_ch)
-
-                    // combine result files into a tuple
-                    //combinedResultFiles = arResultFile.arriba_fusion_file.combine(fcResultFile.fuscat_fusion_file)
-
-                    // run FT post-processing
-                    //collateFusionTranscripts(combinedResultFiles)
-
-                } else if ( params.ftcaller == 'arriba' ){
-                    log.info "Running Arriba only..."
-                    callFusionTranscriptsAR(read_pairs_ch)
-                } else if ( params.ftcaller == 'fusioncatcher' ){
-                    log.info "Running Fusioncatcher only..."
-                    callFusionTranscriptsFC(read_pairs_ch)
+                if (params.ftcaller == 'both' || params.ftcaller == 'arriba') {
+                    log.info "Running Arriba..."
+                    arResultFiles = callFusionTranscriptsAR(read_pairs_ch).arriba_fusion_tuple.collect()
                 }
+                if (params.ftcaller == 'both' || params.ftcaller == 'fusioncatcher') {
+                    log.info "Running Fusioncatcher..."
+                    fcResultFiles = callFusionTranscriptsFC(read_pairs_ch).fuscat_fusion_tuple.collect()
+                }
+                if (params.ftcaller == 'both') {
+                    log.info "Both callers finished. Preparing results..."
+                    arResultFiles.view()
+                    // arResultFiles.view { tuples ->
+                    //     "Arriba output files: " + tuples.collect { sampleName, file -> "${sampleName}: ${file.name}" }.join(', ')
+                    // }
+                    fcResultFiles.view()
+                    // fcResultFiles.view { tuples ->
+                    //     "Fusioncatcher output files: " + tuples.collect { sampleName, file -> "${sampleName}: ${file.name}" }.join(', ')
+                    // }
+
+                    // nextProcess(arResultFiles, fcResultFiles)
+                }           
+                
+                
+                ///////// OBSOLETE /////////////
+                // if ( params.ftcaller == 'both' ){
+                //     // call fusion transcripts
+                //     log.info "<both> is specified so running Arriba and Fusioncatcher callers..."
+                //     arResultTuple = callFusionTranscriptsAR(read_pairs_ch)
+                //     fcResultTuple = callFusionTranscriptsFC(read_pairs_ch)
+
+                //     // Join result files based on sample name
+                //     combinedResultFiles = arResultTuple.arriba_fusion_tuple
+                //         .join(fcResultTuple.fuscat_fusion_tuple, by: 0) // 0 is the index of the sample name in both channels
+                    
+                //     combinedResultFiles.view { sampleName, arribaFile, fusioncatcherFile ->
+                //         "Sample: $sampleName, Arriba: ${arribaFile.name}, FusionCatcher: ${fusioncatcherFile.name}"
+                //     }
+                //     // run FT post-processing
+                //     //collateFusionTranscripts(combinedResultFiles)
+                // } 
             }
         }
         else {
@@ -114,7 +135,6 @@ workflow {
         }
     }
 }
-
 
 workflow.onComplete {
     println "Pipeline completed at: $workflow.complete"
