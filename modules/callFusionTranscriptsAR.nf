@@ -10,12 +10,15 @@ process callFusionTranscriptsAR {
         tuple val(sampleName), path(readFiles)
 
     output:
-        path "${sampleName}-arriba-fusions.tsv", emit: arriba_fusion_file
+        path "${sampleName}_arr.tsv", emit: arriba_fusion_file
 
     script:
     """
     echo "Path to input read file 1: ${readFiles[0]}"
     echo "Path to input read file 2: ${readFiles[1]}"
-    bash /work/scripts/arriba-nf.sh ${readFiles[0]} ${readFiles[1]}
+    if bash /work/scripts/arriba-nf.sh ${readFiles[0]} ${readFiles[1]}; then
+        echo "Arriba has finished running on ${sampleName}. Copying main output file..."
+        cp ${sampleName}-arriba-fusions.tsv ${sampleName}_arr.tsv
+    fi
     """
 }

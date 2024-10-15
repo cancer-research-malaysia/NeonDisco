@@ -10,12 +10,15 @@ process callFusionTranscriptsFC {
         tuple val(sampleName), path(readFiles)
 
     output:
-        path "final-list_candidate-fusion-genes.txt", emit: fuscat_fusion_file
+        path "${sampleName}_fc.tsv", emit: fuscat_fusion_file
 
     script:
     """
     echo "Path to input read file 1: ${readFiles[0]}"
     echo "Path to input read file 2: ${readFiles[1]}"
-    bash /work/scripts/fuscat-nf.sh ${readFiles[0]} ${readFiles[1]}
+    if bash /work/scripts/fuscat-nf.sh ${readFiles[0]} ${readFiles[1]}; then
+        echo "FusionCatcher has finished running on ${sampleName}. Copying main output file..."
+        cp final-list_candidate-fusion-genes.txt ${sampleName}_fc.tsv
+    fi
     """
 }
