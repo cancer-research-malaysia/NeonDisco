@@ -6,15 +6,15 @@ import sys
 import polars as pl
 from pathlib import Path
 
-def extract_sample_id(filename, prefix):
-    pattern = rf'{re.escape(prefix)}_(\d+)\.tsv$'
+def extract_sample_id(filename, suffix):
+    # use the lines below if you want to keep the T in the sample ID
+    # pattern = rf'^(\d+)(T)_{re.escape(suffix)}\.tsv$'
+    # match = re.search(pattern, os.path.basename(filename))
+    # return f"{match.group(1)}{match.group(2)}" if match else None
+
+    pattern = rf'^(\d+)T_{re.escape(suffix)}\.tsv$'
     match = re.search(pattern, os.path.basename(filename))
     return match.group(1) if match else None
-
-def list_files(path, prefix):
-    return {extract_sample_id(str(file), prefix): str(file) 
-            for file in Path(path).rglob('*.tsv') 
-            if file.is_file() and extract_sample_id(str(file), prefix)}
 
 def extract_fuscat_breakpoint(s):
     return s.str.split(':').list.slice(0, 2).list.join(':')
@@ -74,41 +74,42 @@ def wrangle_df(file_path, sample_id, tool_name):
             raise ValueError(f"Unsupported tool name: {tool_name}")
 
 def main():
-    input_path = os.path.abspath(sys.argv[1])
-    prefix = sys.argv[2]
-
-	# Check if the path exists
-    if not os.path.exists(input_path):
-        print(f"Error: The path '{input_path}' does not exist.")
-        sys.exit(1)
-
-    all_files = list_files(input_path, prefix)
-    print(f'{len(all_files)} files in total.')
-
-    print('Setting tool name...')
+    # this script would take these parameters:
+    # collate-FTs-nf.py <FT_arr.tsv file> <tool_suffix matching the file name> <FT_fc.tsv> <tool_suffix matching the file name>
+    sample_name = sys.argv[1]
+    input_tuples = [(os.path.abspath(sys.argv[2]), sys.argv[3]), (os.path.abspath(sys.argv[4]), sys.argv[5])]
     
-    tool_name = {'arr': 'Arriba', 'fc': 'FusionCatcher'}.get(prefix)
-    if not tool_name:
-        print(f'Error: Unknown prefix for tool name {prefix}. Aborting...')
-        sys.exit(1)
+    # print parameters for debugging
+    print(f"Sample name: {sample_name}")
+    print(f"Input arguments: {input_tuples}")
 
-    print(f'Reading {tool_name} TSV files by creating a list of lazy Frames...')
+    # initialize an empty dictionary to store the lazy DataFrames
+    lazy_dfs = []
 
-    ###### TESTING BLOCK ##########
+    for input_path, suffix in input_tuples:
+        if not Path(input_path).exists():
+            print(f"Error: File {input_path} does not exist. Aborting...")
+            sys.exit(1)
+        
+        print('Setting tool name...')
+        tool_name = {'arr': 'Arriba', 'fc': 'FusionCatcher'}.get(suffix)
 
-    # for i, (sample_id, file_path) in enumerate(all_files.items()):
-    #     if i < 20:
-    #         df = wrangle_df(file_path, sample_id, tool_name)
-    #         print(df.collect())
+        # extract sample id
+        sample_id = extract_sample_id(input_path, suffix)
+        print(f'Reading {tool_name} of {sample_name} TSV file...(sample ID: {sample_id})')
+
+        # Create a lazy dataframe for each file
+        lazy_df = wrangle_df(input_path, sample_id, tool_name)
+
+        # Append the lazy DataFrame to the list
+        lazy_dfs.append(lazy_df)
     
-    ###### BATCH MODE BLOCK ##########
-    # Create a list of lazy DataFrames
-    lazy_dfs = [wrangle_df(file_path, sample_id, tool_name) for sample_id, file_path in all_files.items()]
-    print(f"List of lazy Frames for all {len(all_files)} files has been created. Concatenating...")
     # Concatenate all lazy DataFrames
+    print("Concatenating lazy DataFrames from Arriba and FusionCatcher...")
     combined_lazy_df = pl.concat(lazy_dfs, rechunk=True)
+    
     print("Concatenation completed. Collecting...")
-    # print(combined_lazy_df.collect())
+
     # Sort by Sample ID (padded), drop that column, then collect
     results = combined_lazy_df.sort("sampleID_padded").drop("sampleID_padded").with_columns(
         [pl.col(col).cast(pl.Categorical) for col in ['fusionTranscriptID', 'fusionGeneID', 'breakpointPair', 'strand1', 'strand2', 'site1', 'site2', 'type', 'confidence', 'toolID']]).with_columns(
@@ -118,10 +119,11 @@ def main():
 
     # save as parquet and tsv
     print(f"Saving as parquet and tsv files...")
-    results.write_parquet(f"data/{tool_name}-fusiontranscript-raw-list.parquet")
-    results.write_csv(f"data/{tool_name}-fusiontranscript-raw-list.tsv", separator="\t")
+    results.write_parquet(f"{sample_name}-{tool_name}-fusiontranscript-raw-list.parquet")
+    results.write_csv(f"{sample_name}-{tool_name}-fusiontranscript-raw-list.tsv", separator="\t")
 
     print("Done.")
 
 if __name__ == "__main__":
     main()
+    

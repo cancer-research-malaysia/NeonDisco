@@ -4,8 +4,7 @@
 // Import sub-workflows
 include { callFusionTranscriptsAR } from './modules/callFusionTranscriptsAR'
 include { callFusionTranscriptsFC } from './modules/callFusionTranscriptsFC'
-//include { generateBAMPaths } from './modules/generateBAMPaths'
-//include { callVariants } from './modules/callVariants'
+include { collateFusionTranscripts } from './modules/collateFusionTranscripts'
 
 // Function which prints help message text
 def helpMessage() {
@@ -53,7 +52,8 @@ workflow {
             if (!(params.ftcaller in ['arriba', 'fusioncatcher', 'both'])) {
                 log.info "The fusion caller specified does not exist. Please specify either <arriba> or <fusioncatcher> or <both> only. <both> is set by default."
                 exit 1
-            } else {
+            } 
+            else {
                 log.info "Fusion caller specified. Getting input files..."
                 
                 // Create input file channel
@@ -87,46 +87,34 @@ workflow {
 
                 log.info "Starting fusion transcript calls..."
                 
+                // call fusion transcripts
                 if (params.ftcaller == 'both' || params.ftcaller == 'arriba') {
                     log.info "Running Arriba..."
-                    arResultFiles = callFusionTranscriptsAR(read_pairs_ch).arriba_fusion_tuple.collect()
+                    arResultTuple = callFusionTranscriptsAR(read_pairs_ch)
                 }
                 if (params.ftcaller == 'both' || params.ftcaller == 'fusioncatcher') {
-                    log.info "Running Fusioncatcher..."
-                    fcResultFiles = callFusionTranscriptsFC(read_pairs_ch).fuscat_fusion_tuple.collect()
+                    log.info "Running FusionCatcher..."
+                    fcResultTuple = callFusionTranscriptsFC(read_pairs_ch)
                 }
                 if (params.ftcaller == 'both') {
-                    log.info "Both callers finished. Preparing results..."
-                    arResultFiles.view()
-                    // arResultFiles.view { tuples ->
-                    //     "Arriba output files: " + tuples.collect { sampleName, file -> "${sampleName}: ${file.name}" }.join(', ')
-                    // }
-                    fcResultFiles.view()
-                    // fcResultFiles.view { tuples ->
-                    //     "Fusioncatcher output files: " + tuples.collect { sampleName, file -> "${sampleName}: ${file.name}" }.join(', ')
+                    log.info "Both callers finished. Collating the raw fusion transcript lists..."
+                    // Join result files based on sample name and creates a channels of list of lists with each list contains the sample name at index 0 and then a tuple of 
+                    combinedResultFiles = arResultTuple.arriba_fusion_tuple
+                    .join(fcResultTuple.fuscat_fusion_tuple, by: 0)
+                    .map { sampleName, arFile, fcFile ->
+                        tuple(sampleName, arFile, fcFile)
+                    }
+
+                    combinedResultFiles.view()
+                    // combinedResultFiles.view { sampleName, files ->
+                    //     "Combined output files for sample ${sampleName}: ${files[0].name} (Arriba), ${files[1].name} (FusionCatcher)"
                     // }
 
-                    // nextProcess(arResultFiles, fcResultFiles)
-                }           
-                
-                
-                ///////// OBSOLETE /////////////
-                // if ( params.ftcaller == 'both' ){
-                //     // call fusion transcripts
-                //     log.info "<both> is specified so running Arriba and Fusioncatcher callers..."
-                //     arResultTuple = callFusionTranscriptsAR(read_pairs_ch)
-                //     fcResultTuple = callFusionTranscriptsFC(read_pairs_ch)
-
-                //     // Join result files based on sample name
-                //     combinedResultFiles = arResultTuple.arriba_fusion_tuple
-                //         .join(fcResultTuple.fuscat_fusion_tuple, by: 0) // 0 is the index of the sample name in both channels
+                    // wrangle raw tsv to get fusion transcripts called by both Arriba and FusionCatcher
+                    collateFusionTranscripts(combinedResultFiles)
+                }
                     
-                //     combinedResultFiles.view { sampleName, arribaFile, fusioncatcherFile ->
-                //         "Sample: $sampleName, Arriba: ${arribaFile.name}, FusionCatcher: ${fusioncatcherFile.name}"
-                //     }
-                //     // run FT post-processing
-                //     //collateFusionTranscripts(combinedResultFiles)
-                // } 
+                //nextProcess(arResultFiles, fcResultFiles)
             }
         }
         else {
