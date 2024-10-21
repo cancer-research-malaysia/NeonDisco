@@ -16,7 +16,7 @@ process callFusionTranscriptsAR {
     """
     echo "Path to input read file 1: ${readFiles[0]}"
     echo "Path to input read file 2: ${readFiles[1]}"
-    if bash /work/scripts/arriba-nf.sh ${readFiles[0]} ${readFiles[1]}; then
+    if bash /work/scripts/arriba-nf.sh ${readFiles[0]} ${readFiles[1]} 16; then
         echo "Arriba has finished running on ${sampleName}. Copying main output file..."
         cp ${sampleName}-arriba-fusions.tsv ${sampleName}_arr.tsv
     fi

@@ -11,11 +11,13 @@ ARRIBA_PKG="/opt/conda/var/lib/arriba"
 READ1=$1
 READ2=$2
 SAMPLE_ID="${READ1%%_*}"
+CORE=$3
 
 echo "Environment variables set! Listing fastq files..."
 echo "READ1 File: $READ1"
 echo "READ2 File: $READ2"
 echo "Sample ID: $SAMPLE_ID"
+echo "Number of cores: $CORE"
 
 ###### TESTING ########
 # touch "${ARR_OUTDIR}/${SAMPLE_ID}-sample.txt"
@@ -31,8 +33,9 @@ run_star_and_arriba() {
   local CTAT_LIB=$4
   local ARRIBA_PKG=$5
   local ARR_OUTDIR=$6
+  local CORES=$7
 
-  if STAR --runThreadN 4 \
+  if STAR --runThreadN "${CORES}" \
   --genomeDir "${CTAT_LIB}/ref_genome.fa.star.idx" \
   --genomeLoad LoadAndRemove \
   --readFilesIn "${READ1}" "${READ2}" \
@@ -71,7 +74,7 @@ run_star_and_arriba() {
 echo "Starting STAR and then Arriba..."
 # measure execution time
 STARTTIME=$(date +%s)
-if run_star_and_arriba "${READ1}" "${READ2}" "${SAMPLE_ID}" "${CTAT_LIB}" "${ARRIBA_PKG}" "${ARR_OUTDIR}"; then
+if run_star_and_arriba "${READ1}" "${READ2}" "${SAMPLE_ID}" "${CTAT_LIB}" "${ARRIBA_PKG}" "${ARR_OUTDIR}" "${CORE}"; then
     ENDTIME=$(date +%s)
     ELAP=$(( ENDTIME - STARTTIME ))
     echo "Arriba run of ${SAMPLE_ID} completed successfully. Time taken: ${ELAP} seconds. Check log file for run details."

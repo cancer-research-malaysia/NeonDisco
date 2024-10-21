@@ -97,7 +97,6 @@ workflow {
                     fcResultTuple = callFusionTranscriptsFC(read_pairs_ch)
                 }
                 if (params.ftcaller == 'both') {
-                    log.info "Both callers finished. Collating the raw fusion transcript lists..."
                     // Join result files based on sample name and creates a channels of list of lists with each list contains the sample name at index 0 and then a tuple of 
                     combinedResultFiles = arResultTuple.arriba_fusion_tuple
                     .join(fcResultTuple.fuscat_fusion_tuple, by: 0)
