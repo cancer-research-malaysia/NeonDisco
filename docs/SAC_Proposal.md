@@ -28,9 +28,11 @@
 
 * Such individually-tailored vaccine targets impose prohibitive logistical and financial contraints to widespread clinical accessibility (Pearlman et al., 2021), thus discovering shared tumor-specific neoantigens for an *off-the-shelf* immunotherapeeutic strategy may be more realistic
 
-* Compiling a neoantigen database that covers neoantigens from sources beyond SNVs would expand the space of neoantigen repertoire to inform future neoantigen-based therapeutic development
+* Compiling a neoantigen database that also covers neoantigens from sources beyond SNVs would expand the space of neoantigen repertoire to inform future neoantigen-based therapeutic development
 
 * Basing neoantigen discovery off a specific Asian population address genomic data inequity that is currently inherent in genomic precision medicine that is predominantly Western or European-centric (Tawfik et al., 2023)
+
+* We have reasons to believe that neoantigen landscape might be different in Asian populations
 
 **Project Objective** 
 > **Identification of highly immunogenic and shared, public neoantigen candidates in Asian populations by harnessing neoantigen-producing sources beyond SNVs to expand neoantigen prediction space for a faster and more comprehensive clinical translation**
