@@ -1,0 +1,937 @@
+Repeat FT analysis like before, but this time using the 113 TCGA normals as our 'control'
+Once we get a cleaned up version of each sample's fusion file, will use that as input for patient-speicifc neoantigen prediction
+get a list of IDs for existing matches between fusion and HLAHD done, extract the hlahd result
+run neoantigen prediction
+------------------------------------------------------------------------------------------------------------------------------------
+
+(DOWNLOAD TCGA NORMALS X113)
+for cohort in TCGA-Normals; do
+mkdir ${cohort}
+mkdir ${cohort}/Arriba
+mkdir ${cohort}/FusionCatcher
+mkdir ${cohort}/logs
+done
+
+NUM=$1
+ID=$(sed -n ${NUM}p FINAL_NORMALS_UUID_fileID_fileName.txt | awk '{print $3}')
+aws s3 cp $S3/tcga-run/FT_Detection/RNAseq/from_FASTQfromGenomicBam_TissueNormal/Arriba/${ID}_arr_outdir/arriba-fusions.tsv Arriba/arr_${ID}.tsv
+aws s3 cp $S3/tcga-run/FT_Detection/RNAseq/from_FASTQfromGenomicBam_TissueNormal/FusionCatcher/${ID}_fc_outdir/final-list_candidate-fusion-genes.txt FusionCatcher/fc_${ID}.tsv
+aws s3 cp $S3/tcga-run/FT_Detection/RNAseq/from_FASTQfromGenomicBam_TissueNormal/Arriba/${ID}_arr_outdir/arr_${ID}.log.txt logs/
+aws s3 cp $S3/tcga-run/FT_Detection/RNAseq/from_FASTQfromGenomicBam_TissueNormal/FusionCatcher/${ID}_fc_outdir/fc_${ID}.log.txt logs/
+
+(EXTRACT NORMALS) N=2841
+tail -qn +2 */*tsv | awk '{print $1"_"$2}' | sort -n | uniq -c | sort -r | awk '{print $1"\t"$2}' >> normalFTs_withFreq.txt
+tail -qn +2 */*tsv | awk '{print $1"_"$2}' | sort -n | uniq -c | sort -r | awk '{print $2}' >> normalFTs.txt
+------------------------------------------------------------------------------------------------------------------------------------
+
+(DOWNLOAD TCGA,NTUH,MYBRCA tumour FTs)
+for cohort in TCGA MyBrCa NTUH; do
+mkdir ${cohort}
+mkdir ${cohort}/Arriba
+mkdir ${cohort}/FusionCatcher
+mkdir ${cohort}/logs
+mkdir ${cohort}/Arriba/native-fusion-files
+mkdir ${cohort}/FusionCatcher/native-fusion-files
+mkdir ${cohort}/Arriba/native-fusion-files-filtered
+mkdir ${cohort}/FusionCatcher/native-fusion-files-filtered
+mkdir ${cohort}/Arriba/genepair-files
+mkdir ${cohort}/FusionCatcher/genepair-files
+mkdir ${cohort}/Arriba/genepair-files-filtered
+mkdir ${cohort}/FusionCatcher/genepair-files-filtered
+done
+
+TCGA-tumor: 
+S3="s3://crm.tumorstudy.analysis"
+NUM=$1
+ID=$(sed -n ${NUM}p FINAL_genomicBAM_UUID_fileID_fileName.txt | awk '{print $1}')
+aws s3 cp $S3/tcga-run/FT_Detection/RNAseq/from_FASTQfromGenomicBam/Arriba/${ID}_arr_outdir/arriba-fusions.tsv Arriba/arr_${ID}.tsv
+aws s3 cp $S3/tcga-run/FT_Detection/RNAseq/from_FASTQfromGenomicBam/FusionCatcher/${ID}_fc_outdir/final-list_candidate-fusion-genes.txt FusionCatcher/fc_${ID}.tsv
+aws s3 cp $S3/tcga-run/FT_Detection/RNAseq/from_FASTQfromGenomicBam/Arriba/${ID}_arr_outdir/arr_${ID}.log.txt logs/
+aws s3 cp $S3/tcga-run/FT_Detection/RNAseq/from_FASTQfromGenomicBam/FusionCatcher/${ID}_fc_outdir/fc_${ID}.log.txt logs/
+
+MYBRCA-tumor:
+aws s3 cp $S3/mybrca-run/FT_Detection/Arriba/ALL-MYBRCA-SAMPLES.txt .
+aws s3 cp $S3/mybrca-run/FT_Detection/Arriba/arr-mybrca.log.txt logs/
+aws s3 cp $S3/mybrca-run/FT_Detection/FusionCatcher/fc-mybrca.log.txt logs/
+S3="s3://crm.tumorstudy.analysis"
+NUM=$1
+ID=$(sed -n ${NUM}p ALL-MYBRCA-SAMPLES.txt)
+aws s3 cp $S3/mybrca-run/FT_Detection/Arriba/${ID}T_arr_outdir/arriba-fusions.tsv Arriba/native-fusion-files/arr_${ID}.tsv
+aws s3 cp $S3/mybrca-run/FT_Detection/Arriba/${ID}T_arr_outdir/arr${ID}T.log.txt logs/
+aws s3 cp $S3/mybrca-run/FT_Detection/FusionCatcher/${ID}T_fc_outdir/final-list_candidate-fusion-genes.txt FusionCatcher/native-fusion-files/fc_${ID}.tsv
+aws s3 cp $S3/mybrca-run/FT_Detection/FusionCatcher/${ID}T_fc_outdir/fc-mybrca${ID}.log.txt logs/
+
+NUM=$1
+ID=$(sed -n ${NUM}p ALL-MYBRCA-SAMPLES.txt)
+echo "ARR FUSION" >> retrieve-log/log_${ID}.txt 2>&1
+aws s3api restore-object --bucket "crm.tumorstudy.analysis" --key "mybrca-run/FT_Detection/Arriba/${ID}T_arr_outdir/arriba-fusions.tsv" mybrca-run/FT_Detection/Arriba/arr-mybrca.log.txt >> retrieve-log/log_${ID}.txt 2>&1
+echo "ARR LOG" >> retrieve-log/log_${ID}.txt 2>&1
+aws s3api restore-object --bucket "crm.tumorstudy.analysis" --key "mybrca-run/FT_Detection/Arriba/${ID}T_arr_outdir/arr${ID}T.log.txt" --restore-request '{"Days":2,"GlacierJobParameters":{"Tier":"Standard"}}' >> retrieve-log/log_${ID}.txt 2>&1
+echo "FC FUSION" >> retrieve-log/log_${ID}.txt 2>&1
+aws s3api restore-object --bucket "crm.tumorstudy.analysis" --key "mybrca-run/FT_Detection/FusionCatcher/${ID}T_fc_outdir/final-list_candidate-fusion-genes.txt" --restore-request '{"Days":2,"GlacierJobParameters":{"Tier":"Standard"}}' >> retrieve-log/log_${ID}.txt 2>&1
+echo "FC LOG" >> retrieve-log/log_${ID}.txt 2>&1
+aws s3api restore-object --bucket "crm.tumorstudy.analysis" --key "mybrca-run/FT_Detection/FusionCatcher/${ID}T_fc_outdir/fc-mybrca${ID}.log.txt" --restore-request '{"Days":2,"GlacierJobParameters":{"Tier":"Standard"}}' >> retrieve-log/log_${ID}.txt 2>&1
+
+NTUH-tumor:
+aws s3 cp $S3/ntuh-run/FT_Detection/NTUH_ID_all500here.txt .
+
+S3="s3://crm.tumorstudy.analysis"
+NUM=$1
+short=$(sed -n ${NUM}p NTUH_ID_all500here.txt | awk '{print $2}')
+ID=$(sed -n ${NUM}p NTUH_ID_all500here.txt | awk '{print $3}')
+aws s3 cp $S3/ntuh-run/FT_Detection/Arriba/${ID}_arr_outdir/arriba-fusions.tsv Arriba/native-fusion-files/arr_${short}.tsv
+aws s3 cp $S3/ntuh-run/FT_Detection/Arriba/${ID}_arr_outdir/arr_${ID}.log.txt logs/arr_${short}.log.txt
+aws s3 cp $S3/ntuh-run/FT_Detection/FusionCatcher/${ID}_fc_outdir/final-list_candidate-fusion-genes.txt FusionCatcher/native-fusion-files/fc_${short}.tsv
+aws s3 cp $S3/ntuh-run/FT_Detection/FusionCatcher/${ID}_fc_outdir/fc_${ID}.log.txt logs/fc_${short}.log.txt
+
+------------------------------------------------------------------------------------------------------------------------------------
+(FILTER OUT NORMALS, EXTRACT GENE-PAIR FILE FOR BOTH B4 AND AFTER NORMAL FILTERING)
+#I want to make sure that samples with 0 output still have a file, just with no content!
+
+cohort=$1
+NUM=$2
+ID=""
+if [[ $cohort == "TCGA" ]]; then
+	ID=$(sed -n ${NUM}p TCGA/FINAL_genomicBAM_UUID_fileID_fileName.txt | awk '{print $1}')
+elif [[ $cohort == "MyBrCa" ]]; then
+	ID=$(sed -n ${NUM}p MyBrCa/ALL-MYBRCA-SAMPLES.txt)
+elif [[ $cohort == "NTUH" ]]; then
+	#ID=$(sed -n ${NUM}p NTUH/NTUH_ID_all500here.txt | awk '{print $2}') #short ID
+	ID=$(sed -n ${NUM}p NTUH/NTUH_ID_223only.txt)
+fi
+
+for tool in Arriba FusionCatcher; do
+	if [[ $tool == "Arriba" ]]; then 
+		toool="arr"
+	elif [[ $tool == "FusionCatcher" ]]; then
+		toool="fc"
+	fi
+
+	#-----------------------------------------------------
+	#ONE: extract unfiltered gene-pair (removing dups)
+	awk '{print $1"_"$2}' ${cohort}/${tool}/native-fusion-files/${toool}_${ID}.tsv | tail -n +2 | sort -n | uniq >> ${cohort}/${tool}/genepair-files/${toool}_${ID}.txt
+	
+	#-----------------------------------------------------
+	#TWO: filter fusion-files files based on TCGA normals
+
+	#but first let's clean up those native-fusion-files to handle consecutive blank cells
+	sed 's/\t\t/\t.\t/g' ${cohort}/${tool}/native-fusion-files/${toool}_${ID}.tsv | sed 's/\t\t/\t.\t/g' >> ${cohort}/${tool}/native-fusion-files-clean/${toool}_${ID}_clean.tsv
+	
+	#now let's extract the fusion that are neither in normals nor a self-fusion
+	head -1 ${cohort}/${tool}/native-fusion-files/${toool}_${ID}.tsv > ${cohort}/${tool}/native-fusion-files-filtered/${toool}_${ID}_filtered.tsv
+
+	while read line; do
+		gene1=$(echo $line | awk '{print $1}')
+		gene2=$(echo $line | awk '{print $2}')
+		genepair=$(echo $line | awk '{print $1"_"$2}')
+		if [[ ! $(grep $genepair TCGA-normals/normalFTs.txt) && $gene1 != $gene2 ]]; then
+			echo $line | sed 's/ /\t/g' >> ${cohort}/${tool}/native-fusion-files-filtered/${toool}_${ID}_filtered.tsv
+		fi
+	done <<< $(tail -n +2 ${cohort}/${tool}/native-fusion-files-clean/${toool}_${ID}_clean.tsv)
+
+	#-----------------------------------------------------
+	#THREE: extract filtered gene-pair from filtered-native files (remove dups also)
+	awk '{print $1"_"$2}' ${cohort}/${tool}/native-fusion-files-filtered/${toool}_${ID}_filtered.tsv | tail -n +2 | sort -n | uniq >> ${cohort}/${tool}/genepair-files-filtered/${toool}_${ID}_filtered.txt
+
+	#ALSO try to filter gene-pair based on TCGA normals. hopefully we will get the exact same output (YES - will stick to the first one as this does not produce output if 0 FT)
+	#while read genepair; do
+	#	if [[ ! $(grep $genepair TCGA-normals/normalFTs.txt) ]]; then
+	#		echo $genepair >> ${cohort}/${tool}/genepair-files-filtered/${toool}_${ID}_filteredv2.txt
+	#	fi
+	#done < ${cohort}/${tool}/genepair-files/${toool}_${ID}.txt
+
+done
+------------------------------------------------------------------------------------------------------------------------------------
+(RENAME FILES SPECIFICALLY FOR NTUH ONLY)
+
+
+to check or to retstart:
+ls */*/genepair-files/*
+ls */*/genepair-files-filtered/*
+ls */*/native-fusion-files-clean/*
+ls */*/native-fusion-files-filtered/*
+
+cohort=NTUH
+ls ${cohort}/*/genepair-files/* | wc -l
+ls ${cohort}/*/genepair-files-filtered/* | wc -l
+ls ${cohort}/*/native-fusion-files-clean/* | wc -l
+ls ${cohort}/*/native-fusion-files-filtered/* | wc -l
+
+cohort=MyBrCa
+ID=1
+for tool in Arriba FusionCatcher; do
+if [[ $tool == "Arriba" ]]; then 
+toool="arr"
+elif [[ $tool == "FusionCatcher" ]]; then
+toool="fc"
+fi
+wc -l ${cohort}/${tool}/genepair-files/${toool}_${ID}.txt
+wc -l ${cohort}/${tool}/genepair-files-filtered/${toool}_${ID}_filtered.txt
+wc -l ${cohort}/${tool}/native-fusion-files-clean/${toool}_${ID}_clean.tsv
+wc -l ${cohort}/${tool}/native-fusion-files-filtered/${toool}_${ID}_filtered.tsv
+done
+
+rm MyBrCa/*/genepair-files/*
+rm MyBrCa/*/genepair-files-filtered/*
+rm MyBrCa/*/native-fusion-files-clean/*
+rm MyBrCa/*/native-fusion-files-filtered/*
+
+rm */*/genepair-files/*
+rm */*/genepair-files-filtered/*
+rm */*/native-fusion-files-clean/*
+rm */*/native-fusion-files-filtered/*
+------------------------------------------------------------------------------------------------------------------------------------
+(NOW WE PROCESS THE HLA TYPES TO MATCH WITH OUR AVAILABLE FUSION FILES)
+.....................................................................................
+#TCGA - WES x 1058 <-> RNAseq x 1095. should expect 1055 rows)
+
+##download all raw files from S3 > handle not_typed by replacing space with underscore > extract col 2 & 3 > exclude "-" > convert 2 cols into 1 col > extract 4digits only = clean file (should only have 1055 in total by the end)
+
+NUM=$1
+ID=$(sed -n ${NUM}p ../FINAL_genomicBAM_UUID_fileID_fileName.txt | awk '{print $1}')
+
+if [[ -e raw_output/${ID}_final.result.txt ]]; then
+	sed 's/ /_/g' raw_output/${ID}_final.result.txt | sed 's/Not_typed/-/g' | awk '{print $2,$3}' | sed 's/ /\n/g' | grep -v "^-" | sed 's/\(\*[0-9]\{2\}:[0-9]\{2\}\)\(:[0-9]\{2\}\)/\1/g' | uniq >> clean_output/${ID}_clean.result.txt
+	all_alleles=$(while read gene; do grep $gene clean_output/${ID}_clean.result.txt; done < pvf-list | sed 's/HLA-D/D/g' | paste -sd',')
+	echo -e "${ID}\t${all_alleles}" >> ../TCGA_patient-specific-pvfAlleles.txt
+fi
+.....................................................................................
+#MyBrCa - 990-123=867
+
+download result file from S3 > format them similarly to the TCGA ones
+
+NUM=$1
+ID=$(sed -n ${NUM}p MYBRCA-867HLAHD-IDs.txt)
+
+sed 's/ /_/g' raw_output/hlahd_${ID}N.txt | sed 's/Not_typed/-/g' | awk '{print $2,$3}' | sed 's/ /\n/g' | grep -v "^-" | sed 's/\(\*[0-9]\{2\}:[0-9]\{2\}\)\(:[0-9]\{2\}\)/\1/g' | uniq >> clean_output/hlahd_${ID}N_clean.txt
+all_alleles=$(while read gene; do grep $gene clean_output/hlahd_${ID}N_clean.txt; done < pvf-list | sed 's/HLA-D/D/g' | paste -sd',')
+echo -e "${ID}\t${all_alleles}" >> ../MYBRCA_patient-specific-pvfAlleles.txt
+
+.....................................................................................
+#NTUH - for the 223 samples
+##format NTUH sent us de list first
+NUM=$1
+ID=$(sed -n ${NUM}p NTUH_IDs.txt)
+grep $ID neopred_TW.HLA.summary.normal.selected.allhlatypes.txt | awk '{print $3,$4}' >> ntuh_output/hlahd_${ID}.txt
+
+##extract only the first two lines of each hla gene
+NUM=$1
+ID=$(sed -n ${NUM}p NTUH_IDs_inconsistent.txt)
+
+while read gene; do
+grep -m 2 $gene ntuh-original/hlahd_${ID}.txt >> ntuh_output/hlahd_${ID}.txt
+done < ntuh-hlahd-genes
+
+##now extract only the relevant genes from each file, exclude Not typed, only include up to 4 digits, only include Dxx*xx:xx instead of HLA-Dxx*xx:xx, REMOVED DUPS!!
+NUM=$1
+ID=$(sed -n ${NUM}p NTUH_IDs.txt)
+
+while read gene; do
+grep $gene ntuh_output/hlahd_${ID}.txt | awk '{print $NF}' >> ntuh_output_clean/hlahd_${ID}_clean.txt #this should give exactly 40 lines - more of a sanity check
+done < pvf-list
+
+all_alleles=$(grep -v Not ntuh_output_clean/hlahd_${ID}_clean.txt | uniq | paste -sd',' | sed 's/,HLA-D/,D/g' | sed 's/\(\*[0-9]\{2\}:[0-9]\{2\}\)\(:[0-9]\{2\}\)/\1/g')
+
+echo -e "${ID}\t${all_alleles}" >> NTUH_patient-specific-pvfAlleles.txt
+
+##upload to $S3/tmp/NTUH_patient-specific-pvfAlleles.txt
+------------------------------------------------------------------------------------------------------------------------------------
+(NOW WE RUN THE NEOANTIGEN PREDICTION)
+#we will run pvf based on the IDs available. Write it in a way that handles missing fusion files/ wrong ID / wrong cohort entered
+#remember to manually conda activate agf-condaenv in screen and remove docker container esp before rerun
+#(only need conda env on main server :D - stereoseq no need)
+
+workdir="/stereoseq/minhui/PVACFUSE"
+
+cohort=$1
+NUM=$2
+datadir=""
+s3dir=""
+
+ID=$(sed -n ${NUM}p ${cohort}_patient-specific-pvfAlleles.txt | awk '{print $1}')
+ALLELES=$(sed -n ${NUM}p ${cohort}_patient-specific-pvfAlleles.txt | awk '{print $2}')
+
+#extract ID for getting the native fusion (filtered) file.
+#handle NTUH ID differently due to it's inconsistent naming- will use the first matching name (specifically for handling sample A010087L and A010087R. will use L for this round of analysis
+if [[ $cohort == "NTUH" ]]; then
+	ID_long=$(grep -m 1 $ID /stereoseq/minhui/analysis/${cohort}/NTUH_ID_223only.txt)
+elif [[ $cohort == "TCGA" || $cohort == "MyBrCa" ]]; then
+	ID_long=$ID
+else
+	echo "PLEASE ONLY ENTER NTUH / TCGA / MyBrCa as your first command line argument. Run terminated $(date | awk '{print $3"/"$2"/"$NF"_"$4}')" >> ${workdir}/${cohort}_agfPVF.failed.txt
+fi
+
+for tool in Arriba FusionCatcher; do
+	if [[ $tool == "Arriba" ]]; then 
+		toool="arr"
+		agf_tool="arriba"
+	elif [[ $tool == "FusionCatcher" ]]; then
+		toool="fc"
+		agf_tool="fusioncatcher"
+	fi
+
+	#/stereoseq/minhui/analysis/${cohort}/${tool}/native-fusion-files-filtered/${toool}_${ID}_filtered.tsv
+	datadir="/stereoseq/minhui/analysis/${cohort}/${tool}/native-fusion-files-filtered"
+
+	if [[ -e ${datadir}/${toool}_${ID_long}_filtered.tsv ]]; then
+	
+		if [[ ! -d ${workdir}/${cohort}/sample_${ID} ]]; then
+        		mkdir ${workdir}/${cohort}/sample_${ID}
+		fi
+		
+		echo ""LINE_${NUM} SAMPLE_${ID} ${tool}: START $(date | awk '{print $3"/"$2"/"$NF"_"$4}')" >> ${workdir}/${cohort}_agfPVF.log.txt
+
+		#run agf first
+        	echo -e "\n\n ------------ AGFusion ------------ " >> ${workdir}/${cohort}/sample_${ID}/sample_${ID}_${toool}.log.txt 2>&1
+        	echo -e "$(date | awk '{print $3"/"$2"/"$NF"_"$4}')\n\n" >> ${workdir}/${cohort}/sample_${ID}/sample_${ID}_${toool}.log.txt 2>&1
+        	agfusion batch \
+        	-f ${datadir}/${toool}_${ID_long}_filtered.tsv \
+        	-a ${agf_tool} \
+        	-db /stereoseq/minhui/ref/agfusion.homo_sapiens.95.db \
+        	-o ${workdir}/${cohort}/sample_${ID}/agf_sample_${ID}_${toool} \
+        	--middlestar \
+        	--noncanonical >> ${workdir}/${cohort}/sample_${ID}/sample_${ID}_${toool}.log.txt 2>&1
+
+        	#THEN PVF
+        	echo -e "\n\n ------------ pVacFuse ------------ " >> ${workdir}/${cohort}/sample_${ID}/sample_${ID}_${toool}.log.txt 2>&1
+        	echo -e "$(date | awk '{print $3"/"$2"/"$NF"_"$4}')\n\n" >> ${workdir}/${cohort}/sample_${ID}/sample_${ID}_${toool}.log.txt 2>&1
+        	docker run -v ${workdir}/${cohort}/sample_${ID}:/home/MY_STUFF/ griffithlab/pvactools:4.0.4 pvacfuse run \
+        	-a sample_name -e1 8,9,10 -e2 15 --iedb-install-directory /opt/iedb -k -t 8 \
+        	/home/MY_STUFF/agf_sample_${ID}_${toool} pvf_sample_${ID}_${toool} \
+        	${ALLELES} NetMHCpan NetMHCIIpan /home/MY_STUFF/pvf_sample_${ID}_${toool} >> ${workdir}/${cohort}/sample_${ID}/sample_${ID}_${toool}.log.txt 2>&1
+
+		echo ""LINE_${NUM} SAMPLE_${ID} ${tool}: DONE  $(date | awk '{print $3"/"$2"/"$NF"_"$4}')" >> ${workdir}/${cohort}_agfPVF.log.txt
+
+	else
+		echo "NATIVE FUSION FILE FOR ${cohort} ${ID_long} ${tool} unavailable. Run terminated $(date | awk '{print $3"/"$2"/"$NF"_"$4}')" >> ${workdir}/${cohort}_agfPVF.failed.txt
+	fi
+done
+
+s3dir="s3://crm.tumorstudy.analysis/NTUHxCRMY/${cohort,,}-run/SampleSpecificNeoantigenPrediction"
+aws s3 cp ${workdir}/${cohort}/sample_${ID}/ ${s3dir}/sample_${ID}/ --recursive
+------------------------------------------------------------------------------------------------------------------------------------
+
+(NOW WE ANALYSE THE FUSIONS WHILE NEOANTIGEN PREDICTION IS RUNNING)
+
+
+##mkdir for combined fusion analysis
+
+for cohort in TCGA NTUH MyBrCa; do
+mkdir ${cohort}/CombinedBothTools
+mkdir ${cohort}/CombinedBothTools/genepair-files
+mkdir ${cohort}/CombinedBothTools/genepair-files-filtered
+done
+
+##combine the gene-pair files before and after filtering
+cohort=$1
+NUM=$2
+ID=""
+if [[ $cohort == "TCGA" ]]; then
+	ID=$(sed -n ${NUM}p TCGA/FINAL_genomicBAM_UUID_fileID_fileName.txt | awk '{print $1}')
+elif [[ $cohort == "MyBrCa" ]]; then
+	ID=$(sed -n ${NUM}p MyBrCa/ALL-MYBRCA-SAMPLES.txt)
+elif [[ $cohort == "NTUH" ]]; then
+	#ID=$(sed -n ${NUM}p NTUH/NTUH_ID_all500here.txt | awk '{print $2}') #short ID
+	ID=$(sed -n ${NUM}p NTUH/NTUH_ID_223only.txt)
+fi
+
+
+cat ${cohort}/Arriba/genepair-files/arr_${ID}.txt ${cohort}/FusionCatcher/genepair-files/fc_${ID}.txt | sort -n | uniq >> ${cohort}/CombinedBothTools/genepair-files/combined_${ID}.txt
+cat ${cohort}/Arriba/genepair-files-filtered/arr_${ID}_filtered.txt ${cohort}/FusionCatcher/genepair-files-filtered/fc_${ID}_filtered.txt | sort -n | uniq >> ${cohort}/CombinedBothTools/genepair-files-filtered/combined_${ID}_filtered.txt
+
+
+
+##overview of fusion counts - for filling in the 3 flow chart in a slide
+for cohort in TCGA NTUH MyBrCa; do
+echo "---------------- COHORT: ${cohort^^} "----------------"
+cat ${cohort}/Arriba/genepair-files/* | sort -n | uniq | wc -l | while read count; do echo "Arriba gross total: ${count}"; done
+cat ${cohort}/FusionCatcher/genepair-files/* | sort -n | uniq | wc -l | while read count; do echo "FusionCatcher gross total: ${count}"; done
+cat ${cohort}/CombinedBothTools/genepair-files/* | sort -n | uniq | wc -l | while read count; do echo "Unique FT count: ${count}"; done
+cat ${cohort}/CombinedBothTools/genepair-files-filtered/* | sort -n | uniq | wc -l | while read count; do echo "Filtered unique FT count: ${count}"; done
+cat ${cohort}/CombinedBothTools/genepair-files-filtered/* | sort -n | uniq -c | awk '{print $1,$2}' | sort -rn | grep -c "^1[[:blank:]]" | while read count; do echo "Freq=1 N= ${count}"; done
+cat ${cohort}/CombinedBothTools/genepair-files-filtered/* | sort -n | uniq -c | awk '{print $1,$2}' | sort -rn | grep -cv "^1[[:blank:]]" | while read count; do echo "Freq>1 N= ${count}"; done
+echo " "
+done
+
+------------------------------------------------------------------------------------------------------------------------------------
+##overview of fusioncount per sample - sanity check for FT count distribution
+##use bash to gather raw counts, use python to bin + calculate frequency distribution using interval of 50
+for cohort in TCGA NTUH MyBrCa; do
+wc -l ${cohort}/CombinedBothTools/genepair-files/*txt | sed '$d' | awk '{print $1}' | sort -n >> subanalysis/${cohort}_FTcountPerSample_beforeFilter.txt
+wc -l ${cohort}/CombinedBothTools/genepair-files-filtered/*txt | sed '$d' | awk '{print $1}' | sort -n >> subanalysis/${cohort}_FTcountPerSample_afterFilter.txt
+done
+
+## cd to subanalysis
+wc -l *
+  990 MyBrCa_FTcountPerSample_afterFilter.txt
+  990 MyBrCa_FTcountPerSample_beforeFilter.txt
+  223 NTUH_FTcountPerSample_afterFilter.txt
+  223 NTUH_FTcountPerSample_beforeFilter.txt
+ 1095 TCGA_FTcountPerSample_afterFilter.txt
+ 1095 TCGA_FTcountPerSample_beforeFilter.txt
+ 4616 total
+
+
+(FREQ DISTRO OF ALL UNIQUE+FILTERED FTS)
+##python script to handle them at once
+#dependency: these 6 files countaining raw FT counts in the same directory as the script file.
+#MyBrCa_FTcountPerSample_afterFilter.txt,MyBrCa_FTcountPerSample_beforeFilter.txt,NTUH_FTcountPerSample_afterFilter.txt,NTUH_FTcountPerSample_beforeFilter.txt,TCGA_FTcountPerSample_afterFilter.txt,TCGA_FTcountPerSample_beforeFilter.txt
+
+##generate freq distro able to plot histogram in excel
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+cohorts=["MyBrCa","NTUH","TCGA"]
+dynamic_list={}
+dynamic_total={"MyBrCa":990,"NTUH":223,"TCGA":1095}
+
+
+for cohort in cohorts:
+	dynamic_list[f'{cohort}'] = []
+	FILENAME= cohort + "_FTcountPerSample_afterFilter.txt"
+	with open(f'{FILENAME}','r') as file:
+		dynamic_list[f'{cohort}'] = [int(line.strip()) for line in file]
+		
+
+#bins=[1,51,101,151,201,251,301,351,401,451,501,551,601,651,701,751,801,851,901,951,1001,1051,1101,1151,1201,1251,1300]
+
+#use np function to bin the numerical values
+#MA , _ = np.histogram(dynamic_list["MyBrCa_after"], bins)
+#NA , _ = np.histogram(dynamic_list["NTUH_after"], bins)
+#TA , bin_edges = np.histogram(dynamic_list["TCGA_after"], bins)	
+
+##set up freq_table
+#freq_table = pd.DataFrame({'Interval': [(bin_edges[i],bin_edges[i+1]) for i in range(len(bin_edges) - 1)], 'MyBrCa_After': MA, 'NTUH_After': NA, 'TCGA_After': TA})
+
+#freq_table['Interval'] = ["1-50","51-100","101-150","151-200","201-250","251-300","301-350","351-400","401-450","451-500","501-550","551-600","601-650","651-700","701-750","751-800","801-850","851-900","901-950","951-1000","1001-1050","1051-1100","1101-1150","1151-1200","1201-1250","1251-1300"]
+
+#freq_table.to_csv('FTcount_FreqDistro_allCohort.tsv',sep='\t',index=False)
+
+
+##now try to make them into density plot with smooth edges
+
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+cohorts=["MyBrCa","NTUH","TCGA"]
+dynamic_list={}
+dynamic_total={"MyBrCa":990,"NTUH":223,"TCGA":1095}
+dynamic_color={"MyBrCa":"#E8A2D1","NTUH":"#D7ED9E","TCGA":"#B3E3ED"}
+
+
+for cohort in cohorts:
+	dynamic_list[f'{cohort}'] = []
+	FILENAME= cohort + "_FTcountPerSample_afterFilter.txt"
+	with open(f'{FILENAME}','r') as file:
+		dynamic_list[f'{cohort}'] = [int(line.strip()) for line in file]
+		#dynamic_list[f'{cohort}'] = [line/dynamic_total[f'{cohort}'] for line in dynamic_list[f'{cohort}']]
+
+fig, ax = plt.subplots()
+for cohort in cohorts:
+	sns.kdeplot(dynamic_list[f'{cohort}'], fill=True, label=f'{cohort}', color=dynamic_color[f'{cohort}'], ax=ax)
+
+ax.set_xlabel('No. of Fusion Transcript per Sample')
+ax.set_ylabel('Density')
+ax.legend()
+plt.title("Distribution of fusion transcript count per sample")
+plt.savefig('density.png')
+
+
+##now make them into violin plot
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+dynamic_list={}
+dynamic_total={"MyBrCa":990,"NTUH":223,"TCGA":1095}
+dynamic_color={"MyBrCa":"#E8A2D1","NTUH":"#D7ED9E","TCGA":"#B3E3ED"}
+data=[] # Create a list of data and labels for the x-axis
+cohorts=["MyBrCa","NTUH","TCGA"]
+
+for cohort in cohorts:
+	dynamic_list[f'{cohort}'] = []
+	FILENAME= cohort + "_FTcountPerSample_afterFilter.txt"
+	with open(f'{FILENAME}','r') as file:
+		dynamic_list[f'{cohort}'] = [int(line.strip()) for line in file]
+	
+	data.append(dynamic_list[f'{cohort}'])
+
+mycolors = ["#E8A2D1","#D7ED9E","#B3E3ED"]  # Define colors for the violin plots
+
+
+sns.violinplot(data=data, palette=mycolors) # Create a violin plot
+
+plt.xlabel("Cohort") # Set labels and title
+plt.ylabel("No. of Fusion Transcript/ Sample")
+plt.title("Distribution of fusion transcript count per sample")
+plt.xticks(range(len(cohorts)), cohorts) # Specify x-axis labels
+plt.savefig('violin.png')
+
+------------------------------------------------------------------------------------------------------------------------------------
+(FREQ DISTRO OF ONLY THE RECURRENT (IE. FREQ>1) FTS)
+2934,5139,4491
+
+for cohort in TCGA NTUH MyBrCa; do
+#cat ${cohort}/CombinedBothTools/genepair-files-filtered/*txt | sort -n | uniq -c | awk '{print $1,$2}' | sort -rn | grep -v "^1[[:blank:]]" | awk '{print $NF}' >> subanalysis/2_FreqDistro_RecurrentFT/${cohort}_recurrentFTs.txt
+cat ${cohort}/CombinedBothTools/genepair-files-filtered/*txt | sort -n | uniq -c | awk '{print $1,$2}' | sort -rn | awk '{print $NF}' >> subanalysis/2_FreqDistro_RecurrentFT/${cohort}_allFTs.txt
+done
+
+for cohort in TCGA NTUH MyBrCa; do
+mkdir ${cohort}/CombinedBothTools/genepair-files-filtered-recurrent/
+done
+
+#generate genepair-file for only the recurrent FTs
+cohort=$1
+NUM=$2
+ID=""
+if [[ $cohort == "TCGA" ]]; then
+	ID=$(sed -n ${NUM}p TCGA/FINAL_genomicBAM_UUID_fileID_fileName.txt | awk '{print $1}')
+elif [[ $cohort == "MyBrCa" ]]; then
+	ID=$(sed -n ${NUM}p MyBrCa/ALL-MYBRCA-SAMPLES.txt)
+elif [[ $cohort == "NTUH" ]]; then
+	#ID=$(sed -n ${NUM}p NTUH/NTUH_ID_all500here.txt | awk '{print $2}') #short ID
+	ID=$(sed -n ${NUM}p NTUH/NTUH_ID_223only.txt)
+fi
+
+while read fusion; do
+if [[ $(grep "^$fusion$" subanalysis/2_FreqDistro_RecurrentFT/${cohort}_recurrentFTs.txt) ]]; then
+	echo $fusion >> ${cohort}/CombinedBothTools/genepair-files-filtered-recurrent/recurrent_${ID}.txt
+fi
+done < ${cohort}/CombinedBothTools/genepair-files-filtered/combined_${ID}_filtered.txt
+
+
+#now generate a list of counts per sample based on the recurrent.txt
+for cohort in TCGA NTUH MyBrCa; do
+wc -l ${cohort}/CombinedBothTools/genepair-files-filtered-recurrent/* | sed '$d' | awk '{print $1}' | sort -n >> subanalysis/2_FreqDistro_RecurrentFT/${cohort}_recurrentFTcountPerSample.txt
+done
+
+#now check their freq distro in python
+import pandas as pd
+import numpy as np
+
+cohorts=["MyBrCa","NTUH","TCGA"]
+
+dynamic_list={}
+
+#use for loop to dynamically import FT count into corresponding lists
+for cohort in cohorts:
+	dynamic_list[f'{cohort}'] = []
+	FILENAME= cohort + "_recurrentFTcountPerSample.txt"
+	with open(f'{FILENAME}','r') as file:
+		dynamic_list[f'{cohort}'] = [int(line.strip()) for line in file]
+
+#bins=[1,21,41,61,81,101,201,301,401,600]
+bins=[1,51,101,151,201,251,301,351,401,451,700]
+
+#use np function to bin the numerical values
+MR , _ = np.histogram(dynamic_list["MyBrCa"], bins)
+NR , _ = np.histogram(dynamic_list["NTUH"], bins)
+TR , bin_edges = np.histogram(dynamic_list["TCGA"], bins)	
+
+##set up freq_table
+freq_table = pd.DataFrame({'Interval': [(bin_edges[i],bin_edges[i+1]) for i in range(len(bin_edges) - 1)], 'MyBrCa': MR, 'NTUH': NR, 'TCGA': TR})
+
+#freq_table['Interval'] = ["1-20","21-40","41-60","61-80","81-100","101-200","201-300","301-400","401-600"]
+freq_table['Interval'] = ["1-50","51-100","101-150","151-200","201-250","251-300","301-350","351-400","401-450","450+"]
+
+freq_table.to_csv('RecurrentFTcount_FreqDistro_allCohort_V3.tsv',sep='\t',index=False)
+
+------------------------------------------------------------------------------------------------------------------------------------
+(download neoantigens for analysis - on my laptop)
+
+####download filtered.tsv
+#mkdir ${cohort}/pvf_output
+cohort=$1
+NUM=$2
+ID=""
+if [[ $cohort == "TCGA" ]]; then
+	#ID=$(sed -n ${NUM}p TCGA/FINAL_genomicBAM_UUID_fileID_fileName.txt | awk '{print $1}')
+	ID=$(sed -n ${NUM}p TCGA/TCGA_patient-specific-pvfAlleles.txt | awk '{print $1}')
+elif [[ $cohort == "MyBrCa" ]]; then
+	#ID=$(sed -n ${NUM}p MyBrCa/ALL-MYBRCA-SAMPLES.txt)
+	ID=$(sed -n ${NUM}p MyBrCa/MyBrCa_patient-specific-pvfAlleles.txt | awk '{print $1}')
+elif [[ $cohort == "NTUH" ]]; then
+	#ID=$(sed -n ${NUM}p NTUH/NTUH_ID_all500here.txt | awk '{print $2}') #short ID
+	ID=$(sed -n ${NUM}p NTUH/NTUH_patient-specific-pvfAlleles.txt | awk '{print $1}')
+fi
+
+s3dir="s3://crm.tumorstudy.analysis/NTUHxCRMY/${cohort,,}-run/SampleSpecificNeoantigenPrediction"
+for tool in arr fc; do
+aws s3 cp ${s3dir}/sample_${ID}/pvf_sample_${ID}_${tool}/combined/pvf_sample_${ID}_${tool}.filtered.tsv ${cohort}/pvf_output/
+done
+
+
+####clean up the spaces for easy formating + extract uniq peptide from each file
+#${cohort}/unique_peptide
+cohort=$1
+NUM=$2
+ID=""
+if [[ $cohort == "TCGA" ]]; then
+	#ID=$(sed -n ${NUM}p TCGA/FINAL_genomicBAM_UUID_fileID_fileName.txt | awk '{print $1}')
+	ID=$(sed -n ${NUM}p TCGA/TCGA_patient-specific-pvfAlleles.txt | awk '{print $1}')
+elif [[ $cohort == "MyBrCa" ]]; then
+	#ID=$(sed -n ${NUM}p MyBrCa/ALL-MYBRCA-SAMPLES.txt)
+	ID=$(sed -n ${NUM}p MyBrCa/MyBrCa_patient-specific-pvfAlleles.txt | awk '{print $1}')
+elif [[ $cohort == "NTUH" ]]; then
+	#ID=$(sed -n ${NUM}p NTUH/NTUH_ID_all500here.txt | awk '{print $2}') #short ID
+	ID=$(sed -n ${NUM}p NTUH/NTUH_patient-specific-pvfAlleles.txt | awk '{print $1}')
+fi
+
+
+tail -qn +2 ${cohort}/pvf_output/pvf_sample_${ID}_*.filtered.tsv | sed 's/ //g' | awk '{print $10}'| sort -n | uniq >> ${cohort}/unique_peptide/uniq_${ID}.txt
+
+#rm */unique_peptide/*
+
+------------------------------(this one need redo)
+##count total uniq peptide per cohort (this is for concordance analysis)
+
+for cohort in TCGA NTUH MyBrCa; do 
+#cat ${cohort}/unique_peptide/* | sort -n | uniq | wc -l | while read count; do echo "${cohort} unique peptide count: ${count}"; done
+cat ${cohort}/unique_peptide/* | sort -n | uniq >> ${cohort}/${cohort}_ALLunique_peptides.txt
+done
+
+##check freq distro of peptide counts
+#now generate a list of counts per sample based on the recurrent.txt
+for cohort in TCGA NTUH MyBrCa; do
+wc -l ${cohort}/unique_peptide/* | sed '$d' | awk '{print $1}' | sort -n >> subanalysis/4_FreqDistro_Allpeptide/${cohort}_PeptidecountPerSample.txt
+done
+
+#now check their freq distro in python
+import pandas as pd
+import numpy as np
+
+cohorts=["MyBrCa","NTUH","TCGA"]
+
+dynamic_list={}
+
+#use for loop to dynamically import FT count into corresponding lists
+for cohort in cohorts:
+	dynamic_list[f'{cohort}'] = []
+	FILENAME= cohort + "_PeptidecountPerSample.txt"
+	with open(f'{FILENAME}','r') as file:
+		dynamic_list[f'{cohort}'] = [int(line.strip()) for line in file]
+
+bins=[1,51,101,151,201,251,301,351,1100]
+
+#use np function to bin the numerical values
+MR , _ = np.histogram(dynamic_list["MyBrCa"], bins)
+NR , _ = np.histogram(dynamic_list["NTUH"], bins)
+TR , bin_edges = np.histogram(dynamic_list["TCGA"], bins)	
+
+##set up freq_table
+freq_table = pd.DataFrame({'Interval': [(bin_edges[i],bin_edges[i+1]) for i in range(len(bin_edges) - 1)], 'MyBrCa': MR, 'NTUH': NR, 'TCGA': TR})
+
+freq_table['Interval'] = ["1-50","51-100","101-150","151-200","201-250","251-300","301-350","351+"]
+
+freq_table.to_csv('PeptideCount_FreqDistro_allCohort.tsv',sep='\t',index=False)
+
+------------------------------------------------------------------------------------------------------------------------------------
+##fusion concordance
+
+cohort=
+aws s3 cp $S3/tmp/analysis/${cohort}/CombinedBothTools/genepair-files-filtered/ ${cohort}/CombinedBothTools/genepair-files-filtered/ --recursive
+
+for cohort in TCGA NTUH MyBrCa; do 
+cat ${cohort}/CombinedBothTools/genepair-files-filtered/* | sort -n | uniq >> venn/${cohort}_ALLunique_FTs.txt
+done
+
+(i did it manually in python using set() and intersection() - write a script then helps make this faster)
+------------------------------------------------------------------------------------------------------------------------------------
+### recurrent peptide concordance
+
+for cohort in TCGA NTUH MyBrCa; do
+cat ${cohort}/unique_peptide/* | sort -n | uniq -c | awk '{print $1,$2}' | sort -rn | grep -v "^1[[:blank:]]" | awk '{print $NF}' >> subanalysis/5_FreqDistro_RecurrentPeptide/${cohort}_recurrentPeptides.txt
+done
+
+${cohort}_ALLunique_peptides.txt
+
+#grep recurrent peptides for freq distro
+cohort=$1
+NUM=$2
+ID=$(sed -n ${NUM}p ${cohort}/${cohort}_patient-specific-pvfAlleles.txt | awk '{print $1}')
+
+while read peptide; do
+if [[ $(grep "^$peptide$" subanalysis/5_FreqDistro_RecurrentPeptide/${cohort}_recurrentPeptides.txt) ]]; then
+	echo $peptide >> ${cohort}/unique_peptide_recurrent/recurrent_${ID}.txt
+fi
+done < ${cohort}/unique_peptide/uniq_${ID}.txt
+
+#now generate a list of counts per sample based on the recurrent.txt
+for cohort in TCGA NTUH MyBrCa; do
+wc -l ${cohort}/unique_peptide_recurrent/* | sed '$d' | awk '{print $1}' | sort -n >> subanalysis/5_FreqDistro_RecurrentPeptide/${cohort}_recurrentPeptidecountPerSample.txt
+done
+
+#now do freq distro using python
+import pandas as pd
+import numpy as np
+
+cohorts=["MyBrCa","NTUH","TCGA"]
+
+dynamic_list={}
+
+#use for loop to dynamically import FT count into corresponding lists
+for cohort in cohorts:
+	dynamic_list[f'{cohort}'] = []
+	FILENAME= cohort + "_recurrentPeptidecountPerSample.txt"
+	with open(f'{FILENAME}','r') as file:
+		dynamic_list[f'{cohort}'] = [int(line.strip()) for line in file]
+
+#bins=[1,21,41,61,81,101,121,141,161,181,200]
+bins=[1,51,101,151,201,251,301,351,1100]
+
+#use np function to bin the numerical values
+MR , _ = np.histogram(dynamic_list["MyBrCa"], bins)
+NR , _ = np.histogram(dynamic_list["NTUH"], bins)
+TR , bin_edges = np.histogram(dynamic_list["TCGA"], bins)	
+
+##set up freq_table
+freq_table = pd.DataFrame({'Interval': [(bin_edges[i],bin_edges[i+1]) for i in range(len(bin_edges) - 1)], 'MyBrCa': MR, 'NTUH': NR, 'TCGA': TR})
+
+#freq_table['Interval'] = ["1-20","21-40","41-60","61-80","81-100","101-120","121-140","141-160","161-180","181-200"]
+freq_table['Interval'] = ["1-50","51-100","101-150","151-200","201-250","251-300","301-350","351+"]
+
+freq_table.to_csv('RecurrentPeptideCount_FreqDistro_allCohort_V2.tsv',sep='\t',index=False)
+
+------------------------------------------------------------------------------------------------------------------------------------
+
+#also look at concordance of recurrent peptides
+cd subanalysis/5_FreqDistro_RecurrentPeptide
+
+with open(f'MyBrCa_recurrentPeptides.txt','r') as file:
+	mybrca = [line.strip() for line in file]
+	mybrca = set(mybrca)
+
+with open(f'NTUH_recurrentPeptides.txt','r') as file:
+	ntuh = [line.strip() for line in file]
+	ntuh = set(ntuh)
+
+with open(f'TCGA_recurrentPeptides.txt','r') as file:
+	tcga = [line.strip() for line in file]
+	tcga = set(tcga)
+
+MxN=len(mybrca.intersection(ntuh))
+MxT=len(mybrca.intersection(tcga))
+TxN=len(tcga.intersection(ntuh))
+MxNxT=len(tcga.intersection(ntuh).intersection(mybrca))
+
+print (f"MYBRCA x NTUH count: {MxN}")
+print (f"MYBRCA x TCGA count: {MxT}")
+print (f"  TCGA x NTUH count: {TxN}")
+print (f"MYBRCA x NTUH x TCGA count : {MxNxT}")
+
+print (f"Unique to MYBRCA: {len(mybrca)-MxN-(MxT-MxNxT)}")
+print (f"Unique to NTUH: {len(ntuh)-MxN-(TxN-MxNxT)}")
+print (f"Unique to TCGA: {len(tcga)-MxT-(TxN-MxNxT)}")
+
+print (f"MYBRCA x NTUH concordance rate: {MxN/(len(mybrca)+len(ntuh))}")
+print (f"MYBRCA x TCGA concordance rate: {MxT/(len(mybrca)+len(tcga))}")
+print (f"  TCGA x NTUH concordance rate: {TxN/(len(tcga)+len(ntuh))}")
+
+
+#and concordance of recurrent FTs
+
+with open(f'MyBrCa_recurrentFTs.txt','r') as file:
+	mybrca = [line.strip() for line in file]
+	mybrca = set(mybrca)
+
+with open(f'NTUH_recurrentFTs.txt','r') as file:
+	ntuh = [line.strip() for line in file]
+	ntuh = set(ntuh)
+
+with open(f'TCGA_recurrentFTs.txt','r') as file:
+	tcga = [line.strip() for line in file]
+	tcga = set(tcga)
+
+MxN=len(mybrca.intersection(ntuh))
+MxT=len(mybrca.intersection(tcga))
+TxN=len(tcga.intersection(ntuh))
+MxNxT=len(tcga.intersection(ntuh).intersection(mybrca))
+
+print (f"MYBRCA x NTUH count: {MxN}")
+print (f"MYBRCA x TCGA count: {MxT}")
+print (f"  TCGA x NTUH count: {TxN}")
+print (f"MYBRCA x NTUH x TCGA count : {MxNxT}")
+
+print (f"Unique to MYBRCA: {len(mybrca)-MxN-(MxT-MxNxT)}")
+print (f"Unique to NTUH: {len(ntuh)-MxN-(TxN-MxNxT)}")
+print (f"Unique to TCGA: {len(tcga)-MxT-(TxN-MxNxT)}")
+
+print (f"MYBRCA x NTUH concordance rate: {MxN/(len(mybrca)+len(ntuh))}")
+print (f"MYBRCA x TCGA concordance rate: {MxT/(len(mybrca)+len(tcga))}")
+print (f"  TCGA x NTUH concordance rate: {TxN/(len(tcga)+len(ntuh))}")
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+##freq distro of freq of FT & peptides (means need to get counts of filtered peptides across cohort)
+
+#for FT & peptide
+mkdir subanalysis/6_FreqDistro_FreqofFTandPeptides/
+for cohort in TCGA NTUH MyBrCa; do
+cat ${cohort}/CombinedBothTools/genepair-files-filtered/*txt | sort -n | uniq -c | awk '{print $1,$2}' | sort -rn  >> subanalysis/6_FreqDistro_FreqofFTandPeptides/${cohort}_FreqOfFTs.txt
+cat ${cohort}/unique_peptide/* | sort -n | uniq -c | awk '{print $1,$2}' | sort -rn >> subanalysis/6_FreqDistro_FreqofFTandPeptides/${cohort}_FreqOfPeptides.txt
+done
+
+for cohort in MyBrCa NTUH TCGA; do 
+awk '{print $1}' ${cohort}_FreqOfFTs.txt >> ${cohort}_FreqOfFTs_onlyFreq.txt
+awk '{print $1}' ${cohort}_FreqOfPeptides.txt >> ${cohort}_FreqOfPeptides_onlyFreq.txt
+done
+
+#bring this to python (for FTs)
+import pandas as pd
+import numpy as np
+
+cohorts=["MyBrCa","NTUH","TCGA"]
+
+dynamic_list={}
+for cohort in cohorts:
+	dynamic_list[f'{cohort}'] = []
+	FILENAME= cohort + "_FreqOfFTs_onlyFreq.txt"
+	with open(f'{FILENAME}','r') as file:
+		dynamic_list[f'{cohort}'] = [int(line.strip()) for line in file]
+
+bins=[0,2,21,41,61,81,101,121,141,161,181,201,1000]
+
+#use np function to bin the numerical values
+MR , _ = np.histogram(dynamic_list["MyBrCa"], bins)
+NR , _ = np.histogram(dynamic_list["NTUH"], bins)
+TR , bin_edges = np.histogram(dynamic_list["TCGA"], bins)	
+
+##set up freq_table
+freq_table = pd.DataFrame({'Interval': [(bin_edges[i],bin_edges[i+1]) for i in range(len(bin_edges) - 1)], 'MyBrCa': MR, 'NTUH': NR, 'TCGA': TR})
+
+freq_table['Interval'] = ["1","2-20","21-40","41-60","61-80","81-100","101-120","121-140","141-160","161-180","181-200","201+"]
+
+freq_table.to_csv('FTs_FreqDistro_allCohort.tsv',sep='\t',index=False)
+
+
+dynamic_list={}
+for cohort in cohorts:
+	dynamic_list[f'{cohort}'] = []
+	FILENAME= cohort + "_FreqOfPeptides_onlyFreq.txt"
+	with open(f'{FILENAME}','r') as file:
+		dynamic_list[f'{cohort}'] = [int(line.strip()) for line in file]
+
+#use np function to bin the numerical values
+MR , _ = np.histogram(dynamic_list["MyBrCa"], bins)
+NR , _ = np.histogram(dynamic_list["NTUH"], bins)
+TR , bin_edges = np.histogram(dynamic_list["TCGA"], bins)	
+
+##set up freq_table
+freq_table=pd.DataFrame()
+freq_table = pd.DataFrame({'Interval': [(bin_edges[i],bin_edges[i+1]) for i in range(len(bin_edges) - 1)], 'MyBrCa': MR, 'NTUH': NR, 'TCGA': TR})
+
+freq_table['Interval'] = ["1","2-20","21-40","41-60","61-80","81-100","101-120","121-140","141-160","161-180","181-200","201+"]
+
+freq_table.to_csv('Peptides_FreqDistro_allCohort.tsv',sep='\t',index=False)
+------------------------------------------------------------------------------------------------------------------------------------
+##freq distro of best scoring peptide within each sample
+
+####clean up the spaces for easy formating + extract uniq peptide from each file
+#${cohort}/unique_peptide
+cohort=$1
+NUM=$2
+ID=$(sed -n ${NUM}p ${cohort}/${cohort}_patient-specific-pvfAlleles.txt | awk '{print $1}')
+
+tail -qn +2 ${cohort}/pvf_output/pvf_sample_${ID}_*.filtered.tsv | sed 's/ //g' | awk '{print $12"\t"$10}'| sort -n | head -1 >> ${cohort}/lowestIC50score_peptide/best_${ID}.txt
+
+
+##extract those best scores into subanalysis dir for freq distro of scores
+for cohort in TCGA NTUH MyBrCa; do
+awk '{print $1}' ${cohort}/lowestIC50score_peptide/* | sort -n >> subanalysis/7_FreqDistro_BestPeptideScore/${cohort}_bestScores.txt
+done
+
+#(do freq distro in python in a bit)
+import pandas as pd
+import numpy as np
+
+cohorts=["MyBrCa","NTUH","TCGA"]
+
+dynamic_list={}
+for cohort in cohorts:
+	dynamic_list[f'{cohort}'] = []
+	FILENAME= cohort + "_bestScores.txt"
+	with open(f'{FILENAME}','r') as file:
+		dynamic_list[f'{cohort}'] = [float(line.strip()) for line in file]
+
+bins=[1,21,41,61,81,101,201,301,401,500]
+
+#use np function to bin the numerical values
+MR , _ = np.histogram(dynamic_list["MyBrCa"], bins)
+NR , _ = np.histogram(dynamic_list["NTUH"], bins)
+TR , bin_edges = np.histogram(dynamic_list["TCGA"], bins)	
+
+##set up freq_table
+freq_table = pd.DataFrame({'Interval': [(bin_edges[i],bin_edges[i+1]) for i in range(len(bin_edges) - 1)], 'MyBrCa': MR, 'NTUH': NR, 'TCGA': TR})
+
+freq_table['Interval'] = ["1-20","21-40","41-60","61-80","81-100","101-200","201-300","301-400","401-500"]
+
+freq_table.to_csv('PeptideBestScore_FreqDistro_allCohort.tsv',sep='\t',index=False)
+
+------------------------------------------------------------------------------------------------------------------------------------
+##also check the frequency of those best scoring peptides (highest freq is in the single digit only - this one can abort mission)
+for cohort in TCGA NTUH MyBrCa; do
+cat ${cohort}/lowestIC50score_peptide/* | sort -n | uniq -c | awk '{print $1,$2}' | sort -rn | head
+done
+
+------------------------------------------------------------------------------------------------------------------------------------
+##check total num of coding transcripts 
+
+for cohort in TCGA NTUH MyBrCa; do
+ls ${cohort}/*/agf*/ | grep -v "sample" | grep -v '^$' | sed 's/\-[0-9]*_/_/g' | sed 's/\-[0-9]*$//g' | sort -n | uniq >> ${cohort}_CodingTranscripts.txt
+done
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+
+68.97 
+A030078
+##freq distro of median scoring peptide within each sample
+
+####clean up the spaces for easy formating + extract uniq peptide from each file
+#${cohort}/unique_peptide
+cohort=$1
+NUM=$2
+ID=$(sed -n ${NUM}p ${cohort}/${cohort}_patient-specific-pvfAlleles.txt | awk '{print $1}')
+
+tail -qn +2 ${cohort}/pvf_output/pvf_sample_${ID}_*.filtered.tsv | sed 's/ //g' | awk '{print $12"\t"$10}'| sort -n >> ${cohort}/medianIC50score_peptide/all_${ID}.txt
+
+awk '{print $1}' ${cohort}/medianIC50score_peptide/all_${ID}.txt | awk '{a[i++]=$1;} END {if (i % 2 == 0) print (a[int(i/2)-1] + a[int(i/2)]) / 2; else print a[int(i/2)];}' >> ${cohort}/medianIC50score_peptide/median_${ID}.txt
+
+##extract those best scores into subanalysis dir for freq distro of scores
+for cohort in TCGA NTUH MyBrCa; do
+cat ${cohort}/medianIC50score_peptide/median_*.txt | sort -n >> subanalysis/8_FreqDistro_MedianPeptideScore/${cohort}_medianScores.txt
+done
+
+##COMMENT: the problem with this approach is that median score can be halved but peptide can't maybe we will resort to selecting the one halfway - if we do need to look into identity of median scoring peptide. can ignore for now.
+
+#execute density.py and violin.py for all cohorts.
+
+------------------------------------------------------------------------------------------------------------------------------------
+##ideas:
+(DONE) freq distro of all unique+filtered FTs (to see if any specific samples are contributing to most of the counts)
+(DONE) freq distro of 'recurrent, IE freq >1' FTs (to see if there is any difference - NTUH still way more :) )
+> freq distro of FT further seperated by clinical subtypes (how to use p-value test to check statistical significance?)
+(DONE) freq distro of neoantigen count per sample 
+> also try to correct for num of alleles available in pvf; ratio of FT <-> neoantigen per sample
+(DONE) venn diagram X2 - for ALL FT and neoantigen
+(DONE) venn diagram X2 - for RECURRENT FT and neoantigen
+(DONE) freq distro of freq of FT & peptides across the whole cohort (get an idea of what are the proportions of peptides that are found in many samples)
+> beat and median IC50 score WITHIN the sample (as density plot)
+> 'control' for molecular subtype and hla type
+> edit the figure in last slide - also density plot / violin plot
+> approach #1: analyse neoantigen count seperately for patients w same hla type (ie. control for hla type) - then check for concordance across cohorts
+> approach #2: rerun extraction of unique peptide + hla information - then check for concordance across cohorts :D
+> email them x2 to remind them of our experiment goals
+
+#discovered problems:
+> TCGA runs ... got problem? 21 files cant download (prob the ones we didnt have hla results for - we didn't handle this properly). it's ok, should not majorly affect out result. just state this in the slides
+
+> need to redo filtering .. my grep got bug, should grep "^$fusion$" instead of just $fusion when filtering out normals. i assume this will increase the num of FTs by a handful but should not majorly affect the results. we will redo this later .
+> need to redo normals filtering (too). exclude those that are found in only one sample (which is majority of them!! 2053/2841) - tho it doesn't seem to make much difference. maybe it's ok
+>include GTex breast tissues for background control?
