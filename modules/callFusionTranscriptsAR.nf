@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 
-// Run first module
+// Run calling module
 process callFusionTranscriptsAR {
     publishDir "${params.output_dir}/${sampleName}", mode: 'copy'
     container "${params.container__arriba}"

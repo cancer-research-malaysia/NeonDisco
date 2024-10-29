@@ -3,7 +3,6 @@
 echo $(id)  
 
 # ENSURE THAT THE fq.gz HAVE BEEN PREPROCESSED FIRST BEFORE YOU RUN HLA-HD! 
-# get script arguments
 
 READ_ONE=$1
 READ_TWO=$2
