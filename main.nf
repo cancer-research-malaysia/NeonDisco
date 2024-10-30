@@ -1,10 +1,13 @@
 #!/usr/bin/env nextflow
 
+nextflow.enable.dsl = 2
+
 // All of the default parameters are being set in `nextflow.config`
 // Import sub-workflows
 include { callFusionTranscriptsAR } from './modules/callFusionTranscriptsAR'
 include { callFusionTranscriptsFC } from './modules/callFusionTranscriptsFC'
 include { collateFusionTranscripts } from './modules/collateFusionTranscripts'
+// include { }
 
 // Function which prints help message text
 def helpMessage() {
@@ -127,9 +130,10 @@ workflow {
             }
         }
     }
-}
-
-workflow.onComplete {
+    workflow.onComplete {
     println "Pipeline completed at: $workflow.complete"
     println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
 }
+}
+
+
