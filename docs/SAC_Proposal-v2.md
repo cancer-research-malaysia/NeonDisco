@@ -1,26 +1,15 @@
-## SAC Proposal (Project 1)
+## SAC Proposal version 2 (Project 1)
 
 ### Introduction
-1. Cancer is driven by genetic abnormalities exemplified by single nucleotide variants (*SNVs*) or small insertions and deletions (*indels*)
+1. Neoantigens are novel antigens derived from various mechanisms in tumor cells, recognized as 'nonself' by the immune system, and thus they play important roles in antitumor immune responses during immunotherapy
 
-2. They can translate to tumor-specific neoantigens – a class of altered, foreign protein products that are only expressed in one particular tumor cell and absent in normal, healthy cells
+2. Neoantigens can be broadly classed into classical and noncanonical neoantigens (Figure 1)
 
-3. The resulting neoantigens can be immunogenic and may induce an antitumor adaptive immune response as the immune system will see them as 'nonself' (Gubin et al., 2015)
+3. Classical neoantigens are derived from nonsynonymous single nucleotide variants (SNVs), small insertion/deletions (indels) or gene fusions within exome that directly alter the translated protein sequences
 
-4. Neoantigens can be generalized into mutation-dependent and mutation-independent neoantigens (Fig. 1), which originate from processes at different levels of regulation
+4. Noncanonical neoantigens result from aberrant cellular processes in tumor cells such as alternative splicing and RNA editing, and they are not necessarily derived from cis mutation events
 
-![Fig. 1: Categories of neoantigens (adapted from Katsikis et al., 2023)](assets/katsikis.png)
-
-<em>Fig. 1: Categories of neoantigens (adapted from Katsikis et al., 2023)</em>
-
-5. SNV-derived neoantigens have been most of the research focus, but unconventional neoantigens from genetic alterations that produce fusion genes and transcriptional aberrations that dysregulate normal alternative splicing events (ASE) remain largely unexplored (Capietto et al., 2022)
-
-6. These alternative sources of neoantigens can also produce tumor-specific neopeptides (**Fig. 2**), especially in tumor types with low tumor mutational burden, a proxy metric that is biased towards SNV-derived neoantigens
-
-![Fig. 2: Theoretical sources of neoantigens (adapted from Bräunlein & Krackhardt, 2017)](assets/braunlein&krackhardt.jpg)
-
-<em>Fig. 2: Theoretical sources of neoantigens (adapted from Bräunlein & Krackhardt, 2017)</em>
-
+5. These alternative neoantigens are largely unexplored – they can result in tumor-specific and highly immunogenic neoepitopes, especially in tumor types with low tumor mutational burden (TMB), a proxy metric that is biased towards the classical, SNV-derived neoantigens
 
 ### Significance 
 
