@@ -2,35 +2,23 @@
 
 ## Background
 
-Cancer vaccines are an emerging therapeutic option for tumor diseases with a potential to convert
-immune-“cold” tumours to immune-“hot” tumours in combination with immune checkpoint inhibitor immunotherapy. They are also
-of particular interest in the quest for the generation of
-universal cancer vaccines that can be used “off-the-shelf", in contrast to other highly
-personalized approaches such as adoptive cell therapies that are likely to be too resource-
-intensive and expensive to be scaled up for general use outside first-world countries.
-
-The hunt for a universal cancer vaccine continues to be a major focus area for cancer
-immunotherapy. Various biotarget candidates have been proposed, including cancer neoantigens, tumour-associated antigens, tumour-associated viral
-antigens, and more recently, “dark” transient epigenetically driven antigens. One of the main challenges towards developing universal cancer vaccines is that most
-neoantigen targets appear to be highly individualized, with little overlap between different
-patients. Another main challenge is that acquired resistance to individual targets develops
-quickly due to tumour evolution. Thus, a multi-target, highly combinatorial
-approach is likely to work best towards finding a generalized set of neoantigens for cancer vaccine development. 
+Cancer vaccines are an emerging therapeutic option for tumor diseases with a potential to convert immune-“cold” tumours to immune-“hot” tumours in combination with immune checkpoint inhibitor immunotherapy. They are also of particular interest in the quest for the generation of universal cancer vaccines that can be used  “off-the-shelf", in contrast to other highly personalized approaches such as adoptive cell therapies that are likely to be too resource-intensive and expensive to be scaled up for general use outside first-world countries.
 
 [Nextflow](https://www.nextflow.io/) is a free and open source software project which makes it easier to run a computational workflow consisting of a series of interconnected steps.
 
-This repository documents the porting process of an in-house cancer neoantigen identification workflow at CRM using multiple bioinformatics tools into a Nextflow pipeline to enable portability and reproducibility. The main Nextflow script is written in the [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) syntax. The file structure of this repository was soft-cloned from [here](https://github.com/FredHutch/workflow-template-nextflow) but the current file content and scripts have been completely customized and rewritten to fit the goal of this pipeline.
+This repository documents the design of an integrated cancer neoantigen discovery pipeline with a focus on nonclassical neoantigen space. The main Nextflow script is written in the [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) syntax. The file structure of this repository was soft-cloned from [here](https://github.com/FredHutch/workflow-template-nextflow) but the current file content and scripts have been completely customized and rewritten to fit the goal of this pipeline.
 
-### Repository Structure
+## Repository Structure
 
 The essential components of the workflow repository are as follows:
 - `main.nf`: Contains the primary workflow code which pulls in all additional code from the repository
 - `modules/`: Contains all of the sub-workflows which are used to organize large chunks of analysis
-- `bin/`: Contains all of the code which is executed in each individual step of the workflow
+- `bin/`: Contains all of the scripts which are executed in each individual step of the workflow
+- `docker`: Contains the Dockerfiles and the associated test scripts used to build Dockerized versions of the tool stack used in this pipeline
 
 ### User Input of Parameters
 
-There are three ways by which users can easily provide their own inputs to a workflow; (1) with command-line flags, (2) with a params file and (3) by setting default values in `nextflow.config`.
+There are three ways by which users can easily provide their own inputs to a workflow; (1) with command-line flags, (2) with a config file containing the extra parameters to run the pipeline and (3) by changing default values directly in `nextflow.config`.
 
 On the command line, parameters are provided using two dashes before the parameter name, e.g. `--param_name value`. One limitation of this approach is that the provided value will be interpreted as a string. The best example of this is the edge case of the the negative boolean (`false`), which will be interpreted by Nextflow as a string (`'false'`). The second limitation is that the command line string starts to become rather long. Another consideration of providing parameters on the command line is that they may be interpreted by the shell before execution. For example, in the context of a BASH script `--param_name *.fastq.gz` will first be expanded into a list of files which match that pattern (e.g., `--param_name 1.fastq.gz 2.fastq.gz 3.fastq.gz`), which may not be the intention. This behavior can be prevented explicitly with single-quotes in BASH, with `--param_name '*.fastq.gz'` being unaltered by the shell before execution.
 
@@ -61,7 +49,7 @@ Each individual step in a workflow should be run inside a container (using eithe
 Software containers should be defined as parameters in `main.nf`, which allows the value to propagate automatically to all imported sub-workflows, while also being able to be overridden easily by the user if necessary. Practically speaking, this means that every process should have a `container` declared which follows the pattern `container "${params.container__toolname}"`, and which was set in `nextflow.config` with `params{container__toolname = "quay.io/org/image:tag"}`. It is crucial that the parameter be set _before_ the subworkflows are imported, as shown in this example workflow.
 
 ------
-### Workflow Style Guide
+## Workflow Style Guide
 
 While a workflow could be made in almost any way imaginable, there are some tips and tricks which make debugging and development easier. This is a highly opinionated list, and should not be taken as a hard-and-fast rule.
 
