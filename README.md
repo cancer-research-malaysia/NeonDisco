@@ -1,4 +1,4 @@
-# Fusion Transcript Neoantigen Identification Pipeline (CRM)
+# Fusion Transcript Neoantigen Identification Pipeline (CRMY)
 
 ## Background
 
