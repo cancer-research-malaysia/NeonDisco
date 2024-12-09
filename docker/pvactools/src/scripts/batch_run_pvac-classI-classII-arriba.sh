@@ -10,7 +10,7 @@ ALLELES='A*11:01,HLA-A*24:02,HLA-A*33:03,HLA-A*02:07,HLA-A*11:353,HLA-A*02:01,HL
 export AGF_DIRS=($(find "${INDIR}" -mindepth 1 -maxdepth 1 -type d -name 'agf_output*'))
 echo "Found ${#AGF_DIRS[@]} AGFusion folders in the input directory."
 
-# Loop through each BAM file
+# Loop through
 for DIR in "${AGF_DIRS[@]}"; do
     # Extract the sample dirname from the file path
     SAMPLE_DIRNAME=$(basename "${DIR}")
