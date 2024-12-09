@@ -1,6 +1,0 @@
-fusionTranscriptID	fusionGeneID	breakpointPair	strand1	strand2	site1	site2	type	confidence	sampleID	toolID
-TRMT11::SMG6__6:125986622-17:2244719	TRMT11::SMG6	6:125986622-17:2244719	+	-	CDS/splice-site	CDS/splice-site	translocation	high	1	Arriba
-STAG3::MEF2C-AS1__7:100189570-5:88919251	STAG3::MEF2C-AS1	7:100189570-5:88919251	+	-	CDS	intron	translocation/5'-5'	low	1	Arriba
-MAPK13::C1QL1__6:36132629-17:44965446	MAPK13::C1QL1	6:36132629-17:44965446	+	+	CDS	intron	translocation/5'-5'	low	1	Arriba
-STX16::NPEPL1__20:58673711-20:58691724	STX16::NPEPL1	20:58673711-20:58691724	+	+	CDS/splice-site	5'UTR/splice-site	deletion/read-through	low	1	Arriba
-MAPK13::NMT1__6:36132629-17:44965446	MAPK13::NMT1	6:36132629-17:44965446	+	+	CDS	intron	translocation	low	1	Arriba
