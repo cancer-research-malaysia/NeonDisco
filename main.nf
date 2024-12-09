@@ -112,12 +112,9 @@ workflow {
                 } // Join result files based on sample name and creates a channel of list of lists with each list containing the sample name at index 0 and then a tuple of 
 
             combinedResultFiles.view()
-            combinedResultFiles.view { sampleName, files ->
-                    "Combined output files for sample ${sampleName}: ${files[0].name} (Arriba), ${files[1].name} (FusionCatcher)"
-                }
 
             // Wrangle raw tsv to get fusion transcripts called by both Arriba and FusionCatcher
-            //collateFusionTranscripts(combinedResultFiles)
+            collateFusionTranscripts(combinedResultFiles)
         }
         
     } else {
