@@ -16,7 +16,7 @@ process callFusionTranscriptsFC {
     """
     echo "Path to input read file 1: ${readFiles[0]}"
     echo "Path to input read file 2: ${readFiles[1]}"
-    if bash /work/scripts/fuscat-nf.sh ${readFiles[0]} ${readFiles[1]} 16; then
+    if bash /work/scripts/fuscat-nf.sh ${readFiles[0]} ${readFiles[1]} 8; then
         echo "FusionCatcher has finished running on ${sampleName}. Copying main output file..."
         cp final-list_candidate-fusion-genes.txt ${sampleName}_fc.tsv
     fi
