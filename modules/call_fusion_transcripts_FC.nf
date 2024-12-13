@@ -3,7 +3,7 @@ process CALL_FUSION_TRANSCRIPTS_FC {
     // maxForks 10
     publishDir "${params.output_dir}/${sampleName}", mode: 'copy'
     container "${params.container__fuscat}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name fuscat-ftcall -v ${params.fuscat_db}:/work/libs -v ${params.input_dir}:/work/data -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
+    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name fuscat-ftcall -v ${params.fuscat_db}:/work/libs -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
     
     input:
         tuple val(sampleName), path(readFiles)

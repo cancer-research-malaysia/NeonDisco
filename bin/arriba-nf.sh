@@ -4,7 +4,6 @@ echo $(id)
 
 # Set env variables
 CTAT_LIB="/work/libs"
-FASTQS="/work/data"
 ARR_OUTDIR="/work/nf_work"
 ARRIBA_PKG="/opt/conda/var/lib/arriba"
 

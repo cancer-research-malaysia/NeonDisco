@@ -20,7 +20,6 @@ run_fuscat() {
 
 # Set env variables
 export DB="/work/libs"
-export INP_DIR="/work/data"
 export OUTDIR_PREFIX="/work/nf_work"
 export OUTDIR="${OUTDIR_PREFIX}/${SAMPLE_ID}"
 echo "Environment variables set and exported!"

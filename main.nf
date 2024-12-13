@@ -7,7 +7,7 @@ nextflow.enable.dsl = 2
 include { CALL_FUSION_TRANSCRIPTS_AR } from './modules/call_fusion_transcripts_AR'
 include { CALL_FUSION_TRANSCRIPTS_FC } from './modules/call_fusion_transcripts_FC'
 include { COLLATE_FUSIONS } from './modules/collate_fusions'
-include { TYPE_HLA_ALLELES } from './modules/type_hla_alleles'
+include { TYPE_HLA_ALLELES } from './modules/type_HLA_alleles'
 include { TESTING_MODULE } from './modules/testing_module'
 
 
@@ -86,7 +86,7 @@ workflow {
 
         hla_reads_ch = create_hla_reads_channel(params.hla_typing_dir)
         hla_reads_ch.view()
-        //TYPE_HLA_ALLELES(hla_reads_ch)
+        TYPE_HLA_ALLELES(hla_reads_ch)
     }
 
     // Full pipeline branch
@@ -107,7 +107,7 @@ workflow {
             if (file(params.hla_typing_dir).exists() && file(params.hla_typing_dir).isDirectory()) {
                 hla_reads_ch = create_hla_reads_channel(params.hla_typing_dir)
                 hla_reads_ch.view()
-                //TYPE_HLA_ALLELES(hla_reads_ch)
+                TYPE_HLA_ALLELES(hla_reads_ch)
             }
         }
 
@@ -142,7 +142,7 @@ workflow {
             }
             .toSortedList( { a, b -> a[0] <=> b[0] } )
             .flatMap()
-            //.view()
+            .view()
 
             count_ch = read_pairs_ch.count() // Get the count into a value channel
             
@@ -151,9 +151,7 @@ workflow {
             } // View the count
             
             count_ch.map { count ->
-                if (count > 0) {
-                    log.info "[STATUS] Starting fusion transcript calls..."
-                } else {
+                if (count == 0) {
                     log.error "No valid input files found."
                     log.info "[STATUS] Aborting..."
                     exit 1
