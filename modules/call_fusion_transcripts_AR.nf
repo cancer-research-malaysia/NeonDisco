@@ -1,7 +1,5 @@
-#!/usr/bin/env nextflow
-
 // Run calling module
-process callFusionTranscriptsAR {
+process CALL_FUSION_TRANSCRIPTS_AR {
     // maxForks 10
     publishDir "${params.output_dir}/${sampleName}", mode: 'copy'
     container "${params.container__arriba}"

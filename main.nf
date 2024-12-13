@@ -4,10 +4,12 @@ nextflow.enable.dsl = 2
 
 // All of the default parameters are being set in `nextflow.config`
 // Import sub-workflows
-include { callFusionTranscriptsAR } from './modules/callFusionTranscriptsAR'
-include { callFusionTranscriptsFC } from './modules/callFusionTranscriptsFC'
-include { collateFusionTranscripts } from './modules/collateFusionTranscripts'
-// include { }
+include { CALL_FUSION_TRANSCRIPTS_AR } from './modules/call_fusion_transcripts_AR'
+include { CALL_FUSION_TRANSCRIPTS_FC } from './modules/call_fusion_transcripts_FC'
+include { COLLATE_FUSIONS } from './modules/collate_fusions'
+include { TYPE_HLA_ALLELES } from './modules/type_hla_alleles'
+include { TESTING_MODULE } from './modules/testing_module'
+
 
 // Function which prints help message text
 def helpMessage() {
@@ -26,6 +28,7 @@ Required Arguments:
     --ftcaller                    Name of the fusion caller to be run. Either <arriba> or <fusioncatcher> or <both>. Defaults to <both> if not specified
     --hla_typing                  Set to <true> if HLA typing subworkflow is required. Defaults to <false> when not specified
     --hla_typing_dir              Directory path to WES or RNA-seq sequencing data to run HLA typing on. Required when --hla_typing is set to <true>
+    --hla-only                    Setting to run just the HLA typing subpipeline. Default is set to <false>
     --help                        Print this help message and exit
     
     """.stripIndent()
@@ -42,14 +45,38 @@ workflow {
         exit 1
     }
     log.info "[STATUS] Initializing workflow..."
-    if ( !params.input_dir || !params.output_dir ) {
-        log.error "The input directory path (--input_dir) or the output directory path (--output_dir) is not provided. Please provide a valid input path for all of these parameters."
-        log.info "[STATUS] Aborting..."
-        exit 1
-    }
     log.info "[STATUS] The HLA typing subworkflow is set to <${params.hla_typing}>."
     if ( params.hla_typing && !params.hla_typing_dir ) {
         log.error "The parameter 'hla_typing' is set to <true> (default is <false>) but WES or RNA-seq input directory for HLA typing is not provided. Please provide a valid input directory path."
+        log.info "[STATUS] Aborting..."
+        exit 1
+    } else if ( params.hla_typing && params.hla_typing_dir ) {
+        log.info "[STATUS] Checking whether the directory of HLA input files is valid..."
+        // Check if input file dir exists or not
+        if ( file(params.hla_typing_dir).exists() == true && file(params.hla_typing_dir).isDirectory() ){
+            log.info "[STATUS] The input file directory provided is valid."
+            if ( params.hla_only ) {
+                log.info "[STATUS] HLA typing 'only' argument is set to <true>. Running HLA typing as the only subworkflow to be run..."
+                log.info "[STATUS] Getting HLA input files..."
+                // Create input file channel
+                hla_reads_ch = Channel.fromFilePairs("${params.hla_typing_dir}/*.{fastq,fq,bam}{,.gz}", checkIfExists: true).ifEmpty { 
+                    log.error "No valid input WES or RNA-seq read files found in ${params.hla_typing_dir}. Please check your input directory."
+                    log.info "[STATUS] Aborting..."
+                    exit 1
+                }.toSortedList( { a, b -> a[0] <=> b[0] } )  // Sort the channel elements based on the first object of each tuple (sample name) and convert to a channel with a single element which is a list of tuples (NOTE: <=> is an operator for comparison)
+    
+                .flatMap() // Flatten the single-element channel to a channel with as many elements as there are samples, which is the original structure provided by fromFilePairs
+                .view()
+            } else {
+                log.info "[STATUS] Running HLA typing subworkflow in parallel..."
+            }
+        } else {
+            log.error "The HLA typing input directory is not valid. Please double-check the validity of the provided pathname."
+            exit 0
+        }
+    }
+    if ( !params.input_dir || !params.output_dir ) {
+        log.error "The input directory path (--input_dir) or the output directory path (--output_dir) is not provided. Please provide a valid input path for all of these parameters."
         log.info "[STATUS] Aborting..."
         exit 1
     }
@@ -98,11 +125,11 @@ workflow {
         // Call fusion transcripts
         if (params.ftcaller == 'both' || params.ftcaller == 'arriba') {
             log.info "[STATUS] Running Arriba..."
-            arResultTuple = callFusionTranscriptsAR(read_pairs_ch)
+            arResultTuple = CALL_FUSION_TRANSCRIPTS_AR(read_pairs_ch)
         }
         if (params.ftcaller == 'both' || params.ftcaller == 'fusioncatcher') {
             log.info "[STATUS] Running FusionCatcher..."
-            fcResultTuple = callFusionTranscriptsFC(read_pairs_ch)
+            fcResultTuple = CALL_FUSION_TRANSCRIPTS_FC(read_pairs_ch)
         }
         if (params.ftcaller == 'both') {
             log.info "[STATUS] Joining Arriba and FusionCatcher raw output data..."
@@ -114,7 +141,7 @@ workflow {
             combinedResultFiles.view()
 
             // Wrangle raw tsv to get fusion transcripts called by both Arriba and FusionCatcher
-            collateFusionTranscripts(combinedResultFiles)
+            COLLATE_FUSIONS(combinedResultFiles)
         }
         
     } else {
