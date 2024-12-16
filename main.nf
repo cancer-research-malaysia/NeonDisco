@@ -35,21 +35,34 @@ Required Arguments:
 }
 
 def create_hla_reads_channel(dir_path) {
-    return Channel.fromPath("${dir_path}/*.{fastq,fq,bam}{,.gz}", checkIfExists: true)
-    .ifEmpty { 
-        log.error "No valid input WES or RNA-seq read files found in ${dir_path}. Please check your input directory."
-        log.info "[STATUS] Aborting..."
-        exit 1
-    }
-    .map { file -> 
-        // Get filename without extension(s)
-        def name = file.simpleName  // removes single extension
-        // If you need to remove multiple extensions (e.g., .bam.gz), use:
-        // def name = file.name.replaceAll(/\.bam(\.gz)?$|\.f(ast)?q(\.gz)?$/, '')
-        tuple(name, file)
-    }
-    .toSortedList( { a, b -> a[0] <=> b[0] } )  // Sort the channel elements based on the first object of each tuple (sample name) and convert to a channel with a single element which is a list of tuples (NOTE: <=> is an operator for comparison)
-    .flatMap() // Flatten the single-element channel to a channel with as many elements as there are samples, which is the original channel structure
+    // find bam files if any
+    bam_files_ch = Channel.fromPath("${dir_path}/*.bam", checkIfExists: true)
+        .ifEmpty { 
+            log.error "No valid input BAM files found in ${dir_path}. Please check your input directory."
+            log.info "[STATUS] Aborting..."
+            exit 1
+        }
+        .map { file -> 
+            // Get filename without extension(s)
+            def name = file.name
+                           //.replaceAll(/_R[12]/, '') // Remove _R1 or _R2 and anything after
+                           .replaceAll(/\.bam(\.gz)?$|\.f(ast)?q(\.gz)?$/, '')
+            tuple(name, file)
+        }
+        .toSortedList( { a, b -> a[0] <=> b[0] } ) // Sort by sample name
+        .flatMap() // Flatten the single-element channel emitted by toSortedList into separate items
+    
+    // find fastq files if any
+    reads_files_ch = Channel.fromFilePairs("${dir_path}/*{R,r}{1,2}*.{fastq,fq}{,.gz}", checkIfExists: true)
+        .ifEmpty { 
+            log.error "No valid input FASTQ read files found in ${params.input_dir}. Please check your input directory."
+            log.info "[STATUS] Aborting..."
+            exit 1
+        }
+        .toSortedList( { a, b -> a[0] <=> b[0] } )
+        .flatMap()
+    
+    return bam_files_ch.mix(reads_files_ch)
 }
 
 // Main workflow
@@ -86,7 +99,7 @@ workflow {
 
         hla_reads_ch = create_hla_reads_channel(params.hla_typing_dir)
         hla_reads_ch.view()
-        TYPE_HLA_ALLELES(hla_reads_ch)
+        //TYPE_HLA_ALLELES(hla_reads_ch)
     }
 
     // Full pipeline branch
@@ -107,7 +120,7 @@ workflow {
             if (file(params.hla_typing_dir).exists() && file(params.hla_typing_dir).isDirectory()) {
                 hla_reads_ch = create_hla_reads_channel(params.hla_typing_dir)
                 hla_reads_ch.view()
-                TYPE_HLA_ALLELES(hla_reads_ch)
+                //TYPE_HLA_ALLELES(hla_reads_ch)
             }
         }
 
