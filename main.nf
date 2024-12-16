@@ -36,33 +36,44 @@ Required Arguments:
 
 def create_hla_reads_channel(dir_path) {
     // find bam files if any
-    bam_files_ch = Channel.fromPath("${dir_path}/*.bam", checkIfExists: true)
+    bam_files_ch = Channel.fromPath("${dir_path}/*.{bam,bai}", checkIfExists: true)
         .ifEmpty { 
             log.error "No valid input BAM files found in ${dir_path}. Please check your input directory."
             log.info "[STATUS] Aborting..."
             exit 1
         }
         .map { file -> 
-            // Get filename without extension(s)
-            def name = file.name
-                           //.replaceAll(/_R[12]/, '') // Remove _R1 or _R2 and anything after
-                           .replaceAll(/\.bam(\.gz)?$|\.f(ast)?q(\.gz)?$/, '')
+            // Get filename without extension
+            def name = file.name.replaceAll(/\.(bam|bai)$/, '')
             tuple(name, file)
         }
-        .toSortedList( { a, b -> a[0] <=> b[0] } ) // Sort by sample name
-        .flatMap() // Flatten the single-element channel emitted by toSortedList into separate items
+        .groupTuple()  // Group by sample name
+        .map { sample_name, files -> 
+            // Sort to ensure BAM comes before BAI
+            def sorted_files = files.sort { a, b -> 
+                a.name.endsWith("bam") ? -1 : 1  // BAM files come first
+            }
+            tuple(sample_name, sorted_files)
+        }
     
     // find fastq files if any
     reads_files_ch = Channel.fromFilePairs("${dir_path}/*{R,r}{1,2}*.{fastq,fq}{,.gz}", checkIfExists: true)
         .ifEmpty { 
-            log.error "No valid input FASTQ read files found in ${params.input_dir}. Please check your input directory."
-            log.info "[STATUS] Aborting..."
-            exit 1
+            log.warn "No valid input FASTQ read files found in ${dir_path}. Ensure that this is intentional. HLA typing will still proceed..."
         }
         .toSortedList( { a, b -> a[0] <=> b[0] } )
         .flatMap()
     
-    return bam_files_ch.mix(reads_files_ch)
+    mixed_ch = bam_files_ch.mix(reads_files_ch)
+
+    // Check if the mixed channel is empty
+    mixed_ch.ifEmpty { 
+        log.error "No valid input files (BAM or FASTQ) found in ${dir_path}. Please check your input directory."
+        log.info "[STATUS] Aborting..."
+        exit 1
+    }
+
+    return mixed_ch
 }
 
 // Main workflow
