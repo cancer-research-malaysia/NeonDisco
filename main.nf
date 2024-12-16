@@ -99,7 +99,7 @@ workflow {
 
         hla_reads_ch = create_hla_reads_channel(params.hla_typing_dir)
         hla_reads_ch.view()
-        //TYPE_HLA_ALLELES(hla_reads_ch)
+        TYPE_HLA_ALLELES(hla_reads_ch, params.num_cores)
     }
 
     // Full pipeline branch
@@ -120,7 +120,7 @@ workflow {
             if (file(params.hla_typing_dir).exists() && file(params.hla_typing_dir).isDirectory()) {
                 hla_reads_ch = create_hla_reads_channel(params.hla_typing_dir)
                 hla_reads_ch.view()
-                //TYPE_HLA_ALLELES(hla_reads_ch)
+                TYPE_HLA_ALLELES(hla_reads_ch, params.num_cores)
             }
         }
 
