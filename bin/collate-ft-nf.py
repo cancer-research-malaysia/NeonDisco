@@ -119,8 +119,8 @@ def main():
 
     # save as parquet and tsv
     print(f"Saving as parquet and tsv files...")
-    results.write_parquet(f"{sample_name}-{tool_name}-fusiontranscript-raw-list.parquet")
-    results.write_csv(f"{sample_name}-{tool_name}-fusiontranscript-raw-list.tsv", separator="\t")
+    results.write_parquet(f"{sample_name}-collated-FT-raw-list.parquet")
+    results.write_csv(f"{sample_name}-collated-FT-raw-list.tsv", separator="\t")
 
     print("Done.")
 
