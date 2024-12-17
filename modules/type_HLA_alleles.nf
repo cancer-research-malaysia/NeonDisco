@@ -1,12 +1,16 @@
 // Run HLA typing module
 process TYPE_HLA_ALLELES {
-    //publishDir "${params.output_dir}/${sampleName}", mode: 'copy'
+    publishDir "${params.output_dir}/${sampleName}-HLA", mode: 'copy',
+        saveAs: { filename -> task.stub ? filename + ".stub" : filename }
     container "${params.container__hlahd}"
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name hla-typing -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
     
     input:
-    tuple val(sampleName), path(inputFiles)
-    val(numCores)
+        tuple val(sampleName), path(inputFiles)
+        val(numCores)
+
+    output:
+        path "*-HLAHD-complete.txt"
 
     script:
     """
@@ -58,6 +62,7 @@ process TYPE_HLA_ALLELES {
     # Running HLA-HD on read files
     if bash /work/scripts/hlahd-nf.sh "${sampleName}" "\${read1_file}" "\${read2_file}" ${numCores}; then
         echo "HLA-HD completed its run. Check outputs for run status."
+        echo "YAY!" > ${sampleName}-HLAHD-complete.txt
     else
         echo "HLA-HD failed to complete."
         exit 1
@@ -66,6 +71,7 @@ process TYPE_HLA_ALLELES {
     stub:
     """
     mkdir -p stub-o
-    touch stub-o/${sampleName}-HLA-typing-output.txt
+    touch stub-o/${sampleName}-HLAHD-complete.txt
+    ln -s stub-o/${sampleName}-HLAHD-complete.txt ${sampleName}-HLAHD-complete.txt
     """
 }

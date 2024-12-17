@@ -1,7 +1,8 @@
 // Run calling module
 process CALL_FUSION_TRANSCRIPTS_AR {
     // maxForks 10
-    publishDir "${params.output_dir}/${sampleName}", mode: 'copy'
+    publishDir "${params.output_dir}/${sampleName}", mode: 'copy',
+        saveAs: { filename -> task.stub ? filename + ".stub" : filename }
     container "${params.container__arriba}"
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name arriba-ftcall -v ${params.arriba_db}:/work/libs -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
     
@@ -24,5 +25,6 @@ process CALL_FUSION_TRANSCRIPTS_AR {
     """
     mkdir -p stub-o
     touch stub-o/${sampleName}_arr.tsv
+    ln -s stub-o/${sampleName}_arr.tsv ${sampleName}_arr.tsv
     """
 }

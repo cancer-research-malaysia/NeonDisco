@@ -1,7 +1,8 @@
 // Run calling module
 process CALL_FUSION_TRANSCRIPTS_FC {
     // maxForks 10
-    publishDir "${params.output_dir}/${sampleName}", mode: 'copy'
+    publishDir "${params.output_dir}/${sampleName}", mode: 'copy',
+        saveAs: { filename -> task.stub ? filename + ".stub" : filename }
     container "${params.container__fuscat}"
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name fuscat-ftcall -v ${params.fuscat_db}:/work/libs -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
     
@@ -24,5 +25,6 @@ process CALL_FUSION_TRANSCRIPTS_FC {
     """
     mkdir -p stub-o
     touch stub-o/${sampleName}_fc.tsv
+    ln -s stub-o/${sampleName}_fc.tsv ${sampleName}_fc.tsv
     """
 }
