@@ -24,7 +24,7 @@ samtools merge -o "${OUTDIR}/samtools-o/merged-${SAMPLE_ID}.bam" "${OUTDIR}/samt
 
 # run Picard conversion
 mkdir -p "${OUTDIR}/picard-o"
-if picard SamToFastq I="${OUTDIR}/samtools-o/merged-${SAMPLE_ID}.bam" F="${OUTDIR}/picard-o/${SAMPLE_ID}_UNMAP_MERGED_R1.fastq" F2="${OUTDIR}/picard-o/${SAMPLE_ID}_UNMAP_MERGED_R2.fastq" VALIDATION_STRINGENCY=SILENT; then
+if picard SamToFastq -I "${OUTDIR}/samtools-o/merged-${SAMPLE_ID}.bam" -F "${OUTDIR}/picard-o/${SAMPLE_ID}_UNMAP_MERGED_R1.fastq" -F2 "${OUTDIR}/picard-o/${SAMPLE_ID}_UNMAP_MERGED_R2.fastq" -VALIDATION_STRINGENCY SILENT -QUIET TRUE; then
     echo "Picard conversion successful for sample ${SAMPLE_ID}."
     # relabel records with awk
     awk '{if(NR%4 == 1){O=$0; gsub("/1","1",O); print O}else{print $0}}' "${OUTDIR}/picard-o/${SAMPLE_ID}_UNMAP_MERGED_R1.fastq" > "${SAMPLE_ID}_Bam2Fq_R1.fastq" && \

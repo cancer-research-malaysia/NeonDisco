@@ -56,23 +56,20 @@ def create_hla_reads_channel(dir_path) {
         }
     
     // find fastq files if any
-    reads_files_ch = Channel.fromFilePairs("${dir_path}/*{R,r}{1,2}*.{fastq,fq}{,.gz}", checkIfExists: true)
-        .ifEmpty { 
-            log.warn "No valid input FASTQ read files found in ${dir_path}. Ensure that this is intentional. HLA typing will still proceed..."
-        }
-        .toSortedList( { a, b -> a[0] <=> b[0] } )
-        .flatMap()
-    
-    mixed_ch = bam_files_ch.mix(reads_files_ch)
+    // Check for fastq files existence first
+    def fastq_files = file("${dir_path}/*{R,r}{1,2}*.{fastq,fq}{,.gz}")
+    def has_fastq = fastq_files.size() > 0
 
-    // Check if the mixed channel is empty
-    mixed_ch.ifEmpty { 
-        log.error "No valid input files (BAM or FASTQ) found in ${dir_path}. Please check your input directory."
-        log.info "[STATUS] Aborting..."
-        exit 1
+    if (has_fastq) {
+        log.info "[STATUS] Found FASTQ files. Mixing with BAM files..."
+        reads_files_ch = Channel.fromFilePairs("${dir_path}/*{R,r}{1,2}*.{fastq,fq}{,.gz}")
+            .toSortedList( { a, b -> a[0] <=> b[0] } )
+            .flatMap()
+        return bam_files_ch.mix(reads_files_ch)
+    } else {
+        log.warn "No FASTQ files found. Returning BAM files only..."
+        return bam_files_ch
     }
-
-    return mixed_ch
 }
 
 // Main workflow

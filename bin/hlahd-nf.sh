@@ -21,12 +21,12 @@ mkdir -p "${OUTDIR}/hla-hd-out"
 STARTTIME=$(date +%s)
 
 # run HLA-HD (discard reads <30bp)
-# if hlahd.sh -t ${CORES} -m 30 -f ${HLAHD_DIR}/freq_data/ "${OUTDIR}/merged-${}-MHC-WES-b2f-R1.fq" "${OUTDIR}/merged-${SAMPLE_NAME}-MHC-WES-b2f-R2.fq" "${HLAHD_DIR}/HLA_gene.split.3.50.0.txt" "${HLAHD_DIR}/dictionary/" "${SAMPLE_NAME}_WES-MHC-bam" "${OUTDIR}/hla-hd-out" 2>&1 | tee "${OUTDIR}/logs/${SAMPLE_NAME}-HLAHD-run.log-$(date +%Y%m%d_%H-%M-%S).txt"; then
-#     echo "HLA-HD run successfully for sample ${SAMPLE_NAME}."
-#     ENDTIME=$(date +%s)
-#     ELAP=$(( ENDTIME - STARTTIME ))
-#     echo "Time taken: ${ELAP}. Check log file for run details."
-# else
-#     echo "HLA-HD run failed for sample ${SAMPLE_NAME}."
-#     exit 1
-# fi
+if hlahd.sh -t ${CORES} -m 30 -f ${HLAHD_DIR}/freq_data/ "${READ1}" "${READ2}" "${HLAHD_DIR}/HLA_gene.split.3.50.0.txt" "${HLAHD_DIR}/dictionary/" "${SAMPLE_ID}_WES-bam2fq" "${OUTDIR}/hla-hd-out" 2>&1 | tee "${OUTDIR}/logs/${SAMPLE_ID}-HLAHD.log-$(date +%Y%m%d_%H-%M-%S).log"; then
+    echo "HLA-HD run successfully for sample ${SAMPLE_ID}."
+    ENDTIME=$(date +%s)
+    ELAP=$(( ENDTIME - STARTTIME ))
+    echo "Time taken: ${ELAP}. Check log file for run details."
+else
+    echo "HLA-HD run failed for sample ${SAMPLE_ID}."
+    exit 1
+fi
