@@ -20,4 +20,9 @@ process CALL_FUSION_TRANSCRIPTS_FC {
         cp final-list_candidate-fusion-genes.txt ${sampleName}_fc.tsv
     fi
     """
+    stub:
+    """
+    mkdir -p stub-o
+    touch stub-o/${sampleName}_fc.tsv
+    """
 }

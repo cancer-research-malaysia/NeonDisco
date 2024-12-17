@@ -18,4 +18,9 @@ process COLLATE_FUSIONS {
         echo "Wrangling completed."
     fi
     """
+    stub:
+    """
+    mkdir -p stub-o
+    touch stub-o/${sampleName}-collated-FT-raw-list.tsv
+    """
 }

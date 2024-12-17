@@ -8,7 +8,6 @@ include { CALL_FUSION_TRANSCRIPTS_AR } from './modules/call_fusion_transcripts_A
 include { CALL_FUSION_TRANSCRIPTS_FC } from './modules/call_fusion_transcripts_FC'
 include { COLLATE_FUSIONS } from './modules/collate_fusions'
 include { TYPE_HLA_ALLELES } from './modules/type_HLA_alleles'
-include { TESTING_MODULE } from './modules/testing_module'
 
 
 // Function which prints help message text

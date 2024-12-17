@@ -20,4 +20,9 @@ process CALL_FUSION_TRANSCRIPTS_AR {
         cp ${sampleName}-arriba-fusions.tsv ${sampleName}_arr.tsv
     fi
     """
+    stub:
+    """
+    mkdir -p stub-o
+    touch stub-o/${sampleName}_arr.tsv
+    """
 }

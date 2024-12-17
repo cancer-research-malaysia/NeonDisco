@@ -63,4 +63,9 @@ process TYPE_HLA_ALLELES {
         exit 1
     fi
     """
+    stub:
+    """
+    mkdir -p stub-o
+    touch stub-o/${sampleName}-HLA-typing-output.txt
+    """
 }
