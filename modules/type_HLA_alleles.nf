@@ -1,7 +1,7 @@
 // Run HLA typing module
 process TYPE_HLA_ALLELES {
     publishDir "${params.output_dir}/${sampleName}-HLA", mode: 'copy',
-        saveAs: { filename -> task.stub ? filename + ".stub" : filename }
+        saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__hlahd}"
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name hla-typing -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
     
@@ -70,8 +70,7 @@ process TYPE_HLA_ALLELES {
     """
     stub:
     """
-    mkdir -p stub-o
-    touch stub-o/${sampleName}-HLAHD-complete.txt
-    ln -s stub-o/${sampleName}-HLAHD-complete.txt ${sampleName}-HLAHD-complete.txt
+    touch ${sampleName}-HLAHD-complete.txt
+    echo "stub run finished!" > ${sampleName}-HLAHD-complete.txt
     """
 }

@@ -184,12 +184,12 @@ workflow {
             // Call fusion transcripts
             if (params.ftcaller == 'both' || params.ftcaller == 'arriba') {
                 log.info "[STATUS] Running Arriba asynchronously..."
-                arResultTuple = CALL_FUSION_TRANSCRIPTS_AR(read_pairs_ch)
+                arResultTuple = CALL_FUSION_TRANSCRIPTS_AR(read_pairs_ch, params.num_cores)
             }
 
             if (params.ftcaller == 'both' || params.ftcaller == 'fusioncatcher') {
                 log.info "[STATUS] Running FusionCatcher asynchronously..."
-                fcResultTuple = CALL_FUSION_TRANSCRIPTS_FC(read_pairs_ch)
+                fcResultTuple = CALL_FUSION_TRANSCRIPTS_FC(read_pairs_ch, params.num_cores)
             }
 
             if (params.ftcaller == 'both') {

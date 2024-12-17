@@ -97,5 +97,15 @@ flowchart TD
 ## Running the Pipeline Minimally
 A `nextflow.config` file is already created containing the default values of many parameters so this pipeline can be minimally run using this command:
 
-> nextflow run main.nf --input_dir [PATH to where the fastq or fq raw sequencing files are stored] --output_dir [PATH to store the copies of important output files]
+> nextflow run main.nf 
 
+### Resuming and Caching
+Nextflow can resume interrupted processes so specify `-resume` flag to restart runs.
+
+> nextflow run -resume main.nf
+
+### Stub Commands (dry run)
+I have also coded `stub` processes that would generate dummy outputs. Useful to test the pipeline without generating real output files that can be massive in sizes. Specify `-stub` at runtime to invoke this. Note that `-stub` runs separately from normal runs, so if you specify `-stub -resume` it resumes whatever interrupted previous stub runs (or validate previous stub run cached outputs). This combination does not put stub output files in previously run work directory with real output files. 
+
+### Using Profiles
+This pipeline can take `-profile` flag that can specify the name of the profiles (defined in `nextflow.config`) to run it using parameter configurations unique to each profile. For local testing, use `local`, and for AWS Batch submission, use `awsbatch`. 
