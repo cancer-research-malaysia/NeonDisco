@@ -11,7 +11,6 @@ process TYPE_HLA_ALLELES {
 
     output:
         tuple val(sampleName), path("**/*_final.result.txt"), emit: hla_combined_result
-        path "*-HLAHD-complete.txt"
 
     script:
     """
@@ -63,7 +62,6 @@ process TYPE_HLA_ALLELES {
     # Running HLA-HD on read files
     if bash /work/scripts/hlahd-nf.sh "${sampleName}" "\${read1_file}" "\${read2_file}" ${numCores}; then
         echo "HLA-HD completed its run. Check outputs for run status."
-        echo "YAY!" > ${sampleName}-HLAHD-complete.txt
     else
         echo "HLA-HD failed to complete."
         exit 1
@@ -71,7 +69,7 @@ process TYPE_HLA_ALLELES {
     """
     stub:
     """
-    touch ${sampleName}-HLAHD-complete.txt
-    echo "stub run finished!" > ${sampleName}-HLAHD-complete.txt
+    touch test_stub_final.result.txt
+    echo "stub run finished!" > test_stub_final.result.txt
     """
 }
