@@ -1,4 +1,4 @@
-FROM --platform=linux/x86_64 mambaorg/micromamba:git-911a014-bookworm-slim
+FROM mambaorg/micromamba:git-911a014-bookworm-slim
 USER root
 LABEL maintainer="Suffian Azizan"
 LABEL version="1.0"
