@@ -1,15 +1,14 @@
 FROM mambaorg/micromamba:git-911a014-bookworm-slim
 USER root
 LABEL maintainer="Suffian Azizan"
-LABEL version="2.0"
-LABEL description="container image of pVacTools program v5.0.0"
+LABEL version="1.0"
+LABEL description="container image of Spladder program v3.0.2"
 
 # change to root user
 USER root
-
 # update Debian OS packages and install additional Linux system utilities, then finally remove cached package lists
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps tcsh gawk git libsm6 libxrender1 libfontconfig1 zlib1g-dev liblzma-dev libcurl4-openssl-dev libssl-dev libdeflate-dev perl make \
+git tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps \
 && rm -rf /var/lib/apt/lists/*
 
 # change user
@@ -19,7 +18,7 @@ USER $MAMBA_USER
 RUN micromamba config set extract_threads 1
 
 # copy the env file into the container 
-COPY --chown=$MAMBA_USER:$MAMBA_USER pvactools/context/base_env.yaml /tmp/base_env.yaml
+COPY --chown=$MAMBA_USER:$MAMBA_USER spladder/context/base_env.yaml /tmp/base_env.yaml
 
 # Create a new base environment based on the YAML file
 RUN micromamba install -y -f /tmp/base_env.yaml && \
@@ -28,31 +27,17 @@ micromamba clean --all --yes
 # activate the environment during container startup
 ARG MAMBA_DOCKERFILE_ACTIVATE=1
 
-# install pip packages
-RUN pip install pvactools==5.0.0
-RUN pip install git+https://github.com/griffithlab/bigmhc.git#egg=bigmhc
-RUN pip install git+https://github.com/griffithlab/deepimmuno.git#egg=deepimmuno
+# clone and install spladder from source
+RUN git clone https://github.com/ratschlab/spladder.git && cd spladder/ && python setup.py install
 
 # add conda bins to PATH
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 
-#### Now install IEDB binding prediction class I and class I archives
-RUN wget https://downloads.iedb.org/tools/mhci/LATEST/IEDB_MHC_I-3.1.6.tar.gz && \
-tar -zxvf IEDB_MHC_I-3.1.6.tar.gz && \
-cd mhc_i && \
-./configure
-
-RUN wget https://downloads.iedb.org/tools/mhcii/LATEST/IEDB_MHC_II-3.1.12.tar.gz && \
-tar -zxvf IEDB_MHC_II-3.1.12.tar.gz && cd mhc_ii && python configure.py
-
-# download mhcflurry datasets and trained models
-RUN mhcflurry-downloads fetch
-
-USER root
 # Docker suffers from absolutely atrocious way of consolidating the paradigm of restricting privileges when running containers (rootless mode) with writing outputs to bound host volumes without using Docker volumes or other convoluted workarounds.
 
 # Fortunately there is this tool that removes this altogether and helps matches the UID and GID of whoever is running the container image on a host machine
 
+USER root
 # Install MatchHostFsOwner. Using version 1.0.1
 # See https://github.com/FooBarWidget/matchhostfsowner/releases
 ADD https://github.com/FooBarWidget/matchhostfsowner/releases/download/v1.0.1/matchhostfsowner-1.0.1-x86_64-linux.gz /sbin/matchhostfsowner.gz
@@ -66,4 +51,3 @@ RUN addgroup --gid 9999 app && \
 WORKDIR /work
 
 ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "/sbin/matchhostfsowner"]
-

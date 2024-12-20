@@ -1,0 +1,24 @@
+name: base
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python<3.13
+  - seaborn
+  - numpy>=1.26
+  - numba>=0.59.0
+  - matplotlib>=3.7
+  - scipy>=1.13
+  - intervaltree>=3.0.0
+  - h5py>=2.2
+  - pysam>=0.22.0
+  - statsmodels>=0.14.0
+  - pip
+
+
+
+
+
+
+
+

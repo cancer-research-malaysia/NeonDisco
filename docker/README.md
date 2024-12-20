@@ -67,7 +67,7 @@ Finally, each Dockerfile's framework incorporate a tiny program called **Matchho
 Using Docker's build engine, these Dockerfiles can act as the blueprint for the building of the containerized app images. Simply run:
 
 ```bash
-docker build --no-cache -f APP.Dockerfile  -t DOCKERHUB-USER/APP-IMAGE .
+docker build --no-cache -f APP.Dockerfile -t DOCKERHUB-USER/APP-IMAGE .
 ```
 
 > Note: The `.` implies '*current directory*' so run this command inside the `docker` directory of this repo. Additionally, the option `--no-cache` can be omitted when rebuilding images after editing Dockerfiles, which would only build changed layers and circumvent redownloading large resources again.
