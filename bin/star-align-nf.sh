@@ -20,6 +20,6 @@ if STAR \
 --limitBAMsortRAM 20000000000 \
 --outFileNamePrefix "${OUTDIR}/${SAMPLE_ID}-STAR_" \
 --genomeLoad NoSharedMemory >> "${OUTDIR}/mapping.log.txt" 2>&1; then
-    samtools index "${OUTDIR}/${SAMPLE_ID}-STAR_Aligned.sortedByCoord.out.bam" -@ 16 -o "${OUTDIR}/${SAMPLE_ID}-STAR_Aligned.sortedByCoord.out.bai" && echo "STAR alignment complete."
+    samtools index "${OUTDIR}/${SAMPLE_ID}-STAR_Aligned.sortedByCoord.out.bam" -@ "${CORES}" -o "${OUTDIR}/${SAMPLE_ID}-STAR_Aligned.sortedByCoord.out.bai" && echo "STAR alignment complete."
 fi
 
