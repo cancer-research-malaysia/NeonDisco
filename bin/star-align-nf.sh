@@ -4,13 +4,14 @@ echo $(id)
 
 READ1=$1
 READ2=$2
+CORES=$3
 SAMPLE_ID="${READ1%%_*}"
 CTAT_LIB="/work/lib"
-OUTDIR="/work/output"
+OUTDIR="/work/nf_work"
 
 if STAR \
 --runMode alignReads \
---runThreadN 16 \
+--runThreadN "${CORES}" \
 --genomeDir "${CTAT_LIB}/ref_genome.fa.star.idx" \
 --readFilesIn "${READ1}" "${READ2}" \
 --readFilesCommand gunzip -c \

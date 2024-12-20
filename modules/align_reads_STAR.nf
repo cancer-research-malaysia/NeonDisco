@@ -1,9 +1,9 @@
 // Run HLA typing module
-process TYPE_HLA_ALLELES {
-    publishDir "${params.output_dir}/${sampleName}/HLAHD-out", mode: 'copy',
+process ALIGN_READS_STAR {
+    publishDir publishDir "${params.output_dir}/${sampleName}/EIS/STAR-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
-    container "${params.container__hlahd}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name hla-typing -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
+    container "${params.container__staralign}"
+    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name align-reads -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
     
     input:
         tuple val(sampleName), path(inputFiles)
