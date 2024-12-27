@@ -204,7 +204,8 @@ workflow {
 
             // Call alt spliced events
             // first align reads to bam then index
-            ALIGN_READS_STAR(read_pairs_ch, params.num_cores)
+            alignedBams = ALIGN_READS_STAR(read_pairs_ch, params.num_cores)
+            alignedBams.view()
         } 
         else {
             log.error "Either the input directory does not exist or it is not a directory. Please double-check the path."

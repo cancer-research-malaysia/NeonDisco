@@ -10,7 +10,7 @@ process ALIGN_READS_STAR {
         val(numCores)
 
     output:
-        tuple val(sampleName), path("*Aligned.sortedByCoord.out.bam"), emit: aligned_reads
+        tuple val(sampleName), path("*Aligned.sortedByCoord.out.ba?"), emit: aligned_reads
 
     script:
     """

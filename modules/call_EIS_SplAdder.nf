@@ -10,7 +10,9 @@ process CALL_EIS_SPLADDER {
         val(numCores)
 
     output:
-        tuple val(sampleName), path("*Aligned.sortedByCoord.out.bam"), emit: aligned_reads
+        tuple val(sampleName), 
+            path("*Aligned.sortedByCoord.out.bam"), 
+            path("*Aligned.sortedByCoord.out.bai") emit: aligned_reads
 
     script:
     """
@@ -31,7 +33,7 @@ process CALL_EIS_SPLADDER {
     """
     stub:
     """
-    touch test_stub_Alignment.sortedByCoord.out.bam
+    touch test_stub_Alignment.sortedByCoord.out.bam test_stub_Alignment.sortedByCoord.out.bai
     echo "stub run finished!" > test_stub_Alignment.sortedByCoord.out.bam
     """
 }
