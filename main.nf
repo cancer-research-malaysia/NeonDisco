@@ -8,6 +8,7 @@ include { CALL_FUSION_TRANSCRIPTS_AR } from './modules/call_fusion_transcripts_A
 include { CALL_FUSION_TRANSCRIPTS_FC } from './modules/call_fusion_transcripts_FC'
 include { COLLATE_FUSIONS } from './modules/collate_fusions'
 include { TYPE_HLA_ALLELES } from './modules/type_HLA_alleles'
+include { ALIGN_READS_STAR } from './modules/align_reads_STAR'
 
 
 // Function which prints help message text
@@ -200,6 +201,10 @@ workflow {
                 // Wrangle raw TSVs to get fusion transcripts called by both Arriba and FusionCatcher
                 COLLATE_FUSIONS(combinedResultFiles)
             }
+
+            // Call alt spliced events
+            // first align reads to bam then index
+            ALIGN_READS_STAR(read_pairs_ch, params.num_cores)
         } 
         else {
             log.error "Either the input directory does not exist or it is not a directory. Please double-check the path."

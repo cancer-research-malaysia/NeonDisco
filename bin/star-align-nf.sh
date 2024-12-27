@@ -6,7 +6,7 @@ READ1=$1
 READ2=$2
 CORES=$3
 SAMPLE_ID="${READ1%%_*}"
-CTAT_LIB="/work/lib"
+CTAT_LIB="/work/libs"
 OUTDIR="/work/nf_work"
 
 if STAR \
@@ -19,7 +19,7 @@ if STAR \
 --outSAMunmapped Within \
 --limitBAMsortRAM 20000000000 \
 --outFileNamePrefix "${OUTDIR}/${SAMPLE_ID}-STAR_" \
---genomeLoad NoSharedMemory >> "${OUTDIR}/mapping.log.txt" 2>&1; then
+--genomeLoad LoadAndRemove >> "${OUTDIR}/mapping.log.txt" 2>&1; then
     samtools index "${OUTDIR}/${SAMPLE_ID}-STAR_Aligned.sortedByCoord.out.bam" -@ "${CORES}" -o "${OUTDIR}/${SAMPLE_ID}-STAR_Aligned.sortedByCoord.out.bai" && echo "STAR alignment complete."
 fi
 
