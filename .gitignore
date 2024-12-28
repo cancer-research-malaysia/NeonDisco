@@ -108,3 +108,5 @@ docker/hla-hd/src/IMGTHLA-3.50.0/hla.dat
 work/
 inputs/*
 docker/hla-hd/src/IMGTHLA-3.58.0/hla.dat
+
+outputs/*
