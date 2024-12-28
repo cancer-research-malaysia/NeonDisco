@@ -10,7 +10,7 @@ process ALIGN_READS_STAR {
         val(numCores)
 
     output:
-        tuple val(sampleName), path("*Aligned.sortedByCoord.out.ba?"), emit: aligned_reads
+        tuple val(sampleName), path("*Aligned.sortedByCoord.out.bam*"), emit: aligned_reads
 
     script:
     """
@@ -32,6 +32,7 @@ process ALIGN_READS_STAR {
     stub:
     """
     touch test_stub_Alignment.sortedByCoord.out.bam
+    touch test_stub_Alignment.sortedByCoord.out.bam.bai
     echo "stub run finished!" > test_stub_Alignment.sortedByCoord.out.bam
     """
 }
