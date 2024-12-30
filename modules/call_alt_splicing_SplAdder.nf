@@ -6,7 +6,7 @@ process CALL_ALT_SPLICING_SPLADDER {
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name call-eis-spladder -v ${params.arriba_db}:/work/libs -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
     
     input:
-        tuple val(sampleName), path(readFiles)
+        tuple val(sampleName), path(bam), path(bai)
         val(numCores)
 
     output:
@@ -15,9 +15,9 @@ process CALL_ALT_SPLICING_SPLADDER {
     script:
     """
     # Initialize variables
-    BAM=${readFiles[0]}  # First file in the list will be our main input
-    BAI=${readFiles[1]}
-    echo "Processing bam file \${READ1} & index file \${READ2}"
+    BAM=${bam}  # First file in the list will be our main input
+    BAI=${bai}
+    echo "Processing bam file \${BAM} & index file \${BAI}"
     echo "Number of cores to use for SplAdder: ${numCores}"
 
     # create output folder
