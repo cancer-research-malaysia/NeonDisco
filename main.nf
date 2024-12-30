@@ -9,7 +9,7 @@ include { CALL_FUSION_TRANSCRIPTS_FC } from './modules/call_fusion_transcripts_F
 include { COLLATE_FUSIONS } from './modules/collate_fusions'
 include { TYPE_HLA_ALLELES } from './modules/type_HLA_alleles'
 include { ALIGN_READS_STAR } from './modules/align_reads_STAR'
-
+include { CALL_ALT_SPLICING_SPLADDER } from './modules/call_alt_splicing_SplAdder'
 
 // Function which prints help message text
 def helpMessage() {
@@ -202,10 +202,12 @@ workflow {
                 COLLATE_FUSIONS(combinedResultFiles)
             }
 
-            // Call alt spliced events
             // first align reads to bam then index
-            alignedBams = ALIGN_READS_STAR(read_pairs_ch, params.num_cores)
-            alignedBams.view()
+            alignedBams_ch = ALIGN_READS_STAR(read_pairs_ch, params.num_cores)
+            alignedBams_ch.view()
+
+            // Call alt spliced events
+            CALL_ALT_SPLICING_SPLADDER(alignedBams_ch, params.num_cores)
         } 
         else {
             log.error "Either the input directory does not exist or it is not a directory. Please double-check the path."
