@@ -69,7 +69,8 @@ process TYPE_HLA_ALLELES {
     """
     stub:
     """
-    touch test_stub_final.result.txt
-    echo "stub run finished!" > test_stub_final.result.txt
+    mkdir -p test-stub-dir
+    touch test-stub-dir/test_stub_final.result.txt
+    echo "stub run finished!" > test-stub-dir/test_stub_final.result.txt
     """
 }

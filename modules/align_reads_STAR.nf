@@ -31,8 +31,8 @@ process ALIGN_READS_STAR {
     """
     stub:
     """
-    touch test_stub_Alignment.sortedByCoord.out.bam
-    touch test_stub_Alignment.sortedByCoord.out.bam.bai
-    echo "stub run finished!" > test_stub_Alignment.sortedByCoord.out.bam
+    touch test_stub_Aligned.sortedByCoord.out.bam
+    touch test_stub_Aligned.sortedByCoord.out.bam.bai
+    echo "stub run finished!" > test_stub_Aligned.sortedByCoord.out.bam
     """
 }
