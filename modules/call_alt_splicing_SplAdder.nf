@@ -10,7 +10,7 @@ process CALL_ALT_SPLICING_SPLADDER {
         val(numCores)
 
     output:
-        tuple val(sampleName), path("SplAdder_${sampleName}")
+        tuple val(sampleName), path("${sampleName}")
 
     script:
     """
@@ -26,7 +26,7 @@ process CALL_ALT_SPLICING_SPLADDER {
 
     echo "Starting SplAdder..."
     # Running SPLADDER
-    if bash /work/scripts/spladder-nf.sh "\${BAM}" ${numCores} /work/nf_work/SplAdder_${sampleName}; then
+    if bash /work/scripts/spladder-nf.sh "\${BAM}" ${numCores} /work/nf_work/${sampleName}; then
         echo "Alternative splicing event calling using SplAdder is complete. Check outputs for run status."
     else
         echo "Alternative splicing event calling failed."
@@ -35,7 +35,7 @@ process CALL_ALT_SPLICING_SPLADDER {
     """
     stub:
     """
-    mkdir -p /work/nf_work/SplAdder_${sampleName}
-    echo "stub run finished!" > /work/nf_work/SplAdder_${sampleName}/test.stub
+    mkdir -p /work/nf_work/${sampleName}
+    echo "stub run finished!" > /work/nf_work/${sampleName}/test.stub
     """
 }

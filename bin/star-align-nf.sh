@@ -14,7 +14,7 @@ if STAR \
 --runThreadN "${CORES}" \
 --genomeDir "${CTAT_LIB}/ref_genome.fa.star.idx" \
 --readFilesIn "${READ1}" "${READ2}" \
---readFilesCommand gunzip -c \
+--readFilesCommand zcat \
 --outSAMtype BAM SortedByCoordinate \
 --outSAMunmapped Within \
 --limitBAMsortRAM 20000000000 \
