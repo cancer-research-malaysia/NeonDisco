@@ -10,7 +10,7 @@ process CALL_ALT_SPLICING_SPLADDER {
         val(numCores)
 
     output:
-        tuple val(sampleName), path("${sampleName}")
+        tuple val(sampleName), path("merge_graphs_*.counts.hdf5")
 
     script:
     """
@@ -21,12 +21,11 @@ process CALL_ALT_SPLICING_SPLADDER {
     echo "Number of cores to use for SplAdder: ${numCores}"
 
     # create output folder
-    mkdir -p /work/nf_work/SplAdder_${sampleName}
     touch \${BAI}
 
     echo "Starting SplAdder..."
     # Running SPLADDER
-    if bash /work/scripts/spladder-nf.sh "\${BAM}" ${numCores} /work/nf_work/${sampleName}; then
+    if bash /work/scripts/spladder-nf.sh "\${BAM}" ${numCores} /work/nf_work/; then
         echo "Alternative splicing event calling using SplAdder is complete. Check outputs for run status."
     else
         echo "Alternative splicing event calling failed."
@@ -35,7 +34,6 @@ process CALL_ALT_SPLICING_SPLADDER {
     """
     stub:
     """
-    mkdir -p /work/nf_work/${sampleName}
-    echo "stub run finished!" > /work/nf_work/${sampleName}/test.stub
+    echo "stub run finished!" > /work/nf_work/merged_graphs_test.stub.counts.hdf5
     """
 }
