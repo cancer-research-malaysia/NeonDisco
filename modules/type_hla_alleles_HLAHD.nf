@@ -1,5 +1,5 @@
 // Run HLA typing module
-process TYPE_HLA_ALLELES {
+process TYPE_HLA_ALLELES_HLAHD {
     publishDir "${params.output_dir}/${sampleName}/HLAHD-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__hlahd}"

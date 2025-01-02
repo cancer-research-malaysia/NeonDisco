@@ -10,7 +10,7 @@ process CALL_ALT_SPLICING_SPLADDER {
         val(numCores)
 
     output:
-        tuple val(sampleName), path("merge_graphs_*.counts.hdf5")
+        tuple val(sampleName), path("merge_graphs_*.counts.hdf5"), emit: spladder_count_files
 
     script:
     """
@@ -34,6 +34,6 @@ process CALL_ALT_SPLICING_SPLADDER {
     """
     stub:
     """
-    echo "stub run finished!" > /work/nf_work/merged_graphs_test.stub.counts.hdf5
+    echo "stub run finished!" > /work/nf_work/merge_graphs_test.stub.counts.hdf5
     """
 }

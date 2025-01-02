@@ -4,12 +4,13 @@ nextflow.enable.dsl = 2
 
 // All of the default parameters are being set in `nextflow.config`
 // Import sub-workflows
-include { CALL_FUSION_TRANSCRIPTS_AR } from './modules/call_fusion_transcripts_AR'
-include { CALL_FUSION_TRANSCRIPTS_FC } from './modules/call_fusion_transcripts_FC'
-include { COLLATE_FUSIONS_POLARS } from './modules/collate_fusions_POLARS'
-include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD'
-include { ALIGN_READS_STAR } from './modules/align_reads_STAR'
-include { CALL_ALT_SPLICING_SPLADDER } from './modules/call_alt_splicing_SPLADDER'
+include { CALL_FUSION_TRANSCRIPTS_AR } from './modules/call_fusion_transcripts_AR.nf'
+include { CALL_FUSION_TRANSCRIPTS_FC } from './modules/call_fusion_transcripts_FC.nf'
+include { PREDICT_CODING_SEQ_AGFUSION } from './modules/predict_coding_seq_AGFUSION.nf'
+include { COLLATE_FUSIONS_POLARS } from './modules/collate_fusions_POLARS.nf'
+include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD.nf'
+include { ALIGN_READS_STAR } from './modules/align_reads_STAR.nf'
+include { CALL_ALT_SPLICING_SPLADDER } from './modules/call_alt_splicing_SPLADDER.nf'
 
 // Function which prints help message text
 def helpMessage() {
@@ -106,7 +107,7 @@ workflow {
         }
 
         hla_reads_ch = create_hla_reads_channel(params.hla_typing_dir)
-        hla_reads_ch.view()
+        // hla_reads_ch.view()
         TYPE_HLA_ALLELES_HLAHD(hla_reads_ch, params.num_cores)
     }
 
@@ -127,7 +128,7 @@ workflow {
 
             if (file(params.hla_typing_dir).exists() && file(params.hla_typing_dir).isDirectory()) {
                 hla_reads_ch = create_hla_reads_channel(params.hla_typing_dir)
-                hla_reads_ch.view()
+                // hla_reads_ch.view()
                 TYPE_HLA_ALLELES_HLAHD(hla_reads_ch, params.num_cores)
             }
         }
@@ -152,7 +153,7 @@ workflow {
                 log.info "[STATUS] Fusion caller parameter is set to <both>."
             }
 
-            log.info "[STATUS] Fusion caller specified. Getting input files..."
+            log.info "[STATUS] Getting input files..."
 
             // Collect inputs into channels
             read_pairs_ch = Channel.fromFilePairs("${params.input_dir}/*{R,r}{1,2}*.{fastq,fq}{,.gz}", checkIfExists: true)
@@ -163,7 +164,7 @@ workflow {
             }
             .toSortedList( { a, b -> a[0] <=> b[0] } )
             .flatMap()
-            .view()
+            //.view()
 
             count_ch = read_pairs_ch.count() // Get the count into a value channel
             
@@ -180,33 +181,68 @@ workflow {
             }
 
             // Call fusion transcripts
-            if (params.ftcaller == 'both' || params.ftcaller == 'arriba') {
-                log.info "[STATUS] Running Arriba asynchronously..."
+            if (params.ftcaller == 'arriba') {
+                log.info "[STATUS] Running Arriba only..."
                 arResultTuple = CALL_FUSION_TRANSCRIPTS_AR(read_pairs_ch, params.num_cores)
-                arResultTuple.view()
+                // arResultTuple.view()
+
+                // Create dummy file reference
+                def DUMMY_FILE = file("${projectDir}/assets/DUMMY_FILE", checkIfExists: false)
+
+                // Use map to add a dummy file to the tuple
+                input_with_dummy_ch = arResultTuple
+                    .map { sampleName, ftFile -> 
+                        [sampleName, ftFile, DUMMY_FILE] 
+                    }
+                
+                input_with_dummy_ch.view()
+                
+                // predict coding sequences
+                PREDICT_CODING_SEQ_AGFUSION(input_with_dummy_ch, params.num_cores)
             }
 
-            if (params.ftcaller == 'both' || params.ftcaller == 'fusioncatcher') {
-                log.info "[STATUS] Running FusionCatcher asynchronously..."
+            if (params.ftcaller == 'fusioncatcher') {
+                log.info "[STATUS] Running FusionCatcher only..."
                 fcResultTuple = CALL_FUSION_TRANSCRIPTS_FC(read_pairs_ch, params.num_cores)
                 fcResultTuple.view()
+
+                // Create dummy file reference
+                def DUMMY_FILE = file("${projectDir}/assets/DUMMY_FILE", checkIfExists: false)
+
+                // Use map to add a dummy file to the tuple
+                input_with_dummy_ch = fcResultTuple
+                    .map { sampleName, ftFile -> 
+                        [sampleName, ftFile, DUMMY_FILE] 
+                    }
+                
+                input_with_dummy_ch.view()
+                
+                // predict coding sequences
+                PREDICT_CODING_SEQ_AGFUSION(input_with_dummy_ch, params.num_cores)
+
             }
 
             if (params.ftcaller == 'both') {
-                log.info "[STATUS] Joining Arriba and FusionCatcher raw output as data stream out from Arriba and FusionCatcher..."
-      
-                combinedResultFiles = arResultTuple.arriba_fusion_tuple
+                log.info "[STATUS] Running both Arriba and FusionCatcher asynchronously..."
+                arResultTuple = CALL_FUSION_TRANSCRIPTS_AR(read_pairs_ch, params.num_cores)
+                fcResultTuple = CALL_FUSION_TRANSCRIPTS_FC(read_pairs_ch, params.num_cores)
+
+                combinedResults_ch = arResultTuple.arriba_fusion_tuple
                 .join(fcResultTuple.fuscat_fusion_tuple, by: 0)
                 .map { sampleName, arFile, fcFile -> tuple(sampleName, arFile, fcFile) }
-                combinedResultFiles.view()
+                
+                combinedResults_ch.view()
+
+                // predict coding sequences
+                PREDICT_CODING_SEQ_AGFUSION(combinedResults_ch, params.num_cores)
 
                 // Wrangle raw TSVs to get fusion transcripts called by both Arriba and FusionCatcher
-                COLLATE_FUSIONS(combinedResultFiles)
+                COLLATE_FUSIONS_POLARS(combinedResults_ch)
             }
 
             // first align reads to bam then index
             alignedBams_ch = ALIGN_READS_STAR(read_pairs_ch, params.num_cores)
-            alignedBams_ch.view()
+            // alignedBams_ch.view()
 
             // Call alt spliced events
             CALL_ALT_SPLICING_SPLADDER(alignedBams_ch, params.num_cores)
