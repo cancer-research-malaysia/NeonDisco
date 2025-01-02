@@ -1,9 +1,9 @@
 // Run HLA typing module
 process CALL_ALT_SPLICING_SPLADDER {
-    publishDir "${params.output_dir}/${sampleName}/AS/SplAdder-out", mode: 'copy',
+    publishDir "${params.output_dir}/${sampleName}/AS/SPLADDER-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__spladder}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name call-eis-spladder -v ${params.arriba_db}:/work/libs -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
+    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name call-alt-splicing-spladder -v ${params.arriba_db}:/work/libs -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
     
     input:
         tuple val(sampleName), path(bam), path(bai)

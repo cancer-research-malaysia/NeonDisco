@@ -6,10 +6,10 @@ nextflow.enable.dsl = 2
 // Import sub-workflows
 include { CALL_FUSION_TRANSCRIPTS_AR } from './modules/call_fusion_transcripts_AR'
 include { CALL_FUSION_TRANSCRIPTS_FC } from './modules/call_fusion_transcripts_FC'
-include { COLLATE_FUSIONS } from './modules/collate_fusions'
-include { TYPE_HLA_ALLELES } from './modules/type_HLA_alleles'
+include { COLLATE_FUSIONS_POLARS } from './modules/collate_fusions_POLARS'
+include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD'
 include { ALIGN_READS_STAR } from './modules/align_reads_STAR'
-include { CALL_ALT_SPLICING_SPLADDER } from './modules/call_alt_splicing_SplAdder'
+include { CALL_ALT_SPLICING_SPLADDER } from './modules/call_alt_splicing_SPLADDER'
 
 // Function which prints help message text
 def helpMessage() {
@@ -107,7 +107,7 @@ workflow {
 
         hla_reads_ch = create_hla_reads_channel(params.hla_typing_dir)
         hla_reads_ch.view()
-        TYPE_HLA_ALLELES(hla_reads_ch, params.num_cores)
+        TYPE_HLA_ALLELES_HLAHD(hla_reads_ch, params.num_cores)
     }
 
     // Full pipeline branch
@@ -128,7 +128,7 @@ workflow {
             if (file(params.hla_typing_dir).exists() && file(params.hla_typing_dir).isDirectory()) {
                 hla_reads_ch = create_hla_reads_channel(params.hla_typing_dir)
                 hla_reads_ch.view()
-                TYPE_HLA_ALLELES(hla_reads_ch, params.num_cores)
+                TYPE_HLA_ALLELES_HLAHD(hla_reads_ch, params.num_cores)
             }
         }
 
@@ -183,11 +183,13 @@ workflow {
             if (params.ftcaller == 'both' || params.ftcaller == 'arriba') {
                 log.info "[STATUS] Running Arriba asynchronously..."
                 arResultTuple = CALL_FUSION_TRANSCRIPTS_AR(read_pairs_ch, params.num_cores)
+                arResultTuple.view()
             }
 
             if (params.ftcaller == 'both' || params.ftcaller == 'fusioncatcher') {
                 log.info "[STATUS] Running FusionCatcher asynchronously..."
                 fcResultTuple = CALL_FUSION_TRANSCRIPTS_FC(read_pairs_ch, params.num_cores)
+                fcResultTuple.view()
             }
 
             if (params.ftcaller == 'both') {
