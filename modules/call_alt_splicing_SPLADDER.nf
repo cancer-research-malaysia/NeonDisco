@@ -1,5 +1,6 @@
 // Run HLA typing module
 process CALL_ALT_SPLICING_SPLADDER {
+    cache 'deep'
     publishDir "${params.output_dir}/${sampleName}/AS/SPLADDER-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__spladder}"
@@ -10,7 +11,7 @@ process CALL_ALT_SPLICING_SPLADDER {
         val(numCores)
 
     output:
-        tuple val(sampleName), path("merge_graphs_*.counts.hdf5"), emit: spladder_count_files
+        tuple val(sampleName), path("${sampleName}_spladder_out/*.counts.hdf5"), emit: spladder_count_files
 
     script:
     """
@@ -23,9 +24,11 @@ process CALL_ALT_SPLICING_SPLADDER {
     # create output folder
     touch \${BAI}
 
+    mkdir -p ${sampleName}_spladder_out
+
     echo "Starting SplAdder..."
     # Running SPLADDER
-    if bash /work/scripts/spladder-nf.sh "\${BAM}" ${numCores} /work/nf_work/; then
+    if bash /work/scripts/spladder-nf.sh "\${BAM}" ${numCores} ${sampleName}_spladder_out; then
         echo "Alternative splicing event calling using SplAdder is complete. Check outputs for run status."
     else
         echo "Alternative splicing event calling failed."
@@ -34,6 +37,7 @@ process CALL_ALT_SPLICING_SPLADDER {
     """
     stub:
     """
-    echo "stub run finished!" > /work/nf_work/merge_graphs_test.stub.counts.hdf5
+    mkdir -p ${sampleName}_spladder_out
+    echo "stub run finished!" > ${sampleName}_spladder_out/test.stub.counts.hdf5
     """
 }

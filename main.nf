@@ -195,7 +195,7 @@ workflow {
                         [sampleName, ftFile, DUMMY_FILE] 
                     }
                 
-                input_with_dummy_ch.view()
+                //input_with_dummy_ch.view()
                 
                 // predict coding sequences
                 PREDICT_CODING_SEQ_AGFUSION(input_with_dummy_ch, params.num_cores)
@@ -204,7 +204,7 @@ workflow {
             if (params.ftcaller == 'fusioncatcher') {
                 log.info "[STATUS] Running FusionCatcher only..."
                 fcResultTuple = CALL_FUSION_TRANSCRIPTS_FC(read_pairs_ch, params.num_cores)
-                fcResultTuple.view()
+                //fcResultTuple.view()
 
                 // Create dummy file reference
                 def DUMMY_FILE = file("${projectDir}/assets/DUMMY_FILE", checkIfExists: false)
@@ -215,7 +215,7 @@ workflow {
                         [sampleName, ftFile, DUMMY_FILE] 
                     }
                 
-                input_with_dummy_ch.view()
+                //input_with_dummy_ch.view()
                 
                 // predict coding sequences
                 PREDICT_CODING_SEQ_AGFUSION(input_with_dummy_ch, params.num_cores)
@@ -230,8 +230,16 @@ workflow {
                 combinedResults_ch = arResultTuple.arriba_fusion_tuple
                 .join(fcResultTuple.fuscat_fusion_tuple, by: 0)
                 .map { sampleName, arFile, fcFile -> tuple(sampleName, arFile, fcFile) }
-                
-                combinedResults_ch.view()
+                .view { sampleName, arFile, fcFile ->
+                """
+                \n===============================================
+Sample: ${sampleName}
+-----------------------------------------------
+Arriba file    : ${arFile}
+FusionCatcher  : ${fcFile}
+===============================================
+                """
+            }
 
                 // predict coding sequences
                 PREDICT_CODING_SEQ_AGFUSION(combinedResults_ch, params.num_cores)
