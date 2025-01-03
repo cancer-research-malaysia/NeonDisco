@@ -24,5 +24,6 @@ if agfusion batch -f "${INPUT_FILE}" -a ${TOOL} -db "${AGF_DB}/agfusion.homo_sap
     echo "AGFusion run successfully."
 else
     echo "AGFusion run failed."
+    exit 1
 fi
 

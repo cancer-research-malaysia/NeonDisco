@@ -47,6 +47,16 @@ RUN gunzip /sbin/matchhostfsowner.gz && \
 RUN addgroup --gid 9999 app && \
   adduser --uid 9999 --gid 9999 --disabled-password --gecos App app
 
+
+# change user
+USER app
+
+# install pyensembl
+RUN pyensembl install --release 95 --species homo_sapiens
+
+# change user back to root
+USER root
+
 # set workdir
 WORKDIR /work
 
