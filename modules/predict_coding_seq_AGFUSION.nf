@@ -10,7 +10,7 @@ process PREDICT_CODING_SEQ_AGFUSION {
         val(numCores)
 
     output:
-        tuple val(sampleName), path("agfusion_*"), emit: agfusion_outdir
+        tuple val(sampleName), path("${sampleName}_agfusion_*"), emit: agfusion_outdir
 
     script:
     if (ftFile2 != "./assets/NO_FILE") {
@@ -32,7 +32,7 @@ process PREDICT_CODING_SEQ_AGFUSION {
     }
     stub:
     """
-    mkdir -p agfusion_test-stub/
-    echo "stub run finished!" > agfusion_test-stub/stub.out
+    mkdir -p ${sampleName}_agfusion_test_stub
+    echo "stub run finished!" > ${sampleName}_agfusion_test_stub/stub.out
     """
 }

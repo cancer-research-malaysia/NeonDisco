@@ -20,7 +20,7 @@ else
     exit 1
 fi
 
-if agfusion batch -f "${INPUT_FILE}" -a ${TOOL} -db "${AGF_DB}/agfusion.homo_sapiens.95.db" -o "${OUTDIR}/agfusion_${TOOL}" --middlestar --noncanonical; then
+if agfusion batch -f "${INPUT_FILE}" -a ${TOOL} -db "${AGF_DB}/agfusion.homo_sapiens.95.db" -o "${OUTDIR}/${SAMPLE_ID}_agfusion_${TOOL}" --middlestar --noncanonical; then
     echo "AGFusion run successfully."
 else
     echo "AGFusion run failed."
