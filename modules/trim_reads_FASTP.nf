@@ -1,13 +1,12 @@
-// align trimmed reads
-process ALIGN_READS_STAR {
-    publishDir "${params.output_dir}/${sampleName}/STAR-alignment", mode: 'copy',
+// Trim raw reads
+process TRIM_READS_FASTP {
+    publishDir "${params.output_dir}/${sampleName}/FASTP_trimming", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
-    container "${params.container__arriba}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name align-reads-STAR -v ${params.arriba_db}:/work/libs -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
+    container "${params.container__preproc}"
+    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name fastp-trimming -v ${params.arriba_db}:/work/libs -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
     
     input:
         tuple val(sampleName), path(readFiles)
-        val(numCores)
 
     output:
         tuple val(sampleName), path("*Aligned.sortedByCoord.out.bam"), path("*Aligned.sortedByCoord.out.bam.bai"), emit: aligned_reads

@@ -40,7 +40,7 @@ process TYPE_HLA_ALLELES_HLAHD {
         *.bam)
             # BAM file processing
             echo "Processing bam file: \${input_file1}"
-            if bash /work/scripts/hlahd-bam-preprocess-nf.sh "${sampleName}" "\${input_file1}"; then
+            if bash /work/scripts/hlatyping-preproc-sampicard-nf.sh "${sampleName}" "\${input_file1}"; then
                 echo "File preprocessing has finished running on ${sampleName}."
                 
                 # assign output fastq to variables
