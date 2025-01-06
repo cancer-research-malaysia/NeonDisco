@@ -7,7 +7,6 @@ process TYPE_HLA_ALLELES_HLAHD {
     
     input:
         tuple val(sampleName), path(inputFiles)
-        val(numCores)
 
     output:
         tuple val(sampleName), path("**/*_final.result.txt"), emit: hla_combined_result
@@ -18,7 +17,7 @@ process TYPE_HLA_ALLELES_HLAHD {
     input_file1=${inputFiles[0]}  # First file in the list will be our main input
     input_file2=${inputFiles[1]}
     echo "Processing input file: \${input_file1}"
-    echo "Number of cores to use: ${numCores}"
+    echo "Number of cores to use: ${params.num_cores}"
     
     case "\${input_file1}" in
         *.fastq|*.fq)
@@ -60,7 +59,7 @@ process TYPE_HLA_ALLELES_HLAHD {
 
     echo "Running HLA-HD..."
     # Running HLA-HD on read files
-    if bash /work/scripts/hlahd-nf.sh "${sampleName}" "\${read1_file}" "\${read2_file}" ${numCores}; then
+    if bash /work/scripts/hlahd-nf.sh "${sampleName}" "\${read1_file}" "\${read2_file}" ${params.num_cores}; then
         echo "HLA-HD completed its run. Check outputs for run status."
     else
         echo "HLA-HD failed to complete."

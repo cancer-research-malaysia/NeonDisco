@@ -2,12 +2,12 @@
 
 nextflow.enable.dsl = 2
 
-// Import sub-workflows
+// Import submodules
+include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD.nf'
 include { CALL_FUSION_TRANSCRIPTS_AR } from './modules/call_fusion_transcripts_AR.nf'
 include { CALL_FUSION_TRANSCRIPTS_FC } from './modules/call_fusion_transcripts_FC.nf'
 include { PREDICT_CODING_SEQ_AGFUSION } from './modules/predict_coding_seq_AGFUSION.nf'
 include { COLLATE_FUSIONS_POLARS } from './modules/collate_fusions_POLARS.nf'
-include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD.nf'
 include { ALIGN_READS_STAR } from './modules/align_reads_STAR.nf'
 include { CALL_ALT_SPLICING_SPLADDER } from './modules/call_alt_splicing_SPLADDER.nf'
 
@@ -105,7 +105,7 @@ workflow HLA_TYPING {
         }
 
         hla_reads_ch = create_hla_reads_channel(hla_typing_dir)
-        TYPE_HLA_ALLELES_HLAHD(hla_reads_ch, num_cores)
+        TYPE_HLA_ALLELES_HLAHD(hla_reads_ch)
 }
 
 // Fusion Analysis Workflow
@@ -158,8 +158,8 @@ workflow {
         error "HLA typing directory must be specified when running in HLA-only mode."
     }
 
-    if (!params.hla_only && (!params.input_dir || !params.output_dir)) {
-        error "The input directory path (--input_dir) or the output directory path (--output_dir) is not provided."
+    if (!params.hla_only && !params.input_dir) {
+        error "The input directory path (--input_dir) is not provided."
     }
 
     // Execute workflows based on parameters
