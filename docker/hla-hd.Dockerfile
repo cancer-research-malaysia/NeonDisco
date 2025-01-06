@@ -1,8 +1,8 @@
 FROM mambaorg/micromamba:git-911a014-bookworm-slim
 USER root
 LABEL maintainer="Suffian Azizan"
-LABEL version="1.0"
-LABEL description="container image of HLA-HD program v1.7.0"
+LABEL version="2.0"
+LABEL description="container image of HLA-HD program v1.7.1"
 
 # change to root user
 USER root
@@ -71,6 +71,9 @@ RUN addgroup --gid 9999 app && \
   adduser --uid 9999 --gid 9999 --disabled-password --gecos App app
 
 # set workdir
-WORKDIR /work
+WORKDIR /home/app
+
+# set open file limit
+RUN ulimit -n 1024
 
 ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "/sbin/matchhostfsowner"]

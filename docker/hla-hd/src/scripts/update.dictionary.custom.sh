@@ -2,8 +2,8 @@
 #Please ensure the release version at ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/
 #Wget program (https://www.gnu.org/software/wget/) is need to run the command.
 
-#wget ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/hla.dat
-#wget https://media.githubusercontent.com/media/ANHIG/IMGTHLA/Latest/hla.dat
+wget ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/hla.dat
+wget https://media.githubusercontent.com/media/ANHIG/IMGTHLA/Latest/hla.dat
 
 if [ -e ./bin/create_fasta_from_dat ]; then
 :

@@ -1,15 +1,16 @@
 FROM mambaorg/micromamba:git-911a014-bookworm-slim
 USER root
 LABEL maintainer="Suffian Azizan"
-LABEL version="1.0"
-LABEL description="container image of tools for NGS reads preprocessing"
+LABEL version="1.5"
+LABEL description="container image of tools for NGS reads preprocessing (SAMTools, Picard, Yara)"
 
 # change to root user
 USER root
 # update Debian OS packages and install additional Linux system utilities, then finally remove cached package lists
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-build-essential tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps git cmake \
-&& rm -rf /var/lib/apt/lists/*
+build-essential tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps git cmake locales \
+&& rm -rf /var/lib/apt/lists/* \
+&& echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
 
 # change user
 USER $MAMBA_USER
@@ -40,11 +41,6 @@ RUN mkdir yara-build && cd yara-build && cmake ../seqan -DSEQAN_BUILD_SYSTEM=APP
 # download hla reference files from OptiType repo for yara
 RUN curl -o /tmp/hla_ref_for_yara_DNA.fa ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/hla_gen.fasta && curl -o /tmp/hla_ref_for_yara_RNA.fa ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/hla_nuc.fasta
 
-# build yara index
-RUN mkdir -p /work/resources/hla/yara_index/dnaseq/ /work/resources/hla/yara_index/rnaseq/ 
-RUN yara_indexer -o /work/resources/hla/yara_index/dnaseq/hla_ref_for_yara_DNA /tmp/hla_ref_for_yara_DNA.fa && yara_indexer -o /work/resources/hla/yara_index/rnaseq/hla_ref_for_yara_RNA /tmp/hla_ref_for_yara_RNA.fa
-
-
 # Docker suffers from absolutely atrocious way of consolidating the paradigm of restricting privileges when running containers (rootless mode) with writing outputs to bound host volumes without using Docker volumes or other convoluted workarounds.
 
 # Fortunately there is this tool that removes this altogether and helps matches the UID and GID of whoever is running the container image on a host machine
@@ -59,6 +55,13 @@ RUN addgroup --gid 9999 app && \
   adduser --uid 9999 --gid 9999 --disabled-password --gecos App app
 
 # set workdir
-WORKDIR /work
+WORKDIR /home/app
+
+# build yara index
+RUN mkdir -p /home/app/refs/HLA-yara_index/dnaseq/ /home/app/refs/HLA-yara_index/rnaseq/ 
+RUN yara_indexer -o /home/app/refs/HLA-yara_index/dnaseq/hla_ref_for_yara_DNA /tmp/hla_ref_for_yara_DNA.fa && yara_indexer -o /home/app/refs/HLA-yara_index/rnaseq/hla_ref_for_yara_RNA /tmp/hla_ref_for_yara_RNA.fa
+
+# transfer download script to download reference data for STAR and Arriba
+COPY ngs-preproc/src/download_refs_for_star.sh /tmp/download_refs_for_star.sh
 
 ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "/sbin/matchhostfsowner"]

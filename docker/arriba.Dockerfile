@@ -7,7 +7,7 @@ LABEL description="container image of Arriba program v2.3.0 for CRM"
 # change to root user
 USER root
 # update Debian OS packages and install additional Linux system utilities with procps; also install R, then finally remove cached package lists
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends procps curl r-base \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends procps curl wget \
 && rm -rf /var/lib/apt/lists/*
 
 # change user
@@ -29,13 +29,8 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 # add conda bins to PATH
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:/opt/conda/var/lib/arriba:$PATH"
 
-# R package installation
-USER root
-
-RUN R -e 'install.packages("BiocManager", repos="http://cran.us.r-project.org")'
-RUN R -e 'BiocManager::install("argparse")'
-RUN R -e 'BiocManager::install(c("GenomicRanges", "GenomicAlignments"))'
-RUN R -e 'install.packages("circlize", repos="https://cran.csiro.au/")'
+# download Arriba reference files
+RUN download_references.sh GRCh38viral+ENSEMBL104
 
 # Docker suffers from absolutely atrocious way of consolidating the paradigm of restricting privileges when running containers (rootless mode) with writing outputs to bound host volumes without using Docker volumes or other convoluted workarounds.
 
@@ -51,6 +46,6 @@ RUN addgroup --gid 9999 app && \
   adduser --uid 9999 --gid 9999 --disabled-password --gecos App app
 
 # set workdir
-WORKDIR /work
+WORKDIR /home/app
 
 ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "/sbin/matchhostfsowner"]

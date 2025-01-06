@@ -3,7 +3,7 @@ process TRIM_READS_FASTP {
     publishDir "${params.output_dir}/${sampleName}/FASTP_trimming", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__preproc}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name fastp-trimming -v ${params.arriba_db}:/work/libs -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
+    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name fastp-trimming -v ${params.arriba_db}:/home/app/libs -v \$(pwd):/home/app/nf_work -v ${params.bin_dir}:/home/app/scripts"
     
     input:
         tuple val(sampleName), path(readFiles)
@@ -17,11 +17,11 @@ process TRIM_READS_FASTP {
     READ1=${readFiles[0]}  # First file in the list will be our main input
     READ2=${readFiles[1]}
     echo "Processing files: \${READ1} & \${READ2}"
-    echo "Number of cores to use: ${numCores}"
+    echo "Number of cores to use: ${params.num_cores}"
 
     echo "Starting STAR alignment..."
     # Running STAR on read files
-    if bash /work/scripts/star-align-nf.sh "\${READ1}" "\${READ2}" ${numCores}; then
+    if bash /work/scripts/star-align-nf.sh "\${READ1}" "\${READ2}" ${params.num_cores}; then
         echo "STAR alignment complete. Check outputs for run status."
     else
         echo "STAR alignment failed."
