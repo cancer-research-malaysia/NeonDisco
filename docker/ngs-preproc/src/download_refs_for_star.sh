@@ -1,4 +1,7 @@
 #!/bin/bash
+# this script is a modified version of the script from Arriba package `download_references.sh`
+set -o pipefail
+set -e -u
 
 declare -A ASSEMBLIES
 ASSEMBLIES[hs37d5]="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz"
@@ -51,112 +54,225 @@ for COMBINATION in ${!COMBINATIONS[@]}; do
 	COMBINATIONS["${COMBINATION%+*}viral+${COMBINATION#*+}"]="${COMBINATIONS[$COMBINATION]%+*}viral+${COMBINATIONS[$COMBINATION]#*+}"
 done
 
-if [ $# -ne 1 ] || [ -z "$1" ] || [ -z "${COMBINATIONS[$1]}" ]; then
+if [ -z "$1" ] || [ -z "${COMBINATIONS[$1]}" ]; then
 	echo "Usage: $(basename $0) ASSEMBLY+ANNOTATION" 1>&2
 	echo "Available assemblies and annotations:" 1>&2
 	tr ' ' '\n' <<<"${!COMBINATIONS[@]}" | sort 1>&2
-	exit 1
+	exit 0
 fi
 
-ASSEMBLY="${COMBINATIONS[$1]%+*}"
-VIRAL=""
-if [[ $ASSEMBLY =~ viral ]]; then
-	ASSEMBLY="${ASSEMBLY%viral}"
-	VIRAL="viral"
-fi
-ANNOTATION="${COMBINATIONS[$1]#*+}"
+DESIRED_REF=$1
+ASSEMBLY=$2
+ANNOTATION=$3
+
+# set defaults
 THREADS="${THREADS-8}"
 SJDBOVERHANG="${SJDBOVERHANG-250}"
-
-set -o pipefail
-set -e -u
-
 WGET=$(which wget 2> /dev/null && echo " -q -O -" || echo "curl -L -s -S")
 
-echo "Downloading assembly: ${ASSEMBLIES[$ASSEMBLY]}"
-$WGET "${ASSEMBLIES[$ASSEMBLY]}" |
-if [[ ${ASSEMBLIES[$ASSEMBLY]} =~ \.tar\.gz$ ]]; then
-	tar -x -O -z
-elif [[ ${ASSEMBLIES[$ASSEMBLY]} =~ \.gz$ ]]; then
-	gunzip -c
+# now check if the assembly and annotation are provided locally
+if [ ! -z $ASSEMBLY ] && [ ! -z $ANNOTATION ]; then
+	echo "Using provided assembly and annotation"
+	
+	ASSEMBLY_NAME="${COMBINATIONS[${DESIRED_REF}]%+*}"
+	ANNOTATION_NAME="${COMBINATIONS[${DESIRED_REF}]#*+}"
+	VIRAL=""
+	# check for viral parameter
+	if [[ $DESIRED_REF =~ viral ]]; then
+		VIRAL="viral"
+	fi
+
+	# check zipped
+	if [[ ${ASSEMBLY} =~ \.tar\.gz$ ]]; then
+		tar -x -O -z ${ASSEMBLY}
+	elif [[ ${ASSEMBLY} =~ \.gz$ ]]; then
+		gunzip -c ${ASSEMBLY}
+	else
+		cat ${ASSEMBLY}
+	fi | 
+	if [ "$VIRAL" = "viral" ]; then
+		# drop viral contigs from assembly
+		awk '/^>/{ contig=$1 } contig!~/^>NC_|^>AC_/{ print }'
+	else
+		cat
+	fi > "${ASSEMBLY_NAME}.fa"
+
+	echo "Using provided annotation"
+	if [[ ${ANNOTATION} =~ \.gz$ ]]; then
+		gunzip -c ${ANNOTATION}
+	else
+		cat ${ANNOTATION}
+	fi |
+	if [[ $ANNOTATION_NAME =~ RefSeq ]]; then
+		# convert genePred to GTF
+		awk -F '\t' -v OFS='\t' '
+		function min(x, y) { return (x>y) ? y : x }
+		function max(x, y) { return (x<y) ? y : x }
+		{
+			split($10, start, ",")
+			split($11, end, ",")
+			split($16, frame, ",")
+			# remove stop codon from left end for coding genes on the minus strand
+			if ($4=="-" && $14=="cmpl" && (start[1]!=$7 || (min(end[1],$8)-start[1]+frame[1])%3==0)) {
+				$7+=3
+				for (i in end)
+					if ($7>=end[i] && $7<=end[i]+2)
+						$7+=start[i+1]-end[i]
+			}
+			# remove stop codon from right end for coding genes on the plus strand
+			if ($4=="+" && $15=="cmpl" && (end[$9]!=$8 || (end[$9]-max(start[$9],$7)+frame[$9])%3==0)) {
+				$8-=3
+				for (i in start)
+					if ($8<=start[i] && $8>=start[i]-2)
+						$8-=start[i]-end[i-1]
+			}
+			# append running number to duplicate uses of the same transcript ID
+			gene_id=$13
+			if (transcripts[$2]++) {
+				gene_id=$13"_"transcripts[$2]
+				$2=$2"_"transcripts[$2]
+			}
+			# print one line for each exon
+			for (i=1; i<=$9; i++) {
+				exon=($4=="+") ? i : $9-i+1
+				attributes="gene_id \""gene_id"\"; transcript_id \""$2"\"; exon_number \""exon"\"; exon_id \""$2"."exon"\"; gene_name \""$13"\";"
+				print $3,"RefSeq","exon",start[i]+1,end[i],".",$4,".",attributes
+				# print one line for each coding region
+				if ($14~/cmpl/ && $7<=end[i] && $8>=start[i])
+					print $3,"RefSeq","CDS",max($7,start[i])+1,min($8,end[i]),".",$4,frame[i],attributes
+			}
+		}' | sort -k1,1V -k4,4n -k5,5n -k3,3 -S4G 
+	else
+		cat
+	fi |
+	if ! grep -q '^>chr' "${ASSEMBLY_NAME}.fa"; then
+		sed -e 's/^chrM/MT/' -e 's/^chr//'
+	else
+		sed -e 's/^MT/chrM/' -e 's/^\([1-9XY]\|[12][0-9]\)/chr\1/'
+	fi > "${ANNOTATION_NAME}.gtf"
+
 else
-	cat
-fi |
-if [ "$VIRAL" = "viral" ]; then
-	# drop viral contigs from assembly
-	awk '/^>/{ contig=$1 } contig!~/^>NC_|^>AC_/{ print }'
-else
-	cat
-fi > "$ASSEMBLY$VIRAL.fa"
+	ASSEMBLY="${COMBINATIONS[$1]%+*}"
+	ANNOTATION="${COMBINATIONS[$1]#*+}"
+	VIRAL=""
+	# check for viral parameter
+	if [[ $ASSEMBLY =~ viral ]]; then
+		ASSEMBLY="${ASSEMBLY%viral}"
+		VIRAL="viral"
+	fi
+
+	echo "Downloading assembly: ${ASSEMBLIES[$ASSEMBLY]}"
+	$WGET "${ASSEMBLIES[$ASSEMBLY]}" |
+	if [[ ${ASSEMBLIES[$ASSEMBLY]} =~ \.tar\.gz$ ]]; then
+		tar -x -O -z
+	elif [[ ${ASSEMBLIES[$ASSEMBLY]} =~ \.gz$ ]]; then
+		gunzip -c
+	else
+		cat
+	fi |
+	if [ "$VIRAL" = "viral" ]; then
+		# drop viral contigs from assembly
+		awk '/^>/{ contig=$1 } contig!~/^>NC_|^>AC_/{ print }'
+	else
+		cat
+	fi > "$ASSEMBLY.fa"
+
+	echo "Downloading annotation: ${ANNOTATIONS[$ANNOTATION]}"
+	$WGET "${ANNOTATIONS[$ANNOTATION]}" |
+	if [[ ${ANNOTATIONS[$ANNOTATION]} =~ \.gz$ ]]; then
+		gunzip -c
+	else
+		cat
+	fi |
+	if [[ $ANNOTATION =~ RefSeq ]]; then
+		# convert genePred to GTF
+		awk -F '\t' -v OFS='\t' '
+		function min(x, y) { return (x>y) ? y : x }
+		function max(x, y) { return (x<y) ? y : x }
+		{
+			split($10, start, ",")
+			split($11, end, ",")
+			split($16, frame, ",")
+			# remove stop codon from left end for coding genes on the minus strand
+			if ($4=="-" && $14=="cmpl" && (start[1]!=$7 || (min(end[1],$8)-start[1]+frame[1])%3==0)) {
+				$7+=3
+				for (i in end)
+					if ($7>=end[i] && $7<=end[i]+2)
+						$7+=start[i+1]-end[i]
+			}
+			# remove stop codon from right end for coding genes on the plus strand
+			if ($4=="+" && $15=="cmpl" && (end[$9]!=$8 || (end[$9]-max(start[$9],$7)+frame[$9])%3==0)) {
+				$8-=3
+				for (i in start)
+					if ($8<=start[i] && $8>=start[i]-2)
+						$8-=start[i]-end[i-1]
+			}
+			# append running number to duplicate uses of the same transcript ID
+			gene_id=$13
+			if (transcripts[$2]++) {
+				gene_id=$13"_"transcripts[$2]
+				$2=$2"_"transcripts[$2]
+			}
+			# print one line for each exon
+			for (i=1; i<=$9; i++) {
+				exon=($4=="+") ? i : $9-i+1
+				attributes="gene_id \""gene_id"\"; transcript_id \""$2"\"; exon_number \""exon"\"; exon_id \""$2"."exon"\"; gene_name \""$13"\";"
+				print $3,"RefSeq","exon",start[i]+1,end[i],".",$4,".",attributes
+				# print one line for each coding region
+				if ($14~/cmpl/ && $7<=end[i] && $8>=start[i])
+					print $3,"RefSeq","CDS",max($7,start[i])+1,min($8,end[i]),".",$4,frame[i],attributes
+			}
+		}' | sort -k1,1V -k4,4n -k5,5n -k3,3 -S4G
+	else
+		cat
+	fi |
+	if ! grep -q '^>chr' "$ASSEMBLY.fa"; then
+		sed -e 's/^chrM/MT/' -e 's/^chr//'
+	else
+		sed -e 's/^MT/chrM/' -e 's/^\([1-9XY]\|[12][0-9]\)/chr\1/'
+	fi > "$ANNOTATION.gtf"
+
+fi
 
 if [ "$VIRAL" = "viral" ]; then
 	echo "Appending RefSeq viral genomes"
 	REFSEQ_VIRAL_GENOMES=$(dirname "$0")/RefSeq_viral_genomes_v2.3.0.fa.gz
 	if [ ! -e "$REFSEQ_VIRAL_GENOMES" ]; then
-		REFSEQ_VIRAL_GENOMES=$(dirname "$0")/database/RefSeq_viral_genomes_v2.3.0.fa.gz
+		echo "Viral genomes from RefSeq not found in the expected location: $REFSEQ_VIRAL_GENOMES"
+		exit 1
 	fi
-	gunzip -c "$REFSEQ_VIRAL_GENOMES" >> "$ASSEMBLY$VIRAL.fa"
+	if [ ! -z ${ASSEMBLY_NAME} ]; then
+		gunzip -c "$REFSEQ_VIRAL_GENOMES" >> "${ASSEMBLY_NAME}.fa"
+	else
+		gunzip -c "$REFSEQ_VIRAL_GENOMES" >> "${ASSEMBLY}.fa"
+	fi
 fi
 
 if [[ $(samtools --version-only 2> /dev/null) =~ ^1\. ]]; then
 	echo "Indexing assembly"
-	samtools faidx "$ASSEMBLY$VIRAL.fa"
+	if [ ! -z "$ASSEMBLY_NAME" ]; then
+		samtools faidx "$ASSEMBLY_NAME.fa"
+	else
+		samtools faidx "$ASSEMBLY.fa"
+	fi
 fi
 
-echo "Downloading annotation: ${ANNOTATIONS[$ANNOTATION]}"
-$WGET "${ANNOTATIONS[$ANNOTATION]}" |
-if [[ ${ANNOTATIONS[$ANNOTATION]} =~ \.gz$ ]]; then
-	gunzip -c
+if [[ ! -z $2 ]]; then
+	mkdir -p /home/app/STAR_index_${ASSEMBLY_NAME}_${ANNOTATION_NAME}
+	if STAR --runMode genomeGenerate --genomeDir /home/app/STAR_index_${ASSEMBLY_NAME}_${ANNOTATION_NAME} --genomeFastaFiles "${ASSEMBLY_NAME}.fa" --sjdbGTFfile "$ANNOTATION_NAME.gtf" --runThreadN "$THREADS" --sjdbOverhang "$SJDBOVERHANG"; then
+		echo "STAR index created successfully"
+	else
+		echo "STAR index creation failed"
+		exit 1
+	fi
 else
-	cat
-fi |
-if [[ $ANNOTATION =~ RefSeq ]]; then
-	# convert genePred to GTF
-	awk -F '\t' -v OFS='\t' '
-	function min(x, y) { return (x>y) ? y : x }
-	function max(x, y) { return (x<y) ? y : x }
-	{
-		split($10, start, ",")
-		split($11, end, ",")
-		split($16, frame, ",")
-		# remove stop codon from left end for coding genes on the minus strand
-		if ($4=="-" && $14=="cmpl" && (start[1]!=$7 || (min(end[1],$8)-start[1]+frame[1])%3==0)) {
-			$7+=3
-			for (i in end)
-				if ($7>=end[i] && $7<=end[i]+2)
-					$7+=start[i+1]-end[i]
-		}
-		# remove stop codon from right end for coding genes on the plus strand
-		if ($4=="+" && $15=="cmpl" && (end[$9]!=$8 || (end[$9]-max(start[$9],$7)+frame[$9])%3==0)) {
-			$8-=3
-			for (i in start)
-				if ($8<=start[i] && $8>=start[i]-2)
-					$8-=start[i]-end[i-1]
-		}
-		# append running number to duplicate uses of the same transcript ID
-		gene_id=$13
-		if (transcripts[$2]++) {
-			gene_id=$13"_"transcripts[$2]
-			$2=$2"_"transcripts[$2]
-		}
-		# print one line for each exon
-		for (i=1; i<=$9; i++) {
-			exon=($4=="+") ? i : $9-i+1
-			attributes="gene_id \""gene_id"\"; transcript_id \""$2"\"; exon_number \""exon"\"; exon_id \""$2"."exon"\"; gene_name \""$13"\";"
-			print $3,"RefSeq","exon",start[i]+1,end[i],".",$4,".",attributes
-			# print one line for each coding region
-			if ($14~/cmpl/ && $7<=end[i] && $8>=start[i])
-				print $3,"RefSeq","CDS",max($7,start[i])+1,min($8,end[i]),".",$4,frame[i],attributes
-		}
-	}' | sort -k1,1V -k4,4n -k5,5n -k3,3 -S4G
-else
-	cat
-fi |
-if ! grep -q '^>chr' "$ASSEMBLY$VIRAL.fa"; then
-	sed -e 's/^chrM/MT/' -e 's/^chr//'
-else
-	sed -e 's/^MT/chrM/' -e 's/^\([1-9XY]\|[12][0-9]\)/chr\1/'
-fi > "$ANNOTATION.gtf"
+	mkdir -p /home/app/STAR_index_${ASSEMBLY}_${ANNOTATION}
+	if STAR --runMode genomeGenerate --genomeDir /home/app/STAR_index_${ASSEMBLY}_${ANNOTATION} --genomeFastaFiles "$ASSEMBLY.fa" --sjdbGTFfile "$ANNOTATION.gtf" --runThreadN "$THREADS" --sjdbOverhang "$SJDBOVERHANG"; then
+		echo "STAR index created successfully"
+	else
+		echo "STAR index creation failed"
+		exit 1
+	fi
+fi
 
-mkdir -p /home/app/refs/STAR_index_${ASSEMBLY}${VIRAL}_${ANNOTATION}
-STAR --runMode genomeGenerate --genomeDir /home/app/refs/STAR_index_${ASSEMBLY}${VIRAL}_${ANNOTATION} --genomeFastaFiles "$ASSEMBLY$VIRAL.fa" --sjdbGTFfile "$ANNOTATION.gtf" --runThreadN "$THREADS" --sjdbOverhang "$SJDBOVERHANG"
+echo "Reference for STAR and Arriba downloaded and indexed successfully."

@@ -5,3 +5,5 @@ Before running the pipeline, you need to preprocess the reference genome for STA
 ``` bash /tmp/download_refs_for_star.sh GRCh38viral+ENSEMBL104 ```
 
 This will download the reference genome and create the necessary indexes for STAR and ARIBA. The reference genome will be downloaded from the Ensembl FTP server and the viral sequences will be downloaded from the NCBI FTP server. The STAR index will be saved in the `/home/app/refs/STAR_index_GRCh38viral+ENSEMBL104` directory.
+
+Note that you should ensure that `RefSeq_viral_genomes_v2.3.0.fa.gz` is present in the script directory. This file is required for the `download_refs_for_star.sh` script to work.

@@ -62,6 +62,7 @@ RUN mkdir -p /home/app/refs/HLA-yara_index/dnaseq/ /home/app/refs/HLA-yara_index
 RUN yara_indexer -o /home/app/refs/HLA-yara_index/dnaseq/hla_ref_for_yara_DNA /tmp/hla_ref_for_yara_DNA.fa && yara_indexer -o /home/app/refs/HLA-yara_index/rnaseq/hla_ref_for_yara_RNA /tmp/hla_ref_for_yara_RNA.fa
 
 # transfer download script to download reference data for STAR and Arriba
-COPY ngs-preproc/src/download_refs_for_star.sh /tmp/download_refs_for_star.sh
+COPY ngs-preproc/src/download_refs_for_star.sh /home/app/generate_index/download_refs_for_star.sh
+COPY ngs-preproc/src/RefSeq_viral_genomes_v2.3.0.fa.gz /home/app/generate_index/RefSeq_viral_genomes_v2.3.0.fa.gz
 
 ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "/sbin/matchhostfsowner"]

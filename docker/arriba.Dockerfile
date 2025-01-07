@@ -29,13 +29,12 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 # add conda bins to PATH
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:/opt/conda/var/lib/arriba:$PATH"
 
-# download Arriba reference files
-RUN download_references.sh GRCh38viral+ENSEMBL104
-
 # Docker suffers from absolutely atrocious way of consolidating the paradigm of restricting privileges when running containers (rootless mode) with writing outputs to bound host volumes without using Docker volumes or other convoluted workarounds.
 
 # Fortunately there is this tool that removes this altogether and helps matches the UID and GID of whoever is running the container image on a host machine
 
+# change to root user
+USER root
 # Install MatchHostFsOwner. Using version 1.0.1
 # See https://github.com/FooBarWidget/matchhostfsowner/releases
 ADD https://github.com/FooBarWidget/matchhostfsowner/releases/download/v1.0.1/matchhostfsowner-1.0.1-x86_64-linux.gz /sbin/matchhostfsowner.gz
