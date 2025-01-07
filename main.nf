@@ -3,6 +3,7 @@
 nextflow.enable.dsl = 2
 
 // Import submodules
+include { PREPROC_HLA_TYPING_INPUT_SAMPICARD } from './modules/preproc_hla_typing_input_SAMPICARD.nf'
 include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD.nf'
 include { CALL_FUSION_TRANSCRIPTS_AR } from './modules/call_fusion_transcripts_AR.nf'
 include { CALL_FUSION_TRANSCRIPTS_FC } from './modules/call_fusion_transcripts_FC.nf'
@@ -105,7 +106,9 @@ workflow HLA_TYPING {
         }
 
         hla_reads_ch = create_hla_reads_channel(hla_typing_dir)
-        TYPE_HLA_ALLELES_HLAHD(hla_reads_ch)
+        preprocessed_ch = PREPROC_HLA_TYPING_INPUT_SAMPICARD(hla_reads_ch)
+        preprocessed_ch.view()
+        TYPE_HLA_ALLELES_HLAHD(preprocessed_ch)
 }
 
 // Fusion Analysis Workflow

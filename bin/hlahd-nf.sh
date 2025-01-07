@@ -3,7 +3,7 @@
 echo $(id)
 
 OUTDIR="/work/nf_work"
-HLAHD_DIR="/tmp/hlahd.1.7.0"
+HLAHD_DIR="/tmp/hlahd.1.7.1"
 
 SAMPLE_ID=$1
 READ1=$2
