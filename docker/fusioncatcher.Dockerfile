@@ -9,8 +9,9 @@ USER root
 # update Debian OS packages and install additional Linux system utilities, then finally remove cached package lists
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps \
-&& rm -rf /var/lib/apt/lists/*
+tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed locales \
+&& rm -rf /var/lib/apt/lists/* \
+&& echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
 
 # change user
 USER $MAMBA_USER
@@ -48,7 +49,12 @@ RUN gunzip /sbin/matchhostfsowner.gz && \
 RUN addgroup --gid 9999 app && \
   adduser --uid 9999 --gid 9999 --disabled-password --gecos App app
 
+
+# also store the bash script to download references as root
+COPY --chown=root:root fusioncatcher/src/scripts/download-human-db-patched.sh /home/app/download-human-db-patched.sh
+RUN chmod +x /home/app/download-human-db-patched.sh
+
 # set workdir
-WORKDIR /work
+WORKDIR /home/app
 
 ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "/sbin/matchhostfsowner"]

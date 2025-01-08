@@ -2,12 +2,12 @@ FROM mambaorg/micromamba:git-911a014-bookworm-slim
 
 LABEL maintainer="Suffian Azizan"
 LABEL version="1.0"
-LABEL description="container image of Arriba program v2.3.0 for CRM"
+LABEL description="container image of Arriba program v2.3.0 for CRMY"
 
 # change to root user
 USER root
 # update Debian OS packages and install additional Linux system utilities with procps; also install R, then finally remove cached package lists
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends procps curl wget \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed \
 && rm -rf /var/lib/apt/lists/*
 
 # change user

@@ -8,7 +8,7 @@ LABEL description="container image of Spladder program v3.0.2"
 USER root
 # update Debian OS packages and install additional Linux system utilities, then finally remove cached package lists
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-git tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps \
+git tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed \
 && rm -rf /var/lib/apt/lists/*
 
 # change user
@@ -48,6 +48,6 @@ RUN addgroup --gid 9999 app && \
   adduser --uid 9999 --gid 9999 --disabled-password --gecos App app
 
 # set workdir
-WORKDIR /work
+WORKDIR /home/app
 
 ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "/sbin/matchhostfsowner"]
