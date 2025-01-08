@@ -8,7 +8,7 @@ LABEL description="container image of HLA-HD program v1.7.1"
 USER root
 # update Debian OS packages and install additional Linux system utilities, then finally remove cached package lists
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps \
+tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed \
 && rm -rf /var/lib/apt/lists/*
 
 # change user

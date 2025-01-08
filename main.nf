@@ -185,5 +185,3 @@ workflow {
         println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
     }
 }
-
-
