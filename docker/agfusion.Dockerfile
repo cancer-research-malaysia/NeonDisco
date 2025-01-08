@@ -8,7 +8,7 @@ LABEL description="container image of AGFusion program v1.4.1"
 USER root
 # update Debian OS packages and install additional Linux system utilities, then finally remove cached package lists
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps \
+tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed \
 && rm -rf /var/lib/apt/lists/*
 
 # change user
@@ -57,7 +57,11 @@ RUN pyensembl install --release 95 --species homo_sapiens
 # change user back to root
 USER root
 
+# replace the cli.py of agfusion with my edited one that handles running agfusion cli with no arguments
+COPY agfusion/src/cli-v2.py /tmp/cli-v2.py
+RUN mv /tmp/cli-v2.py /tmp/cli.py && rm -rf /opt/conda/lib/python3.12/site-packages/agfusion/cli.py && mv /tmp/cli.py /opt/conda/lib/python3.12/site-packages/agfusion/
+
 # set workdir
-WORKDIR /work
+WORKDIR /home/app
 
 ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "/sbin/matchhostfsowner"]
