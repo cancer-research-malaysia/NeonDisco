@@ -21,7 +21,7 @@ process TYPE_HLA_ALLELES_HLAHD {
     
     echo "Running HLA-HD..."
     # Running HLA-HD on read files
-    if bash /work/scripts/hlahd-nf.sh "${sampleName}" "\${read1_file}" "\${read2_file}" ${params.num_cores}; then
+    if bash /work/scripts/hlahd-nf.sh "${sampleName}" "\${input_file1}" "\${input_file2}" ${params.num_cores}; then
         echo "HLA-HD completed its run. Check outputs for run status."
     else
         echo "HLA-HD failed to complete."

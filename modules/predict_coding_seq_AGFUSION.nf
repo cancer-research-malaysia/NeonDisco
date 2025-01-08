@@ -7,7 +7,6 @@ process PREDICT_CODING_SEQ_AGFUSION {
     
     input:
         tuple val(sampleName), path(ftFile1), path(ftFile2)
-        val(numCores)
 
     output:
         tuple val(sampleName), path("${sampleName}_agfusion_*"), emit: agfusion_outdir
@@ -18,14 +17,14 @@ process PREDICT_CODING_SEQ_AGFUSION {
         // Process both ftFile1 and ftFile2
         """
         echo "Running AGFusion to predict fusion protein sequences from both Arriba and FusionCatcher..."
-        if bash /work/scripts/agfusion-nf.sh ${ftFile1} ${numCores} && bash /work/scripts/agfusion-nf.sh ${ftFile2} ${numCores}; then
+        if bash /work/scripts/agfusion-nf.sh ${ftFile1} ${params.num_cores} && bash /work/scripts/agfusion-nf.sh ${ftFile2} ${params.num_cores}; then
             echo "AGFusion has finished running on the outputs of Arriba and FusionCatcher of ${sampleName}."
         fi
         """
     } else {
         """
         echo "Running AGFusion to predict fusion protein sequences from the output of the selected FT calling tool..."
-        if bash /work/scripts/agfusion-nf.sh ${ftFile1} ${numCores}; then
+        if bash /work/scripts/agfusion-nf.sh ${ftFile1} ${params.num_cores}; then
             echo "AGFusion has finished running the output of the selected FT calling tool of ${sampleName}."
         fi
         """

@@ -37,7 +37,7 @@ Required Arguments:
 
 def create_hla_reads_channel(dir_path) {
     // find bam files if any
-    bam_files_ch = Channel.fromPath("${dir_path}/*.{bam,bai}", checkIfExists: true)
+    def bam_files_ch = Channel.fromPath("${dir_path}/*.{bam,bai}", checkIfExists: true)
         .ifEmpty { 
             log.error "No valid input BAM files found in ${dir_path}. Please check your input directory."
             log.info "[STATUS] Aborting..."
@@ -51,7 +51,7 @@ def create_hla_reads_channel(dir_path) {
         .groupTuple()  // Group by sample name
         .map { sample_name, files -> 
             // Sort to ensure BAM comes before BAI
-            def sorted_files = files.sort { a, b -> 
+            def sorted_files = files.sort { a, _b -> 
                 a.name.endsWith("bam") ? -1 : 1  // BAM files come first
             }
             tuple(sample_name, sorted_files)
@@ -64,7 +64,7 @@ def create_hla_reads_channel(dir_path) {
 
     if (has_fastq) {
         log.info "[STATUS] Found FASTQ files. Mixing with BAM files..."
-        reads_files_ch = Channel.fromFilePairs("${dir_path}/*{R,r}{1,2}*.{fastq,fq}{,.gz}")
+        def reads_files_ch = Channel.fromFilePairs("${dir_path}/*{R,r}{1,2}*.{fastq,fq}{,.gz}")
             .toSortedList( { a, b -> a[0] <=> b[0] } )
             .flatMap()
         return bam_files_ch.mix(reads_files_ch)
@@ -86,7 +86,7 @@ workflow TRIM_AND_ALIGN_READS {
             .toSortedList( { a, b -> a[0] <=> b[0] } )
             .flatMap()
 
-        alignedBams_ch = ALIGN_READS_STAR(read_pairs_ch, num_cores)
+        alignedBams_ch = ALIGN_READS_STAR(read_pairs_ch)
 
     emit:
         reads = read_pairs_ch
@@ -119,31 +119,31 @@ workflow FUSION_CALLING {
     main:
 
         // Handle different fusion caller scenarios
-        if (ftcaller == 'arriba') {
-            arResultTuple = CALL_FUSION_TRANSCRIPTS_AR(read_pairs_ch, num_cores)
+        if (params.ftcaller == 'arriba') {
+            arResultTuple = CALL_FUSION_TRANSCRIPTS_AR(read_pairs_ch)
             def DUMMY_FILE = file("${projectDir}/assets/DUMMY_FILE", checkIfExists: false)
             input_with_dummy_ch = arResultTuple.map { sampleName, ftFile -> 
                 [sampleName, ftFile, DUMMY_FILE] 
             }
-            PREDICT_CODING_SEQ_AGFUSION(input_with_dummy_ch, num_cores)
+            PREDICT_CODING_SEQ_AGFUSION(input_with_dummy_ch)
         }
-        else if (ftcaller == 'fusioncatcher') {
-            fcResultTuple = CALL_FUSION_TRANSCRIPTS_FC(read_pairs_ch, num_cores)
+        else if (params.ftcaller == 'fusioncatcher') {
+            fcResultTuple = CALL_FUSION_TRANSCRIPTS_FC(read_pairs_ch)
             def DUMMY_FILE = file("${projectDir}/assets/DUMMY_FILE", checkIfExists: false)
             input_with_dummy_ch = fcResultTuple.map { sampleName, ftFile -> 
                 [sampleName, ftFile, DUMMY_FILE] 
             }
-            PREDICT_CODING_SEQ_AGFUSION(input_with_dummy_ch, num_cores)
+            PREDICT_CODING_SEQ_AGFUSION(input_with_dummy_ch)
         }
-        else if (ftcaller == 'both') {
-            arResultTuple = CALL_FUSION_TRANSCRIPTS_AR(read_pairs_ch, num_cores)
-            fcResultTuple = CALL_FUSION_TRANSCRIPTS_FC(read_pairs_ch, num_cores)
+        else if (params.ftcaller == 'both') {
+            arResultTuple = CALL_FUSION_TRANSCRIPTS_AR(read_pairs_ch)
+            fcResultTuple = CALL_FUSION_TRANSCRIPTS_FC(read_pairs_ch)
             
             combinedResults_ch = arResultTuple.arriba_fusion_tuple
                 .join(fcResultTuple.fuscat_fusion_tuple, by: 0)
                 .map { sampleName, arFile, fcFile -> tuple(sampleName, arFile, fcFile) }
             
-            PREDICT_CODING_SEQ_AGFUSION(combinedResults_ch, num_cores)
+            PREDICT_CODING_SEQ_AGFUSION(combinedResults_ch)
             COLLATE_FUSIONS_POLARS(combinedResults_ch)
         }
 }
@@ -179,9 +179,11 @@ workflow {
         //log.info "[STATUS] Running fusion analysis workflow..."
         //FUSION_ANALYSIS(params.input_dir, params.ftcaller)
     }
+
+    workflow.onComplete = {
+        println "Pipeline completed at: $workflow.complete"
+        println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
+    }
 }
 
-workflow.onComplete {
-    println "Pipeline completed at: $workflow.complete"
-    println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
-}
+

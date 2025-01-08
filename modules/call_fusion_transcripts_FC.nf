@@ -8,7 +8,6 @@ process CALL_FUSION_TRANSCRIPTS_FC {
     
     input:
         tuple val(sampleName), path(readFiles)
-        val(numCores)
 
     output:
         tuple val(sampleName), path("${sampleName}_fc.tsv"), emit: fuscat_fusion_tuple
@@ -17,7 +16,7 @@ process CALL_FUSION_TRANSCRIPTS_FC {
     """
     echo "Path to input read file 1: ${readFiles[0]}"
     echo "Path to input read file 2: ${readFiles[1]}"
-    if bash /work/scripts/fuscat-nf.sh ${readFiles[0]} ${readFiles[1]} ${numCores}; then
+    if bash /work/scripts/fuscat-nf.sh ${readFiles[0]} ${readFiles[1]} ${params.num_cores}; then
         echo "FusionCatcher has finished running on ${sampleName}. Copying main output file..."
         cp final-list_candidate-fusion-genes.txt ${sampleName}_fc.tsv
     fi

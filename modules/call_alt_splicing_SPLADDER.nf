@@ -8,7 +8,6 @@ process CALL_ALT_SPLICING_SPLADDER {
     
     input:
         tuple val(sampleName), path(bam), path(bai)
-        val(numCores)
 
     output:
         tuple val(sampleName), path("${sampleName}_spladder_out/*.counts.hdf5"), emit: spladder_count_files
@@ -19,7 +18,7 @@ process CALL_ALT_SPLICING_SPLADDER {
     BAM=${bam}  # First file in the list will be our main input
     BAI=${bai}
     echo "Processing bam file \${BAM} & index file \${BAI}"
-    echo "Number of cores to use for SplAdder: ${numCores}"
+    echo "Number of cores to use for SplAdder: ${params.num_cores}"
 
     # create output folder
     touch \${BAI}
@@ -28,7 +27,7 @@ process CALL_ALT_SPLICING_SPLADDER {
 
     echo "Starting SplAdder..."
     # Running SPLADDER
-    if bash /work/scripts/spladder-nf.sh "\${BAM}" ${numCores} ${sampleName}_spladder_out; then
+    if bash /work/scripts/spladder-nf.sh "\${BAM}" ${params.num_cores} ${sampleName}_spladder_out; then
         echo "Alternative splicing event calling using SplAdder is complete. Check outputs for run status."
     else
         echo "Alternative splicing event calling failed."

@@ -24,16 +24,12 @@ process PREPROC_HLA_TYPING_INPUT_SAMPICARD {
             # Uncompressed fastq files
             cp "\${input_file1}" "${sampleName}_R1.fastq"
             cp "\${input_file2}" "${sampleName}_R2.fastq"
-            read1_file="${sampleName}_R1.fastq"
-            read2_file="${sampleName}_R2.fastq"
             ;;
             
         *.fastq.gz|*.fq.gz)
             # Compressed fastq files
             gunzip -c "\${input_file1}" > "${sampleName}_R1.fastq"
             gunzip -c "\${input_file2}" > "${sampleName}_R2.fastq"
-            read1_file="${sampleName}_R1.fastq"
-            read2_file="${sampleName}_R2.fastq"
             ;;
             
         *.bam)
@@ -41,10 +37,6 @@ process PREPROC_HLA_TYPING_INPUT_SAMPICARD {
             echo "Processing bam file: \${input_file1}"
             if bash /work/scripts/hlatyping-preproc-sampicard-nf.sh "${sampleName}" "\${input_file1}"; then
                 echo "File preprocessing has finished running on ${sampleName}."
-                
-                # assign output fastq to variables
-                read1_file=\$(find . -maxdepth 1 -type f -name "*_Bam2Fq_R1.fastq")
-                read2_file=\$(find . -maxdepth 1 -type f -name "*_Bam2Fq_R2.fastq")
             else
                 echo "BAM preprocessing failed"
                 exit 1

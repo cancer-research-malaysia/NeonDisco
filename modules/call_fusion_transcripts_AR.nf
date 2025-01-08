@@ -8,7 +8,6 @@ process CALL_FUSION_TRANSCRIPTS_AR {
     
     input:
         tuple val(sampleName), path(readFiles)
-        val(numCores)
 
     output:
         tuple val(sampleName), path("${sampleName}_arr.tsv"), emit: arriba_fusion_tuple
@@ -17,7 +16,7 @@ process CALL_FUSION_TRANSCRIPTS_AR {
     """
     echo "Path to input read file 1: ${readFiles[0]}"
     echo "Path to input read file 2: ${readFiles[1]}"
-    if bash /work/scripts/arriba-nf.sh ${readFiles[0]} ${readFiles[1]} ${numCores}; then
+    if bash /work/scripts/arriba-nf.sh ${readFiles[0]} ${readFiles[1]} ${params.num_cores}; then
         echo "Arriba has finished running on ${sampleName}. Copying main output file..."
         cp ${sampleName}-arriba-fusions.tsv ${sampleName}_arr.tsv
     fi
