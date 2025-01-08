@@ -1,7 +1,8 @@
 """ cli.py
 Command line interface
 """
-
+import logging
+logging.getLogger('matplotlib.font_manager').disabled = True
 import argparse
 import gzip
 import shutil
