@@ -1,7 +1,7 @@
 FROM mambaorg/micromamba:git-911a014-bookworm-slim
 USER root
 LABEL maintainer="Suffian Azizan"
-LABEL version="1.0"
+LABEL version="2.0"
 LABEL description="container image of FusionInspector program v2.8.0"
 
 # update Linux OS packages and install additional Linux system utilities with procps and also add parallel and finally remove cached package lists
@@ -57,9 +57,8 @@ tzdata \
 unzip \
 wget \
 x11-common \
-zlib1g-dev \
-&& \
-rm -rf /var/lib/apt/lists/* /var/log/dpkg.log
+zlib1g-dev coreutils gawk grep sed \
+&& rm -rf /var/lib/apt/lists/* /var/log/dpkg.log
 
 # ## perl lib installations
 ##### install via conda instead due to conflicts
@@ -216,6 +215,6 @@ RUN addgroup --gid 9999 app && \
   adduser --uid 9999 --gid 9999 --disabled-password --gecos App app
 
 # set workdir
-WORKDIR /work
+WORKDIR /home/app
 
 ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "/sbin/matchhostfsowner"]

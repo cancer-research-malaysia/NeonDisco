@@ -1,13 +1,13 @@
 FROM mambaorg/micromamba:git-911a014-bookworm-slim
 
 LABEL maintainer="Suffian Azizan"
-LABEL version="1.0"
-LABEL description="minimal container image of Polars and Jupyter env for CRM"
+LABEL version="2.0"
+LABEL description="minimal container image of Polars and Jupyter env for CRMY"
 
 # change to root user
 USER root
 # update Debian OS packages and install additional Linux system utilities with procps; also install R, then finally remove cached package lists
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends procps curl \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential procps curl wget tar pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed \
 && rm -rf /var/lib/apt/lists/*
 
 # change user
@@ -45,6 +45,6 @@ RUN addgroup --gid 9999 app && \
   adduser --uid 9999 --gid 9999 --disabled-password --gecos App app
 
 # set workdir
-WORKDIR /work
+WORKDIR /home/app
 
 ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "/sbin/matchhostfsowner"]

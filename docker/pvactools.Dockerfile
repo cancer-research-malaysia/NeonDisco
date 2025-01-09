@@ -9,7 +9,7 @@ USER root
 
 # update Debian OS packages and install additional Linux system utilities, then finally remove cached package lists
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps tcsh gawk git libsm6 libxrender1 libfontconfig1 zlib1g-dev liblzma-dev libcurl4-openssl-dev libssl-dev libdeflate-dev perl make \
+tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps tcsh gawk coreutils grep sed git libsm6 libxrender1 libfontconfig1 zlib1g-dev liblzma-dev libcurl4-openssl-dev libssl-dev libdeflate-dev perl make \
 && rm -rf /var/lib/apt/lists/*
 
 # change user
@@ -63,7 +63,7 @@ RUN addgroup --gid 9999 app && \
   adduser --uid 9999 --gid 9999 --disabled-password --gecos App app
 
 # set workdir
-WORKDIR /work
+WORKDIR /home/app
 
 ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "/sbin/matchhostfsowner"]
 
