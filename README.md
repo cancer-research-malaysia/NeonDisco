@@ -1,4 +1,4 @@
-# Fusion Transcript Neoantigen Identification Pipeline (CRMY)
+# Omni-Sourced NeoantigeN DISCOvery (NeonDisco) at CRMY
 
 ## Background
 
