@@ -6,7 +6,41 @@ Cancer vaccines are an emerging therapeutic option for tumor diseases with a pot
 
 [Nextflow](https://www.nextflow.io/) is a free and open source software project which makes it easier to run a computational workflow consisting of a series of interconnected steps.
 
-This repository documents the design of an integrated cancer neoantigen discovery pipeline with a focus on nonclassical neoantigen space. The main Nextflow script is written in the [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) syntax. The file structure of this repository was soft-cloned from [here](https://github.com/FredHutch/workflow-template-nextflow) but the current file content and scripts have been completely customized and rewritten to fit the goal of this pipeline.
+This repository documents the design of an integrated cancer neoantigen discovery pipeline with a focus on **alternative neoantigen search space**. This pipeline takes some inspiration from the Snakemake-based pipeline that focuses on cancer neoantigen discovery previously published in 2023 (Schäfer et al). The main Nextflow script is written in the [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) syntax. The file structure of this repository was soft-cloned from [here](https://github.com/FredHutch/workflow-template-nextflow) but the current file content and scripts have been completely customized and rewritten to fit the goal of this pipeline.
+
+--------------------
+
+## Overview of the Neoantigen Discovery Workflow
+
+The flowchart belows describes the workflow underlying the Nextflow pipeline. Each step has been individually tested with local myBRCA cohort data.
+
+```mermaid
+flowchart TD
+    subgraph "`*Fusion transcript calling*`"
+    A[RNA-seq raw reads] -->|Arriba| B(Fusion transcripts)
+    A[RNA-seq raw reads] -->|FusionCatcher| B(Candidate fusion transcripts)
+    end
+    subgraph "`*HLA genotyping*`"
+    A2[WES aligned reads] --> |HLA-HD| B2(HLA allele haplotypes)
+    end
+    B2 --> |shared allele filtering| C(Top 5% HLA alleles in MyBRCA)
+    B --> |AGFusion| C2(Annotated fusion transcripts)
+
+    subgraph "`*neoantigen prediction*`"
+    C ---> D(Common HLA alleles in MyBRCA + cancer-specific coding fusion transcripts)
+    C2 ---> D
+    D ---> |pVacFuse| E(Predicted immunogenic fusion neoantigens)
+    end
+    subgraph "`*neoepitope shortlisting*`"
+    E ---> F(Fusion transcripts)
+    F ---> |median IC50 <500nM| G(Fusion neoepitopes with coding potential)
+    G ---> H1(Sample occurrence = 1)
+    G ---> H2(Sample occurrence >= 2)
+    H2 ---> I1(Reference proteome match)
+    H2 --->I2(Novel peptide)
+    end
+
+```
 
 ## Repository Structure
 
@@ -36,12 +70,6 @@ The params file is provided by the user with the `-params-file` flag. While this
 
 The third way to pass parameters to the workflow is to set up the default values in `nextflow.config` in the `params` scope (e.g. `params{param_name = 'default_value'}`). If a user passes in a value on the command line, then the configured default `params.param_name` will be overridden. The really useful thing about `params` is that they are inherited by every sub-workflow and process that is invoked. In other words, without having to do _anything_ else, you can use `${params.param_name}` in one of the script files in `bin/`, and you know that it will contain the value that was initially set.
 
-### Templates
-
-One of the options for defining the code that is run inside a Nextflow process is to use their [template syntax](https://www.nextflow.io/docs/latest/process.html#template). The advantage of this approach is that the code can be defined in a separate file with the appropriate file extension which can be recognized by your favorite IDE and linter. Any variables from Nextflow will be interpolated using an easy `${var_name}` syntax, and all other code will be native to the desired language. 
-
-One important caveat to note while writing the template structure is that backslashes are used to escape Nextflow interpolation (e.g. internal BASH variables can be specified with `\$INTERNAL_VAR_NAME`), thus any use of backslashes for special characters must have two backslashes. Put simply, if you want to strip the newline character in Python, you would need to write `str.strip('\\n')` instead of `str.strip('\n')`.
-
 ### Software Containers
 
 Each individual step in a workflow should be run inside a container (using either Docker or Singularity) which has the required dependencies. For this project, I have manually custom-built Docker container images of the complete software stack needed to run the prediction pipeline. This adds modularity to the stack so users can choose to run only the necessary tools in the stack if needs be. 
@@ -49,50 +77,6 @@ Each individual step in a workflow should be run inside a container (using eithe
 Software containers should be defined as parameters in `main.nf`, which allows the value to propagate automatically to all imported sub-workflows, while also being able to be overridden easily by the user if necessary. Practically speaking, this means that every process should have a `container` declared which follows the pattern `container "${params.container__toolname}"`, and which was set in `nextflow.config` with `params{container__toolname = "quay.io/org/image:tag"}`. It is crucial that the parameter be set _before_ the subworkflows are imported, as shown in this example workflow.
 
 ------
-## Workflow Style Guide
-
-While a workflow could be made in almost any way imaginable, there are some tips and tricks which make debugging and development easier. This is a highly opinionated list, and should not be taken as a hard-and-fast rule.
-
-- Never use file names to encode metadata (like specimen name, `.trimmed`, etc.)
-- Always publish files with `mode: 'copy', overwrite: true`
-- Use `.toSortedList()` instead of `.collect()` for reproducible ordering
-- Add `set -Eeuo pipefail` to the header of any BASH script
-- Every process uses a `container`, which is defined as a `param.container__toolname` in `main.nf`
-- Never use `.baseName` to remove file extension, instead use (e.g.) `.name.replaceAll('.fastq.gz', '')`
-
---------------------
-
-## Overview of the Neoantigen Identification Workflow
-
-The flowchart belows describes the workflow underlying the Nextflow pipeline. Each step has been individually tested with local cohort data.
-
-```mermaid
-flowchart TD
-    subgraph "`*Fusion transcript calling*`"
-    A[RNA-seq raw reads] -->|Arriba| B(Fusion transcripts)
-    A[RNA-seq raw reads] -->|FusionCatcher| B(Candidate fusion transcripts)
-    end
-    subgraph "`*HLA genotyping*`"
-    A2[WES aligned reads] --> |HLA-HD| B2(HLA allele haplotypes)
-    end
-    B2 --> |shared allele filtering| C(Top 5% HLA alleles in MyBRCA)
-    B --> |AGFusion| C2(Annotated fusion transcripts)
-
-    subgraph "`*neoantigen prediction*`"
-    C ---> D(Common HLA alleles in MyBRCA + cancer-specific coding fusion transcripts)
-    C2 ---> D
-    D ---> |pVacFuse| E(Predicted immunogenic fusion neoantigens)
-    end
-    subgraph "`*neoepitope shortlisting*`"
-    E ---> F(Fusion transcripts)
-    F ---> |median IC50 <500nM| G(Fusion neoepitopes with coding potential)
-    G ---> H1(Sample occurrence = 1)
-    G ---> H2(Sample occurrence >= 2)
-    H2 ---> I1(Reference proteome match)
-    H2 --->I2(Novel peptide)
-    end
-
-```
 
 ## Running the Pipeline Minimally
 A `nextflow.config` file is already created containing the default values of many parameters so this pipeline can be minimally run using this command:
