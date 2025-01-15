@@ -1,4 +1,5 @@
 # Omni-Sourced NeoantigeN DISCOvery (NeonDisco) at CRMY
+![NeoNDisco-logo-v2](docs/assets/NeoNDisco-logo-v2.png)
 
 ## Background
 
