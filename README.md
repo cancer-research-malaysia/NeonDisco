@@ -17,49 +17,24 @@ The flowchart belows describes the workflow underlying the Nextflow pipeline. Ea
 
 ![pipeline-structure](docs/assets/fig2-nontransparent-pipeline-flow.png)
 
-```mermaid
-flowchart TD
-    subgraph "`*Fusion transcript calling*`"
-    A[RNA-seq raw reads] -->|Arriba| B(Fusion transcripts)
-    A[RNA-seq raw reads] -->|FusionCatcher| B(Candidate fusion transcripts)
-    end
-    subgraph "`*HLA genotyping*`"
-    A2[WES aligned reads] --> |HLA-HD| B2(HLA allele haplotypes)
-    end
-    B2 --> |shared allele filtering| C(Top 5% HLA alleles in MyBRCA)
-    B --> |AGFusion| C2(Annotated fusion transcripts)
-
-    subgraph "`*neoantigen prediction*`"
-    C ---> D(Common HLA alleles in MyBRCA + cancer-specific coding fusion transcripts)
-    C2 ---> D
-    D ---> |pVacFuse| E(Predicted immunogenic fusion neoantigens)
-    end
-    subgraph "`*neoepitope shortlisting*`"
-    E ---> F(Fusion transcripts)
-    F ---> |median IC50 <500nM| G(Fusion neoepitopes with coding potential)
-    G ---> H1(Sample occurrence = 1)
-    G ---> H2(Sample occurrence >= 2)
-    H2 ---> I1(Reference proteome match)
-    H2 --->I2(Novel peptide)
-    end
-
-```
-
 ## Repository Structure
 
 The essential components of the workflow repository are as follows:
-- `main.nf`: Contains the primary workflow code which pulls in all additional code from the repository
-- `modules/`: Contains all of the sub-workflows which are used to organize large chunks of analysis
-- `bin/`: Contains all of the scripts which are executed in each individual step of the workflow
-- `docker`: Contains the Dockerfiles and the associated test scripts used to build Dockerized versions of the tool stack used in this pipeline
+- `main.nf`: Contains the primary workflow code that orchestrates the entire pipeline execution
+- `modules/`: Contains all of the subprocess definitions that are imported into the primary workflow script
+- `bin/`: Contains all of the standalone scripts which are executed in each individual processes (modules)
+- `docker/`: Contains the Dockerfiles and the associated test scripts used to build Dockerized versions of the tool stack required by the pipeline
+- `nextflow.config`: Contains the default, basic configuration parameters for running the pipeline on the command line
+- `conf/`: Contains fine-tuned configuration files for different runtime profiles (e.g., local, awsbatch)
+- `docs/`: Contains all the extra documentation and figures for this repository
 
 ### User Input of Parameters
 
 There are three ways by which users can easily provide their own inputs to a workflow; (1) with command-line flags, (2) with a config file containing the extra parameters to run the pipeline and (3) by changing default values directly in `nextflow.config`.
 
-On the command line, parameters are provided using two dashes before the parameter name, e.g. `--param_name value`. One limitation of this approach is that the provided value will be interpreted as a string. The best example of this is the edge case of the the negative boolean (`false`), which will be interpreted by Nextflow as a string (`'false'`). The second limitation is that the command line string starts to become rather long. Another consideration of providing parameters on the command line is that they may be interpreted by the shell before execution. For example, in the context of a BASH script `--param_name *.fastq.gz` will first be expanded into a list of files which match that pattern (e.g., `--param_name 1.fastq.gz 2.fastq.gz 3.fastq.gz`), which may not be the intention. This behavior can be prevented explicitly with single-quotes in BASH, with `--param_name '*.fastq.gz'` being unaltered by the shell before execution.
+On the command line, parameters are provided using two dashes before the parameter name, e.g. `--param_name value`. One limitation of this approach is that the provided value will be interpreted as a string. The best example of this is the edge case of the the negative boolean (`false`), which will be interpreted by Nextflow as a string (`'false'`). The second limitation is that the command line string starts to become rather long. Another consideration when providing parameters on the command line is that they may be interpreted by the shell before execution. For example, in the context of a BASH script `--param_name *.fastq.gz` will first be expanded into a list of files which match that pattern (e.g., `--param_name 1.fastq.gz 2.fastq.gz 3.fastq.gz`), which may not be the intention. This behavior can be prevented explicitly with single-quotes in BASH, with `--param_name '*.fastq.gz'` being unaltered by the shell before execution.
 
-By using a params file, the user is able to more explicitly define the set of parameters which will be provided. The params file can be formatted as JSON or YAML, with the example below shown in JSON.
+Secondly, instead of specifying running parameters on the fly at execution time, users can instead provide a YAML or JSON file to specify run parameters, with the example below shown in JSON.
 
 ```
 {
@@ -69,9 +44,9 @@ By using a params file, the user is able to more explicitly define the set of pa
 }
 ```
 
-The params file is provided by the user with the `-params-file` flag. While this approach requires the user to create an additional file, it also provides a method for defining variables without worrying about the nuances of the shell interpreter. If both methods are used for providing parameters, the command line flags will take precedence over the params file ([docs](https://www.nextflow.io/docs/latest/config.html)).
+The params file can be specified at execution time with the `-params-file` flag. While this approach requires the user to create an additional file, it also provides a method for defining variables without worrying about the nuances of the shell interpreter. If both methods are used for providing parameters, the command line flags will take precedence over the params file ([docs](https://www.nextflow.io/docs/latest/config.html)).
 
-The third way to pass parameters to the workflow is to set up the default values in `nextflow.config` in the `params` scope (e.g. `params{param_name = 'default_value'}`). If a user passes in a value on the command line, then the configured default `params.param_name` will be overridden. The really useful thing about `params` is that they are inherited by every sub-workflow and process that is invoked. In other words, without having to do _anything_ else, you can use `${params.param_name}` in one of the script files in `bin/`, and you know that it will contain the value that was initially set.
+The third way to pass parameters to the pipeline at execution time is to set up the default values in `nextflow.config` in the `params` scope (e.g. `params{param_name = 'default_value'}`). If a user passes in a value on the command line, then the configured default `params.param_name` will be overridden. The really useful thing about `params` is that they are inherited by every sub-workflow and process that is invoked. In other words, without having to do _anything_ else, you can use `${params.param_name}` in one of the script files in `bin/`, and you know that it will contain the value that was initially set.
 
 ### Software Containers
 
@@ -91,8 +66,10 @@ Nextflow can resume interrupted processes so specify `-resume` flag to restart r
 
 > nextflow run -resume main.nf
 
-### Stub Commands (dry run)
-I have also coded `stub` processes that would generate dummy outputs. Useful to test the pipeline without generating real output files that can be massive in sizes. Specify `-stub` at runtime to invoke this. Note that `-stub` runs separately from normal runs, so if you specify `-stub -resume` it resumes whatever interrupted previous stub runs (or validate previous stub run cached outputs). This combination does not put stub output files in previously run work directory with real output files. 
+### Running with Profiles
+This pipeline defined two run profiles that users can specify to run the pipeline with different configurations. The `local` profile is for running the pipeline on a local machine, mainly for local testing, while the `awsbatch` profile is for running the pipeline on AWS Batch following setup. To run the pipeline with a profile, use the `-profile` flag. The default is `local`.
 
-### Using Profiles
-This pipeline can take `-profile` flag that can specify the name of the profiles (defined in `nextflow.config`) to run it using parameter configurations unique to each profile. For local testing, use `local`, and for AWS Batch submission, use `awsbatch`. 
+> nextflow run -profile local main.nf
+
+### Stub Commands (dry run)
+This pipeline also comes with _dry run_ capability; it makes use of `stub` processes that would generate dummy outputs. This is useful to test the pipeline without generating real output files that can be massive in size. Specify `-stub` at runtime to invoke this. Note that `-stub` runs separately from normal runs, so if you specify `-stub -resume` it resumes whatever interrupted previous stub runs (or validate previous stub run cached outputs). This combination does not put stub output files in previously run work directory with real output files. 
