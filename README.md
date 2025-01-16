@@ -15,6 +15,8 @@ This repository documents the design of an integrated cancer neoantigen discover
 
 The flowchart belows describes the workflow underlying the Nextflow pipeline. Each step has been individually tested with local myBRCA cohort data.
 
+![pipeline-structure](docs/assets/fig2-nontransparent-pipeline-flow.tiff)
+
 ```mermaid
 flowchart TD
     subgraph "`*Fusion transcript calling*`"

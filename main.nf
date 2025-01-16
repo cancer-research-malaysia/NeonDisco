@@ -101,6 +101,7 @@ workflow TRIM_AND_ALIGN_READS {
             }
             .toSortedList( { a, b -> a[0] <=> b[0] } )
             .flatMap()
+            .view()
 
         ALIGN_READS_STAR(read_pairs_ch)
 
