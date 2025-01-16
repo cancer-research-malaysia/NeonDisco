@@ -36,43 +36,56 @@ Required Arguments:
 }
 
 def create_hla_reads_channel(dir_path) {
-    // find bam files if any
-    def bam_files_ch = Channel.fromPath("${dir_path}/*.{bam,bai}", checkIfExists: true)
-        .ifEmpty { 
-            log.error "No valid input BAM files found in ${dir_path}. Please check your input directory."
-            log.info "[STATUS] Aborting..."
-            exit 1
-        }
-        .map { file -> 
-            // Get filename without extension
-            def name = file.name.replaceAll(/\.(bam|bai)$/, '')
-            tuple(name, file)
-        }
-        .groupTuple()  // Group by sample name
-        .map { sample_name, files -> 
-            // Sort to ensure BAM comes before BAI
-            def sorted_files = files.sort { a, _b -> 
-                a.name.endsWith("bam") ? -1 : 1  // BAM files come first
-            }
-            tuple(sample_name, sorted_files)
-        }
+    def hla_input_files_ch = Channel.empty()  // Initialize with empty channel
     
+    // find bam files if any
+    // Check for bam files existence first
+    def bam_files = file("${dir_path}/*.{bam}{,.bai}")
+    def has_bam = bam_files.size() > 0
+
+    if (has_bam) {
+        log.info "[STATUS] Found BAM files..."
+        hla_input_files_ch = Channel.fromPath("${dir_path}/*.{bam,bai}")
+            .map { file -> 
+                // Get filename without extension
+                def name = file.name.replaceAll(/\.(bam|bai)$/, '')
+                tuple(name, file)
+            }
+            .groupTuple()  // Group by sample name
+            .map { sample_name, files -> 
+                // Sort to ensure BAM comes before BAI
+                def sorted_files = files.sort { a, _b -> 
+                    a.name.endsWith("bam") ? -1 : 1  // BAM files come first
+                }
+                tuple(sample_name, sorted_files)
+            }
+    } else {
+        log.warn "No BAM files found. Searching for FASTQ files..."
+    }
+
     // find fastq files if any
     // Check for fastq files existence first
     def fastq_files = file("${dir_path}/*{R,r}{1,2}*.{fastq,fq}{,.gz}")
     def has_fastq = fastq_files.size() > 0
 
     if (has_fastq) {
-        log.info "[STATUS] Found FASTQ files. Mixing with BAM files..."
+        log.info "[STATUS] Found FASTQ files. Creating final input channel..."
         def reads_files_ch = Channel.fromFilePairs("${dir_path}/*{R,r}{1,2}*.{fastq,fq}{,.gz}")
             .toSortedList( { a, b -> a[0] <=> b[0] } )
             .flatMap()
-        return bam_files_ch.mix(reads_files_ch)
+        return hla_input_files_ch.mix(reads_files_ch)
     } else {
-        log.warn "No FASTQ files found. Returning BAM files only..."
-        return bam_files_ch
+        log.warn "No FASTQ files found."
+        if (has_bam) {
+            log.info "Only BAM files found. Proceeding with HLA typing using BAM files..."
+            return hla_input_files_ch
+        } else {
+            log.error "No valid input files found in ${dir_path}. Exiting..."
+            exit 1
+        }
     }
 }
+
 ///////////////////////////////////////////////////////////////////////////
 
 // Read Trimming and Alignment Workflow
@@ -82,15 +95,15 @@ workflow TRIM_AND_ALIGN_READS {
     
     main:
         read_pairs_ch = Channel.fromFilePairs("${input_dir}/*{R,r}{1,2}*.{fastq,fq}{,.gz}", checkIfExists: true)
-            .ifEmpty { error "No valid input FASTQ read files found in ${input_dir}" }
+            .ifEmpty { 
+                error "No valid input FASTQ read files found in ${input_dir}. Exiting..."
+                exit 1 
+            }
             .toSortedList( { a, b -> a[0] <=> b[0] } )
             .flatMap()
 
-        alignedBams_ch = ALIGN_READS_STAR(read_pairs_ch)
+        ALIGN_READS_STAR(read_pairs_ch)
 
-    emit:
-        reads = read_pairs_ch
-        bams = alignedBams_ch
 }
 
 
@@ -107,20 +120,20 @@ workflow HLA_TYPING {
 
         hla_reads_ch = create_hla_reads_channel(hla_typing_dir)
         preprocessed_ch = PREPROC_HLA_TYPING_INPUT_SAMPICARD(hla_reads_ch)
-        preprocessed_ch.view()
+        //preprocessed_ch.view()
         TYPE_HLA_ALLELES_HLAHD(preprocessed_ch)
 }
 
 // Fusion Analysis Workflow
 workflow FUSION_CALLING {
     take:
-        read_pairs_ch
+        alignedBams_ch
     
     main:
 
         // Handle different fusion caller scenarios
         if (params.ftcaller == 'arriba') {
-            arResultTuple = CALL_FUSION_TRANSCRIPTS_AR(read_pairs_ch)
+            arResultTuple = CALL_FUSION_TRANSCRIPTS_AR(alignedBams_ch)
             def DUMMY_FILE = file("${projectDir}/assets/DUMMY_FILE", checkIfExists: false)
             input_with_dummy_ch = arResultTuple.map { sampleName, ftFile -> 
                 [sampleName, ftFile, DUMMY_FILE] 
@@ -128,7 +141,7 @@ workflow FUSION_CALLING {
             PREDICT_CODING_SEQ_AGFUSION(input_with_dummy_ch)
         }
         else if (params.ftcaller == 'fusioncatcher') {
-            fcResultTuple = CALL_FUSION_TRANSCRIPTS_FC(read_pairs_ch)
+            fcResultTuple = CALL_FUSION_TRANSCRIPTS_FC(alignedBams_ch)
             def DUMMY_FILE = file("${projectDir}/assets/DUMMY_FILE", checkIfExists: false)
             input_with_dummy_ch = fcResultTuple.map { sampleName, ftFile -> 
                 [sampleName, ftFile, DUMMY_FILE] 
@@ -136,8 +149,8 @@ workflow FUSION_CALLING {
             PREDICT_CODING_SEQ_AGFUSION(input_with_dummy_ch)
         }
         else if (params.ftcaller == 'both') {
-            arResultTuple = CALL_FUSION_TRANSCRIPTS_AR(read_pairs_ch)
-            fcResultTuple = CALL_FUSION_TRANSCRIPTS_FC(read_pairs_ch)
+            arResultTuple = CALL_FUSION_TRANSCRIPTS_AR(alignedBams_ch)
+            fcResultTuple = CALL_FUSION_TRANSCRIPTS_FC(alignedBams_ch)
             
             combinedResults_ch = arResultTuple.arriba_fusion_tuple
                 .join(fcResultTuple.fuscat_fusion_tuple, by: 0)
@@ -176,8 +189,9 @@ workflow {
             HLA_TYPING(params.hla_typing_dir)
         }
         
-        //log.info "[STATUS] Running fusion analysis workflow..."
-        //FUSION_ANALYSIS(params.input_dir, params.ftcaller)
+        log.info "[STATUS] Running fusion analysis workflow..."
+        TRIM_AND_ALIGN_READS(params.input_dir)
+        // FUSION_CALLING(alignedBams_ch)
     }
 
     workflow.onComplete = {
