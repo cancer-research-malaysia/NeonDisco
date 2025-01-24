@@ -8,4 +8,5 @@ dependencies:
   - star
   - fastp
   - picard
+  - bedtools
   - pip
