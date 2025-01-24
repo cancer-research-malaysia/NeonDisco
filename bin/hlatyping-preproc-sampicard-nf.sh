@@ -11,7 +11,7 @@ BAM_INPUT=$2
 # picard SamToFastq --help
 
 # this strategy is used for either input data in aligned bam formats, or RNA-based input data in aligned bam format
-# use "chr6:28477797-33448354" if using hg19
+# use "chr6:28477797-33448354" if using hg19 : NOTE: MH did run HLAHD for our WES on hg19, so we should use this region
 
 echo "${SAMPLE_ID}"
 echo "${BAM_INPUT}"
