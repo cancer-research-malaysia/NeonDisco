@@ -32,6 +32,7 @@ ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 
 # change user to root
 USER root
+
 # copy the HLA-HD source code to the container image
 COPY hla-hd/src/hlahd.1.7.1.tar.gz /tmp/hlahd.1.7.1.tar.gz
 # # also copy the specific dat file of HLA dictionary for this version and a custom update.dict.sh
@@ -54,6 +55,12 @@ ENV PATH="$PATH:/tmp/hlahd.1.7.1/bin"
 
 # now install HLA dictionary
 RUN cd /tmp/hlahd.1.7.1/ && sh update.dictionary.sh
+
+# download hla reference files from OptiType repo for bowtie2
+RUN curl -o /tmp/hla_ref_DNA.fa ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/hla_gen.fasta && curl -o /tmp/hla_ref_RNA.fa ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/hla_nuc.fasta
+
+# create HLA reference index for bowtie2
+RUN bowtie2-build /tmp/hla_gen.fa hla_genome && bowtie2-build /tmp/hla_nuc.fa hla_transcriptome
 
 # Docker suffers from absolutely atrocious way of consolidating the paradigm of restricting privileges when running containers (rootless mode) with writing outputs to bound host volumes without using Docker volumes or other convoluted workarounds.
 

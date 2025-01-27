@@ -2,10 +2,11 @@ FROM mambaorg/micromamba:git-911a014-bookworm-slim
 USER root
 LABEL maintainer="Suffian Azizan"
 LABEL version="1.5"
-LABEL description="container image of tools for NGS reads preprocessing (SAMTools, Picard, Yara)"
+LABEL description="container image of tools for NGS reads preprocessing (SAMTools, Picard, Bedtools, fastp)"
 
 # change to root user
 USER root
+
 # update Debian OS packages and install additional Linux system utilities, then finally remove cached package lists
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
 build-essential tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps git cmake locales coreutils gawk grep sed \
@@ -19,7 +20,7 @@ USER $MAMBA_USER
 RUN micromamba config set extract_threads 1
 
 # copy the env file into the container 
-COPY --chown=$MAMBA_USER:$MAMBA_USER ngs-preproc/context/base_env.yaml /tmp/base_env.yaml
+COPY --chown=$MAMBA_USER:$MAMBA_USER preproc/context/base_env.yaml /tmp/base_env.yaml
 
 # Create a new base environment based on the YAML file
 RUN micromamba install -y -f /tmp/base_env.yaml && \
@@ -33,13 +34,6 @@ ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 
 # change user to root
 USER root
-
-# install yara
-RUN git clone https://github.com/seqan/seqan.git
-RUN mkdir yara-build && cd yara-build && cmake ../seqan -DSEQAN_BUILD_SYSTEM=APP:yara -DCMAKE_CXX_COMPILER=/usr/bin/g++-12 && make all && cp bin/yara* /usr/local/bin
-
-# download hla reference files from OptiType repo for yara
-RUN curl -o /tmp/hla_ref_for_yara_DNA.fa ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/hla_gen.fasta && curl -o /tmp/hla_ref_for_yara_RNA.fa ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/hla_nuc.fasta
 
 # Docker suffers from absolutely atrocious way of consolidating the paradigm of restricting privileges when running containers (rootless mode) with writing outputs to bound host volumes without using Docker volumes or other convoluted workarounds.
 
@@ -56,13 +50,5 @@ RUN addgroup --gid 9999 app && \
 
 # set workdir
 WORKDIR /home/app
-
-# build yara index
-RUN mkdir -p /home/app/refs/HLA-yara_index/dnaseq/ /home/app/refs/HLA-yara_index/rnaseq/ 
-RUN yara_indexer -o /home/app/refs/HLA-yara_index/dnaseq/hla_ref_for_yara_DNA /tmp/hla_ref_for_yara_DNA.fa && yara_indexer -o /home/app/refs/HLA-yara_index/rnaseq/hla_ref_for_yara_RNA /tmp/hla_ref_for_yara_RNA.fa
-
-# transfer download script to download reference data for STAR and Arriba
-COPY ngs-preproc/src/download_refs_for_star.sh /home/app/generate_index/download_refs_for_star.sh
-COPY ngs-preproc/src/RefSeq_viral_genomes_v2.3.0.fa.gz /home/app/generate_index/RefSeq_viral_genomes_v2.3.0.fa.gz
 
 ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "/sbin/matchhostfsowner"]

@@ -47,4 +47,8 @@ RUN addgroup --gid 9999 app && \
 # set workdir
 WORKDIR /home/app
 
+# transfer download script to download reference data for STAR and Arriba
+COPY arriba/src/download_refs_for_star.sh /home/app/generate_index/download_refs_for_star.sh
+COPY arriba/src/RefSeq_viral_genomes_v2.3.0.fa.gz /home/app/generate_index/RefSeq_viral_genomes_v2.3.0.fa.gz
+
 ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "/sbin/matchhostfsowner"]

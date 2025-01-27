@@ -258,16 +258,16 @@ if [[ $(samtools --version-only 2> /dev/null) =~ ^1\. ]]; then
 fi
 
 if [[ ! -z $2 ]]; then
-	mkdir -p /home/app/STAR_index_${ASSEMBLY_NAME}_${ANNOTATION_NAME}
-	if STAR --runMode genomeGenerate --genomeDir /home/app/STAR_index_${ASSEMBLY_NAME}_${ANNOTATION_NAME} --genomeFastaFiles "${ASSEMBLY_NAME}.fa" --sjdbGTFfile "$ANNOTATION_NAME.gtf" --runThreadN "$THREADS" --sjdbOverhang "$SJDBOVERHANG"; then
+	mkdir -p /home/app/ref/STAR_index_${ASSEMBLY_NAME}_${ANNOTATION_NAME}
+	if STAR --runMode genomeGenerate --genomeDir /home/app/ref/STAR_index_${ASSEMBLY_NAME}_${ANNOTATION_NAME} --genomeFastaFiles "${ASSEMBLY_NAME}.fa" --sjdbGTFfile "$ANNOTATION_NAME.gtf" --runThreadN "$THREADS" --sjdbOverhang "$SJDBOVERHANG"; then
 		echo "STAR index created successfully"
 	else
 		echo "STAR index creation failed"
 		exit 1
 	fi
 else
-	mkdir -p /home/app/STAR_index_${ASSEMBLY}_${ANNOTATION}
-	if STAR --runMode genomeGenerate --genomeDir /home/app/STAR_index_${ASSEMBLY}_${ANNOTATION} --genomeFastaFiles "$ASSEMBLY.fa" --sjdbGTFfile "$ANNOTATION.gtf" --runThreadN "$THREADS" --sjdbOverhang "$SJDBOVERHANG"; then
+	mkdir -p /home/app/ref/STAR_index_${ASSEMBLY}_${ANNOTATION}
+	if STAR --runMode genomeGenerate --genomeDir /home/app/ref/STAR_index_${ASSEMBLY}_${ANNOTATION} --genomeFastaFiles "$ASSEMBLY.fa" --sjdbGTFfile "$ANNOTATION.gtf" --runThreadN "$THREADS" --sjdbOverhang "$SJDBOVERHANG"; then
 		echo "STAR index created successfully"
 	else
 		echo "STAR index creation failed"
