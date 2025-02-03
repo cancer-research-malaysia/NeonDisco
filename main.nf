@@ -3,7 +3,7 @@
 nextflow.enable.dsl = 2
 
 // Import submodules
-include { PREPROC_HLA_TYPING_INPUT_SAMPICARD } from './modules/preproc_hla_typing_input_SAMPICARD.nf'
+include { TRIM_READS_FASTP } from './modules/trim_reads_FASTP.nf'
 include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD.nf'
 include { CALL_FUSION_TRANSCRIPTS_AR } from './modules/call_fusion_transcripts_AR.nf'
 include { CALL_FUSION_TRANSCRIPTS_FC } from './modules/call_fusion_transcripts_FC.nf'
@@ -28,8 +28,10 @@ Required Arguments:
 ---------------
     --ftcaller                    Name of the fusion caller to be run. Either <arriba> or <fusioncatcher> or <both>. Defaults to <both> if not specified
     --hla_typing                  Set to <true> if HLA typing subworkflow is required. Defaults to <false> when not specified
-    --hla_typing_dir              Directory path to WES or RNA-seq sequencing data to run HLA typing on. Required when --hla_typing is set to <true>
+    --hla_typing_dir             Directory path to WES or RNA-seq sequencing data to run HLA typing on. Required when --hla_typing is set to <true>
     --hla-only                    Setting to run just the HLA typing subpipeline. Default is set to <false>
+    --trim_reads_for_hla         Set to <true> to perform read trimming on HLA typing input files (only works with FASTQ inputs)
+    --trim_reads_for_main        Set to <true> to perform read trimming on main workflow input files (only works with FASTQ inputs)
     --help                        Print this help message and exit
     
     """.stripIndent()
@@ -88,28 +90,27 @@ def create_hla_reads_channel(dir_path) {
 
 ///////////////////////////////////////////////////////////////////////////
 
-// Read Trimming and Alignment Workflow
-workflow TRIM_AND_ALIGN_READS {
+// Read Trimming
+workflow TRIM_READS {
     take:
-        input_dir
-    
+        fastq_dir
+
     main:
-        read_pairs_ch = Channel.fromFilePairs("${input_dir}/*{R,r}{1,2}*.{fastq,fq}{,.gz}", checkIfExists: true)
+        ReadPairs_ch = Channel.fromFilePairs("${fastq_dir}/*{R,r}{1,2}*.{fastq,fq}{,.gz}", checkIfExists: true)
             .ifEmpty { 
-                error "No valid input FASTQ read files found in ${input_dir}. Exiting..."
-                exit 1 
+                error "No valid input FASTQ read files found in ${fastq_dir}. Exiting..."
+                exit 1
             }
             .toSortedList( { a, b -> a[0] <=> b[0] } )
             .flatMap()
-            .view()
 
-        ALIGN_READS_STAR(read_pairs_ch)
+        ReadPairs_ch.view()
 
 }
 
 
-// HLA Typing Workflow
-workflow HLA_TYPING {
+// HLA Typing
+workflow TYPE_HLAS {
     take:
         hla_typing_dir
     
@@ -119,14 +120,16 @@ workflow HLA_TYPING {
             exit 1
         }
 
-        hla_reads_ch = create_hla_reads_channel(hla_typing_dir)
-        preprocessed_ch = PREPROC_HLA_TYPING_INPUT_SAMPICARD(hla_reads_ch)
+        HLAReads_ch = create_hla_reads_channel(hla_typing_dir)
+        HLAReads_ch.view()
+        //preprocessed_ch = PREPROC_HLA_TYPING_INPUT_SAMPICARD(HLAReads_ch)
         //preprocessed_ch.view()
-        TYPE_HLA_ALLELES_HLAHD(preprocessed_ch)
+        //TYPE_HLA_ALLELES_HLAHD(preprocessed_ch)
 }
 
-// Fusion Analysis Workflow
-workflow FUSION_CALLING {
+
+// Fusion Analysis
+workflow CALL_FUSIONS {
     take:
         alignedBams_ch
     
@@ -182,17 +185,51 @@ workflow {
     // Execute workflows based on parameters
     if (params.hla_only) {
         log.info "[STATUS] Running HLA typing workflow only..."
-        HLA_TYPING(params.hla_typing_dir)
-    }
-    else {
-        if (params.hla_typing) {
-            log.info "[STATUS] Running HLA typing workflow..."
-            HLA_TYPING(params.hla_typing_dir)
+
+        // Check if HLA input files are FASTQ
+        def hla_fastq_files = file("${params.hla_typing_dir}/*{R,r}{1,2}*.{fastq,fq}{,.gz}")
+        def has_hla_fastq = hla_fastq_files.size() > 0
+        
+        if (params.trim_reads_for_hla && has_hla_fastq) {
+            log.info "[STATUS] HLA input files are FASTQ and trimming was requested. Running FASTP..."
+            TRIM_READS(params.hla_typing_dir)
+        } else if (params.trim_reads_for_hla && !has_hla_fastq) {
+            log.warn "[WARNING] Trimming was requested but HLA input files are not FASTQ. Skipping trimming step."
         }
         
-        log.info "[STATUS] Running fusion analysis workflow..."
-        TRIM_AND_ALIGN_READS(params.input_dir)
-        // FUSION_CALLING(alignedBams_ch)
+        //TYPE_HLAS(params.hla_typing_dir)
+    }
+    else {
+
+        // Check main input files if not in HLA-only mode
+        def input_fastq_files = file("${params.input_dir}/*{R,r}{1,2}*.{fastq,fq}{,.gz}")
+        def has_input_fastq = input_fastq_files.size() > 0
+
+        if (params.hla_typing) {
+            log.info "[STATUS] Running HLA typing workflow..."
+            // Check HLA input files
+            def hla_fastq_files = file("${params.hla_typing_dir}/*{R,r}{1,2}*.{fastq,fq}{,.gz}")
+            def has_hla_fastq = hla_fastq_files.size() > 0
+            
+            if (params.trim_reads_for_hla && has_hla_fastq) {
+                log.info "[STATUS] HLA input files are FASTQ and trimming was requested. Running FASTP..."
+                TRIM_READS(params.hla_typing_dir)
+            } else if (params.trim_reads_for_hla && !has_hla_fastq) {
+                log.warn "[WARNING] Trimming was requested but HLA input files are not FASTQ. Skipping trimming step."
+            }
+            
+            //TYPE_HLAS(params.hla_typing_dir)
+        }
+        
+        log.info "[STATUS] Preprocessing data for main neoantigen modules..."
+        if (params.trim_reads_for_main && has_input_fastq) {
+            log.info "[STATUS] Input files are FASTQ and trimming was requested. Running FASTP..."
+            TRIM_READS(params.input_dir)
+        } else if (params.trim_reads_for_main && !has_input_fastq) {
+            log.warn "[WARNING] Trimming was requested but input files are not FASTQ. Skipping trimming step."
+        }
+
+
     }
 
     workflow.onComplete = {
