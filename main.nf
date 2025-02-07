@@ -4,6 +4,7 @@ nextflow.enable.dsl = 2
 
 // Import submodules
 include { TRIM_READS_FASTP } from './modules/trim_reads_FASTP.nf'
+include { FISH_HLA_READS_BOWTIE2 } from './modules/fish_hla_reads_BOWTIE2.nf'
 include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD.nf'
 include { CALL_FUSION_TRANSCRIPTS_AR } from './modules/call_fusion_transcripts_AR.nf'
 include { CALL_FUSION_TRANSCRIPTS_FC } from './modules/call_fusion_transcripts_FC.nf'
@@ -30,8 +31,7 @@ Required Arguments:
     --hla_typing                  Set to <true> if HLA typing subworkflow is required. Defaults to <false> when not specified
     --hla_typing_dir             Directory path to WES or RNA-seq sequencing data to run HLA typing on. Required when --hla_typing is set to <true>
     --hla-only                    Setting to run just the HLA typing subpipeline. Default is set to <false>
-    --trim_reads_for_hla         Set to <true> to perform read trimming on HLA typing input files (only works with FASTQ inputs)
-    --trim_reads_for_main        Set to <true> to perform read trimming on main workflow input files (only works with FASTQ inputs)
+    --trimming                    Set to <true> to perform read trimming on input files (only works with FASTQ inputs)
     --help                        Print this help message and exit
     
     """.stripIndent()
@@ -90,26 +90,21 @@ def create_hla_reads_channel(dir_path) {
 
 ///////////////////////////////////////////////////////////////////////////
 
-// Read Trimming
+//// READ TRIMMING
 workflow TRIM_READS {
     take:
         fastq_dir
-
     main:
-        ReadPairs_ch = Channel.fromFilePairs("${fastq_dir}/*{R,r}{1,2}*.{fastq,fq}{,.gz}", checkIfExists: true)
-            .ifEmpty { 
-                error "No valid input FASTQ read files found in ${fastq_dir}. Exiting..."
-                exit 1
-            }
-            .toSortedList( { a, b -> a[0] <=> b[0] } )
-            .flatMap()
+        if (!file(fastq_dir).exists() || !file(fastq_dir).isDirectory()) {
+            log.error "The input directory is not valid."
+            exit 1
+        }
 
-        ReadPairs_ch.view()
+        TRIM_READS_FASTP(fastq_dir)
 
 }
 
-
-// HLA Typing
+//// HLA TYPING
 workflow TYPE_HLAS {
     take:
         hla_typing_dir
@@ -186,21 +181,32 @@ workflow {
     if (params.hla_only) {
         log.info "[STATUS] Running HLA typing workflow only..."
 
-        // Check if HLA input files are FASTQ
-        def hla_fastq_files = file("${params.hla_typing_dir}/*{R,r}{1,2}*.{fastq,fq}{,.gz}")
-        def has_hla_fastq = hla_fastq_files.size() > 0
-        
-        if (params.trim_reads_for_hla && has_hla_fastq) {
-            log.info "[STATUS] HLA input files are FASTQ and trimming was requested. Running FASTP..."
-            TRIM_READS(params.hla_typing_dir)
-        } else if (params.trim_reads_for_hla && !has_hla_fastq) {
-            log.warn "[WARNING] Trimming was requested but HLA input files are not FASTQ. Skipping trimming step."
+        def input_fastq_files = file("${params.hla_typing_dir}/*{R,r}{1,2}*.{fastq,fq}{,.gz}")
+        def has_input_fastq = input_fastq_files.size() > 0
+
+        if (has_input_fastq) {
+            if (params.trimming) {
+                log.info "[STATUS] HLA input directory contains FASTQ files and trimming is requested. Running FASTP on FASTQ files..."
+                ReadPairs_ch = Channel.fromFilePairs("${params.hla_typing_dir}/*{R,r}{1,2}*.{fastq,fq}{,.gz}", checkIfExists: true)
+                    .ifEmpty { 
+                        error "No valid input FASTQ read files found in HLA typing input directory. Skipping trimming..."
+                        exit 1
+                    }
+                .toSortedList( { a, b -> a[0] <=> b[0] } )
+                .flatMap()
+
+                ReadPairs_ch.view()
+                //TRIM_READS(params.hla_typing_dir)
+            } else {
+                log.warn "[WARNING] FASTQ files are found but but trimming not requested. Proceeding without trimming..."
+            }
+        } else {
+            log.warn "[WARNING] No FASTQ files found in HLA typing directory. Now checking for BAM files..."
         }
         
         //TYPE_HLAS(params.hla_typing_dir)
-    }
-    else {
 
+    } else {
         // Check main input files if not in HLA-only mode
         def input_fastq_files = file("${params.input_dir}/*{R,r}{1,2}*.{fastq,fq}{,.gz}")
         def has_input_fastq = input_fastq_files.size() > 0
@@ -228,7 +234,6 @@ workflow {
         } else if (params.trim_reads_for_main && !has_input_fastq) {
             log.warn "[WARNING] Trimming was requested but input files are not FASTQ. Skipping trimming step."
         }
-
 
     }
 
