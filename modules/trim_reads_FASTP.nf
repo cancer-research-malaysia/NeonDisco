@@ -8,6 +8,9 @@ process TRIM_READS_FASTP {
     input:
         tuple val(sampleName), path(readFiles)
 
+    output:
+        tuple val(sampleName), file("*_trimmed.R{1,2}.fq.gz"), emit: trimmed_reads
+    
     script:
     """
     # Initialize variables
@@ -17,17 +20,17 @@ process TRIM_READS_FASTP {
 
     echo "Starting FASTP trimming..."
     # Running FASTP
-    #if fastp -i "\${READ1}" -I "\${READ2}" -o trimmed.R1.fq.gz -O trimmed.R2.fq.gz -p; then
-    #    echo "FASTP trimming finished successfully."
-    #else
-    #    echo "FASTP trimming failed. Exiting..."
-    #    exit 1
-    #fi
+    if fastp -i "\${READ1}" -I "\${READ2}" -o ${sampleName}_trimmed.R1.fq.gz -O ${sampleName}_trimmed.R2.fq.gz -p; then
+        echo "FASTP trimming finished successfully."
+    else
+        echo "FASTP trimming failed. Exiting..."
+        exit 1
+    fi
     """
     stub:
     """
-    touch trimmed.R1.fq.gz
-    touch trimmed.R2.fq.gz
-    echo "Stub run finished!" > test_stub.log
+    touch ${sampleName}_trimmed.R1.fq.gz
+    touch ${sampleName}_trimmed.R2.fq.gz
+    echo "Stub run finished!" > test_stub_trim_fastp.log
     """
 }
