@@ -4,9 +4,5 @@ channels:
   - bioconda
 dependencies:
   - python
-  - samtools
-  - fastp
-  - picard
-  - bedtools
-  - bowtie2
+  - arcas-hla
   - pip

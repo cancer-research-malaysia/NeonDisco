@@ -1,8 +1,8 @@
 FROM mambaorg/micromamba:git-911a014-bookworm-slim
 USER root
 LABEL maintainer="Suffian Azizan"
-LABEL version="1.5"
-LABEL description="container image of tools for NGS reads preprocessing (SAMTools, Picard, Bedtools, fastp)"
+LABEL version="1.0"
+LABEL description="container image of tools for HLA typer ArcasHLA v0.6.0"
 
 # change to root user
 USER root
@@ -20,7 +20,7 @@ USER $MAMBA_USER
 RUN micromamba config set extract_threads 1
 
 # copy the env file into the container 
-COPY --chown=$MAMBA_USER:$MAMBA_USER preproc/context/base_env.yaml /tmp/base_env.yaml
+COPY --chown=$MAMBA_USER:$MAMBA_USER arcashla/context/base_env.yaml /tmp/base_env.yaml
 
 # Create a new base environment based on the YAML file
 RUN micromamba install -y -f /tmp/base_env.yaml && \
@@ -31,6 +31,15 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 
 # add conda bins to PATH
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
+
+# delete and then copy reference static script into the container
+RUN rm -f /opt/conda/share/arcas-hla-0.6.0-1/scripts/reference.py
+COPY --chown=$MAMBA_USER:$MAMBA_USER arcashla/src/reference-static.py /opt/conda/share/arcas-hla-0.6.0-1/scripts/reference.py
+
+# add hla.dat file to the container
+COPY --chown=$MAMBA_USER:$MAMBA_USER arcashla/src/IMGTHLA-3.57.0 /opt/conda/share/arcas-hla-0.6.0-1/dat/IMGTHLA
+# update arcasHLA reference (version 3.59)
+RUN arcasHLA reference --update_static
 
 # change user to root
 USER root
