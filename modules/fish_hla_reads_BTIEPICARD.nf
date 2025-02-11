@@ -1,6 +1,6 @@
 // preprocess files for HLA-HD typing using SAMPICARD
-process PREPROC_HLA_TYPING_INPUT_SAMPICARD {
-    publishDir "${params.output_dir}/${sampleName}/SAMPICARD-out", mode: 'copy',
+process FISH_HLA_READS_SAMPICARD {
+    publishDir "${params.output_dir}/${sampleName}/SAMPICARD-fish-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__preproc}"
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name preprocessing -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"

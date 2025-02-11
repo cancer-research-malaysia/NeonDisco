@@ -133,17 +133,18 @@ workflow {
         validateInputDir(params.hla_typing_dir, "HLA TYPING")
 
         // Create input channel for all files
-        inputHLAHD_ch = createHlaChannelHLAHD(params.hla_typing_dir)
+        input_ch = createHlaChannelHLAHD(params.hla_typing_dir)
 
 		// Debug view of initial channel
         log.info "[DEBUG] Initial mixed channel content:"
-        inputHLAHD_ch.view({ id, files ->
-            return "[Starting sample: $id, Files: $files]"
+        input_ch.view({ id, files ->
+            def fileType = files instanceof List ? "FASTQ" : "BAM"
+            return "[Sample: $id, Type: $fileType, Files: $files]"
         })
 
         // Process FASTQ files if trimming is requested
         if (params.trimming) {
-            inputHLAHD_ch.branch {
+            input_ch.branch {
                 fastq: (it[1][0].name.endsWith('.fastq.gz') || 
 				it[1][0].name.endsWith('.fq.gz') || 
 				it[1][0].name.endsWith('.fastq') || 
@@ -166,19 +167,26 @@ workflow {
             TRIM_READS(branched.fastq)
             
             // Combine trimmed FASTQ with BAM files
-            procInput_ch = TRIM_READS.out.trimmed_reads.mix(branched.bam)
+            processed_input = TRIM_READS.out.trimmed_reads.mix(branched.bam)
 
 			// Debug view of final mixed channel
             log.info "[DEBUG] Final mixed channel after trimming:"
-            procInput_ch.view({ id, files ->
-                return "[Final sample: $id, Files: $files]"
+            processed_input.view({ id, files ->
+                def fileType = files instanceof List ? "Trimmed FASTQ" : "BAM"
+                return "[Sample: $id, Type: $fileType, Files: $files]"
             })
+
+            //// Process FASTQ files through trimming
+            //TRIM_READS(branched_input.fastq)
+            
+            //// Combine trimmed FASTQ with BAM files
+            //processed_input = TRIM_READS.out.trimmed_reads.mix(branched_input.bam)
         } else {
-            procInput_ch = inputHLAHD_ch
+            processed_input = input_ch
         }
 
         // Run HLA typing
-        TYPE_HLAS(procInput_ch)
+        TYPE_HLAS(processed_input)
     }
 
     workflow.onComplete = {
