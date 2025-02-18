@@ -3,6 +3,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - python
-  - bowtie2
+  - python=3.7
   - pip
