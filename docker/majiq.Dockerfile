@@ -55,6 +55,6 @@ RUN addgroup --gid 9999 app && \
 WORKDIR /home/app
 
 # copy license into image
-COPY majiq/src/majiq_license_academic_official.lic /home/app/majiq_license_academic_official.lic
+COPY majiq/src/majiq_license_academ_ofc.lic /home/app/misc/majiq_license_academic_official.lic
 
 ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "/sbin/matchhostfsowner"]
