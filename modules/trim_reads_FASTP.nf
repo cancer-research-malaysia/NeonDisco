@@ -20,7 +20,7 @@ process TRIM_READS_FASTP {
 
     echo "Starting FASTP trimming..."
     # Running FASTP
-    if fastp -i "\${READ1}" -I "\${READ2}" -o ${sampleName}_trimmed.R1.fq.gz -O ${sampleName}_trimmed.R2.fq.gz -p; then
+    if fastp -i "\${READ1}" -I "\${READ2}" -o ${sampleName}_trimmed.R1.fq.gz -O ${sampleName}_trimmed.R2.fq.gz --overrepresentation_analysis --detect_adapter_for_pe &> trim_fastp.log; then
         echo "FASTP trimming finished successfully."
     else
         echo "FASTP trimming failed. Exiting..."
