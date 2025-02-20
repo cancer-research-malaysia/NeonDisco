@@ -4,7 +4,7 @@
 CORES=2
 MODE=""
 INPUT="/mnt"  # Default to Docker mount point
-APP_PATH="/home/app"  # Path to application in Docker container
+APP_PATH="/home/app"  # Path to application in Docker container; CHANGE THIS TO WHERE THE ALTANALYZE IS INSTALLED IN THE DOCKER IMAGE
 
 # Helper function to print usage
 print_usage() {
@@ -20,12 +20,12 @@ Options:
     -h, --help          	Show this help message
 
 Modes:
-    BAM2BED      	    - Convert single BAM file to BED format
-    BED2JUNC 		    - Run BED files to junction analysis
-    CALLJUNC            - Process multiple BAM files and identify junctions
-    DE             	    - Differential expression analysis
-    GO           	    - Gene Ontology enrichment analysis
-    DAS            	    - Differential alternative splicing analysis
+    BAM2BED      	        - Convert single BAM file to BED format
+    BED2JUNC 		        - Run BED files to junction analysis
+    CALLJUNC                - Process multiple BAM files and identify junctions
+    DE             	        - Differential expression analysis
+    GO           	        - Gene Ontology enrichment analysis
+    DAS            	        - Differential alternative splicing analysis
 EOF
 }
 
@@ -87,25 +87,27 @@ echo "Current folder is $PWD..."
 # Function for BAM to BED conversion
 run_BAMtoBED() {
     local bam_file=$1
+    local app_path=$2
     echo "Processing BAM file: $bam_file"
     
-    echo "Start to get junction bed"
-    python "$APP_PATH/altanalyze/import_scripts/BAMtoJunctionBED.py" \
+    echo "Proceeding with junction calling from BAMs to BEDs..."
+    python "$app_path/altanalyze/import_scripts/BAMtoJunctionBED.py" \
         --i "$bam_file" \
         --species Hs \
-        --r "$APP_PATH/altanalyze/AltDatabase/EnsMart91/ensembl/Hs/Hs_Ensembl_exon.txt"
+        --r "$app_path/altanalyze/AltDatabase/EnsMart91/ensembl/Hs/Hs_Ensembl_exon.txt"
 
-    echo "Start to get exon bed"
-    python "$APP_PATH/altanalyze/import_scripts/BAMtoExonBED.py" \
+    echo "Proceeding with exon calling from BAMs to BEDs..."
+    python "$app_path/altanalyze/import_scripts/BAMtoExonBED.py" \
         --i "$bam_file" \
-        --r "$APP_PATH/altanalyze/AltDatabase/EnsMart91/ensembl/Hs/Hs.bed" \
+        --r "$app_path/altanalyze/AltDatabase/EnsMart91/ensembl/Hs/Hs.bed" \
         --s Hs
 }
 
 # Function to setup MultiPath-PSI analysis
 setup_multipath_PSI() {
-    local bed_dir=$1
-    local input=$2
+    local input=$1
+    local bed_dir=$2
+    local app_path=$3
 	local task="original"
 
     mkdir -p "${input}/altanalyze_output/ExpressionInput"
@@ -133,8 +135,17 @@ setup_multipath_PSI() {
     # Create comps file
     echo -e '1\t2' > "${input}/altanalyze_output/ExpressionInput/comps.${task}.txt"
     
+    # Check whether groups and comps files contains any line at all (not empty) before proceeding with the remaining codes
+
+    if [[ ! -f "${input}/altanalyze_output/ExpressionInput/groups.${task}.txt" ]] || \
+    [[ $(wc -l < "${input}/altanalyze_output/ExpressionInput/groups.${task}.txt") -eq 0 ]] || \
+    [[ ! -f "${input}/altanalyze_output/ExpressionInput/comps.${task}.txt" ]] || \
+    [[ $(wc -l < "${input}/altanalyze_output/ExpressionInput/comps.${task}.txt") -eq 0 ]]; then
+        echo "[ERROR] Failed to create valid groups or comps files (they are empty!)" >&2
+        exit 1
+    fi
     # Run AltAnalyze
-    python "$APP_PATH/altanalyze/AltAnalyze.py" \
+    python "$app_path/altanalyze/AltAnalyze.py" \
         --species Hs \
         --platform RNASeq \
         --version EnsMart91 \
@@ -146,7 +157,7 @@ setup_multipath_PSI() {
         --runGOElite no
         
     echo "Now pruning the raw junction count matrix..."
-    python "$APP_PATH/prune.py"
+    python "$app_path/altanalyze/prune-SNAF.py"
 }
 
 # Main execution based on mode
@@ -154,13 +165,13 @@ case "$MODE" in
     BAM2BED)
         [[ -f "$INPUT" ]] || { echo "[ERROR] BAM file not found or not a file: $INPUT" >&2; exit 1; }
         echo "Running bam to bed workflow; bam file is $INPUT"
-        run_BAMtoBED "$INPUT"
+        run_BAMtoBED "$INPUT" "$APP_PATH"
         ;;
         
     BED2JUNC)
         [[ -d "${INPUT}/bed" ]] || { echo "[ERROR] BED directory not found or input is a file: $INPUT/bed" >&2; exit 1; }
         echo "Running bed to junction workflow; BED folder is $INPUT/bed"
-        setup_multipath_PSI "${INPUT}/bed" "${INPUT}"
+        setup_multipath_PSI "${INPUT}" "${INPUT}/bed" "$APP_PATH"
         ;;
         
     CALLJUNC)
@@ -169,21 +180,28 @@ case "$MODE" in
         
         # Collect BAM files for parallelization
         find "${INPUT}/bam" -name "*.bam" > "${INPUT}/samples.txt"
-        
+
+        # if samples.txt is empty, exit 1 here
+        # Check if the file exists and has any lines
+        if [[ ! -f "${INPUT}/samples.txt" ]] || [[ $(wc -l < "${INPUT}/samples.txt") -eq 0 ]]; then
+            echo "[ERROR] No BAM files found in ${INPUT}/bam" >&2
+            exit 1
+        fi
+
         # Export necessary variables for parallel execution
         export -f run_BAMtoBED
         export TMPDIR=/tmp
         export g_bam_folder="${INPUT}/bam"
         
         # Process BAM files in parallel
-        parallel -P "$CORES" run_BAMtoBED {} < "${INPUT}/samples.txt"
+        parallel -P "$CORES" run_BAMtoBED {} "$APP_PATH" < "${INPUT}/samples.txt"
         
         # Move BED files to bed folder
         mkdir -p "${INPUT}/bed"
         find "$INPUT" -name "*.bed" -exec mv {} "${INPUT}/bed/" \;
         
         # Run MultiPath-PSI analysis
-        setup_multipath_PSI "${INPUT}/bed" "${INPUT}"
+        setup_multipath_PSI "${INPUT}" "${INPUT}/bed" "$APP_PATH"
         ;;
         
     DE)

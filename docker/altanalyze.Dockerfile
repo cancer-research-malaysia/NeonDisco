@@ -10,12 +10,16 @@ USER root
 WORKDIR /home/app
 RUN apt-get clean \
     && apt-get update \
-    && apt-get install -y parallel nano less build-essential tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps git cmake locales coreutils gawk grep sed
+    && apt-get install -y parallel nano less build-essential tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps git cmake locales coreutils gawk grep sed python-wxgtk3.0 python-wxtools libwxgtk3.0-dev \
+    && /usr/local/bin/python -m pip install --upgrade pip
 RUN cd /home/app \
     && curl -o /tmp/requirements.txt https://raw.githubusercontent.com/frankligy/SNAF/main/AltAnalyze/requirements_slim.txt \
     && apt-get install -y libigraph0-dev \
     && pip install python-igraph==0.7.1.post6 \
     && pip install --no-cache-dir -r /tmp/requirements.txt \
+    && pip install lxml \
+    && pip install patsy \
+    && pip install fastcluster \
     && git clone https://github.com/nsalomonis/altanalyze.git
 
 RUN cd /home/app/altanalyze \
