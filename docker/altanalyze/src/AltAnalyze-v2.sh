@@ -196,10 +196,6 @@ case "$MODE" in
         # Process BAM files in parallel
         parallel -P "$CORES" run_BAMtoBED {} "$APP_PATH" < "${INPUT}/samples.txt"
         
-        # Move BED files to bed folder
-        mkdir -p "${INPUT}/bed"
-        find "$INPUT" -name "*.bed" -exec mv {} "${INPUT}/bed/" \;
-        
         # Run MultiPath-PSI analysis
         setup_multipath_PSI "${INPUT}" "${INPUT}/bed" "$APP_PATH"
         ;;

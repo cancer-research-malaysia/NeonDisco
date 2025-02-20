@@ -25,15 +25,16 @@ RUN cd /home/app \
 RUN cd /home/app/altanalyze \
     && python AltAnalyze.py --species Hs --update Official --version EnsMart91 --additional all \
     && curl -o Hs.bed https://raw.githubusercontent.com/frankligy/SNAF/main/AltAnalyze/Hs.bed \
-    && mv Hs.bed AltDatabase/EnsMart91/ensembl/Hs \
-    && curl -o prune-SNAF.py https://raw.githubusercontent.com/frankligy/SNAF/main/AltAnalyze/prune.py \
-    && chmod 777 prune-SNAF.py
+    && mv Hs.bed AltDatabase/EnsMart91/ensembl/Hs
 
-# copy script
+# copy scripts
 COPY altanalyze/src/AltAnalyze-v2.sh /home/app/AltAnalyze.sh
+COPY altanalyze/src/prune-SNAF.py /home/app/altanalyze/prune-SNAF.py
+
 # fix permissions
 RUN chmod 777 /home/app/AltAnalyze.sh \
-    && chmod -R 777 /home/app/altanalyze 
+    && chmod 777 /home/app/altanalyze/prune-SNAF.py \
+    && chmod -R 777 /home/app/altanalyze
 
 # Docker suffers from absolutely atrocious way of consolidating the paradigm of restricting privileges when running containers (rootless mode) with writing outputs to bound host volumes without using Docker volumes or other convoluted workarounds.
 
