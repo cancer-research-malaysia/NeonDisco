@@ -16,12 +16,13 @@ process ALIGN_READS_STAR {
     # Initialize variables
     READ1=${readFiles[0]}  # First file in the list will be our main input
     READ2=${readFiles[1]}
-    echo "Processing files: \${READ1} & \${READ2}"
+    SAMPLE_ID=${sampleName}
+    echo "Processing files: \${READ1} & \${READ2} of sample \${SAMPLE_ID}"
     echo "Number of cores to use: ${params.num_cores}"
 
     echo "Starting STAR alignment..."
     # Running STAR on read files
-    if bash /work/scripts/star-align-nf.sh "\${READ1}" "\${READ2}" ${params.num_cores}; then
+    if bash /work/scripts/star-nf.sh "\${READ1}" "\${READ2}" ${params.num_cores}; then
         echo "STAR alignment complete. Check outputs for run status."
     else
         echo "STAR alignment failed."
