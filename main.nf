@@ -152,9 +152,12 @@ workflow {
         // Run only HLA typing
         TYPE_HLAS(procInput_Ch)
     } else {
-        // Run both HLA typing and alignment workflows in parallel
+        // HLA typing
         TYPE_HLAS(procInput_Ch)
-        ALIGN_READS(procInput_Ch)
+
+        // main pipeline
+        TRIM_READS(procInput_Ch)
+        ALIGN_READS(TRIM_READS.out.trimmed_reads)
     }
 
 	// Completion handler

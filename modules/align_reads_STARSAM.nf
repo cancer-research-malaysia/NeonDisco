@@ -6,7 +6,7 @@ process ALIGN_READS_STARSAM {
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name star-align-reads -v ${params.arriba_db}:/home/app/libs -v \$(pwd):/home/app/nf_work -v ${params.bin_dir}:/home/app/scripts"
     
     input:
-        tuple val(sampleName), path(readFiles)
+        tuple val(sampleName), path(fastq1), path(fastq2)
 
     output:
         tuple val(sampleName), path("*-STAR_2pass_*Aligned.out.bam"), emit: aligned_bams
@@ -14,11 +14,11 @@ process ALIGN_READS_STARSAM {
     script:
     """
     # variables
-    READ1=${readFiles[0]}
-    READ2=${readFiles[1]}
+    READ1=${fastq1}
+    READ2=${fastq2}
     SAMPLE_ID=${sampleName}
     CORES=${params.num_cores}
-    STAR_INDEX="home/app/libs/ref_genome.fa.star.idx"
+    STAR_INDEX="/home/app/libs/ref_genome.fa.star.idx"
 
     echo "Processing files: \${READ1} & \${READ2} of sample \${SAMPLE_ID}"
     echo "Number of cores to use: ${params.num_cores}"
