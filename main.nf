@@ -129,7 +129,7 @@ workflow {
     }
 
     // Create input channel
-    input_Ch = createInputChannel(params.input_dir)
+    def input_Ch = createInputChannel(params.input_dir)
 
     // Branch input channel based on file type
     def branched = input_Ch.branch {
@@ -148,14 +148,14 @@ workflow {
     }
 
     // Execute workflows based on hla_only parameter
-    // if (params.hla_only) {
-    //     // Run only HLA typing
-    //     TYPE_HLAS(procInput_Ch)
-    // } else {
-    //     // Run both HLA typing and alignment workflows in parallel
-    //     TYPE_HLAS(procInput_Ch)
-    //     ALIGN_READS(procInput_Ch)
-    // }
+    if (params.hla_only) {
+        // Run only HLA typing
+        TYPE_HLAS(procInput_Ch)
+    } else {
+        // Run both HLA typing and alignment workflows in parallel
+        TYPE_HLAS(procInput_Ch)
+        ALIGN_READS(procInput_Ch)
+    }
 
 	// Completion handler
 	workflow.onComplete = {
