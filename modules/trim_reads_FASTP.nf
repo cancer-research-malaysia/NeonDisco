@@ -16,14 +16,15 @@ process TRIM_READS_FASTP {
     # Initialize variables
     READ1=${readFiles[0]}  # First file in the list will be our main input
     READ2=${readFiles[1]}
-    echo "Processing files: \${READ1} & \${READ2}"
-
+    SAMPLE_ID=${sampleName}
+    echo "Processing files: \${READ1} & \${READ2} of sample \${SAMPLE_ID}"
     echo "Starting FASTP trimming..."
+
     # Running FASTP
-    if fastp -i "\${READ1}" -I "\${READ2}" -o ${sampleName}_trimmed.R1.fq.gz -O ${sampleName}_trimmed.R2.fq.gz --overrepresentation_analysis --detect_adapter_for_pe &> trim_fastp.log; then
-        echo "FASTP trimming finished successfully."
+    if bash /home/app/scripts/fastp-nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" > fastp-trim.log 2>&1 ; then
+        echo "FASTP trimming finished successfully!"
     else
-        echo "FASTP trimming failed. Exiting..."
+        echo "FASTP trimming failed. Check logs. Exiting..."
         exit 1
     fi
     """
@@ -31,6 +32,6 @@ process TRIM_READS_FASTP {
     """
     touch ${sampleName}_trimmed.R1.fq.gz
     touch ${sampleName}_trimmed.R2.fq.gz
-    echo "Stub run finished!" > test_stub_trim_fastp.log
+    echo "Stub run finished!" > test_stub_fastp-trim.log
     """
 }

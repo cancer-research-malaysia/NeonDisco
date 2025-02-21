@@ -9,4 +9,5 @@ dependencies:
   - picard
   - bedtools
   - bowtie2
+  - star
   - pip

@@ -1,8 +1,8 @@
 FROM mambaorg/micromamba:git-911a014-bookworm-slim
 USER root
 LABEL maintainer="Suffian Azizan"
-LABEL version="1.5"
-LABEL description="container image of tools for NGS reads preprocessing (SAMTools, Picard, Bedtools, fastp)"
+LABEL version="2.0"
+LABEL description="container image of tools for NGS reads preprocessing (SAMTools, Picard, Bedtools, fastp, STAR)"
 
 # change to root user
 USER root

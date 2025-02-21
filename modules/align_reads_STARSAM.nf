@@ -1,6 +1,6 @@
 // align trimmed reads
-process ALIGN_READS_STAR {
-    publishDir "${params.output_dir}/${sampleName}/STAR-alignment", mode: 'copy',
+process ALIGN_READS_STARSAM {
+    publishDir "${params.output_dir}/${sampleName}/STAR-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__preproc}"
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name star-align-reads -v ${params.arriba_db}:/home/app/libs -v \$(pwd):/home/app/nf_work -v ${params.bin_dir}:/home/app/scripts"
@@ -28,7 +28,7 @@ process ALIGN_READS_STAR {
 	if bash /home/app/scripts/star-nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" ${params.num_cores} "\${STAR_INDEX}" > star-2pass-align.log 2>&1 ; then
         echo "STAR sample-level 2-pass alignment is complete!"
     else
-        echo "STAR alignment failed. Check logs."
+        echo "STAR alignment failed. Check logs. Exiting..."
         exit 1
     fi
     """
