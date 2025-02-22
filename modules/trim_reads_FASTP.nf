@@ -1,5 +1,6 @@
 // Trim raw reads
 process TRIM_READS_FASTP {
+    errorStrategy 'finish'
     publishDir "${params.output_dir}/${sampleName}/FASTP-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__preproc}"

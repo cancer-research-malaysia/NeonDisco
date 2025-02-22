@@ -153,7 +153,7 @@ workflow {
         TYPE_HLAS(procInput_Ch)
     } else {
         // HLA typing
-        TYPE_HLAS(procInput_Ch)
+        //TYPE_HLAS(procInput_Ch)
 
         // main pipeline
         TRIM_READS(procInput_Ch)

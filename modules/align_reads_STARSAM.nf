@@ -1,5 +1,6 @@
 // align trimmed reads
 process ALIGN_READS_STARSAM {
+    errorStrategy 'finish'
     publishDir "${params.output_dir}/${sampleName}/STAR-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__preproc}"
