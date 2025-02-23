@@ -26,5 +26,8 @@ STAR --runThreadN "${CORES}" \
         --chimMultimapNmax 50 \
         --alignSJstitchMismatchNmax 5 -1 5 5 \
         --alignSplicedMateMapLminOverLmate 0.5 \
-        --peOverlapNbasesMin 10 \
-        --twopassMode Basic
+        --peOverlapNbasesMin 10 
+        
+        
+        # \
+        # --twopassMode Basic
