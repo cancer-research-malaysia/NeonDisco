@@ -153,9 +153,9 @@ workflow {
         TYPE_HLAS(procInput_Ch)
     } else {
         // HLA typing
-        TYPE_HLAS(procInput_Ch)
+        //TYPE_HLAS(procInput_Ch)
 
-        // main pipeline
+        // main pipeline (this run is without 2pass mapping)
         TRIM_READS(procInput_Ch)
         ALIGN_READS(TRIM_READS.out.trimmed_reads)
     }

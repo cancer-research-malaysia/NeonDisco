@@ -22,7 +22,7 @@ process TRIM_READS_FASTP {
     echo "Starting FASTP trimming..."
 
     # Running FASTP
-    if bash /home/app/scripts/fastp-nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" > fastp-trim.log 2>&1 ; then
+    if bash /home/app/scripts/fastp-nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}"; then
         echo "FASTP trimming finished successfully!"
     else
         echo "FASTP trimming failed. Check logs. Exiting..."
