@@ -1,5 +1,5 @@
 // align trimmed reads
-process ALIGN_READS_STARSAM {
+process ALIGN_READS_1PASS_STARSAM {
     errorStrategy 'finish'
     maxForks 2
     publishDir "${params.output_dir}/${sampleName}/STAR-out-1pass", mode: 'copy',
@@ -25,10 +25,10 @@ process ALIGN_READS_STARSAM {
     echo "Processing files: \${READ1} & \${READ2} of sample \${SAMPLE_ID}"
     echo "Number of cores to use: ${params.num_cores}"
     echo "The index path: \${STAR_INDEX}"
-	echo "Starting STAR sample-level 2-pass alignment..."
+	echo "Starting STAR sample-level 1-pass alignment..."
 
-	if bash /home/app/scripts/star-nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" ${params.num_cores} "\${STAR_INDEX}"; then
-        echo "STAR sample-level 2-pass alignment is complete!"
+	if bash /home/app/scripts/star-1pass-nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" ${params.num_cores} "\${STAR_INDEX}"; then
+        echo "STAR sample-level 1-pass alignment is complete!"
     else
         echo "STAR alignment failed. Check logs. Exiting..."
         exit 1

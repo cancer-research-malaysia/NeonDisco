@@ -4,7 +4,8 @@ nextflow.enable.dsl = 2
 
 // Import submodules
 include { TRIM_READS_FASTP } from './modules/trim_reads_FASTP.nf'
-include { ALIGN_READS_STARSAM } from './modules/align_reads_STARSAM.nf'
+include { ALIGN_READS_1PASS_STARSAM } from './modules/align_reads_1pass_STARSAM.nf'
+include { ALIGN_READS_2PASS_STARSAM } from './modules/align_reads_2pass_STARSAM.nf'
 include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD.nf'
 
 // Function to print help message
@@ -91,13 +92,22 @@ workflow TRIM_READS {
         trimmed_reads = TRIM_READS_FASTP.out.trimmed_reads
 }
 
-workflow ALIGN_READS {
+workflow ALIGN_READS_1PASS {
     take:
         reads_Ch
     main:
-        ALIGN_READS_STARSAM(reads_Ch)
+        ALIGN_READS_1PASS_STARSAM(reads_Ch)
     emit:
-        aligned_reads = ALIGN_READS_STARSAM.out.aligned_bams
+        aligned_reads = ALIGN_READS_1PASS_STARSAM.out.aligned_bams
+}
+
+workflow ALIGN_READS_2PASS {
+    take:
+        reads_Ch
+    main:
+        ALIGN_READS_2PASS_STARSAM(reads_Ch)
+    emit:
+        aligned_reads = ALIGN_READS_2PASS_STARSAM.out.aligned_bams
 }
 
 workflow TYPE_HLAS {
@@ -155,9 +165,12 @@ workflow {
         // HLA typing
         //TYPE_HLAS(procInput_Ch)
 
-        // main pipeline (this run is without 2pass mapping)
+        // main pipeline
         TRIM_READS(procInput_Ch)
-        ALIGN_READS(TRIM_READS.out.trimmed_reads)
+        // test 1 pass mapping
+        ALIGN_READS_1PASS(TRIM_READS.out.trimmed_reads)
+        // test 2 pass mapping
+        ALIGN_READS_2PASS(TRIM_READS.out.trimmed_reads)
     }
 
 	// Completion handler
