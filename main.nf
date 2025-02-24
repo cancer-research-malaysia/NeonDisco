@@ -161,8 +161,9 @@ workflow {
     // Process FASTQ files if present and trimming is requested
     def procInput_Ch
     if (params.trimming) {
-        procInput_Ch = TRIM_READS(branched.fastq).trimmed_reads
-            .mix(branched.bam)
+        branched.fastq.ifEmpty { log.warn "No FASTQ files found for trimming" }
+        def trimmedFastqs = branched.fastq.size() > 0 ? TRIM_READS(branched.fastq).trimmed_reads : Channel.empty()
+        procInput_Ch = trimmedFastqs.mix(branched.bam)
         procInput_Ch.view()
 
     } else {
