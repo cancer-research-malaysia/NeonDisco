@@ -6,7 +6,9 @@ nextflow.enable.dsl = 2
 include { TRIM_READS_FASTP } from './modules/trim_reads_FASTP.nf'
 include { ALIGN_READS_1PASS_STARSAM } from './modules/align_reads_1pass_STARSAM.nf'
 include { ALIGN_READS_2PASS_STARSAM } from './modules/align_reads_2pass_STARSAM.nf'
+include { FISH_HLA_READS_SAMPICARD } from './modules/fish_hla_reads_SAMPICARD.nf'
 include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD.nf'
+include { FISH_HLA_READS_BOWTIE2 } from './modules/fish_hla_reads_BOWTIE2.nf'
 
 // Function to print help message
 def helpMessage() {
@@ -110,11 +112,20 @@ workflow ALIGN_READS_2PASS {
         aligned_reads = ALIGN_READS_2PASS_STARSAM.out.aligned_bams
 }
 
+workflow FISH_HLAS {
+    take:
+        input_Ch
+    main:
+        FISH_HLA_READS_SAMPICARD(input_Ch)
+    emit:
+        hla_reads = FISH_HLA_READS_SAMPICARD.out.fished_files
+}
+
 workflow TYPE_HLAS {
     take:
-        input_ch
+        hlaReads_Ch
     main:
-        TYPE_HLA_ALLELES_HLAHD(input_ch)
+        TYPE_HLA_ALLELES_HLAHD(hlaReads_Ch)
     emit:
         hla_types = TYPE_HLA_ALLELES_HLAHD.out.hla_combined_result
 }
@@ -141,7 +152,7 @@ workflow {
     // Create input channel
     def input_Ch = createInputChannel(params.input_dir)
 
-    // Branch input channel based on file type
+    // Branch input channel based on file type (just peek at the 1st element of the second element [file list] of the input tuple)
     def branched = input_Ch.branch {
         fastq: it[1][0].name =~ /\.(fastq|fq)(\.gz)?$/
         bam: it[1][0].name =~ /\.bam$/
@@ -153,15 +164,19 @@ workflow {
         procInput_Ch = TRIM_READS(branched.fastq).trimmed_reads
             .mix(branched.bam)
         procInput_Ch.view()
+
     } else {
         procInput_Ch = branched.fastq.mix(branched.bam)
         procInput_Ch.view()
+
     }
 
     // Execute workflows based on hla_only parameter
     if (params.hla_only) {
         // Run only HLA typing
-        TYPE_HLAS(procInput_Ch)
+        FISH_HLAS(procInput_Ch)
+        TYPE_HLAS(FISH_HLAS.hla_reads)
+
     } else {
         // HLA typing
         //TYPE_HLAS(procInput_Ch)

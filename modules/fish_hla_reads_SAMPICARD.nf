@@ -1,6 +1,6 @@
 // preprocess files for HLA-HD typing using SAMPICARD
 process FISH_HLA_READS_SAMPICARD {
-    publishDir "${params.output_dir}/${sampleName}/SAMPICARD-fish-out", mode: 'copy',
+    publishDir "${params.output_dir}/${sampleName}/SAMPICARD-HLA-fish-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__preproc}"
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name preprocessing -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
@@ -9,7 +9,7 @@ process FISH_HLA_READS_SAMPICARD {
         tuple val(sampleName), path(inputFiles)
 
     output:
-        tuple val(sampleName), path("*.fastq"), emit: preprocessed_files
+        tuple val(sampleName), path("*_R1.fastq"), emit: fished_files
 
     script:
     """
@@ -35,7 +35,7 @@ process FISH_HLA_READS_SAMPICARD {
         *.bam)
             # BAM file processing
             echo "Processing bam file: \${input_file1}"
-            if bash /work/scripts/hlatyping-preproc-sampicard-nf.sh "${sampleName}" "\${input_file1}"; then
+            if bash /work/scripts/fish-sampicard-nf.sh "${sampleName}" "\${input_file1}"; then
                 echo "File preprocessing has finished running on ${sampleName}."
             else
                 echo "BAM preprocessing failed"
