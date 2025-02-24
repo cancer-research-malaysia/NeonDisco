@@ -10,7 +10,6 @@ INDEX=$5
 
 STAR --runThreadN "${CORES}" \
         --genomeDir "${INDEX}" \
-        --genomeLoad LoadAndRemove \
         --readFilesIn "${READ1}" "${READ2}" \
         --readFilesCommand zcat \
         --outFileNamePrefix "${SAMPLE_ID}-STAR_2pass_" \
