@@ -9,7 +9,7 @@ process FISH_HLA_READS_SAMPICARD {
         tuple val(sampleName), path(inputFiles)
 
     output:
-        tuple val(sampleName), path("*_R1.fastq"), emit: fished_files
+        tuple val(sampleName), path("*_R?.fastq"), emit: fished_files
 
     script:
     """

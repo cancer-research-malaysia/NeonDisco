@@ -175,8 +175,9 @@ workflow {
     // Execute workflows based on hla_only parameter
     if (params.hla_only) {
         // Run only HLA typing
-        FISH_HLAS(procInput_Ch)
-        TYPE_HLAS(FISH_HLAS.hla_reads)
+        fishedReads_Ch = FISH_HLAS(procInput_Ch).hla_reads
+        fishedReads_Ch.view()
+        TYPE_HLAS(fishedReads_Ch)
 
     } else {
         // HLA typing
