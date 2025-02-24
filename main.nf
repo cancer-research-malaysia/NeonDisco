@@ -166,11 +166,10 @@ workflow {
         //TYPE_HLAS(procInput_Ch)
 
         // main pipeline
-        TRIM_READS(procInput_Ch)
         // test 1 pass mapping
-        ALIGN_READS_1PASS(TRIM_READS.out.trimmed_reads)
+        ALIGN_READS_1PASS(procInput_Ch)
         // test 2 pass mapping
-        ALIGN_READS_2PASS(TRIM_READS.out.trimmed_reads)
+        ALIGN_READS_2PASS(procInput_Ch)
     }
 
 	// Completion handler
