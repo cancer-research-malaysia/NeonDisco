@@ -10,7 +10,7 @@ process TRIM_READS_FASTP {
         tuple val(sampleName), path(readFiles)
 
     output:
-        tuple val(sampleName), file("*_trimmed.R1.fq.gz"), file("*_trimmed.R2.fq.gz"), emit: trimmed_reads
+        tuple val(sampleName), path("*_trimmed.R?.fq.gz", arity: '2'), emit: trimmed_reads
     
     script:
     """

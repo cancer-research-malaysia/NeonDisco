@@ -152,6 +152,7 @@ workflow {
     if (params.trimming) {
         procInput_Ch = TRIM_READS(branched.fastq).trimmed_reads
             .mix(branched.bam)
+        procInput_Ch.view()
     } else {
         procInput_Ch = branched.fastq.mix(branched.bam)
         procInput_Ch.view()
