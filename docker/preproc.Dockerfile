@@ -13,11 +13,6 @@ build-essential tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps git cmake
 && rm -rf /var/lib/apt/lists/* \
 && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
 
-# Configure shared memory for STAR
-RUN echo "kernel.shmmax=31000000000" >> /etc/sysctl.conf && \
-    echo "kernel.shmall=7568400" >> /etc/sysctl.conf && \
-    /sbin/sysctl -p
-
 # change user
 USER $MAMBA_USER
 
