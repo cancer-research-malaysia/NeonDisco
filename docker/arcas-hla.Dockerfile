@@ -32,15 +32,16 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 # add conda bins to PATH
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 
-# delete and then copy reference static script into the container
-RUN rm -f /opt/conda/share/arcas-hla-0.6.0-1/scripts/reference.py
-COPY --chown=$MAMBA_USER:$MAMBA_USER arcashla/src/reference-static.py /opt/conda/share/arcas-hla-0.6.0-1/scripts/reference.py
+### delete and then copy reference static script into the container
+###### UPDATE: the 0.6.0-2 version of arcasHLA has fixed the reference command so there is no need to monkey fix it below
+# RUN rm -f /opt/conda/share/arcas-hla-0.6.0-1/scripts/reference.py
+# COPY --chown=$MAMBA_USER:$MAMBA_USER arcashla/src/reference-static.py /opt/conda/share/arcas-hla-0.6.0-1/scripts/reference.py
 
 # add hla.dat file to the container
-COPY --chown=$MAMBA_USER:$MAMBA_USER arcashla/src/IMGTHLA-3.57.0 /opt/conda/share/arcas-hla-0.6.0-1/dat/IMGTHLA
+COPY --chown=$MAMBA_USER:$MAMBA_USER arcashla/src/IMGTHLA-3.57.0 /opt/conda/share/arcas-hla-0.6.0-2/dat/IMGTHLA
 # update arcasHLA reference (version 3.57)
-RUN arcasHLA reference --update_static
-
+RUN arcasHLA reference --update
+#RUN arcasHLA reference --update_static
 # change user to root
 USER root
 
