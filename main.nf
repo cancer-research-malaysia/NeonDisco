@@ -159,17 +159,9 @@ workflow {
 
     // Process FASTQ files if present and trimming is requested
     def procInput_Ch
-    if (params.trimming) {
-        branched.fastq.ifEmpty { log.warn "No FASTQ files found for trimming" }
-        def trimmedFastqs = branched.fastq.size() > 0 ? TRIM_READS(branched.fastq).trimmed_reads : Channel.empty()
-        procInput_Ch = trimmedFastqs.mix(branched.bam)
-        procInput_Ch.view()
-
-    } else {
-        procInput_Ch = branched.fastq.mix(branched.bam)
-        procInput_Ch.view()
-
-    }
+    def trimmedFastqs = params.trimming ? TRIM_READS(branched.fastq).trimmed_reads : branched.fastq
+    procInput_Ch = trimmedFastqs.mix(branched.bam)
+    procInput_Ch.view()
 
     // Execute workflows based on hla_only parameter
     if (params.hla_only) {
