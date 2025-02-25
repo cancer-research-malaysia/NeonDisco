@@ -38,7 +38,7 @@ COPY --chown=$MAMBA_USER:$MAMBA_USER arcashla/src/reference-static.py /opt/conda
 
 # add hla.dat file to the container
 COPY --chown=$MAMBA_USER:$MAMBA_USER arcashla/src/IMGTHLA-3.57.0 /opt/conda/share/arcas-hla-0.6.0-1/dat/IMGTHLA
-# update arcasHLA reference (version 3.59)
+# update arcasHLA reference (version 3.57)
 RUN arcasHLA reference --update_static
 
 # change user to root
