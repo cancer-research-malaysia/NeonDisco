@@ -1,5 +1,5 @@
 // Run FT calling module
-process CALL_FUSION_TRANSCRIPTS_FC {
+process CALL_FUSIONS_FUSIONCATCHER {
     // maxForks 10
     publishDir "${params.output_dir}/${sampleName}/FT/FUSIONCATCHER-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }

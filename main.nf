@@ -6,9 +6,8 @@ nextflow.enable.dsl = 2
 include { TRIM_READS_FASTP } from './modules/trim_reads_FASTP.nf'
 include { ALIGN_READS_1PASS_STARSAM } from './modules/align_reads_1pass_STARSAM.nf'
 include { ALIGN_READS_2PASS_STARSAM } from './modules/align_reads_2pass_STARSAM.nf'
-include { FISH_HLA_READS_SAMPICARD } from './modules/fish_hla_reads_SAMPICARD.nf'
+include { FISH_HLA_READS_SAMPBOWT } from './modules/fish_hla_reads_SAMPBOWT.nf'
 include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD.nf'
-include { FISH_HLA_READS_BOWTIE2 } from './modules/fish_hla_reads_BOWTIE2.nf'
 
 // Function to print help message
 def helpMessage() {
@@ -116,9 +115,9 @@ workflow FISH_HLAS {
     take:
         input_Ch
     main:
-        FISH_HLA_READS_SAMPICARD(input_Ch)
+        FISH_HLA_READS_SAMPBOWT(input_Ch)
     emit:
-        hla_reads = FISH_HLA_READS_SAMPICARD.out.fished_files
+        hla_reads = FISH_HLA_READS_SAMPBOWT.out.fished_files
 }
 
 workflow TYPE_HLAS {

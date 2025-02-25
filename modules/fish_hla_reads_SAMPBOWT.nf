@@ -1,9 +1,10 @@
-// preprocess files for HLA-HD typing using SAMPICARD
-process FISH_HLA_READS_SAMPICARD {
-    publishDir "${params.output_dir}/${sampleName}/SAMPICARD-HLA-fish-out", mode: 'copy',
+// preprocess files for HLA-HD typing using SAMPICARD (for BAMs) or BOWTIE2 (for FASTQs)
+process FISH_HLA_READS_SAMPBOWT {
+    maxForks 1
+    publishDir "${params.output_dir}/${sampleName}/HLA-fishing-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__preproc}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name preprocessing -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
+    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name HLA-fishing -v ${params.bowtieIndex_db}:/work/libs/hla -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
     
     input:
         tuple val(sampleName), path(inputFiles)
@@ -22,14 +23,29 @@ process FISH_HLA_READS_SAMPICARD {
     case "\${input_file1}" in
         *.fastq|*.fq)
             # Uncompressed fastq files
-            cp "\${input_file1}" "${sampleName}_R1.fastq"
-            cp "\${input_file2}" "${sampleName}_R2.fastq"
+            echo "Processing already decompressed fastq files..."
+            
+            # map fastq files
+            if bash /work/scripts/fish-bowtie2-nf.sh ${sampleName} "\${input_file1}" "\${input_file2}" "${params.num_cores}" "/work/libs/hla/hla-gen"; then
+                echo "Fished fq files created."
+            else
+                echo "HLA fishing did not work."
+                exit 1
+            fi
             ;;
             
         *.fastq.gz|*.fq.gz)
             # Compressed fastq files
             gunzip -c "\${input_file1}" > "${sampleName}_R1.fastq"
             gunzip -c "\${input_file2}" > "${sampleName}_R2.fastq"
+
+            # map fastq files
+            if bash /work/scripts/fish-bowtie2-nf.sh ${sampleName} "${sampleName}_R1.fastq" "${sampleName}_R2.fastq" "${params.num_cores}" "/work/libs/hla/hla-gen"; then
+                echo "Fished fq files created."
+            else
+                echo "HLA fishing did not work."
+                exit 1
+            fi
             ;;
             
         *.bam)

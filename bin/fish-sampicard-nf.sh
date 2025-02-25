@@ -1,14 +1,9 @@
-#!/usr/bin/bash 
-
-echo $(id)
+#!/usr/bin/bash
 
 SAMPLE_ID=$1
 BAM_INPUT=$2
 
 #################################################
-# samtools --help
-# picard SamToFastq --help
-
 # this strategy is used for either input data in aligned bam formats, or RNA-based input data in aligned bam format
 # use "chr6:28477797-33448354" if using hg19
 
