@@ -5,7 +5,7 @@ BAM_INPUT=$2
 
 #################################################
 # this strategy is used for either input data in aligned bam formats, or RNA-based input data in aligned bam format
-# use "chr6:28477797-33448354" if using hg19
+# 	The genomic region that harbors the MHC: In GRCh37, it corresponds to chr6:28,477,797-33,448,354 (6p22.1-21.3).In GRCh38, it corresponds to chr6:28,510,020-33,480,577 (Sakaue et al., 2023)
 
 echo "${SAMPLE_ID}"
 echo "${BAM_INPUT}"
