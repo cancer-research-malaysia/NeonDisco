@@ -1,6 +1,6 @@
 // preprocess files for HLA-HD typing using SAMPICARD (for BAMs) or BOWTIE2 (for FASTQs)
 process FISH_HLA_READS_SAMPBOWT {
-    maxForks 1
+    maxForks 2
     publishDir "${params.output_dir}/${sampleName}/HLA-fishing-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__preproc}"
