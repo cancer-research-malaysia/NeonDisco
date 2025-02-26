@@ -12,7 +12,7 @@ echo "${BAM_INPUT}"
 
 # run samtools filtering
 mkdir -p "samtools-o"
-samtools view -b -h "${BAM_INPUT}" "6:28510120-33480577" > "samtools-o/MHC-${SAMPLE_ID}.bam"
+samtools view -b -h "${BAM_INPUT}" "6:28477797-33448354" > "samtools-o/MHC-${SAMPLE_ID}.bam"
 samtools view -b -f 4 "${BAM_INPUT}" > "samtools-o/unmapped-${SAMPLE_ID}.bam"
 samtools merge -o "samtools-o/merged-${SAMPLE_ID}.bam" "samtools-o/MHC-${SAMPLE_ID}.bam" "samtools-o/unmapped-${SAMPLE_ID}.bam"
 
