@@ -8,6 +8,7 @@ include { ALIGN_READS_1PASS_STARSAM } from './modules/align_reads_1pass_STARSAM.
 include { ALIGN_READS_2PASS_STARSAM } from './modules/align_reads_2pass_STARSAM.nf'
 include { FISH_HLA_READS_SAMPBOWT } from './modules/fish_hla_reads_SAMPBOWT.nf'
 include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD.nf'
+include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_arcasHLA.nf'
 
 // Function to print help message
 def helpMessage() {
@@ -165,7 +166,7 @@ workflow {
 
     // Execute workflows based on hla_only parameter
     if (params.hla_only) {
-        // Run only HLA typing
+        // Run only HLA typing using HLAHD
         fishedReads_Ch = FISH_HLAS(procInput_Ch).hla_reads
         fishedReads_Ch.view()
         TYPE_HLAS(fishedReads_Ch)
