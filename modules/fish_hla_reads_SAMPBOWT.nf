@@ -26,7 +26,7 @@ process FISH_HLA_READS_SAMPBOWT {
             echo "Processing already decompressed fastq files..."
             
             # map fastq files
-            if bash /work/scripts/fish-bowtie2-nf.sh ${sampleName} "\${input_file1}" "\${input_file2}" "${params.num_cores}" "/work/libs/hla/hla-gen"; then
+            if bash /work/scripts/fish-bowtie2-nf.sh ${sampleName} "\${input_file1}" "\${input_file2}" "${params.num_cores}" "/work/libs/hla/hla_gen"; then
                 echo "Fished fq files created."
             else
                 echo "HLA fishing did not work."
@@ -40,7 +40,7 @@ process FISH_HLA_READS_SAMPBOWT {
             gunzip -c "\${input_file2}" > "${sampleName}_R2.fastq"
 
             # map fastq files
-            if bash /work/scripts/fish-bowtie2-nf.sh ${sampleName} "${sampleName}_R1.fastq" "${sampleName}_R2.fastq" "${params.num_cores}" "/work/libs/hla/hla-gen"; then
+            if bash /work/scripts/fish-bowtie2-nf.sh ${sampleName} "${sampleName}_R1.fastq" "${sampleName}_R2.fastq" "${params.num_cores}" "/work/libs/hla/hla_gen"; then
                 echo "Fished fq files created."
             else
                 echo "HLA fishing did not work."
