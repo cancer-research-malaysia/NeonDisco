@@ -23,5 +23,8 @@ if picard SamToFastq -I "samtools-o/merged-${SAMPLE_ID}.bam" -F "picard-o/${SAMP
     # relabel records with awk
     awk '{if(NR%4 == 1){O=$0; gsub("/1","1",O); print O}else{print $0}}' "picard-o/${SAMPLE_ID}_UNMAP_MERGED_R1.fastq" > "${SAMPLE_ID}_Bam2Fq_R1.fastq" && \
     awk '{if(NR%4 == 1){O=$0; gsub("/2","2",O); print O}else{print $0}}' "picard-o/${SAMPLE_ID}_UNMAP_MERGED_R2.fastq" > "${SAMPLE_ID}_Bam2Fq_R2.fastq"
+else
+    echo "Picard conversion failed for sample ${SAMPLE_ID}."
+    exit 1
 fi
     
