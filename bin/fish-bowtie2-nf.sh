@@ -13,10 +13,10 @@ echo "READ 1:${FQ_INPUT1} & READ 2:${FQ_INPUT2}"
 
 # map fastq files to HLA loci
 mkdir -p "bowtie2-o"
-if bowtie2 -p ${CORES} -x "${BT_IDX}" -1 "${FQ_INPUT1}" -2 "${FQ_INPUT2}" -S "${SAMPLE_ID}.hlamap.sam"; then
+if bowtie2 -p ${CORES} -x "${BT_IDX}" -1 "${FQ_INPUT1}" -2 "${FQ_INPUT2}" -S "bowtie2-o/${SAMPLE_ID}.hlamap.sam"; then
     echo "HLA-loci read mapping for sample ${SAMPLE_ID} is complete."
     # extract mapped reads
-    samtools view -h -F 4 "${SAMPLE_ID}.hlamap.sam" > "${SAMPLE_ID}.MAPPED.sam" && echo "Mapped reads extracted." || (echo "Mapped reads extraction failed." && exit 1)
+    samtools view -h -F 4 "bowtie2-o/${SAMPLE_ID}.hlamap.sam" > "bowtie2-o/${SAMPLE_ID}.MAPPED.sam" && echo "Mapped reads extracted." || (echo "Mapped reads extraction failed." && exit 1)
 else
     echo "HLA-loci read mapping for sample ${SAMPLE_ID} failed."
     exit 1
