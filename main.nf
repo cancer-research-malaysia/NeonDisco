@@ -112,20 +112,33 @@ workflow ALIGN_READS_2PASS {
         aligned_reads = ALIGN_READS_2PASS_STARSAM.out.aligned_bams
 }
 
-workflow FISH_HLAS {
+// workflow FISH_HLAS_HLAHD {
+//     take:
+//         input_Ch
+//     main:
+//         FISH_HLA_READS_SAMPBOWT(input_Ch)
+//     emit:
+//         hla_reads = FISH_HLA_READS_SAMPBOWT.out.fished_files
+// }
+
+// workflow TYPE_HLAS_HLAHD {
+//     take:
+//         hlaReads_Ch
+//     main:
+//         TYPE_HLA_ALLELES_HLAHD(hlaReads_Ch)
+//     emit:
+//         hla_types = TYPE_HLA_ALLELES_HLAHD.out.hla_combined_result
+// }
+
+workflow HLA_TYPING_HLAHD {
     take:
         input_Ch
     main:
+        // First fish for HLA reads
         FISH_HLA_READS_SAMPBOWT(input_Ch)
-    emit:
-        hla_reads = FISH_HLA_READS_SAMPBOWT.out.fished_files
-}
-
-workflow TYPE_HLAS {
-    take:
-        hlaReads_Ch
-    main:
-        TYPE_HLA_ALLELES_HLAHD(hlaReads_Ch)
+        
+        // Then type the HLA alleles using the fished reads
+        TYPE_HLA_ALLELES_HLAHD(FISH_HLA_READS_SAMPBOWT.out.fished_files)
     emit:
         hla_types = TYPE_HLA_ALLELES_HLAHD.out.hla_combined_result
 }
@@ -167,9 +180,7 @@ workflow {
     // Execute workflows based on hla_only parameter
     if (params.hla_only) {
         // Run only HLA typing using HLAHD
-        fishedReads_Ch = FISH_HLAS(procInput_Ch).hla_reads
-        fishedReads_Ch.view()
-        TYPE_HLAS(fishedReads_Ch)
+        HLA_TYPING_HLAHD(procInput_Ch)
 
     } else {
         // HLA typing
