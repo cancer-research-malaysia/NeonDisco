@@ -1,0 +1,123 @@
+
+ N E X T F L O W   ~  version 24.10.4
+
+WARN: It appears you have never run this project before -- Option `-resume` is ignored
+Launching `main.nf` [nostalgic_boltzmann] DSL2 - revision: 92c25a5ca5
+
+[STATUS] Found FASTQ files in /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test
+[-        ] FISH_HLAS:FISH_HLA_READS_SAMPBOWT -
+[-        ] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD  -
+
+[-        ] FISH_HLAS:FISH_HLA_READS_SAMPBOWT [  0%] 0 of 5
+[-        ] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD  -
+[100T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/100T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/100T_r2.fq.gz]]
+[3T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/3T_r1.fq, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/3T_r2.fq]]
+[4T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/4T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/4T_r2.fq.gz]]
+[5T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/5T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/5T_r2.fq.gz]]
+[7T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/7T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/7T_r2.fq.gz]]
+
+executor >  local (2)
+[49/fea9aa] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (5) [  0%] 0 of 5
+[-        ] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD      -
+[100T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/100T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/100T_r2.fq.gz]]
+[3T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/3T_r1.fq, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/3T_r2.fq]]
+[4T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/4T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/4T_r2.fq.gz]]
+[5T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/5T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/5T_r2.fq.gz]]
+[7T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/7T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/7T_r2.fq.gz]]
+
+executor >  local (3)
+[49/fea9aa] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (5) [ 20%] 1 of 5
+[-        ] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD      [  0%] 0 of 1
+[7T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/49/fea9aafc4df02ba66398d2193e0999/7T_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/49/fea9aafc4df02ba66398d2193e0999/7T_Bam2Fq_R2.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/49/fea9aafc4df02ba66398d2193e0999/7T_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/49/fea9aafc4df02ba66398d2193e0999/7T_R2.fastq]]
+
+
+
+
+
+
+executor >  local (3)
+[49/fea9aa] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (5) [ 20%] 1 of 5
+[-        ] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD      [  0%] 0 of 1
+[7T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/49/fea9aafc4df02ba66398d2193e0999/7T_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/49/fea9aafc4df02ba66398d2193e0999/7T_Bam2Fq_R2.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/49/fea9aafc4df02ba66398d2193e0999/7T_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/49/fea9aafc4df02ba66398d2193e0999/7T_R2.fastq]]
+
+
+
+
+
+
+executor >  local (4)
+[49/fea9aa] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (5) [ 20%] 1 of 5
+[85/039fad] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (1)  [  0%] 0 of 1
+[7T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/49/fea9aafc4df02ba66398d2193e0999/7T_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/49/fea9aafc4df02ba66398d2193e0999/7T_Bam2Fq_R2.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/49/fea9aafc4df02ba66398d2193e0999/7T_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/49/fea9aafc4df02ba66398d2193e0999/7T_R2.fastq]]
+
+executor >  local (5)
+[f5/a6ccd2] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (4) [ 40%] 2 of 5
+[85/039fad] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (1)  [  0%] 0 of 2
+[5T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/f5/a6ccd2313bbc154977c144221467fb/5T_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/f5/a6ccd2313bbc154977c144221467fb/5T_Bam2Fq_R2.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/f5/a6ccd2313bbc154977c144221467fb/5T_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/f5/a6ccd2313bbc154977c144221467fb/5T_R2.fastq]]
+
+
+executor >  local (6)
+[f5/a6ccd2] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (4) [ 40%] 2 of 5
+[93/96fac6] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (2)  [  0%] 0 of 2
+[5T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/f5/a6ccd2313bbc154977c144221467fb/5T_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/f5/a6ccd2313bbc154977c144221467fb/5T_Bam2Fq_R2.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/f5/a6ccd2313bbc154977c144221467fb/5T_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/f5/a6ccd2313bbc154977c144221467fb/5T_R2.fastq]]
+
+
+executor >  local (8)
+[db/be154e] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (3) [ 60%] 3 of 5
+[18/e8f751] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (3)  [  0%] 0 of 3
+[3T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/2c/6236d9ec737e81d24490161abdca97/3T_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/2c/6236d9ec737e81d24490161abdca97/3T_Bam2Fq_R2.fastq]]
+
+
+executor >  local (8)
+[db/be154e] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (3) [ 60%] 3 of 5
+[18/e8f751] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (3)  [  0%] 0 of 3
+[3T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/2c/6236d9ec737e81d24490161abdca97/3T_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/2c/6236d9ec737e81d24490161abdca97/3T_Bam2Fq_R2.fastq]]
+
+
+executor >  local (8)
+[db/be154e] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (3) [ 60%] 3 of 5
+[85/039fad] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (1)  [ 33%] 1 of 3
+
+
+executor >  local (9)
+[db/be154e] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (3) [ 80%] 4 of 5
+[8a/fae69f] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (4)  [ 25%] 1 of 4
+[4T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/db/be154eec665e5da45b5ecbe48889f4/4T_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/db/be154eec665e5da45b5ecbe48889f4/4T_Bam2Fq_R2.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/db/be154eec665e5da45b5ecbe48889f4/4T_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/db/be154eec665e5da45b5ecbe48889f4/4T_R2.fastq]]
+
+executor >  local (9)
+[31/55025a] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (1) [100%] 5 of 5 ✔
+[93/96fac6] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (2)  [ 50%] 2 of 4
+[100T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/31/55025a37516533f1c7ea6a035fcb50/100T_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/31/55025a37516533f1c7ea6a035fcb50/100T_Bam2Fq_R2.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/31/55025a37516533f1c7ea6a035fcb50/100T_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/31/55025a37516533f1c7ea6a035fcb50/100T_R2.fastq]]
+
+
+executor >  local (10)
+[31/55025a] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (1) [100%] 5 of 5 ✔
+[d5/ea2619] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (5)  [ 40%] 2 of 5
+[100T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/31/55025a37516533f1c7ea6a035fcb50/100T_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/31/55025a37516533f1c7ea6a035fcb50/100T_Bam2Fq_R2.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/31/55025a37516533f1c7ea6a035fcb50/100T_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/31/55025a37516533f1c7ea6a035fcb50/100T_R2.fastq]]
+
+
+executor >  local (10)
+[31/55025a] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (1) [100%] 5 of 5 ✔
+[18/e8f751] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (3)  [ 60%] 3 of 5
+
+
+executor >  local (10)
+[31/55025a] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (1) [100%] 5 of 5 ✔
+[d5/ea2619] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (5)  [ 80%] 4 of 5
+
+
+executor >  local (10)
+[31/55025a] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (1) [100%] 5 of 5 ✔
+[8a/fae69f] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (4)  [100%] 5 of 5 ✔
+
+executor >  local (10)
+[31/55025a] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (1) [100%] 5 of 5 ✔
+[8a/fae69f] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (4)  [100%] 5 of 5 ✔
+Pipeline completed at: 2025-02-27T21:54:03.738239235+08:00
+Execution status: OK
+Completed at: 27-Feb-2025 21:54:03
+Duration    : 3h 53m 26s
+CPU hours   : 10.6
+Succeeded   : 10
+
+

@@ -1,0 +1,118 @@
+
+ N E X T F L O W   ~  version 24.10.4
+
+Launching `main.nf` [happy_tuckerman] DSL2 - revision: 92c25a5ca5
+
+[STATUS] Found BAM files in /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-hlatyp-test/s20-hla-typing
+[STATUS] Found FASTQ files in /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-hlatyp-test/s20-hla-typing
+[-        ] TRIM_READS:TRIM_READS_FASTP       -
+[-        ] FISH_HLAS:FISH_HLA_READS_SAMPBOWT -
+[-        ] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD  -
+
+[-        ] TRIM_READS:TRIM_READS_FASTP       [  0%] 0 of 3
+[-        ] FISH_HLAS:FISH_HLA_READS_SAMPBOWT [  0%] 0 of 2
+[-        ] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD  -
+[20T-WES-ORI, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-hlatyp-test/s20-hla-typing/20T-WES-ORI.bam, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-hlatyp-test/s20-hla-typing/20T-WES-ORI.bai]]
+[20N-WES-ORI, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-hlatyp-test/s20-hla-typing/20N-WES-ORI.bam, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-hlatyp-test/s20-hla-typing/20N-WES-ORI.bai]]
+
+executor >  local (5)
+[3d/c6d453] TRIM_READS:TRIM_READS_FASTP (1)       [  0%] 0 of 3
+[63/6946f0] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (1) [  0%] 0 of 2
+[-        ] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD      -
+[20T-WES-ORI, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-hlatyp-test/s20-hla-typing/20T-WES-ORI.bam, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-hlatyp-test/s20-hla-typing/20T-WES-ORI.bai]]
+[20N-WES-ORI, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-hlatyp-test/s20-hla-typing/20N-WES-ORI.bam, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-hlatyp-test/s20-hla-typing/20N-WES-ORI.bai]]
+
+executor >  local (5)
+[3d/c6d453] TRIM_READS:TRIM_READS_FASTP (1)       [ 66%] 2 of 3
+[63/6946f0] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (1) [  0%] 0 of 4
+[-        ] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD      -
+[20MNw-WES, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/07/f33b1059af2147896f399e3dbc1b3e/20MNw-WES_trimmed.R1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/07/f33b1059af2147896f399e3dbc1b3e/20MNw-WES_trimmed.R2.fq.gz]]
+[20MN-WES, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/3d/c6d453d642d7e97f81e9b54d481664/20MN-WES_trimmed.R1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/3d/c6d453d642d7e97f81e9b54d481664/20MN-WES_trimmed.R2.fq.gz]]
+
+
+
+executor >  local (5)
+[01/544074] TRIM_READS:TRIM_READS_FASTP (3)       [100%] 3 of 3 ✔
+[63/6946f0] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (1) [  0%] 0 of 5
+[-        ] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD      -
+[20MNw-WES, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/07/f33b1059af2147896f399e3dbc1b3e/20MNw-WES_trimmed.R1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/07/f33b1059af2147896f399e3dbc1b3e/20MNw-WES_trimmed.R2.fq.gz]]
+[20MN-WES, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/3d/c6d453d642d7e97f81e9b54d481664/20MN-WES_trimmed.R1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/3d/c6d453d642d7e97f81e9b54d481664/20MN-WES_trimmed.R2.fq.gz]]
+[20T-WES, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/01/544074ede8990706bbce982039a672/20T-WES_trimmed.R1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/01/544074ede8990706bbce982039a672/20T-WES_trimmed.R2.fq.gz]]
+
+
+executor >  local (7)
+[01/544074] TRIM_READS:TRIM_READS_FASTP (3)       [100%] 3 of 3 ✔
+[03/08f6ff] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (4) [ 40%] 2 of 5
+[-        ] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD      [  0%] 0 of 2
+[20T-WES-ORI, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/63/6946f0a595fc8ba90933943b61be44/20T-WES-ORI_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/63/6946f0a595fc8ba90933943b61be44/20T-WES-ORI_Bam2Fq_R2.fastq]]
+[20N-WES-ORI, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/eb/1f08658a703829076c49df973a870a/20N-WES-ORI_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/eb/1f08658a703829076c49df973a870a/20N-WES-ORI_Bam2Fq_R2.fastq]]
+
+
+
+
+executor >  local (9)
+[01/544074] TRIM_READS:TRIM_READS_FASTP (3)       [100%] 3 of 3 ✔
+[03/08f6ff] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (4) [ 40%] 2 of 5
+[0f/f8e605] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (2)  [  0%] 0 of 2
+[20T-WES-ORI, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/63/6946f0a595fc8ba90933943b61be44/20T-WES-ORI_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/63/6946f0a595fc8ba90933943b61be44/20T-WES-ORI_Bam2Fq_R2.fastq]]
+[20N-WES-ORI, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/eb/1f08658a703829076c49df973a870a/20N-WES-ORI_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/eb/1f08658a703829076c49df973a870a/20N-WES-ORI_Bam2Fq_R2.fastq]]
+
+
+
+
+executor >  local (12)
+[01/544074] TRIM_READS:TRIM_READS_FASTP (3)       [100%] 3 of 3 ✔
+[03/08f6ff] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (4) [ 80%] 4 of 5
+[dd/113a67] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (1)  [ 50%] 2 of 4
+[20MNw-WES, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/da/a9375197488c0b4f84ddd167a25bd9/20MNw-WES_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/da/a9375197488c0b4f84ddd167a25bd9/20MNw-WES_Bam2Fq_R2.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/da/a9375197488c0b4f84ddd167a25bd9/20MNw-WES_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/da/a9375197488c0b4f84ddd167a25bd9/20MNw-WES_R2.fastq]]
+[20MN-WES, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/03/08f6ffc13d580c044b6d78f80f6819/20MN-WES_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/03/08f6ffc13d580c044b6d78f80f6819/20MN-WES_Bam2Fq_R2.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/03/08f6ffc13d580c044b6d78f80f6819/20MN-WES_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/03/08f6ffc13d580c044b6d78f80f6819/20MN-WES_R2.fastq]]
+
+
+
+executor >  local (12)
+[01/544074] TRIM_READS:TRIM_READS_FASTP (3)       [100%] 3 of 3 ✔
+[03/08f6ff] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (4) [ 80%] 4 of 5
+[dd/113a67] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (1)  [ 50%] 2 of 4
+[20MNw-WES, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/da/a9375197488c0b4f84ddd167a25bd9/20MNw-WES_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/da/a9375197488c0b4f84ddd167a25bd9/20MNw-WES_Bam2Fq_R2.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/da/a9375197488c0b4f84ddd167a25bd9/20MNw-WES_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/da/a9375197488c0b4f84ddd167a25bd9/20MNw-WES_R2.fastq]]
+[20MN-WES, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/03/08f6ffc13d580c044b6d78f80f6819/20MN-WES_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/03/08f6ffc13d580c044b6d78f80f6819/20MN-WES_Bam2Fq_R2.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/03/08f6ffc13d580c044b6d78f80f6819/20MN-WES_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/03/08f6ffc13d580c044b6d78f80f6819/20MN-WES_R2.fastq]]
+
+
+
+executor >  local (12)
+[01/544074] TRIM_READS:TRIM_READS_FASTP (3)       [100%] 3 of 3 ✔
+[03/08f6ff] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (4) [ 80%] 4 of 5
+[4d/0784dc] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (3)  [ 75%] 3 of 4
+
+
+
+executor >  local (12)
+[01/544074] TRIM_READS:TRIM_READS_FASTP (3)       [100%] 3 of 3 ✔
+[03/08f6ff] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (4) [ 80%] 4 of 5
+[ca/1afe94] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (4)  [100%] 4 of 4
+
+
+
+executor >  local (13)
+[01/544074] TRIM_READS:TRIM_READS_FASTP (3)       [100%] 3 of 3 ✔
+[3b/a863df] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (5) [100%] 5 of 5 ✔
+[d5/2b63bd] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (5)  [ 80%] 4 of 5
+[20T-WES, [/home/sufyazi/repos/CRMY-NeonDisco-nf/work/3b/a863df0fe03ad94ecf99870f01c3f8/20T-WES_Bam2Fq_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/3b/a863df0fe03ad94ecf99870f01c3f8/20T-WES_Bam2Fq_R2.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/3b/a863df0fe03ad94ecf99870f01c3f8/20T-WES_R1.fastq, /home/sufyazi/repos/CRMY-NeonDisco-nf/work/3b/a863df0fe03ad94ecf99870f01c3f8/20T-WES_R2.fastq]]
+
+executor >  local (13)
+[01/544074] TRIM_READS:TRIM_READS_FASTP (3)       [100%] 3 of 3 ✔
+[3b/a863df] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (5) [100%] 5 of 5 ✔
+[d5/2b63bd] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (5)  [100%] 5 of 5 ✔
+
+
+executor >  local (13)
+[01/544074] TRIM_READS:TRIM_READS_FASTP (3)       [100%] 3 of 3 ✔
+[3b/a863df] FISH_HLAS:FISH_HLA_READS_SAMPBOWT (5) [100%] 5 of 5 ✔
+[d5/2b63bd] TYPE_HLAS:TYPE_HLA_ALLELES_HLAHD (5)  [100%] 5 of 5 ✔
+Pipeline completed at: 2025-02-28T00:17:58.805601993+08:00
+Execution status: OK
+Completed at: 28-Feb-2025 00:17:58
+Duration    : 1h 43m 54s
+CPU hours   : 5.0
+Succeeded   : 13
+
+

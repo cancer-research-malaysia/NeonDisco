@@ -89,25 +89,17 @@ config.json
 *.cfg
 *.toml
  
-# Bioinformatics logs (because even logs deserve privacy)
-*.log
-*.log.*
-*.out
-*.err
- 
 # Ignore any other bioinformatics-specific files or directories you use
 # docker/*/src/*
 *.tar.gz
 .vscode/
 
 # big files
-docker/hla-hd/src/IMGTHLA-3.50.0/hla.dat
-
+docker/hla-hd/src/IMGTHLA-3.58.0/*
 .nextflow/
 .nextflow.log*
 work/
 inputs/*
-docker/hla-hd/src/IMGTHLA-3.58.0/hla.dat
 docker/arcashla/src/IMGTHLA-3.57.0/*
 outputs/*
 misc/*

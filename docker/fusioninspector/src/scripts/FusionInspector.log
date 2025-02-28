@@ -1,0 +1,504 @@
+2024-08-25 18:40:13,761 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/fusion_pair_to_mini_genome_join.pl --fusions /work/fusionlist/fusionlist_5T.txt --gtf /work/libs/ref_annot.gtf --genome_fa /work/libs/ref_genome.fa --out_prefix /work/out/from-arriba/5T/IGV_inputs/sample_5T --shrink_introns --max_intron_length 1000 
+
+2024-08-25 18:41:17,622 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 1.06 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/fusion_pair_to_mini_genome_join.pl --fusions /work/fusionlist/fusionlist_5T.txt --gtf /work/libs/ref_annot.gtf --genome_fa /work/libs/ref_genome.fa --out_prefix /work/out/from-arriba/5T/IGV_inputs/sample_5T --shrink_introns --max_intron_length 1000 
+
+2024-08-25 18:41:17,622 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/fusion_contigs.ok
+
+2024-08-25 18:41:17,626 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: cp /work/out/from-arriba/5T/IGV_inputs/sample_5T.fa /work/out/from-arriba/5T/fi_workdir/sample_5T.fa
+
+2024-08-25 18:41:17,632 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: cp /work/out/from-arriba/5T/IGV_inputs/sample_5T.fa /work/out/from-arriba/5T/fi_workdir/sample_5T.fa
+
+2024-08-25 18:41:17,633 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/cp_contigs_file_workdir
+
+2024-08-25 18:41:17,636 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: cp /work/out/from-arriba/5T/IGV_inputs/sample_5T.gtf /work/out/from-arriba/5T/fi_workdir/sample_5T.gtf
+
+2024-08-25 18:41:17,646 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: cp /work/out/from-arriba/5T/IGV_inputs/sample_5T.gtf /work/out/from-arriba/5T/fi_workdir/sample_5T.gtf
+
+2024-08-25 18:41:17,647 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/cp_gtf_file_workdir.ok
+
+2024-08-25 18:41:17,651 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/fasta_and_gtf_to_cytoband.pl /work/out/from-arriba/5T/IGV_inputs/sample_5T.fa /work/out/from-arriba/5T/IGV_inputs/sample_5T.gtf > /work/out/from-arriba/5T/IGV_inputs/cytoBand.txt
+
+2024-08-25 18:41:17,805 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/fasta_and_gtf_to_cytoband.pl /work/out/from-arriba/5T/IGV_inputs/sample_5T.fa /work/out/from-arriba/5T/IGV_inputs/sample_5T.gtf > /work/out/from-arriba/5T/IGV_inputs/cytoBand.txt
+
+2024-08-25 18:41:17,806 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/cytoband.ok
+
+2024-08-25 18:41:17,810 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/gtf_gene_to_bed.pl /work/out/from-arriba/5T/IGV_inputs/sample_5T.gtf > /work/out/from-arriba/5T/IGV_inputs/sample_5T.bed
+
+2024-08-25 18:41:18,364 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.01 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/gtf_gene_to_bed.pl /work/out/from-arriba/5T/IGV_inputs/sample_5T.gtf > /work/out/from-arriba/5T/IGV_inputs/sample_5T.bed
+
+2024-08-25 18:41:18,364 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/merged_contig_gtf_to_bed.ok
+
+2024-08-25 18:41:18,368 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: sort -k1,1 -k2,2n /work/out/from-arriba/5T/IGV_inputs/sample_5T.bed > /work/out/from-arriba/5T/IGV_inputs/sample_5T.bed.sorted.bed
+
+2024-08-25 18:41:18,373 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: sort -k1,1 -k2,2n /work/out/from-arriba/5T/IGV_inputs/sample_5T.bed > /work/out/from-arriba/5T/IGV_inputs/sample_5T.bed.sorted.bed
+
+2024-08-25 18:41:18,373 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/sample_5T.bed.bedsort.ok
+
+2024-08-25 18:41:18,377 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: bgzip -f /work/out/from-arriba/5T/IGV_inputs/sample_5T.bed.sorted.bed
+
+2024-08-25 18:41:18,399 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: bgzip -f /work/out/from-arriba/5T/IGV_inputs/sample_5T.bed.sorted.bed
+
+2024-08-25 18:41:18,399 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/sample_5T.bed.bgzip.ok
+
+2024-08-25 18:41:18,403 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: tabix -p bed /work/out/from-arriba/5T/IGV_inputs/sample_5T.bed.sorted.bed.gz
+
+2024-08-25 18:41:18,425 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: tabix -p bed /work/out/from-arriba/5T/IGV_inputs/sample_5T.bed.sorted.bed.gz
+
+2024-08-25 18:41:18,425 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/sample_5T.bed.tabix.ok
+
+2024-08-25 18:41:18,429 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: samtools faidx /work/out/from-arriba/5T/IGV_inputs/sample_5T.fa
+
+2024-08-25 18:41:18,454 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: samtools faidx /work/out/from-arriba/5T/IGV_inputs/sample_5T.fa
+
+2024-08-25 18:41:18,455 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/merged_contig_fai.ok
+
+2024-08-25 18:41:18,458 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/run_FI_STAR.pl --genome /work/libs/ref_genome.fa --patch /work/out/from-arriba/5T/fi_workdir/sample_5T.fa --max_mate_dist 100000 -G /work/out/from-arriba/5T/fi_workdir/sample_5T.gtf --CPU 8 --out_prefix sample_5T.star --out_dir /work/out/from-arriba/5T/fi_workdir --only_fusion_reads  --reads "/work/data/5T_r1.fq.gz /work/data/5T_r2.fq.gz"
+
+2024-08-25 19:01:23,710 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 20.09 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/run_FI_STAR.pl --genome /work/libs/ref_genome.fa --patch /work/out/from-arriba/5T/fi_workdir/sample_5T.fa --max_mate_dist 100000 -G /work/out/from-arriba/5T/fi_workdir/sample_5T.gtf --CPU 8 --out_prefix sample_5T.star --out_dir /work/out/from-arriba/5T/fi_workdir --only_fusion_reads  --reads "/work/data/5T_r1.fq.gz /work/data/5T_r2.fq.gz"
+
+2024-08-25 19:01:23,710 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/run_STAR.ok
+
+2024-08-25 19:01:23,714 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/bam_mark_duplicates.py  -i /work/out/from-arriba/5T/fi_workdir/sample_5T.star.sortedByCoord.out.bam   -o /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam   --remove_dups 
+
+2024-08-25 19:01:23,860 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/bam_mark_duplicates.py  -i /work/out/from-arriba/5T/fi_workdir/sample_5T.star.sortedByCoord.out.bam   -o /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam   --remove_dups 
+
+2024-08-25 19:01:23,860 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/mark_dup_reads.ok
+
+2024-08-25 19:01:23,864 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: samtools index /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam
+
+2024-08-25 19:01:23,887 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: samtools index /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam
+
+2024-08-25 19:01:23,887 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/mark_dups_reads.index.ok
+
+2024-08-25 19:01:23,891 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/get_fusion_JUNCTION_reads_from_fusion_contig_bam.pl --gtf_file /work/out/from-arriba/5T/fi_workdir/sample_5T.gtf --MIN_ALIGN_PER_ID 96 --bam /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam  --genome_lib_dir /work/libs  > /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam.fusion_junc_reads.sam
+
+2024-08-25 19:01:24,253 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.01 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/get_fusion_JUNCTION_reads_from_fusion_contig_bam.pl --gtf_file /work/out/from-arriba/5T/fi_workdir/sample_5T.gtf --MIN_ALIGN_PER_ID 96 --bam /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam  --genome_lib_dir /work/libs  > /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam.fusion_junc_reads.sam
+
+2024-08-25 19:01:24,253 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/get_fusion_JUNCTION_reads_from_bam.ok
+
+2024-08-25 19:01:24,257 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/get_fusion_SPANNING_reads_from_bam.from_chim_summary.pl --gtf_file /work/out/from-arriba/5T/fi_workdir/sample_5T.gtf --MIN_ALIGN_PER_ID 96 --bam /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam --junction_info /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam.fusion_junction_info --genome_lib_dir /work/libs   > /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam.fusion_span_reads.sam
+
+2024-08-25 19:01:24,636 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.01 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/get_fusion_SPANNING_reads_from_bam.from_chim_summary.pl --gtf_file /work/out/from-arriba/5T/fi_workdir/sample_5T.gtf --MIN_ALIGN_PER_ID 96 --bam /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam --junction_info /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam.fusion_junction_info --genome_lib_dir /work/libs   > /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam.fusion_span_reads.sam
+
+2024-08-25 19:01:24,636 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/get_fusion_SPANNING_reads_from_bam.ok
+
+2024-08-25 19:01:24,641 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/coalesce_junction_and_spanning_info.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam.fusion_junction_info /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam.fusion_spanning_info 1  > /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary
+
+2024-08-25 19:01:24,679 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/coalesce_junction_and_spanning_info.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam.fusion_junction_info /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam.fusion_spanning_info 1  > /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary
+
+2024-08-25 19:01:24,679 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/coalesce_junc_n_span.ok
+
+2024-08-25 19:01:24,683 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/fusion_EM_runner.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary > /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.EMadj
+
+2024-08-25 19:01:24,724 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/fusion_EM_runner.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary > /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.EMadj
+
+2024-08-25 19:01:24,724 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/init_EM_adj_counts.ok
+
+2024-08-25 19:01:24,728 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/filter_fusions_by_frag_thresholds.pl --min_junction_reads 0 --min_sum_frags 1 --min_novel_junction_support 3 --min_spanning_frags_only 5 --fusion_preds /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.EMadj --require_LDAS 1 > /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.EMadj.min_frag_thresh
+
+2024-08-25 19:01:24,776 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/filter_fusions_by_frag_thresholds.pl --min_junction_reads 0 --min_sum_frags 1 --min_novel_junction_support 3 --min_spanning_frags_only 5 --fusion_preds /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.EMadj --require_LDAS 1 > /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.EMadj.min_frag_thresh
+
+2024-08-25 19:01:24,777 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/filter_by_frag_threshs.ok
+
+2024-08-25 19:01:24,781 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/column_extractions.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary LeftGene,RightGene,JunctionReads  > /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.fusion_junction_read_accs
+
+2024-08-25 19:01:24,816 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/column_extractions.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary LeftGene,RightGene,JunctionReads  > /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.fusion_junction_read_accs
+
+2024-08-25 19:01:24,816 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/prep_igv_extract_junc_reads.ok
+
+2024-08-25 19:01:24,820 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: bash -c "set -eof pipefail; /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/retrieve_fusion_junction_reads_by_accession.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.fusion_junction_read_accs /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam.fusion_junc_reads.sam | samtools view -@ 8 -bT /work/out/from-arriba/5T/IGV_inputs/sample_5T.fa -  | samtools sort -@ 8 - -o /work/out/from-arriba/5T/IGV_inputs/sample_5T.junction_reads.bam"
+
+2024-08-25 19:01:24,903 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: bash -c "set -eof pipefail; /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/retrieve_fusion_junction_reads_by_accession.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.fusion_junction_read_accs /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam.fusion_junc_reads.sam | samtools view -@ 8 -bT /work/out/from-arriba/5T/IGV_inputs/sample_5T.fa -  | samtools sort -@ 8 - -o /work/out/from-arriba/5T/IGV_inputs/sample_5T.junction_reads.bam"
+
+2024-08-25 19:01:24,903 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/prep_igv_junc_reads_bam.ok
+
+2024-08-25 19:01:24,907 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: samtools index /work/out/from-arriba/5T/IGV_inputs/sample_5T.junction_reads.bam
+
+2024-08-25 19:01:24,929 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: samtools index /work/out/from-arriba/5T/IGV_inputs/sample_5T.junction_reads.bam
+
+2024-08-25 19:01:24,929 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/samtools_idx_junc_reads_bam.ok
+
+2024-08-25 19:01:24,933 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/column_extractions.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary LeftGene,RightGene,SpanningFrags  > /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.fusion_spanning_read_accs
+
+2024-08-25 19:01:24,968 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/column_extractions.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary LeftGene,RightGene,SpanningFrags  > /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.fusion_spanning_read_accs
+
+2024-08-25 19:01:24,969 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/span_reads_acc.ok
+
+2024-08-25 19:01:24,973 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: samtools view -H /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam -b -o /work/out/from-arriba/5T/IGV_inputs/sample_5T.spanning_reads.bam
+
+2024-08-25 19:01:24,995 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: samtools view -H /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam -b -o /work/out/from-arriba/5T/IGV_inputs/sample_5T.spanning_reads.bam
+
+2024-08-25 19:01:24,995 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/init_spanning_reads_bam.ok
+
+2024-08-25 19:01:24,999 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/retrieve_fusion_spanning_reads_by_accession.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.fusion_spanning_read_accs /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam.fusion_span_reads.sam | samtools view -@ 8 -bT /work/out/from-arriba/5T/IGV_inputs/sample_5T.fa -  | samtools sort -@ 8 - -o /work/out/from-arriba/5T/IGV_inputs/sample_5T.spanning_reads.bam || : 
+
+2024-08-25 19:01:25,101 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/retrieve_fusion_spanning_reads_by_accession.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.fusion_spanning_read_accs /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam.fusion_span_reads.sam | samtools view -@ 8 -bT /work/out/from-arriba/5T/IGV_inputs/sample_5T.fa -  | samtools sort -@ 8 - -o /work/out/from-arriba/5T/IGV_inputs/sample_5T.spanning_reads.bam || : 
+
+2024-08-25 19:01:25,101 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/prep_spanning_reads.ok
+
+2024-08-25 19:01:25,105 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: samtools index /work/out/from-arriba/5T/IGV_inputs/sample_5T.spanning_reads.bam
+
+2024-08-25 19:01:25,128 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: samtools index /work/out/from-arriba/5T/IGV_inputs/sample_5T.spanning_reads.bam
+
+2024-08-25 19:01:25,128 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/samtools_index_span_reads_bam.ok
+
+2024-08-25 19:01:25,132 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: cp /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam /work/out/from-arriba/5T/IGV_inputs/sample_5T.consolidated.bam
+
+2024-08-25 19:01:25,136 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: cp /work/out/from-arriba/5T/fi_workdir/sample_5T.star.cSorted.dupsMarked.bam /work/out/from-arriba/5T/IGV_inputs/sample_5T.consolidated.bam
+
+2024-08-25 19:01:25,137 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/cp_consol_bam.ok
+
+2024-08-25 19:01:25,140 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: samtools index /work/out/from-arriba/5T/IGV_inputs/sample_5T.consolidated.bam
+
+2024-08-25 19:01:25,163 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: samtools index /work/out/from-arriba/5T/IGV_inputs/sample_5T.consolidated.bam
+
+2024-08-25 19:01:25,163 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/index_consol_bam.ok
+
+2024-08-25 19:01:25,167 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/Trinity-2.15.2-alpha.1-pkg/Trinity --genome_guided_bam /work/out/from-arriba/5T/IGV_inputs/sample_5T.consolidated.bam --max_memory 20G --genome_guided_max_intron 1000000 --CPU 8 --min_contig_length 100  --output /work/out/from-arriba/5T/fi_workdir/trinity_GG
+
+2024-08-25 19:01:33,701 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.14 minutes. CMD: /usr/local/bin/Trinity-2.15.2-alpha.1-pkg/Trinity --genome_guided_bam /work/out/from-arriba/5T/IGV_inputs/sample_5T.consolidated.bam --max_memory 20G --genome_guided_max_intron 1000000 --CPU 8 --min_contig_length 100  --output /work/out/from-arriba/5T/fi_workdir/trinity_GG
+
+2024-08-25 19:01:33,702 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/run_trinity.ok
+
+2024-08-25 19:01:33,706 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/Trinity-2.15.2-alpha.1-pkg/util/misc/process_minimap2_alignments.pl  --genome /work/out/from-arriba/5T/fi_workdir/sample_5T.fa  --transcripts /work/out/from-arriba/5T/fi_workdir/trinity_GG/Trinity-GG.fasta  --gtf /work/out/from-arriba/5T/fi_workdir/sample_5T.gtf  -o /work/out/from-arriba/5T/fi_workdir/trinity_GG/Trinity-GG.fasta.mm2.bam  --incl_out_gff3 
+
+2024-08-25 19:01:34,106 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.01 minutes. CMD: /usr/local/bin/Trinity-2.15.2-alpha.1-pkg/util/misc/process_minimap2_alignments.pl  --genome /work/out/from-arriba/5T/fi_workdir/sample_5T.fa  --transcripts /work/out/from-arriba/5T/fi_workdir/trinity_GG/Trinity-GG.fasta  --gtf /work/out/from-arriba/5T/fi_workdir/sample_5T.gtf  -o /work/out/from-arriba/5T/fi_workdir/trinity_GG/Trinity-GG.fasta.mm2.bam  --incl_out_gff3 
+
+2024-08-25 19:01:34,106 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/trinity_mm2_alignment.ok
+
+2024-08-25 19:01:34,110 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/get_Trinity_fusion_alignments_from_gff3.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.gtf /work/out/from-arriba/5T/fi_workdir/trinity_GG/Trinity-GG.fasta.mm2.bam.gff3 > /work/out/from-arriba/5T/fi_workdir/sample_5T.mm2_trinity_GG.fusions.gff3
+
+2024-08-25 19:01:34,171 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/get_Trinity_fusion_alignments_from_gff3.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.gtf /work/out/from-arriba/5T/fi_workdir/trinity_GG/Trinity-GG.fasta.mm2.bam.gff3 > /work/out/from-arriba/5T/fi_workdir/sample_5T.mm2_trinity_GG.fusions.gff3
+
+2024-08-25 19:01:34,171 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/trinity_fusion_trans_extraction_gff3.ok
+
+2024-08-25 19:01:34,175 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/get_Trinity_fusion_fasta_seqs.pl /work/out/from-arriba/5T/fi_workdir/trinity_GG/Trinity-GG.fasta /work/out/from-arriba/5T/fi_workdir/sample_5T.mm2_trinity_GG.fusions.gff3 > /work/out/from-arriba/5T/sample_5T.mm2_trinity_GG.fusions.fasta
+
+2024-08-25 19:01:34,205 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/get_Trinity_fusion_fasta_seqs.pl /work/out/from-arriba/5T/fi_workdir/trinity_GG/Trinity-GG.fasta /work/out/from-arriba/5T/fi_workdir/sample_5T.mm2_trinity_GG.fusions.gff3 > /work/out/from-arriba/5T/sample_5T.mm2_trinity_GG.fusions.fasta
+
+2024-08-25 19:01:34,205 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/trinity_fusion_trans_extraction_fasta.ok
+
+2024-08-25 19:01:34,209 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/transcript_gff3_to_bed.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.mm2_trinity_GG.fusions.gff3 95 > /work/out/from-arriba/5T/IGV_inputs/sample_5T.mm2_trinity_GG.fusions.bed
+
+2024-08-25 19:01:34,268 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/transcript_gff3_to_bed.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.mm2_trinity_GG.fusions.gff3 95 > /work/out/from-arriba/5T/IGV_inputs/sample_5T.mm2_trinity_GG.fusions.bed
+
+2024-08-25 19:01:34,269 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/trinity_fusion_trans_gff3_to_bed.ok
+
+2024-08-25 19:01:34,273 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: sort -k1,1 -k2,2n /work/out/from-arriba/5T/IGV_inputs/sample_5T.mm2_trinity_GG.fusions.bed > /work/out/from-arriba/5T/IGV_inputs/sample_5T.mm2_trinity_GG.fusions.bed.sorted.bed
+
+2024-08-25 19:01:34,277 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: sort -k1,1 -k2,2n /work/out/from-arriba/5T/IGV_inputs/sample_5T.mm2_trinity_GG.fusions.bed > /work/out/from-arriba/5T/IGV_inputs/sample_5T.mm2_trinity_GG.fusions.bed.sorted.bed
+
+2024-08-25 19:01:34,277 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/trinity_fusion.bedsort.ok
+
+2024-08-25 19:01:34,281 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: bgzip -f /work/out/from-arriba/5T/IGV_inputs/sample_5T.mm2_trinity_GG.fusions.bed.sorted.bed
+
+2024-08-25 19:01:34,302 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: bgzip -f /work/out/from-arriba/5T/IGV_inputs/sample_5T.mm2_trinity_GG.fusions.bed.sorted.bed
+
+2024-08-25 19:01:34,302 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/trinity_fusion.bgzip.ok
+
+2024-08-25 19:01:34,306 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: tabix -p bed /work/out/from-arriba/5T/IGV_inputs/sample_5T.mm2_trinity_GG.fusions.bed.sorted.bed.gz
+
+2024-08-25 19:01:34,326 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: tabix -p bed /work/out/from-arriba/5T/IGV_inputs/sample_5T.mm2_trinity_GG.fusions.bed.sorted.bed.gz
+
+2024-08-25 19:01:34,327 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/trinity_fusion.tabix.ok
+
+2024-08-25 19:01:34,331 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/add_TrinityGG_to_fusion_summary.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.EMadj.min_frag_thresh /work/out/from-arriba/5T/fi_workdir/sample_5T.mm2_trinity_GG.fusions.gff3 > /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.EMadj.min_frag_thresh.wTrinityGG
+
+2024-08-25 19:01:34,366 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/add_TrinityGG_to_fusion_summary.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.EMadj.min_frag_thresh /work/out/from-arriba/5T/fi_workdir/sample_5T.mm2_trinity_GG.fusions.gff3 > /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.EMadj.min_frag_thresh.wTrinityGG
+
+2024-08-25 19:01:34,367 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/add_trinity_fusions_to_summary.ok
+
+2024-08-25 19:01:34,371 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/get_pfam_domain_info.pl --finspector_gtf /work/out/from-arriba/5T/IGV_inputs/sample_5T.gtf  --genome_lib_dir /work/libs  > /work/out/from-arriba/5T/fi_workdir/sample_5T.igv.Pfam.gff3 
+
+2024-08-25 19:01:36,894 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.04 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/get_pfam_domain_info.pl --finspector_gtf /work/out/from-arriba/5T/IGV_inputs/sample_5T.gtf  --genome_lib_dir /work/libs  > /work/out/from-arriba/5T/fi_workdir/sample_5T.igv.Pfam.gff3 
+
+2024-08-25 19:01:36,894 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/prep_igv_pfam_gff3.ok
+
+2024-08-25 19:01:36,899 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/transcript_gff3_to_bed.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.igv.Pfam.gff3 > /work/out/from-arriba/5T/IGV_inputs/sample_5T.igv.Pfam.bed
+
+2024-08-25 19:01:36,997 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/transcript_gff3_to_bed.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.igv.Pfam.gff3 > /work/out/from-arriba/5T/IGV_inputs/sample_5T.igv.Pfam.bed
+
+2024-08-25 19:01:36,997 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/prep_igv_pfam_bed.ok
+
+2024-08-25 19:01:37,001 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/get_seq_similar_region_FI_coordinates.pl --finspector_gtf /work/out/from-arriba/5T/IGV_inputs/sample_5T.gtf  --genome_lib_dir /work/libs  > /work/out/from-arriba/5T/fi_workdir/sample_5T.igv.seqsimilar.gff3 
+
+2024-08-25 19:01:37,280 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/get_seq_similar_region_FI_coordinates.pl --finspector_gtf /work/out/from-arriba/5T/IGV_inputs/sample_5T.gtf  --genome_lib_dir /work/libs  > /work/out/from-arriba/5T/fi_workdir/sample_5T.igv.seqsimilar.gff3 
+
+2024-08-25 19:01:37,280 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/prep_igv_seqsim_gff3.ok
+
+2024-08-25 19:01:37,284 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/transcript_gff3_to_bed.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.igv.seqsimilar.gff3 > /work/out/from-arriba/5T/IGV_inputs/sample_5T.igv.seqsimilar.bed
+
+2024-08-25 19:01:37,342 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/transcript_gff3_to_bed.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.igv.seqsimilar.gff3 > /work/out/from-arriba/5T/IGV_inputs/sample_5T.igv.seqsimilar.bed
+
+2024-08-25 19:01:37,342 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/prep_igv_seqsim_bed.ok
+
+2024-08-25 19:01:37,347 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/append_breakpoint_junction_info_via_FI_contigs.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.EMadj.min_frag_thresh.wTrinityGG /work/out/from-arriba/5T/IGV_inputs/sample_5T.fa > /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.EMadj.min_frag_thresh.wTrinityGG.wSpliceInfo
+
+2024-08-25 19:01:37,472 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/append_breakpoint_junction_info_via_FI_contigs.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.EMadj.min_frag_thresh.wTrinityGG /work/out/from-arriba/5T/IGV_inputs/sample_5T.fa > /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.EMadj.min_frag_thresh.wTrinityGG.wSpliceInfo
+
+2024-08-25 19:01:37,473 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/add_splice_infowTrinity.ok
+
+2024-08-25 19:01:37,477 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/../FusionFilter/blast_and_promiscuity_filter.pl  --fusion_preds /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.EMadj.min_frag_thresh.wTrinityGG.wSpliceInfo --out_prefix /work/out/from-arriba/5T/fi_workdir/sample_5T --genome_lib_dir /work/libs --max_promiscuity 10 --min_pct_dom_promiscuity 50
+
+2024-08-25 19:01:38,990 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.03 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/../FusionFilter/blast_and_promiscuity_filter.pl  --fusion_preds /work/out/from-arriba/5T/fi_workdir/sample_5T.fusion_preds.coalesced.summary.EMadj.min_frag_thresh.wTrinityGG.wSpliceInfo --out_prefix /work/out/from-arriba/5T/fi_workdir/sample_5T --genome_lib_dir /work/libs --max_promiscuity 10 --min_pct_dom_promiscuity 50
+
+2024-08-25 19:01:38,990 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/blast_filterwTrinity.ok
+
+2024-08-25 19:01:38,994 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/fusion_EM_runner.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.post_blast_and_promiscuity_filter > /work/out/from-arriba/5T/fi_workdir/sample_5T.post_blast_and_promiscuity_filter.EMadj
+
+2024-08-25 19:01:39,034 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/fusion_EM_runner.pl /work/out/from-arriba/5T/fi_workdir/sample_5T.post_blast_and_promiscuity_filter > /work/out/from-arriba/5T/fi_workdir/sample_5T.post_blast_and_promiscuity_filter.EMadj
+
+2024-08-25 19:01:39,035 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/EM_adj_counts.ok
+
+2024-08-25 19:01:39,039 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/incorporate_FFPM_into_final_report.pl /work/data/5T_r1.fq.gz /work/out/from-arriba/5T/fi_workdir/sample_5T.post_blast_and_promiscuity_filter.EMadj > /work/out/from-arriba/5T/fi_workdir/sample_5T.post_blast_and_promiscuity_filter.EMadj.FFPM
+
+2024-08-25 19:02:09,986 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.52 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/incorporate_FFPM_into_final_report.pl /work/data/5T_r1.fq.gz /work/out/from-arriba/5T/fi_workdir/sample_5T.post_blast_and_promiscuity_filter.EMadj > /work/out/from-arriba/5T/fi_workdir/sample_5T.post_blast_and_promiscuity_filter.EMadj.FFPM
+
+2024-08-25 19:02:09,986 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/add_FFPMwTrinity.ok
+
+2024-08-25 19:02:09,990 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/misc/find_microhomologies_by_kmer_matches.pl --fasta /work/out/from-arriba/5T/IGV_inputs/sample_5T.fa --gtf /work/out/from-arriba/5T/IGV_inputs/sample_5T.gtf  > /work/out/from-arriba/5T/fi_workdir/microH.dat
+
+2024-08-25 19:02:10,368 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.01 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/misc/find_microhomologies_by_kmer_matches.pl --fasta /work/out/from-arriba/5T/IGV_inputs/sample_5T.fa --gtf /work/out/from-arriba/5T/IGV_inputs/sample_5T.gtf  > /work/out/from-arriba/5T/fi_workdir/microH.dat
+
+2024-08-25 19:02:10,368 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/microH.dat.ok
+
+2024-08-25 19:02:10,372 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/misc/append_microH_distance.py /work/out/from-arriba/5T/fi_workdir/microH.dat /work/out/from-arriba/5T/fi_workdir/sample_5T.post_blast_and_promiscuity_filter.EMadj.FFPM  >  /work/out/from-arriba/5T/fi_workdir/sample_5T.post_blast_and_promiscuity_filter.EMadj.FFPM.wMicroH
+
+2024-08-25 19:02:10,416 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/misc/append_microH_distance.py /work/out/from-arriba/5T/fi_workdir/microH.dat /work/out/from-arriba/5T/fi_workdir/sample_5T.post_blast_and_promiscuity_filter.EMadj.FFPM  >  /work/out/from-arriba/5T/fi_workdir/sample_5T.post_blast_and_promiscuity_filter.EMadj.FFPM.wMicroH
+
+2024-08-25 19:02:10,417 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/append_microH_info.ok
+
+2024-08-25 19:02:10,421 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/misc/prep_data_for_cosmic-like_pred.py /work/out/from-arriba/5T/fi_workdir/sample_5T.post_blast_and_promiscuity_filter.EMadj.FFPM.wMicroH > /work/out/from-arriba/5T/fi_workdir/fusions.pre-pred-cosmic-like.tsv
+
+2024-08-25 19:02:10,459 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/misc/prep_data_for_cosmic-like_pred.py /work/out/from-arriba/5T/fi_workdir/sample_5T.post_blast_and_promiscuity_filter.EMadj.FFPM.wMicroH > /work/out/from-arriba/5T/fi_workdir/fusions.pre-pred-cosmic-like.tsv
+
+2024-08-25 19:02:10,459 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/prepped-cosmic-like.ok
+
+2024-08-25 19:02:10,463 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/misc/predict_cosmic_like_fusion_cluster.R --fusions /work/out/from-arriba/5T/fi_workdir/fusions.pre-pred-cosmic-like.tsv --ranger /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/misc/data/ranger.rg_obj.rds --output /work/out/from-arriba/5T/fi_workdir/fusions.pred-cosmic-like.tsv
+
+2024-08-25 19:02:16,589 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.10 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/misc/predict_cosmic_like_fusion_cluster.R --fusions /work/out/from-arriba/5T/fi_workdir/fusions.pre-pred-cosmic-like.tsv --ranger /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/misc/data/ranger.rg_obj.rds --output /work/out/from-arriba/5T/fi_workdir/fusions.pred-cosmic-like.tsv
+
+2024-08-25 19:02:16,590 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/pred-cosmic-like.ok
+
+2024-08-25 19:02:16,594 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/FusionAnnotator/FusionAnnotator --annotate /work/out/from-arriba/5T/fi_workdir/fusions.pred-cosmic-like.tsv  --genome_lib_dir /work/libs > /work/out/from-arriba/5T/fi_workdir/fusions.pred-cosmic-like.tsv.annotated 
+
+2024-08-25 19:02:17,262 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.01 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/FusionAnnotator/FusionAnnotator --annotate /work/out/from-arriba/5T/fi_workdir/fusions.pred-cosmic-like.tsv  --genome_lib_dir /work/libs > /work/out/from-arriba/5T/fi_workdir/fusions.pred-cosmic-like.tsv.annotated 
+
+2024-08-25 19:02:17,262 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/fusion_annotatorwTrinity.ok
+
+2024-08-25 19:02:17,267 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/FusionAnnotator/util/fusion_to_coding_region_effect.pl --fusions /work/out/from-arriba/5T/fi_workdir/fusions.pred-cosmic-like.tsv.annotated  --genome_lib_dir /work/libs > /work/out/from-arriba/5T/fi_workdir/fusions.pred-cosmic-like.tsv.annotated.coding_effect 
+
+2024-08-25 19:02:18,095 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.01 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/FusionAnnotator/util/fusion_to_coding_region_effect.pl --fusions /work/out/from-arriba/5T/fi_workdir/fusions.pred-cosmic-like.tsv.annotated  --genome_lib_dir /work/libs > /work/out/from-arriba/5T/fi_workdir/fusions.pred-cosmic-like.tsv.annotated.coding_effect 
+
+2024-08-25 19:02:18,096 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/fusion_coding_region_effectwTrinity.ok
+
+2024-08-25 19:02:18,100 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: cp /work/out/from-arriba/5T/fi_workdir/fusions.pred-cosmic-like.tsv.annotated.coding_effect /work/out/from-arriba/5T/sample_5T.FusionInspector.fusions.tsv
+
+2024-08-25 19:02:18,104 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: cp /work/out/from-arriba/5T/fi_workdir/fusions.pred-cosmic-like.tsv.annotated.coding_effect /work/out/from-arriba/5T/sample_5T.FusionInspector.fusions.tsv
+
+2024-08-25 19:02:18,105 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/cp_finalwTrinity.ok
+
+2024-08-25 19:02:18,108 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/column_exclusions.pl /work/out/from-arriba/5T/sample_5T.FusionInspector.fusions.tsv JunctionReads,SpanningFrags,CounterFusionLeftReads,CounterFusionRightReads  > /work/out/from-arriba/5T/sample_5T.FusionInspector.fusions.abridged.tsv
+
+2024-08-25 19:02:18,144 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/column_exclusions.pl /work/out/from-arriba/5T/sample_5T.FusionInspector.fusions.tsv JunctionReads,SpanningFrags,CounterFusionLeftReads,CounterFusionRightReads  > /work/out/from-arriba/5T/sample_5T.FusionInspector.fusions.abridged.tsv
+
+2024-08-25 19:02:18,144 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/final.abridgedwTrinity.ok
+
+2024-08-25 19:02:18,148 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/create_fusion_inspector_igvjs.py --fusion_inspector_directory /work/out/from-arriba/5T --json_outfile /work/out/from-arriba/5T/IGV_inputs/sample_5T.fusion_inspector_web.json  --roi_outfile /work/out/from-arriba/5T/IGV_inputs/sample_5T.ROI.bed  --file_prefix sample_5T
+
+2024-08-25 19:02:18,222 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/create_fusion_inspector_igvjs.py --fusion_inspector_directory /work/out/from-arriba/5T --json_outfile /work/out/from-arriba/5T/IGV_inputs/sample_5T.fusion_inspector_web.json  --roi_outfile /work/out/from-arriba/5T/IGV_inputs/sample_5T.ROI.bed  --file_prefix sample_5T
+
+2024-08-25 19:02:18,222 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/create_fi_igvjswTrinity.ok
+
+2024-08-25 19:02:18,226 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: cp /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/fusion_html_meta/tracks.json /work/out/from-arriba/5T/IGV_inputs/tracks.json && sed -i 's/finspector/sample_5T/g' /work/out/from-arriba/5T/IGV_inputs/tracks.json
+
+2024-08-25 19:02:18,233 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: cp /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/fusion_html_meta/tracks.json /work/out/from-arriba/5T/IGV_inputs/tracks.json && sed -i 's/finspector/sample_5T/g' /work/out/from-arriba/5T/IGV_inputs/tracks.json
+
+2024-08-25 19:02:18,233 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/cp_tracks_json.ok
+
+2024-08-25 19:02:18,237 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: cd /work/out/from-arriba/5T/IGV_inputs && create_report /work/out/from-arriba/5T/IGV_inputs/sample_5T.fusion_inspector_web.json /work/out/from-arriba/5T/IGV_inputs/sample_5T.fa --type fusion --track-config /work/out/from-arriba/5T/IGV_inputs/tracks.json  --output /work/out/from-arriba/5T/sample_5T.fusion_inspector_web.html
+
+2024-08-25 19:02:20,699 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.04 minutes. CMD: cd /work/out/from-arriba/5T/IGV_inputs && create_report /work/out/from-arriba/5T/IGV_inputs/sample_5T.fusion_inspector_web.json /work/out/from-arriba/5T/IGV_inputs/sample_5T.fa --type fusion --track-config /work/out/from-arriba/5T/IGV_inputs/tracks.json  --output /work/out/from-arriba/5T/sample_5T.fusion_inspector_web.html
+
+2024-08-25 19:02:20,699 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/fusion_reports_htmlwTrinity.ok
+
+2024-08-25 19:02:20,703 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/get_fusion_evidence_fastqs.pl --fusions /work/out/from-arriba/5T/sample_5T.FusionInspector.fusions.tsv --left_fq /work/data/5T_r1.fq.gz  --right_fq /work/data/5T_r2.fq.gz  --output_prefix /work/scripts/sample_5T 
+
+2024-08-25 19:12:44,227 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 10.39 minutes. CMD: /usr/local/bin/FusionInspector_2.8.0-latest-pkg/util/get_fusion_evidence_fastqs.pl --fusions /work/out/from-arriba/5T/sample_5T.FusionInspector.fusions.tsv --left_fq /work/data/5T_r1.fq.gz  --right_fq /work/data/5T_r2.fq.gz  --output_prefix /work/scripts/sample_5T 
+
+2024-08-25 19:12:44,227 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/get_fusion_evidence_fqswTrinity.ok
+
+2024-08-25 19:12:44,231 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: /bin/rm -rf /work/out/from-arriba/5T/fi_workdir
+
+2024-08-25 19:12:44,254 INFO Pipeliner.Pipeliner.run at 136 :
+	Execution Time = 0.00 minutes. CMD: /bin/rm -rf /work/out/from-arriba/5T/fi_workdir
+
+2024-08-25 19:12:44,254 INFO Pipeliner.Pipeliner.run_cmd at 21 :
+	Running: touch /work/out/from-arriba/5T/chckpts_dir/final_cleanupwTrinity.ok
+
