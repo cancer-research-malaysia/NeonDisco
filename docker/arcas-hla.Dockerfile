@@ -9,7 +9,7 @@ USER root
 
 # update Debian OS packages and install additional Linux system utilities, then finally remove cached package lists
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-build-essential tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps git cmake locales coreutils gawk grep sed nano \
+build-essential tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps git cmake locales coreutils gawk grep sed nano git-lfs \
 && rm -rf /var/lib/apt/lists/* \
 && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
 
@@ -38,10 +38,10 @@ ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 # COPY --chown=$MAMBA_USER:$MAMBA_USER arcashla/src/reference-static.py /opt/conda/share/arcas-hla-0.6.0-1/scripts/reference.py
 
 # add hla.dat file to the container
-COPY --chown=$MAMBA_USER:$MAMBA_USER arcashla/src/IMGTHLA-3.57.0 /opt/conda/share/arcas-hla-0.6.0-2/dat/IMGTHLA
-# update arcasHLA reference (version 3.57)
+COPY --chown=$MAMBA_USER:$MAMBA_USER arcashla/src/IMGTHLA-3.58.0 /opt/conda/share/arcas-hla-0.6.0-2/dat/IMGTHLA
+RUN cd /opt/conda/share/arcas-hla-0.6.0-2/dat/IMGTHLA && unzip hla.dat.zip
+# update arcasHLA reference (version 3.58.0)
 RUN arcasHLA reference --update
-#RUN arcasHLA reference --update_static
 # change user to root
 USER root
 

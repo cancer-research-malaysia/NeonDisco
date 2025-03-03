@@ -8,7 +8,7 @@ LABEL description="container image of HLA-HD program v1.7.1"
 USER root
 # update Debian OS packages and install additional Linux system utilities, then finally remove cached package lists
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed \
+tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed nano less \
 && rm -rf /var/lib/apt/lists/*
 
 # change user
@@ -35,17 +35,14 @@ USER root
 
 # copy the HLA-HD source code to the container image
 COPY hla-hd/src/hlahd.1.7.1.tar.gz /tmp/hlahd.1.7.1.tar.gz
-# # also copy the specific dat file of HLA dictionary for this version and a custom update.dict.sh
-# COPY hla-hd/src/IMGTHLA-3.58.0/ /tmp/IMGTHLA-3.58.0/
-# COPY hla-hd/src/scripts/update.dictionary.custom.sh /tmp/update.dictionary.custom.sh
-
 # unpack tar
 RUN tar -zvxf /tmp/hlahd.1.7.1.tar.gz && rm /tmp/hlahd.1.7.1.tar.gz && cd /tmp/hlahd.1.7.1 && sh install.sh
 
-# # now remove the original update.dictionary.sh script
-# RUN rm /tmp/hlahd.1.7.0/update.dictionary.sh && mv /tmp/update.dictionary.custom.sh /tmp/hlahd.1.7.0/
-# # rename the custom script and move hla dict dat file to this directory
-# RUN cd /tmp/hlahd.1.7.0/ && mv update.dictionary.custom.sh update.dictionary.sh && mv /tmp/IMGTHLA-3.58.0/hla.dat .
+# also copy the specific dat file of HLA dictionary for this version and a custom update.dict.sh
+COPY hla-hd/src/IMGTHLA-3.58.0/hla.dat.zip /tmp/hlahd.1.7.1/hla.dat.zip
+COPY hla-hd/src/scripts/update.dictionary.custom.sh /tmp/hlahd.1.7.1/update.dictionary.custom.sh
+# now remove the original update.dictionary.sh script
+RUN rm /tmp/hlahd.1.7.1/update.dictionary.sh && mv /tmp/hlahd.1.7.1/update.dictionary.custom.sh /tmp/hlahd.1.7.1/update.dictionary.sh
 
 # there is an issue with permission of the main binary hlahd.sh so lets give it +x
 RUN chmod +x /tmp/hlahd.1.7.1/bin/hlahd.sh
@@ -57,10 +54,10 @@ ENV PATH="$PATH:/tmp/hlahd.1.7.1/bin"
 RUN cd /tmp/hlahd.1.7.1/ && sh update.dictionary.sh
 
 # download hla reference files from OptiType repo for bowtie2
-RUN curl -o /tmp/hla_ref_DNA.fa ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/hla_gen.fasta && curl -o /tmp/hla_ref_RNA.fa ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/hla_nuc.fasta
+RUN mkdir -p /tmp/bt2_refs && curl -o /tmp/bt2_refs/hla_ref_DNA.fa ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/hla_gen.fasta && curl -o /tmp/bt2_refs/hla_ref_RNA.fa ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/hla_nuc.fasta
 
 # create HLA reference index for bowtie2
-RUN bowtie2-build /tmp/hla_ref_DNA.fa hla_genome && bowtie2-build /tmp/hla_ref_RNA.fa hla_transcriptome
+RUN bowtie2-build /tmp/bt2_refs/hla_ref_DNA.fa hla_genome && bowtie2-build /tmp/bt2_refs/hla_ref_RNA.fa hla_transcriptome
 
 # Docker suffers from absolutely atrocious way of consolidating the paradigm of restricting privileges when running containers (rootless mode) with writing outputs to bound host volumes without using Docker volumes or other convoluted workarounds.
 
