@@ -172,7 +172,7 @@ workflow {
 
         // main pipeline
         // test 1 pass mapping
-        aligned_Ch = ALIGN_READS_1PASS(procInput_Ch)
+        aligned_Ch = ALIGN_READS_2PASS(procInput_Ch)
         // Run HLA typing using arcasHLA
         TYPE_HLA_ALLELES_ARCASHLA(aligned_Ch.aligned_reads)
         // test 2 pass mapping
