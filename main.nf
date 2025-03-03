@@ -112,24 +112,6 @@ workflow ALIGN_READS_2PASS {
         aligned_reads = ALIGN_READS_2PASS_STARSAM.out.aligned_bams
 }
 
-// workflow FISH_HLAS_HLAHD {
-//     take:
-//         input_Ch
-//     main:
-//         FISH_HLA_READS_SAMPBOWT(input_Ch)
-//     emit:
-//         hla_reads = FISH_HLA_READS_SAMPBOWT.out.fished_files
-// }
-
-// workflow TYPE_HLAS_HLAHD {
-//     take:
-//         hlaReads_Ch
-//     main:
-//         TYPE_HLA_ALLELES_HLAHD(hlaReads_Ch)
-//     emit:
-//         hla_types = TYPE_HLA_ALLELES_HLAHD.out.hla_combined_result
-// }
-
 workflow HLA_TYPING_HLAHD {
     take:
         input_Ch
@@ -181,16 +163,20 @@ workflow {
     if (params.hla_only) {
         // Run only HLA typing using HLAHD
         HLA_TYPING_HLAHD(procInput_Ch)
+        // Run only HLA typing using arcasHLA
+        TYPE_HLA_ALLELES_ARCASHLA(procInput_Ch)
 
     } else {
-        // HLA typing
-        //TYPE_HLAS(procInput_Ch)
+        // traditional HLA typing
+        HLA_TYPING_HLAHD(procInput_Ch)
 
         // main pipeline
         // test 1 pass mapping
-        ALIGN_READS_1PASS(procInput_Ch)
+        aligned_Ch = ALIGN_READS_1PASS(procInput_Ch)
+        // Run HLA typing using arcasHLA
+        TYPE_HLA_ALLELES_ARCASHLA(aligned_Ch.aligned_reads)
         // test 2 pass mapping
-        ALIGN_READS_2PASS(procInput_Ch)
+        //ALIGN_READS_2PASS(procInput_Ch)
     }
 
 	// Completion handler
