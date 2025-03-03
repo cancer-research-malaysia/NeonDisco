@@ -18,3 +18,25 @@ executor >  local (4)
 [-        ] process > TYPE_HLA_ALLELES_ARCASHLA                       -
 [3T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/3T_r1.fq, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/3T_r2.fq]]
 [4T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/4T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/4T_r2.fq.gz]]
+
+executor >  local (5)
+[08/c9fb10] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (1)    [ 50%] 1 of 2
+[a9/d01e2c] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD (1)     [  0%] 0 of 1
+[83/74e017] process > ALIGN_READS_1PASS:ALIGN_READS_1PASS_STARSAM (1) [  0%] 0 of 2
+[-        ] process > TYPE_HLA_ALLELES_ARCASHLA                       -
+
+
+
+executor >  local (6)
+[68/d0b76e] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (2)    [100%] 2 of 2 ✔
+[30/6bf710] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD (2)     [  0%] 0 of 2
+[83/74e017] process > ALIGN_READS_1PASS:ALIGN_READS_1PASS_STARSAM (1) [  0%] 0 of 2
+[-        ] process > TYPE_HLA_ALLELES_ARCASHLA                       -
+
+
+
+executor >  local (6)
+[68/d0b76e] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (2)    [100%] 2 of 2 ✔
+[30/6bf710] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD (2)     [  0%] 0 of 2
+[83/74e017] process > ALIGN_READS_1PASS:ALIGN_READS_1PASS_STARSAM (1) [  0%] 0 of 2
+[-        ] process > TYPE_HLA_ALLELES_ARCASHLA                       -
