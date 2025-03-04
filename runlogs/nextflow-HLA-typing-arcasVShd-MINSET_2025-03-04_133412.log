@@ -1,0 +1,69 @@
+
+ N E X T F L O W   ~  version 24.10.4
+
+Launching `main.nf` [goofy_engelbart] DSL2 - revision: 9ab1fa906f
+
+[STATUS] Found FASTQ files in /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset
+[-        ] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT           -
+[-        ] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD            -
+[-        ] process > ALIGN_READS_2PASS:ALIGN_READS_2PASS_STARSAM        -
+[-        ] process > ALIGN_READS_2PASS:FIXMATES_MARKDUPES_BAMS_SAMTOOLS -
+[-        ] process > TYPE_HLA_ALLELES_ARCASHLA                          -
+[100T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r2.fq.gz]]
+[3T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/3T_r1.fq, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/3T_r2.fq]]
+[7T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r2.fq.gz]]
+
+[bf/b9f034] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (2)           [100%] 3 of 3, cached: 3 ✔
+[-        ] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD                -
+[4f/85072d] process > ALIGN_READS_2PASS:ALIGN_READS_2PASS_STARSAM (1)        [100%] 3 of 3, cached: 3 ✔
+[a0/60fca6] process > ALIGN_READS_2PASS:FIXMATES_MARKDUPES_BAMS_SAMTOOLS (3) [100%] 3 of 3, cached: 3 ✔
+[-        ] process > TYPE_HLA_ALLELES_ARCASHLA                              -
+[100T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r2.fq.gz]]
+[3T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/3T_r1.fq, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/3T_r2.fq]]
+[7T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r2.fq.gz]]
+
+executor >  local (3)
+[bf/b9f034] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (2)           [100%] 3 of 3, cached: 3 ✔
+[dd/b74479] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD (1)            [100%] 3 of 3, cached: 3 ✔
+[4f/85072d] process > ALIGN_READS_2PASS:ALIGN_READS_2PASS_STARSAM (1)        [100%] 3 of 3, cached: 3 ✔
+[a0/60fca6] process > ALIGN_READS_2PASS:FIXMATES_MARKDUPES_BAMS_SAMTOOLS (3) [100%] 3 of 3, cached: 3 ✔
+[ae/9ba07c] process > TYPE_HLA_ALLELES_ARCASHLA (3)                          [  0%] 0 of 3
+[100T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r2.fq.gz]]
+[3T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/3T_r1.fq, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/3T_r2.fq]]
+[7T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r2.fq.gz]]
+
+executor >  local (3)
+[bf/b9f034] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (2)           [100%] 3 of 3, cached: 3 ✔
+[dd/b74479] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD (1)            [100%] 3 of 3, cached: 3 ✔
+[4f/85072d] process > ALIGN_READS_2PASS:ALIGN_READS_2PASS_STARSAM (1)        [100%] 3 of 3, cached: 3 ✔
+[a0/60fca6] process > ALIGN_READS_2PASS:FIXMATES_MARKDUPES_BAMS_SAMTOOLS (3) [100%] 3 of 3, cached: 3 ✔
+[f3/919ea6] process > TYPE_HLA_ALLELES_ARCASHLA (1)                          [ 33%] 1 of 3
+
+
+
+
+executor >  local (3)
+[bf/b9f034] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (2)           [100%] 3 of 3, cached: 3 ✔
+[dd/b74479] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD (1)            [100%] 3 of 3, cached: 3 ✔
+[4f/85072d] process > ALIGN_READS_2PASS:ALIGN_READS_2PASS_STARSAM (1)        [100%] 3 of 3, cached: 3 ✔
+[a0/60fca6] process > ALIGN_READS_2PASS:FIXMATES_MARKDUPES_BAMS_SAMTOOLS (3) [100%] 3 of 3, cached: 3 ✔
+[d6/f8cc07] process > TYPE_HLA_ALLELES_ARCASHLA (2)                          [ 66%] 2 of 3
+
+
+
+
+executor >  local (3)
+[bf/b9f034] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (2)           [100%] 3 of 3, cached: 3 ✔
+[dd/b74479] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD (1)            [100%] 3 of 3, cached: 3 ✔
+[4f/85072d] process > ALIGN_READS_2PASS:ALIGN_READS_2PASS_STARSAM (1)        [100%] 3 of 3, cached: 3 ✔
+[a0/60fca6] process > ALIGN_READS_2PASS:FIXMATES_MARKDUPES_BAMS_SAMTOOLS (3) [100%] 3 of 3, cached: 3 ✔
+[ae/9ba07c] process > TYPE_HLA_ALLELES_ARCASHLA (3)                          [100%] 3 of 3 ✔
+Pipeline completed at: 2025-03-04T13:40:41.072580659+08:00
+Execution status: OK
+Completed at: 04-Mar-2025 13:40:41
+Duration    : 6m 26s
+CPU hours   : 6.0 (96.3% cached)
+Succeeded   : 3
+Cached      : 12
+
+
