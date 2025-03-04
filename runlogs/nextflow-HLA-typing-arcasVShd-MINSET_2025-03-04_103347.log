@@ -30,3 +30,17 @@ executor >  local (4)
 [100T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r2.fq.gz]]
 [3T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/3T_r1.fq, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/3T_r2.fq]]
 [7T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r2.fq.gz]]
+
+Pipeline completed at: 2025-03-04T10:36:36.314296919+08:00
+Execution status: failed
+WARN: Killing running tasks (4)
+
+executor >  local (4)
+[a7/8fef47] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (3)    [  0%] 0 of 3
+[-        ] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD         -
+[56/929439] process > ALIGN_READS_2PASS:ALIGN_READS_2PASS_STARSAM (3) [  0%] 0 of 3
+[-        ] process > TYPE_HLA_ALLELES_ARCASHLA                       -
+
+
+
+

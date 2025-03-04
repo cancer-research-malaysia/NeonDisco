@@ -33,9 +33,9 @@ process FIXMATES_MARKDUPES_BAMS_SAMTOOLS {
     """
     stub:
     """
-    touch ${sampleName}_trimmed.R1.fq.gz
-    touch ${sampleName}_trimmed.R2.fq.gz
-    echo "Stub run finished!" > test_stub_fastp-trim.log
+    touch ${sampleName}_fixmates_markdupes.bam
+    touch ${sampleName}_fixmates_markdupes.bam.bai
+    echo "Stub run finished!" > test_stub_fixmates_markdupes.log
     """
 
 }

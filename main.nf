@@ -6,6 +6,7 @@ nextflow.enable.dsl = 2
 include { TRIM_READS_FASTP } from './modules/trim_reads_FASTP.nf'
 include { ALIGN_READS_1PASS_STARSAM } from './modules/align_reads_1pass_STARSAM.nf'
 include { ALIGN_READS_2PASS_STARSAM } from './modules/align_reads_2pass_STARSAM.nf'
+include { FIXMATES_MARKDUPES_BAMS_SAMTOOLS } from './modules/fixmates_markdupes_bams_SAMTOOLS.nf'
 include { FISH_HLA_READS_SAMPBOWT } from './modules/fish_hla_reads_SAMPBOWT.nf'
 include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD.nf'
 include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_arcasHLA.nf'
@@ -98,18 +99,18 @@ workflow ALIGN_READS_1PASS {
     take:
         reads_Ch
     main:
-        ALIGN_READS_1PASS_STARSAM(reads_Ch)
+        FIXMATES_MARKDUPES_BAMS_SAMTOOLS(ALIGN_READS_1PASS_STARSAM(reads_Ch))
     emit:
-        aligned_reads = ALIGN_READS_1PASS_STARSAM.out.aligned_bams
+        aligned_Bams = FIXMATES_MARKDUPES_BAMS_SAMTOOLS.out.final_bams
 }
 
 workflow ALIGN_READS_2PASS {
     take:
         reads_Ch
     main:
-        ALIGN_READS_2PASS_STARSAM(reads_Ch)
+        FIXMATES_MARKDUPES_BAMS_SAMTOOLS(ALIGN_READS_2PASS_STARSAM(reads_Ch))
     emit:
-        aligned_reads = ALIGN_READS_2PASS_STARSAM.out.aligned_bams
+        aligned_Bams = FIXMATES_MARKDUPES_BAMS_SAMTOOLS.out.final_bams
 }
 
 workflow HLA_TYPING_HLAHD {
@@ -171,10 +172,9 @@ workflow {
         HLA_TYPING_HLAHD(procInput_Ch)
 
         // main pipeline
-        // test 1 pass mapping
         aligned_Ch = ALIGN_READS_2PASS(procInput_Ch)
         // Run HLA typing using arcasHLA
-        TYPE_HLA_ALLELES_ARCASHLA(aligned_Ch.aligned_reads)
+        TYPE_HLA_ALLELES_ARCASHLA(aligned_Ch.aligned_Bams)
         // test 2 pass mapping
         //ALIGN_READS_2PASS(procInput_Ch)
     }
