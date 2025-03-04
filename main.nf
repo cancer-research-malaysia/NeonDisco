@@ -99,7 +99,7 @@ workflow ALIGN_READS_1PASS {
     take:
         reads_Ch
     main:
-        FIXMATES_MARKDUPES_BAMS_SAMTOOLS(ALIGN_READS_1PASS_STARSAM(reads_Ch))
+        FIXMATES_MARKDUPES_BAMS_SAMTOOLS(ALIGN_READS_1PASS_STARSAM(reads_Ch).aligned_bams)
     emit:
         aligned_Bams = FIXMATES_MARKDUPES_BAMS_SAMTOOLS.out.final_bams
 }
@@ -108,7 +108,7 @@ workflow ALIGN_READS_2PASS {
     take:
         reads_Ch
     main:
-        FIXMATES_MARKDUPES_BAMS_SAMTOOLS(ALIGN_READS_2PASS_STARSAM(reads_Ch))
+        FIXMATES_MARKDUPES_BAMS_SAMTOOLS(ALIGN_READS_2PASS_STARSAM(reads_Ch).aligned_bams)
     emit:
         aligned_Bams = FIXMATES_MARKDUPES_BAMS_SAMTOOLS.out.final_bams
 }

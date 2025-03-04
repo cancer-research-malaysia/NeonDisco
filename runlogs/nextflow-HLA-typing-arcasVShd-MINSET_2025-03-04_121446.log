@@ -1,0 +1,44 @@
+
+ N E X T F L O W   ~  version 24.10.4
+
+Launching `main.nf` [deadly_bernard] DSL2 - revision: 9ab1fa906f
+
+[STATUS] Found FASTQ files in /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset
+[-        ] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT           -
+[-        ] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD            -
+[-        ] process > ALIGN_READS_2PASS:ALIGN_READS_2PASS_STARSAM        -
+[-        ] process > ALIGN_READS_2PASS:FIXMATES_MARKDUPES_BAMS_SAMTOOLS -
+[-        ] process > TYPE_HLA_ALLELES_ARCASHLA                          -
+[100T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r2.fq.gz]]
+[3T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/3T_r1.fq, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/3T_r2.fq]]
+[7T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r2.fq.gz]]
+
+executor >  local (2)
+[a8/df4c07] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (1)       [100%] 3 of 3, cached: 3 ✔
+[-        ] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD            [  0%] 0 of 2
+[98/fda13c] process > ALIGN_READS_2PASS:ALIGN_READS_2PASS_STARSAM (2)    [  0%] 0 of 3
+[-        ] process > ALIGN_READS_2PASS:FIXMATES_MARKDUPES_BAMS_SAMTOOLS -
+[-        ] process > TYPE_HLA_ALLELES_ARCASHLA                          -
+[100T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r2.fq.gz]]
+[3T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/3T_r1.fq, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/3T_r2.fq]]
+[7T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r2.fq.gz]]
+
+executor >  local (2)
+[a8/df4c07] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (1)       [100%] 3 of 3, cached: 3 ✔
+[93/7f2091] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD (2)        [ 33%] 1 of 3, cached: 1
+[98/fda13c] process > ALIGN_READS_2PASS:ALIGN_READS_2PASS_STARSAM (2)    [  0%] 0 of 3
+[-        ] process > ALIGN_READS_2PASS:FIXMATES_MARKDUPES_BAMS_SAMTOOLS -
+[-        ] process > TYPE_HLA_ALLELES_ARCASHLA                          -
+[100T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r2.fq.gz]]
+[3T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/3T_r1.fq, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/3T_r2.fq]]
+[7T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r2.fq.gz]]
+
+executor >  local (4)
+[a8/df4c07] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (1)       [100%] 3 of 3, cached: 3 ✔
+[d5/493c45] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD (1)        [ 33%] 1 of 3, cached: 1
+[98/fda13c] process > ALIGN_READS_2PASS:ALIGN_READS_2PASS_STARSAM (2)    [  0%] 0 of 3
+[-        ] process > ALIGN_READS_2PASS:FIXMATES_MARKDUPES_BAMS_SAMTOOLS -
+[-        ] process > TYPE_HLA_ALLELES_ARCASHLA                          -
+[100T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r2.fq.gz]]
+[3T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/3T_r1.fq, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/3T_r2.fq]]
+[7T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r2.fq.gz]]
