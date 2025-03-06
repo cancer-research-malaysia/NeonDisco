@@ -1,0 +1,60 @@
+
+ N E X T F L O W   ~  version 24.10.4
+
+Launching `main.nf` [admiring_leibniz] DSL2 - revision: a957f39bcd
+
+[STATUS] Found FASTQ files in /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset
+[-        ] process > CALL_FUSIONS_ARRIBA        -
+[-        ] process > CALL_FUSIONS_FUSIONCATCHER -
+[-        ] process > COLLATE_FUSIONS_PYENV      -
+[100T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r2.fq.gz]]
+[7T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r2.fq.gz]]
+
+executor >  local (4)
+[d4/cb0f68] process > CALL_FUSIONS_ARRIBA (2)        [  0%] 0 of 2
+[b2/b13131] process > CALL_FUSIONS_FUSIONCATCHER (1) [  0%] 0 of 2
+[-        ] process > COLLATE_FUSIONS_PYENV          -
+[100T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/100T_r2.fq.gz]]
+[7T, [/home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r1.fq.gz, /home/sufyazi/repos/CRMY-NeonDisco-nf/inputs/mybc-main-test/minset/7T_r2.fq.gz]]
+
+executor >  local (4)
+[d4/cb0f68] process > CALL_FUSIONS_ARRIBA (2)        [  0%] 0 of 2
+[d3/96a614] process > CALL_FUSIONS_FUSIONCATCHER (2) [ 50%] 1 of 2
+[-        ] process > COLLATE_FUSIONS_PYENV          -
+
+
+
+executor >  local (5)
+[d4/cb0f68] process > CALL_FUSIONS_ARRIBA (2)        [100%] 2 of 2 ✔
+[d3/96a614] process > CALL_FUSIONS_FUSIONCATCHER (2) [ 50%] 1 of 2
+[15/ecacd9] process > COLLATE_FUSIONS_PYENV (1)      [  0%] 0 of 1
+
+
+
+executor >  local (5)
+[d4/cb0f68] process > CALL_FUSIONS_ARRIBA (2)        [100%] 2 of 2 ✔
+[d3/96a614] process > CALL_FUSIONS_FUSIONCATCHER (2) [ 50%] 1 of 2
+[15/ecacd9] process > COLLATE_FUSIONS_PYENV (1)      [100%] 1 of 1
+
+executor >  local (6)
+[d4/cb0f68] process > CALL_FUSIONS_ARRIBA (2)        [100%] 2 of 2 ✔
+[b2/b13131] process > CALL_FUSIONS_FUSIONCATCHER (1) [100%] 2 of 2 ✔
+[4f/47d96c] process > COLLATE_FUSIONS_PYENV (2)      [ 50%] 1 of 2
+
+executor >  local (6)
+[d4/cb0f68] process > CALL_FUSIONS_ARRIBA (2)        [100%] 2 of 2 ✔
+[b2/b13131] process > CALL_FUSIONS_FUSIONCATCHER (1) [100%] 2 of 2 ✔
+[4f/47d96c] process > COLLATE_FUSIONS_PYENV (2)      [100%] 2 of 2 ✔
+
+executor >  local (6)
+[d4/cb0f68] process > CALL_FUSIONS_ARRIBA (2)        [100%] 2 of 2 ✔
+[b2/b13131] process > CALL_FUSIONS_FUSIONCATCHER (1) [100%] 2 of 2 ✔
+[4f/47d96c] process > COLLATE_FUSIONS_PYENV (2)      [100%] 2 of 2 ✔
+Pipeline completed at: 2025-03-06T18:55:58.328892797+08:00
+Execution status: OK
+Completed at: 06-Mar-2025 18:55:58
+Duration    : 50m 39s
+CPU hours   : 2.9
+Succeeded   : 6
+
+
