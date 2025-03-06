@@ -1,5 +1,5 @@
 // Fix mate information
-process FIXMATES_MARKDUPES_BAMS_SAMTOOLS {
+process FIXMATES_MARKDUPES_SAMTOOLS {
     errorStrategy 'finish'
     maxForks 2
     publishDir "${params.output_dir}/${sampleName}/SAMTOOLS-postproc-out", mode: 'copy',

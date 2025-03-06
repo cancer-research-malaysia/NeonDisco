@@ -1,7 +1,4 @@
 #!/usr/bin/bash
-
-echo $(id)
-
 # get script arguments
 READ1=$1
 READ2=$2

@@ -1,7 +1,5 @@
 #!/usr/bin/bash
 
-echo $(id)
-
 # Set env variables
 CTAT_LIB="/work/libs"
 ARR_OUTDIR="/work/nf_work"
