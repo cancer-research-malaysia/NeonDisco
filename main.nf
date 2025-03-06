@@ -12,6 +12,7 @@ include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD.nf'
 include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_arcasHLA.nf'
 include { CALL_FUSIONS_ARRIBA } from './modules/call_fusions_ARRIBA.nf'
 include { CALL_FUSIONS_FUSIONCATCHER } from './modules/call_fusions_FUSIONCATCHER.nf'
+include { COLLATE_FUSIONS_PYENV } from './modules/collate_fusions_PYENV.nf'
 
 // Function to print help message
 def helpMessage() {
@@ -187,7 +188,14 @@ workflow {
         //aligned_Ch = ALIGN_READS_2PASS(procInput_Ch)
         CALL_FUSIONS_ARRIBA(procInput_Ch)
         CALL_FUSIONS_FUSIONCATCHER(procInput_Ch)
-        
+
+        // Join the outputs based on sample name
+        CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
+            .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
+            .set { combinedFcFiles_Ch }
+    
+        // Run the collation process with the joined output
+        COLLATE_FUSIONS_PYENV(combinedFcFiles_Ch)
     }
 
 	// Completion handler
