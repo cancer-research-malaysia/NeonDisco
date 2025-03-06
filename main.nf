@@ -185,6 +185,8 @@ workflow {
         //HLA_TYPING_ARCASHLA(procInput_Ch)
         // main pipeline
         //aligned_Ch = ALIGN_READS_2PASS(procInput_Ch)
+        CALL_FUSIONS_ARRIBA(procInput_Ch)
+        CALL_FUSIONS_FUSIONCATCHER(procInput_Ch)
         
     }
 
