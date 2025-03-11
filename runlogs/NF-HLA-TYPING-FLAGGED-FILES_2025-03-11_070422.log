@@ -1,0 +1,210 @@
+
+ N E X T F L O W   ~  version 24.10.5
+
+Launching `main.nf` [jovial_magritte] DSL2 - revision: 4dc5888ffc
+
+[STATUS] Found FASTQ files in /home/ec2-user/repos/NeonDisco/inputs/minimal-test
+[-        ] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT -
+[-        ] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD  -
+[40T, [/home/ec2-user/repos/NeonDisco/inputs/minimal-test/40T_r1.fq.gz, /home/ec2-user/repos/NeonDisco/inputs/minimal-test/40T_r2.fq.gz]]
+
+executor >  local (1)
+[94/f99b96] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (1) [  0%] 0 of 1
+[-        ] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD      -
+[40T, [/home/ec2-user/repos/NeonDisco/inputs/minimal-test/40T_r1.fq.gz, /home/ec2-user/repos/NeonDisco/inputs/minimal-test/40T_r2.fq.gz]]
+
+executor >  local (1)
+[94/f99b96] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (1) [  0%] 0 of 1
+[-        ] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD      -
+[40T, [/home/ec2-user/repos/NeonDisco/inputs/minimal-test/40T_r1.fq.gz, /home/ec2-user/repos/NeonDisco/inputs/minimal-test/40T_r2.fq.gz]]
+
+executor >  local (1)
+[94/f99b96] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (1) [  0%] 0 of 1
+[-        ] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD      -
+
+ERROR ~ Error executing process > 'HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (1)'
+
+Caused by:
+  Process `HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (1)` terminated with an error exit status (1)
+
+
+Command executed:
+
+  # Initialize variables
+  input_file1=40T_r1.fq.gz  # First file in the list will be our main input
+  input_file2=40T_r2.fq.gz
+  echo "Processing input file: ${input_file1}"
+  echo "Number of cores to use: 4"
+  
+  case "${input_file1}" in
+      *.fastq|*.fq)
+          # Uncompressed fastq files
+          echo "Processing already decompressed fastq files..."
+  
+          # map fastq files
+          if bash /work/scripts/fish-bowtie2-nf.sh 40T "${input_file1}" "${input_file2}" "4" "/work/libs/hla/hla_gen"; then
+              echo "Fished fq files created."
+          else
+              echo "HLA fishing did not work."
+              exit 1
+          fi
+          ;;
+  
+      *.fastq.gz|*.fq.gz)
+          # Compressed fastq files
+          gunzip -c "${input_file1}" > "40T_R1.fastq"
+          gunzip -c "${input_file2}" > "40T_R2.fastq"
+  
+          # map fastq files
+          if bash /work/scripts/fish-bowtie2-nf.sh 40T "40T_R1.fastq" "40T_R2.fastq" "4" "/work/libs/hla/hla_gen"; then
+              echo "Fished fq files created."
+          else
+              echo "HLA fishing did not work."
+              exit 1
+          fi
+          ;;
+  
+      *.bam)
+          # BAM file processing
+          echo "Processing bam file: ${input_file1}"
+          if bash /work/scripts/fish-sampicard-nf.sh "40T" "${input_file1}"; then
+              echo "File preprocessing has finished running on 40T."
+          else
+              echo "BAM preprocessing failed"
+              exit 1
+          fi
+          ;;
+  
+      *)
+          echo "Unsupported file format: ${input_file1} & ${input_file2}"
+          exit 1
+          ;;
+  esac
+
+Command exit status:
+  1
+
+Command output:
+  Processing input file: 40T_r1.fq.gz
+  Number of cores to use: 4
+  40T
+  READ 1:40T_R1.fastq & READ 2:40T_R2.fastq
+  HLA-loci read mapping for sample 40T failed.
+  HLA fishing did not work.
+
+Command error:
+  Processing input file: 40T_r1.fq.gz
+  Number of cores to use: 4
+  40T
+  READ 1:40T_R1.fastq & READ 2:40T_R2.fastq
+  (ERR): "/work/libs/hla/hla_gen" does not exist or is not a Bowtie 2 index
+  Exiting now ...
+  HLA-loci read mapping for sample 40T failed.
+  HLA fishing did not work.
+
+Work dir:
+  /home/ec2-user/repos/NeonDisco/work/94/f99b965e9bc4f3bd627b5dfff82a69
+
+Container:
+  sufyazi/preproc-crmy
+
+Tip: view the complete command output by changing to the process work dir and entering the command `cat .command.out`
+
+ -- Check '.nextflow.log' file for details
+Pipeline completed at: 2025-03-11T07:07:00.009400631Z
+Execution status: failed
+
+executor >  local (1)
+[94/f99b96] process > HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (1) [100%] 1 of 1, failed: 1 ✘
+[-        ] process > HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD      -
+ERROR ~ Error executing process > 'HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (1)'
+
+Caused by:
+  Process `HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (1)` terminated with an error exit status (1)
+
+
+Command executed:
+
+  # Initialize variables
+  input_file1=40T_r1.fq.gz  # First file in the list will be our main input
+  input_file2=40T_r2.fq.gz
+  echo "Processing input file: ${input_file1}"
+  echo "Number of cores to use: 4"
+  
+  case "${input_file1}" in
+      *.fastq|*.fq)
+          # Uncompressed fastq files
+          echo "Processing already decompressed fastq files..."
+  
+          # map fastq files
+          if bash /work/scripts/fish-bowtie2-nf.sh 40T "${input_file1}" "${input_file2}" "4" "/work/libs/hla/hla_gen"; then
+              echo "Fished fq files created."
+          else
+              echo "HLA fishing did not work."
+              exit 1
+          fi
+          ;;
+  
+      *.fastq.gz|*.fq.gz)
+          # Compressed fastq files
+          gunzip -c "${input_file1}" > "40T_R1.fastq"
+          gunzip -c "${input_file2}" > "40T_R2.fastq"
+  
+          # map fastq files
+          if bash /work/scripts/fish-bowtie2-nf.sh 40T "40T_R1.fastq" "40T_R2.fastq" "4" "/work/libs/hla/hla_gen"; then
+              echo "Fished fq files created."
+          else
+              echo "HLA fishing did not work."
+              exit 1
+          fi
+          ;;
+  
+      *.bam)
+          # BAM file processing
+          echo "Processing bam file: ${input_file1}"
+          if bash /work/scripts/fish-sampicard-nf.sh "40T" "${input_file1}"; then
+              echo "File preprocessing has finished running on 40T."
+          else
+              echo "BAM preprocessing failed"
+              exit 1
+          fi
+          ;;
+  
+      *)
+          echo "Unsupported file format: ${input_file1} & ${input_file2}"
+          exit 1
+          ;;
+  esac
+
+Command exit status:
+  1
+
+Command output:
+  Processing input file: 40T_r1.fq.gz
+  Number of cores to use: 4
+  40T
+  READ 1:40T_R1.fastq & READ 2:40T_R2.fastq
+  HLA-loci read mapping for sample 40T failed.
+  HLA fishing did not work.
+
+Command error:
+  Processing input file: 40T_r1.fq.gz
+  Number of cores to use: 4
+  40T
+  READ 1:40T_R1.fastq & READ 2:40T_R2.fastq
+  (ERR): "/work/libs/hla/hla_gen" does not exist or is not a Bowtie 2 index
+  Exiting now ...
+  HLA-loci read mapping for sample 40T failed.
+  HLA fishing did not work.
+
+Work dir:
+  /home/ec2-user/repos/NeonDisco/work/94/f99b965e9bc4f3bd627b5dfff82a69
+
+Container:
+  sufyazi/preproc-crmy
+
+Tip: view the complete command output by changing to the process work dir and entering the command `cat .command.out`
+
+ -- Check '.nextflow.log' file for details
+
+

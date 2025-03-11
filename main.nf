@@ -164,19 +164,15 @@ workflow {
     if (params.hla_only) {
         // Run only HLA typing using HLAHD
         HLA_TYPING_HLAHD(procInput_Ch)
-        // Run only HLA typing using arcasHLA
-        TYPE_HLA_ALLELES_ARCASHLA(procInput_Ch)
 
     } else {
         // traditional HLA typing
-        HLA_TYPING_HLAHD(procInput_Ch)
+        // HLA_TYPING_HLAHD(procInput_Ch)
 
         // main pipeline
         aligned_Ch = ALIGN_READS_2PASS(procInput_Ch)
         // Run HLA typing using arcasHLA
         TYPE_HLA_ALLELES_ARCASHLA(aligned_Ch.aligned_Bams)
-        // test 2 pass mapping
-        //ALIGN_READS_2PASS(procInput_Ch)
     }
 
 	// Completion handler
