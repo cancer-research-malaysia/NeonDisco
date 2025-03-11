@@ -1,7 +1,7 @@
 // Run FT calling module
 process CALL_FUSIONS_ARRIBA {
-    // maxForks 10
-    publishDir "${params.output_dir}/${sampleName}/FT/ARRIBA-out", mode: 'copy',
+    maxForks 2
+    publishDir "${params.output_dir}/${sampleName}/ARRIBA-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__arriba}"
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name arriba-ftcall -v ${params.arriba_db}:/work/libs -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"

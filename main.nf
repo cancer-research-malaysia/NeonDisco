@@ -6,10 +6,13 @@ nextflow.enable.dsl = 2
 include { TRIM_READS_FASTP } from './modules/trim_reads_FASTP.nf'
 include { ALIGN_READS_1PASS_STARSAM } from './modules/align_reads_1pass_STARSAM.nf'
 include { ALIGN_READS_2PASS_STARSAM } from './modules/align_reads_2pass_STARSAM.nf'
-include { FIXMATES_MARKDUPES_BAMS_SAMTOOLS } from './modules/fixmates_markdupes_bams_SAMTOOLS.nf'
+include { FIXMATES_MARKDUPES_SAMTOOLS } from './modules/fixmates_markdupes_SAMTOOLS.nf'
 include { FISH_HLA_READS_SAMPBOWT } from './modules/fish_hla_reads_SAMPBOWT.nf'
 include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD.nf'
 include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_arcasHLA.nf'
+include { CALL_FUSIONS_ARRIBA } from './modules/call_fusions_ARRIBA.nf'
+include { CALL_FUSIONS_FUSIONCATCHER } from './modules/call_fusions_FUSIONCATCHER.nf'
+include { COLLATE_FUSIONS_PYENV } from './modules/collate_fusions_PYENV.nf'
 
 // Function to print help message
 def helpMessage() {
@@ -99,18 +102,18 @@ workflow ALIGN_READS_1PASS {
     take:
         reads_Ch
     main:
-        FIXMATES_MARKDUPES_BAMS_SAMTOOLS(ALIGN_READS_1PASS_STARSAM(reads_Ch).aligned_bams)
+        FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_1PASS_STARSAM(reads_Ch).aligned_bams)
     emit:
-        aligned_Bams = FIXMATES_MARKDUPES_BAMS_SAMTOOLS.out.final_bams
+        aligned_Bams = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bams
 }
 
 workflow ALIGN_READS_2PASS {
     take:
         reads_Ch
     main:
-        FIXMATES_MARKDUPES_BAMS_SAMTOOLS(ALIGN_READS_2PASS_STARSAM(reads_Ch).aligned_bams)
+        FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_2PASS_STARSAM(reads_Ch).aligned_bams)
     emit:
-        aligned_Bams = FIXMATES_MARKDUPES_BAMS_SAMTOOLS.out.final_bams
+        aligned_Bams = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bams
 }
 
 workflow HLA_TYPING_HLAHD {
@@ -124,6 +127,16 @@ workflow HLA_TYPING_HLAHD {
         TYPE_HLA_ALLELES_HLAHD(FISH_HLA_READS_SAMPBOWT.out.fished_files)
     emit:
         hla_types = TYPE_HLA_ALLELES_HLAHD.out.hla_combined_result
+}
+
+workflow HLA_TYPING_ARCASHLA {
+    take:
+        input_Ch
+    main:
+        // Then type the HLA alleles
+        TYPE_HLA_ALLELES_ARCASHLA(input_Ch)
+    emit:
+        hla_types = TYPE_HLA_ALLELES_ARCASHLA.out.allotype_json
 }
 
 // Main workflow
@@ -167,12 +180,20 @@ workflow {
 
     } else {
         // traditional HLA typing
-        // HLA_TYPING_HLAHD(procInput_Ch)
-
+        //HLA_TYPING_HLAHD(procInput_Ch)
+        //HLA_TYPING_ARCASHLA(procInput_Ch)
         // main pipeline
-        aligned_Ch = ALIGN_READS_2PASS(procInput_Ch)
-        // Run HLA typing using arcasHLA
-        TYPE_HLA_ALLELES_ARCASHLA(aligned_Ch.aligned_Bams)
+        //aligned_Ch = ALIGN_READS_2PASS(procInput_Ch)
+        CALL_FUSIONS_ARRIBA(procInput_Ch)
+        CALL_FUSIONS_FUSIONCATCHER(procInput_Ch)
+
+        // Join the outputs based on sample name
+        CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
+            .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
+            .set { combinedFcFiles_Ch }
+    
+        // Run the collation process with the joined output
+        COLLATE_FUSIONS_PYENV(combinedFcFiles_Ch)
     }
 
 	// Completion handler

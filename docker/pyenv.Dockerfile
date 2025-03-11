@@ -1,13 +1,13 @@
 FROM mambaorg/micromamba:git-911a014-bookworm-slim
 
 LABEL maintainer="Suffian Azizan"
-LABEL version="2.0"
-LABEL description="minimal container image of Polars and Jupyter env for CRMY"
+LABEL version="3.0"
+LABEL description="minimal container image of Python env for CRMY"
 
 # change to root user
 USER root
 # update Debian OS packages and install additional Linux system utilities with procps; also install R, then finally remove cached package lists
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential procps curl wget tar pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential procps curl wget tar pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed nano less \
 && rm -rf /var/lib/apt/lists/*
 
 # change user
@@ -17,7 +17,7 @@ USER $MAMBA_USER
 RUN micromamba config set extract_threads 1
 
 # copy the env file into the container 
-COPY --chown=$MAMBA_USER:$MAMBA_USER pypolars/context/base_env.yaml /tmp/base_env.yaml
+COPY --chown=$MAMBA_USER:$MAMBA_USER pyenv/context/base_env.yaml /tmp/base_env.yaml
 
 # Create a new base environment based on the YAML file
 RUN micromamba install -y -f /tmp/base_env.yaml && \

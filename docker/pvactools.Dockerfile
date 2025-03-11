@@ -1,7 +1,7 @@
 FROM mambaorg/micromamba:git-911a014-bookworm-slim
 USER root
 LABEL maintainer="Suffian Azizan"
-LABEL version="2.0"
+LABEL version="3.0"
 LABEL description="container image of pVacTools program v5.0.0"
 
 # change to root user
@@ -9,7 +9,7 @@ USER root
 
 # update Debian OS packages and install additional Linux system utilities, then finally remove cached package lists
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps tcsh gawk coreutils grep sed git libsm6 libxrender1 libfontconfig1 zlib1g-dev liblzma-dev libcurl4-openssl-dev libssl-dev libdeflate-dev perl make \
+tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps tcsh gawk coreutils grep sed git libsm6 libxrender1 libfontconfig1 zlib1g-dev liblzma-dev libcurl4-openssl-dev libssl-dev libdeflate-dev perl make less nano sed gawk grep \
 && rm -rf /var/lib/apt/lists/*
 
 # change user
@@ -30,6 +30,11 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 
 # install pip packages
 RUN pip install pvactools==5.0.0
+RUN pip install tensorflow && pip install mhcflurry
+
+# download mhcflurry datasets and trained models
+RUN mhcflurry-downloads fetch
+
 RUN pip install git+https://github.com/griffithlab/bigmhc.git#egg=bigmhc
 RUN pip install git+https://github.com/griffithlab/deepimmuno.git#egg=deepimmuno
 
@@ -44,9 +49,6 @@ cd mhc_i && \
 
 RUN wget https://downloads.iedb.org/tools/mhcii/LATEST/IEDB_MHC_II-3.1.12.tar.gz && \
 tar -zxvf IEDB_MHC_II-3.1.12.tar.gz && cd mhc_ii && python configure.py
-
-# download mhcflurry datasets and trained models
-RUN mhcflurry-downloads fetch
 
 USER root
 # Docker suffers from absolutely atrocious way of consolidating the paradigm of restricting privileges when running containers (rootless mode) with writing outputs to bound host volumes without using Docker volumes or other convoluted workarounds.
