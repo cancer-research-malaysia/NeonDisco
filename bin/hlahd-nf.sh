@@ -14,8 +14,6 @@ echo "Running HLA-HD for sample: ${SAMPLE_ID}"
 echo "FastQ input files: ${READ1} & ${READ2}"
 echo "Number of cores for HLA-HD specified: ${CORES}"
 
-mkdir -p "${OUTDIR}/hla-hd-out"
-
 # measure execution time
 STARTTIME=$(date +%s)
 
