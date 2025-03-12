@@ -179,8 +179,8 @@ workflow {
         HLA_TYPING_HLAHD(procInput_Ch)
 
         // Run only HLA typing from fq files using arcasHLA
-        // aligned_Ch = ALIGN_READS_2PASS(procInput_Ch)
-        // HLA_TYPING_ARCASHLA(aligned_Ch)
+        aligned_Ch = ALIGN_READS_2PASS(procInput_Ch)
+        HLA_TYPING_ARCASHLA(aligned_Ch)
 
     } else {
         // main pipeline
