@@ -1,0 +1,60 @@
+
+ N E X T F L O W   ~  version 24.10.5
+
+Launching `main.nf` [modest_brazil] DSL2 - revision: 429bf4b2e6
+
+[STATUS] Found FASTQ files in /home/ec2-user/repos/NeonDisco/inputs/minimal-test
+[-        ] HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT      -
+[-        ] HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD       -
+[-        ] ALIGN_READS_2PASS:ALIGN_READS_2PASS_STARSAM   -
+[-        ] ALIGN_READS_2PASS:FIXMATES_MARKDUPES_SAMTOOLS -
+[-        ] HLA_TYPING_ARCASHLA:TYPE_HLA_ALLELES_ARCASHLA -
+[40T, [/home/ec2-user/repos/NeonDisco/inputs/minimal-test/40T_r1.fq.gz, /home/ec2-user/repos/NeonDisco/inputs/minimal-test/40T_r2.fq.gz]]
+
+[2b/4d1db0] HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (1)    [100%] 1 of 1, cached: 1
+[-        ] HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD         -
+[45/cdd220] ALIGN_READS_2PASS:ALIGN_READS_2PASS_STARSAM (1) [100%] 1 of 1, cached: 1
+[-        ] ALIGN_READS_2PASS:FIXMATES_MARKDUPES_SAMTOOLS   -
+[-        ] HLA_TYPING_ARCASHLA:TYPE_HLA_ALLELES_ARCASHLA   -
+[40T, [/home/ec2-user/repos/NeonDisco/inputs/minimal-test/40T_r1.fq.gz, /home/ec2-user/repos/NeonDisco/inputs/minimal-test/40T_r2.fq.gz]]
+
+executor >  local (1)
+[2b/4d1db0] HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (1)      [100%] 1 of 1, cached: 1 ✔
+[81/c95426] HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD (1)       [  0%] 0 of 1
+[45/cdd220] ALIGN_READS_2PASS:ALIGN_READS_2PASS_STARSAM (1)   [100%] 1 of 1, cached: 1 ✔
+[0a/7219b8] ALIGN_READS_2PASS:FIXMATES_MARKDUPES_SAMTOOLS (1) [100%] 1 of 1, cached: 1 ✔
+[00/759520] HLA_TYPING_ARCASHLA:TYPE_HLA_ALLELES_ARCASHLA (1) [100%] 1 of 1, cached: 1 ✔
+[40T, [/home/ec2-user/repos/NeonDisco/inputs/minimal-test/40T_r1.fq.gz, /home/ec2-user/repos/NeonDisco/inputs/minimal-test/40T_r2.fq.gz]]
+
+executor >  local (1)
+[2b/4d1db0] HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (1)      [100%] 1 of 1, cached: 1 ✔
+[81/c95426] HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD (1)       [  0%] 0 of 1 ✔
+[45/cdd220] ALIGN_READS_2PASS:ALIGN_READS_2PASS_STARSAM (1)   [100%] 1 of 1, cached: 1 ✔
+[0a/7219b8] ALIGN_READS_2PASS:FIXMATES_MARKDUPES_SAMTOOLS (1) [100%] 1 of 1, cached: 1 ✔
+[00/759520] HLA_TYPING_ARCASHLA:TYPE_HLA_ALLELES_ARCASHLA (1) [100%] 1 of 1, cached: 1 ✔
+
+
+executor >  local (1)
+[2b/4d1db0] HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (1)      [100%] 1 of 1, cached: 1 ✔
+[81/c95426] HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD (1)       [100%] 1 of 1 ✔
+[45/cdd220] ALIGN_READS_2PASS:ALIGN_READS_2PASS_STARSAM (1)   [100%] 1 of 1, cached: 1 ✔
+[0a/7219b8] ALIGN_READS_2PASS:FIXMATES_MARKDUPES_SAMTOOLS (1) [100%] 1 of 1, cached: 1 ✔
+[00/759520] HLA_TYPING_ARCASHLA:TYPE_HLA_ALLELES_ARCASHLA (1) [100%] 1 of 1, cached: 1 ✔
+Pipeline completed at: 2025-03-13T09:13:09.017994684Z
+Execution status: OK
+
+executor >  local (1)
+[2b/4d1db0] HLA_TYPING_HLAHD:FISH_HLA_READS_SAMPBOWT (1)      [100%] 1 of 1, cached: 1 ✔
+[81/c95426] HLA_TYPING_HLAHD:TYPE_HLA_ALLELES_HLAHD (1)       [100%] 1 of 1 ✔
+[45/cdd220] ALIGN_READS_2PASS:ALIGN_READS_2PASS_STARSAM (1)   [100%] 1 of 1, cached: 1 ✔
+[0a/7219b8] ALIGN_READS_2PASS:FIXMATES_MARKDUPES_SAMTOOLS (1) [100%] 1 of 1, cached: 1 ✔
+[00/759520] HLA_TYPING_ARCASHLA:TYPE_HLA_ALLELES_ARCASHLA (1) [100%] 1 of 1, cached: 1 ✔
+Pipeline completed at: 2025-03-13T09:13:09.017994684Z
+Execution status: OK
+Completed at: 13-Mar-2025 09:13:09
+Duration    : 6h 8m 14s
+CPU hours   : 7.3 (15.6% cached)
+Succeeded   : 1
+Cached      : 4
+
+
