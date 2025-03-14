@@ -1,6 +1,6 @@
 // Run POLARS post-processing module
 process COLLATE_FUSIONS_PYENV {
-    publishDir "${params.output_dir}/${sampleName}/FT/POLARS-collation-out", mode: 'copy',
+    publishDir "${params.output_dir}/${sampleName}/FT/FT-raw-list-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__pyenv}"
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name ft-postprocess -v ${params.input_dir}:/work/data -v \$(pwd):/work/nf_work -v ${params.bin_dir}:/work/scripts"
@@ -9,7 +9,8 @@ process COLLATE_FUSIONS_PYENV {
         tuple val(sampleName), path(arFile), path(fcFile)
 
     output:
-        path "*-collated-FT-raw-list.*"
+        tuple val(sampleName), path("${sampleName}-collated-FT-raw-list.tsv"), emit: collatedFTList
+        tuple val(sampleName), path("${sampleName}-collated-FT-raw-list.parquet"), emit: collatedFTParquet
 
     script:
     """
@@ -22,6 +23,7 @@ process COLLATE_FUSIONS_PYENV {
     stub:
     """
     touch ${sampleName}-collated-FT-raw-list.tsv
+    touch ${sampleName}-collated-FT-raw-list.parquet
     echo "stub run finished!\thello my world!" > ${sampleName}-collated-FT-raw-list.tsv
     """
 }

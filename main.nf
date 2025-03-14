@@ -9,10 +9,11 @@ include { ALIGN_READS_2PASS_STARSAM } from './modules/align_reads_2pass_STARSAM.
 include { FIXMATES_MARKDUPES_SAMTOOLS } from './modules/fixmates_markdupes_SAMTOOLS.nf'
 include { FISH_HLA_READS_SAMPBOWT } from './modules/fish_hla_reads_SAMPBOWT.nf'
 include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD.nf'
-include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_arcasHLA.nf'
+include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_ARCASHLA.nf'
 include { CALL_FUSIONS_ARRIBA } from './modules/call_fusions_ARRIBA.nf'
 include { CALL_FUSIONS_FUSIONCATCHER } from './modules/call_fusions_FUSIONCATCHER.nf'
 include { COLLATE_FUSIONS_PYENV } from './modules/collate_fusions_PYENV.nf'
+include { PREDICT_CODING_SEQ_AGFUSION } from './modules/predict_coding_seq_AGFUSION.nf'
 
 // Function to print help message
 def helpMessage() {
@@ -194,10 +195,15 @@ workflow {
         // Join the outputs based on sample name
         CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
             .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
-            .set { combinedFcFiles_Ch }
+            .set { combinedFTFiles_Ch }
+        
+        combinedFTFiles_Ch.view()
     
         // Run the collation process with the joined output
-        COLLATE_FUSIONS_PYENV(combinedFcFiles_Ch)
+        COLLATE_FUSIONS_PYENV(combinedFTFiles_Ch)
+
+        // Run AGFusion to predict fusion protein sequences
+        PREDICT_CODING_SEQ_AGFUSION(COLLATE_FUSIONS_PYENV.out.collatedFTList)
     }
 
 	// Completion handler
