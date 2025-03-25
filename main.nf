@@ -15,6 +15,11 @@ include { CALL_FUSIONS_FUSIONCATCHER } from './modules/call_fusions_FUSIONCATCHE
 include { COLLATE_FUSIONS_PYENV } from './modules/collate_fusions_PYENV.nf'
 include { PREDICT_CODING_SEQ_AGFUSION } from './modules/predict_coding_seq_AGFUSION.nf'
 
+// temp submodules
+include { ALIGN_READS_2PASS_STARSAM_S3LOCAL } from './modules/align_reads_2pass_STARSAM_s3local.nf'
+include { FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL } from './modules/fixmates_markdupes_SAMTOOLS_s3local.nf'
+include { HLA_TYPING_ARCASHLA_S3LOCAL } from './modules/type_hla_alleles_ARCASHLA_s3local.nf'
+
 // Function to print help message
 def helpMessage() {
     log.info"""
@@ -141,6 +146,79 @@ workflow HLA_TYPING_ARCASHLA {
 }
 
 // Main workflow
+// workflow {
+//     // Show help message if requested
+//     if (params.help) {
+//         helpMessage()
+//         exit 0
+//     }
+
+//     // Validate required parameters
+//     if (!params.input_dir || !params.output_dir) {
+//         log.error "Input and output directories must be specified."
+//         exit 1
+//     }
+
+//     // Validate input directory
+//     if (!validateInputDir(params.input_dir)) {
+//         exit 1
+//     }
+
+//     // Create input channel
+//     def input_Ch = createInputChannel(params.input_dir)
+
+//     // Branch input channel based on file type (just peek at the 1st element of the second element [file list] of the input tuple)
+//     def branched = input_Ch.branch {
+//         fastq: it[1][0].name =~ /\.(fastq|fq)(\.gz)?$/
+//         bam: it[1][0].name =~ /\.bam$/
+//     }
+
+//     // Process FASTQ files if present and trimming is requested
+//     def procInput_Ch
+//     def trimmedFastqs = params.trimming ? TRIM_READS(branched.fastq).trimmed_reads : branched.fastq
+//     procInput_Ch = trimmedFastqs.mix(branched.bam)
+//     procInput_Ch.view()
+
+//     // Execute workflows based on hla_only parameter
+//     if (params.hla_only) {
+//         // Run only HLA typing using HLAHD
+//         HLA_TYPING_HLAHD(procInput_Ch)
+
+//         // Run only HLA typing from fq files using arcasHLA
+//         aligned_Ch = ALIGN_READS_2PASS(procInput_Ch)
+//         HLA_TYPING_ARCASHLA(aligned_Ch)
+
+//     } else {
+//         // main pipeline
+//         aligned_Ch = ALIGN_READS_2PASS(procInput_Ch)
+//         HLA_TYPING_ARCASHLA(aligned_Ch)
+
+//         // gene fusion identification submodule
+//         CALL_FUSIONS_ARRIBA(procInput_Ch)
+//         CALL_FUSIONS_FUSIONCATCHER(procInput_Ch)
+
+//         // Join the outputs based on sample name
+//         CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
+//             .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
+//             .set { combinedFTFiles_Ch }
+        
+//         combinedFTFiles_Ch.view()
+    
+//         // Run the collation process with the joined output
+//         COLLATE_FUSIONS_PYENV(combinedFTFiles_Ch)
+
+//         // Run AGFusion to predict fusion protein sequences
+//         PREDICT_CODING_SEQ_AGFUSION(COLLATE_FUSIONS_PYENV.out.collatedFTList)
+//     }
+
+// 	// Completion handler
+// 	workflow.onComplete = {
+//     	println "Pipeline completed at: $workflow.complete"
+//     	println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
+// 	}
+// }
+
+// temp workflow for HLA retyping
 workflow {
     // Show help message if requested
     if (params.help) {
@@ -148,62 +226,17 @@ workflow {
         exit 0
     }
 
-    // Validate required parameters
-    if (!params.input_dir || !params.output_dir) {
-        log.error "Input and output directories must be specified."
-        exit 1
-    }
+    // Create input channel from manifest file
 
-    // Validate input directory
-    if (!validateInputDir(params.input_dir)) {
-        exit 1
-    }
-
-    // Create input channel
-    def input_Ch = createInputChannel(params.input_dir)
-
-    // Branch input channel based on file type (just peek at the 1st element of the second element [file list] of the input tuple)
-    def branched = input_Ch.branch {
-        fastq: it[1][0].name =~ /\.(fastq|fq)(\.gz)?$/
-        bam: it[1][0].name =~ /\.bam$/
-    }
-
-    // Process FASTQ files if present and trimming is requested
-    def procInput_Ch
-    def trimmedFastqs = params.trimming ? TRIM_READS(branched.fastq).trimmed_reads : branched.fastq
-    procInput_Ch = trimmedFastqs.mix(branched.bam)
-    procInput_Ch.view()
 
     // Execute workflows based on hla_only parameter
     if (params.hla_only) {
-        // Run only HLA typing using HLAHD
-        HLA_TYPING_HLAHD(procInput_Ch)
-
         // Run only HLA typing from fq files using arcasHLA
         aligned_Ch = ALIGN_READS_2PASS(procInput_Ch)
         HLA_TYPING_ARCASHLA(aligned_Ch)
 
     } else {
-        // main pipeline
-        aligned_Ch = ALIGN_READS_2PASS(procInput_Ch)
-        HLA_TYPING_ARCASHLA(aligned_Ch)
-
-        // gene fusion identification submodule
-        CALL_FUSIONS_ARRIBA(procInput_Ch)
-        CALL_FUSIONS_FUSIONCATCHER(procInput_Ch)
-
-        // Join the outputs based on sample name
-        CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
-            .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
-            .set { combinedFTFiles_Ch }
-        
-        combinedFTFiles_Ch.view()
-    
-        // Run the collation process with the joined output
-        COLLATE_FUSIONS_PYENV(combinedFTFiles_Ch)
-
-        // Run AGFusion to predict fusion protein sequences
-        PREDICT_CODING_SEQ_AGFUSION(COLLATE_FUSIONS_PYENV.out.collatedFTList)
+        // pass
     }
 
 	// Completion handler
