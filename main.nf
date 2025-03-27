@@ -94,6 +94,40 @@ def createInputChannel(dir_path) {
     return bam_Ch.mix(fastq_Ch)
 }
 
+// Function to read manifest file and create input channel
+def createManifestChannel(manifest_path) {
+    // Validate manifest file exists
+    def manifestFile = file(manifest_path)
+    if (!manifestFile.exists()) {
+        log.error "Manifest file not found at path: ${manifest_path}"
+        exit 1
+    }
+
+    // Create channel from manifest file
+    def input_Ch = Channel
+        .fromPath(manifest_path)
+        .splitCsv(header: true, sep: '\t')
+        .map { row -> 
+            // Assuming the TSV has columns: sampleName, read1_s3_path, read2_s3_path
+            def sampleName = row.sampleName
+            def read1 = row.read1_s3_path
+            def read2 = row.read2_s3_path
+            
+            // Validate required fields
+            if (!sampleName || !read1 || !read2) {
+                log.error "Invalid manifest row: ${row}. Ensure all fields are present."
+                return null
+            }
+            
+            // Return tuple of sample name and read file paths
+            return tuple(sampleName, read1, read2)
+        }
+        .filter { it != null }
+
+    return input_Ch
+}
+
+
 // Subworkflow definitions
 workflow TRIM_READS {
     take:
@@ -122,6 +156,15 @@ workflow ALIGN_READS_2PASS {
         aligned_Bams = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bams
 }
 
+workflow ALIGN_READS_2PASS_S3LOCAL {
+    take:
+        reads_Ch
+    main:
+        FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL(ALIGN_READS_2PASS_STARSAM_S3LOCAL(reads_Ch).aligned_bams)
+    emit:
+        aligned_Bams = FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL.out.final_bams
+}
+
 workflow HLA_TYPING_HLAHD {
     take:
         input_Ch
@@ -143,6 +186,16 @@ workflow HLA_TYPING_ARCASHLA {
         TYPE_HLA_ALLELES_ARCASHLA(input_Ch)
     emit:
         hla_types = TYPE_HLA_ALLELES_ARCASHLA.out.allotype_json
+}
+
+workflow HLA_TYPING_ARCASHLA_S3LOCAL {
+    take:
+        input_Ch
+    main:
+        // Then type the HLA alleles
+        HLA_TYPING_ARCASHLA_S3LOCAL(input_Ch)
+    emit:
+        hla_types = HLA_TYPING_ARCASHLA_S3LOCAL.out.allotype_json
 }
 
 // Main workflow
@@ -227,14 +280,14 @@ workflow {
     }
 
     // Create input channel from manifest file
-
+    // Add a parameter for manifest file path in your nextflow.config or pass via CLI
+    def procInput_Ch = createManifestChannel(params.manifest_path)
 
     // Execute workflows based on hla_only parameter
     if (params.hla_only) {
         // Run only HLA typing from fq files using arcasHLA
-        aligned_Ch = ALIGN_READS_2PASS(procInput_Ch)
-        HLA_TYPING_ARCASHLA(aligned_Ch)
-
+        aligned_Ch = ALIGN_READS_2PASS_S3LOCAL(procInput_Ch)
+        // HLA_TYPING_ARCASHLA_S3LOCAL(aligned_Ch)
     } else {
         // pass
     }

@@ -2,6 +2,8 @@
 process ALIGN_READS_2PASS_STARSAM_S3LOCAL {
     errorStrategy 'finish'
     maxForks 1
+    publishDir "${params.output_dir}/${sampleName}/STAR-out-2pass", mode: 'copy',
+        saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__preproc}"
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name star-align-reads -v ${params.arriba_db}:/home/app/libs -v \$(pwd):/home/app/nf_work -v ${params.bin_dir}:/home/app/scripts"
     
@@ -25,7 +27,7 @@ process ALIGN_READS_2PASS_STARSAM_S3LOCAL {
     echo "The index path: \${STAR_INDEX}"
 
     # dowload read files from s3
-    if aws s3 cp ${READ1} /home/app/nf_work/ && aws s3 cp ${READ2} /home/app/nf_work/; then
+    if aws s3 cp \${READ1} /home/app/nf_work/ && aws s3 cp \${READ2} /home/app/nf_work/; then
         echo "Files downloaded. Starting STAR sample-level 2-pass alignment..."
         
         if bash /home/app/scripts/star-2pass-nf.sh "/home/app/nf_work/$(basename \${READ1})" "/home/app/nf_work/$(basename \${READ2})" "\${SAMPLE_ID}" ${params.num_cores} "\${STAR_INDEX}"; then

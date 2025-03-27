@@ -2,6 +2,8 @@
 process FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL {
     errorStrategy 'finish'
     maxForks 1
+    publishDir "${params.output_dir}/${sampleName}/SAMTOOLS-postproc-out", mode: 'copy',
+        saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__preproc}"
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name samtools-postproc-bams -v \$(pwd):/home/app/nf_work -v ${params.bin_dir}:/home/app/scripts"
     
