@@ -27,8 +27,8 @@ process TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL {
     if bash /home/app/scripts/arcasHLA-nf.sh "\${SAMPLE_ID}" "\${BAM}" "${params.num_cores}"; then
         echo "arcasHLA typing finished successfully!"
         # remove bam file
-        rm -f ${BAM}
-        rm -f ${BAM_IDX}
+        rm -f \${BAM}
+        rm -f \${BAM_IDX}
     else
         echo "arcasHLA typing failed. Check logs. Exiting..."
         exit 1

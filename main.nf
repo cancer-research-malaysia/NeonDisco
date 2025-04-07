@@ -15,7 +15,7 @@ include { CALL_FUSIONS_FUSIONCATCHER } from './modules/call_fusions_FUSIONCATCHE
 include { COLLATE_FUSIONS_PYENV } from './modules/collate_fusions_PYENV.nf'
 include { PREDICT_CODING_SEQ_AGFUSION } from './modules/predict_coding_seq_AGFUSION.nf'
 
-// temp submodules
+// s3local testing submodules
 include { ALIGN_READS_2PASS_STARSAM_S3LOCAL } from './modules/align_reads_2pass_STARSAM_s3local.nf'
 include { FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL } from './modules/fixmates_markdupes_SAMTOOLS_s3local.nf'
 include { TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL } from './modules/type_hla_alleles_ARCASHLA_s3local.nf'
@@ -25,11 +25,11 @@ def helpMessage() {
     log.info"""
 Usage:
 
-nextflow run main.nf -profile <local/awsbatch> <--OPTION NAME> <ARGUMENT>
+nextflow run main.nf -profile <local/awsbatch/s3local> <--OPTION NAME> <ARGUMENT>
 
 Required Arguments:
 ---------------
-    -profile            Either <local> for testing, or <awsbatch> for AWS Batch cluster [MANDATORY]
+    -profile            Either <local> or <s3local> for testing, or <awsbatch> for AWS Batch cluster [MANDATORY]
     --input_dir         Path to directory containing RNA-seq FASTQ/BAM files [MANDATORY]
     --output_dir        Directory path for output files [MANDATORY]
 
@@ -289,6 +289,7 @@ workflow {
     if (params.hla_only) {
         // Run only HLA typing from fq files using arcasHLA
         aligned_Ch = ALIGN_READS_2PASS_S3LOCAL(procInput_Ch)
+        aligned_Ch.view()
         HLA_TYPING_ARCASHLA_S3LOCAL(aligned_Ch)
     } else {
         // pass

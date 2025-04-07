@@ -74,3 +74,205 @@ Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq
 Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz
 Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz
 Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz
+
+executor >  local (3)
+[06/cde291] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (3) [  0%] 0 of 3
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL   -
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL   -
+
+
+
+
+
+
+
+
+
+
+executor >  local (4)
+[b9/943180] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (2)   [ 33%] 1 of 3
+[c8/5c96a1] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (1) [  0%] 0 of 1
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL     -
+
+
+
+
+
+
+
+
+
+
+executor >  local (4)
+[c5/789ec6] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (1)   [ 66%] 2 of 3
+[c8/5c96a1] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (1) [  0%] 0 of 2
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL     -
+
+executor >  local (5)
+[c5/789ec6] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (1)   [ 66%] 2 of 3
+[11/ec39a7] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (2) [ 50%] 1 of 2
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL     -
+ERROR ~ Error executing process > 'HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL (1)'
+
+Caused by:
+  No such variable: BAM -- Check script './modules/type_hla_alleles_ARCASHLA_s3local.nf' at line: 19
+
+
+Source block:
+  """
+  # Initialize variables
+  SAMPLE_ID=${sampleName}
+  BAM=${bambaiPair[0]}
+  BAM_IDX=${bambaiPair[1]}
+  
+  echo "Processing files: \${BAM} of sample \${SAMPLE_ID}"
+  echo "The index file is: \${BAM_IDX}"
+  echo "Number of cores to use: ${params.num_cores}"
+  echo "Starting arcasHLA typing..."
+  
+  # Running arcasHLA
+  if bash /home/app/scripts/arcasHLA-nf.sh "\${SAMPLE_ID}" "\${BAM}" "${params.num_cores}"; then
+      echo "arcasHLA typing finished successfully!"
+      # remove bam file
+      rm -f ${BAM}
+      rm -f ${BAM_IDX}
+  else
+      echo "arcasHLA typing failed. Check logs. Exiting..."
+      exit 1
+  fi
+  """
+
+Container:
+  sufyazi/arcashla-crmy
+
+Tip: you can try to figure out what's wrong by changing to the process work dir and showing the script file named `.command.sh`
+
+ -- Check '.nextflow.log' file for details
+
+executor >  local (5)
+[c5/789ec6] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (1)   [ 66%] 2 of 3
+[11/ec39a7] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (2) [ 50%] 1 of 2
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL     -
+Execution cancelled -- Finishing pending tasks before exit
+ERROR ~ Error executing process > 'HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL (1)'
+
+Caused by:
+  No such variable: BAM -- Check script './modules/type_hla_alleles_ARCASHLA_s3local.nf' at line: 19
+
+
+Source block:
+  """
+  # Initialize variables
+  SAMPLE_ID=${sampleName}
+  BAM=${bambaiPair[0]}
+  BAM_IDX=${bambaiPair[1]}
+  
+  echo "Processing files: \${BAM} of sample \${SAMPLE_ID}"
+  echo "The index file is: \${BAM_IDX}"
+  echo "Number of cores to use: ${params.num_cores}"
+  echo "Starting arcasHLA typing..."
+  
+  # Running arcasHLA
+  if bash /home/app/scripts/arcasHLA-nf.sh "\${SAMPLE_ID}" "\${BAM}" "${params.num_cores}"; then
+      echo "arcasHLA typing finished successfully!"
+      # remove bam file
+      rm -f ${BAM}
+      rm -f ${BAM_IDX}
+  else
+      echo "arcasHLA typing failed. Check logs. Exiting..."
+      exit 1
+  fi
+  """
+
+Container:
+  sufyazi/arcashla-crmy
+
+Tip: you can try to figure out what's wrong by changing to the process work dir and showing the script file named `.command.sh`
+
+ -- Check '.nextflow.log' file for details
+
+executor >  local (5)
+[06/cde291] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (3)   [100%] 3 of 3 ✔
+[11/ec39a7] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (2) [ 50%] 1 of 2
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL     -
+
+ERROR ~ Error executing process > 'HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL (1)'
+
+Caused by:
+  No such variable: BAM -- Check script './modules/type_hla_alleles_ARCASHLA_s3local.nf' at line: 19
+
+
+Source block:
+  """
+  # Initialize variables
+  SAMPLE_ID=${sampleName}
+  BAM=${bambaiPair[0]}
+  BAM_IDX=${bambaiPair[1]}
+  
+  echo "Processing files: \${BAM} of sample \${SAMPLE_ID}"
+  echo "The index file is: \${BAM_IDX}"
+  echo "Number of cores to use: ${params.num_cores}"
+  echo "Starting arcasHLA typing..."
+  
+  # Running arcasHLA
+  if bash /home/app/scripts/arcasHLA-nf.sh "\${SAMPLE_ID}" "\${BAM}" "${params.num_cores}"; then
+      echo "arcasHLA typing finished successfully!"
+      # remove bam file
+      rm -f ${BAM}
+      rm -f ${BAM_IDX}
+  else
+      echo "arcasHLA typing failed. Check logs. Exiting..."
+      exit 1
+  fi
+  """
+
+Container:
+  sufyazi/arcashla-crmy
+
+Tip: you can try to figure out what's wrong by changing to the process work dir and showing the script file named `.command.sh`
+
+ -- Check '.nextflow.log' file for details
+
+executor >  local (5)
+[06/cde291] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (3)   [100%] 3 of 3 ✔
+[11/ec39a7] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (2) [100%] 2 of 2
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL     -
+Pipeline completed at: 2025-04-07T08:38:49.348734400Z
+Execution status: failed
+ERROR ~ Error executing process > 'HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL (1)'
+
+Caused by:
+  No such variable: BAM -- Check script './modules/type_hla_alleles_ARCASHLA_s3local.nf' at line: 19
+
+
+Source block:
+  """
+  # Initialize variables
+  SAMPLE_ID=${sampleName}
+  BAM=${bambaiPair[0]}
+  BAM_IDX=${bambaiPair[1]}
+  
+  echo "Processing files: \${BAM} of sample \${SAMPLE_ID}"
+  echo "The index file is: \${BAM_IDX}"
+  echo "Number of cores to use: ${params.num_cores}"
+  echo "Starting arcasHLA typing..."
+  
+  # Running arcasHLA
+  if bash /home/app/scripts/arcasHLA-nf.sh "\${SAMPLE_ID}" "\${BAM}" "${params.num_cores}"; then
+      echo "arcasHLA typing finished successfully!"
+      # remove bam file
+      rm -f ${BAM}
+      rm -f ${BAM_IDX}
+  else
+      echo "arcasHLA typing failed. Check logs. Exiting..."
+      exit 1
+  fi
+  """
+
+Container:
+  sufyazi/arcashla-crmy
+
+Tip: you can try to figure out what's wrong by changing to the process work dir and showing the script file named `.command.sh`
+
+ -- Check '.nextflow.log' file for details
+
