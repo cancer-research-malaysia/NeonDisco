@@ -18,7 +18,7 @@ include { PREDICT_CODING_SEQ_AGFUSION } from './modules/predict_coding_seq_AGFUS
 // temp submodules
 include { ALIGN_READS_2PASS_STARSAM_S3LOCAL } from './modules/align_reads_2pass_STARSAM_s3local.nf'
 include { FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL } from './modules/fixmates_markdupes_SAMTOOLS_s3local.nf'
-include { HLA_TYPING_ARCASHLA_S3LOCAL } from './modules/type_hla_alleles_ARCASHLA_s3local.nf'
+include { TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL } from './modules/type_hla_alleles_ARCASHLA_s3local.nf'
 
 // Function to print help message
 def helpMessage() {
@@ -193,9 +193,9 @@ workflow HLA_TYPING_ARCASHLA_S3LOCAL {
         input_Ch
     main:
         // Then type the HLA alleles
-        HLA_TYPING_ARCASHLA_S3LOCAL(input_Ch)
+        TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL(input_Ch)
     emit:
-        hla_types = HLA_TYPING_ARCASHLA_S3LOCAL.out.allotype_json
+        hla_types = TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL.out.allotype_json
 }
 
 // Main workflow
@@ -283,11 +283,13 @@ workflow {
     // Add a parameter for manifest file path in your nextflow.config or pass via CLI
     def procInput_Ch = createManifestChannel(params.manifest_path)
 
+    procInput_Ch.view()
+
     // Execute workflows based on hla_only parameter
     if (params.hla_only) {
         // Run only HLA typing from fq files using arcasHLA
         aligned_Ch = ALIGN_READS_2PASS_S3LOCAL(procInput_Ch)
-        // HLA_TYPING_ARCASHLA_S3LOCAL(aligned_Ch)
+        HLA_TYPING_ARCASHLA_S3LOCAL(aligned_Ch)
     } else {
         // pass
     }
@@ -296,5 +298,6 @@ workflow {
 	workflow.onComplete = {
     	println "Pipeline completed at: $workflow.complete"
     	println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
+        //workDir.resolve("stage-${workflow.sessionId}").deleteDir()
 	}
 }

@@ -16,32 +16,22 @@ process ALIGN_READS_2PASS_STARSAM_S3LOCAL {
     script:
     """
     # variables
-    READ1=${readFile1}
-    READ2=${readFile2}
     SAMPLE_ID=${sampleName}
     CORES=${params.num_cores}
     STAR_INDEX="/home/app/libs/ref_genome.fa.star.idx"
 
-    echo "Processing files: \${READ1} & \${READ2} of sample \${SAMPLE_ID}"
+    echo "Processing files of sample \${SAMPLE_ID}"
     echo "Number of cores to use: ${params.num_cores}"
     echo "The index path: \${STAR_INDEX}"
 
-    # dowload read files from s3
-    if aws s3 cp \${READ1} /home/app/nf_work/ --force-glacier-transfer && aws s3 cp \${READ2} /home/app/nf_work/ --force-glacier-transfer; then
-        echo "Files downloaded. Starting STAR sample-level 2-pass alignment..."
-        
-        if bash /home/app/scripts/star-2pass-nf.sh "/home/app/nf_work/$(basename \${READ1})" "/home/app/nf_work/$(basename \${READ2})" "\${SAMPLE_ID}" ${params.num_cores} "\${STAR_INDEX}"; then
-            echo "STAR sample-level 2-pass alignment is complete!"
-            # delete read files
-            rm -f /home/app/nf_work/$(basename \${READ1})
-            rm -f /home/app/nf_work/$(basename \${READ2})
-        else
-            echo "STAR alignment failed. Check logs. Exiting..."
-            exit 1
+    # STAR 2-pass alignment
+    if bash /home/app/scripts/star-2pass-nf.sh ${readFile1} ${readFile2} "\${SAMPLE_ID}" ${params.num_cores} "\${STAR_INDEX}"; then
+        echo "STAR sample-level 2-pass alignment is complete!"
     else
-        echo "Failed to download files locally. Exiting..."
+        echo "STAR alignment failed. Check logs. Exiting..."
         exit 1
     fi
+
     """
     stub:
     """

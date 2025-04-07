@@ -8,7 +8,7 @@ process TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL {
         tuple val(sampleName), path(bambaiPair)
 
     output:
-        tuple val(sampleName), path("*.genotype.json")
+        tuple val(sampleName), path("*.genotype.json"), emit: allotype_json 
         path("*.genotype.log")
     
     script:
