@@ -37,3 +37,19 @@ Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq
 Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/216T_r1.fq.gz
 Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz
 Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/216T_r2.fq.gz
+
+Pipeline completed at: 2025-04-07T07:24:10.188322396Z
+Execution status: failed
+WARN: Killing running tasks (1)
+
+executor >  local (1)
+[63/92ce56] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (2) [  0%] 0 of 2
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL   -
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL   -
+
+
+
+
+
+
+

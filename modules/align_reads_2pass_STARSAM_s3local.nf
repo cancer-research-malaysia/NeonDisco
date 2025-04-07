@@ -1,7 +1,7 @@
 // align trimmed reads
 process ALIGN_READS_2PASS_STARSAM_S3LOCAL {
     errorStrategy 'finish'
-    maxForks 1
+    maxForks 2
     publishDir "${params.output_dir}/${sampleName}/STAR-out-2pass", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__preproc}"
