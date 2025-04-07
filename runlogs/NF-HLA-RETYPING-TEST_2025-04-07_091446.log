@@ -150,3 +150,25 @@ executor >  local (9)
 [cb/348162] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (3) [100%] 3 of 3 ✔
 [34/3f1072] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL (3) [ 66%] 2 of 3
 [962T, [/data/nf-works/cb/348162ff0100da57b68baadc956b22/962T_fixmates_markdupes.bam, /data/nf-works/cb/348162ff0100da57b68baadc956b22/962T_fixmates_markdupes.bam.bai]]
+
+executor >  local (9)
+[d9/3ce07e] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (3)   [100%] 3 of 3 ✔
+[cb/348162] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (3) [100%] 3 of 3 ✔
+[34/3f1072] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL (3) [100%] 3 of 3 ✔
+Pipeline completed at: 2025-04-07T09:53:26.709104009Z
+Execution status: OK
+
+
+executor >  local (9)
+[d9/3ce07e] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (3)   [100%] 3 of 3 ✔
+[cb/348162] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (3) [100%] 3 of 3 ✔
+[34/3f1072] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL (3) [100%] 3 of 3 ✔
+Pipeline completed at: 2025-04-07T09:53:26.709104009Z
+Execution status: OK
+
+Completed at: 07-Apr-2025 09:53:26
+Duration    : 38m 38s
+CPU hours   : 1.1
+Succeeded   : 9
+
+
