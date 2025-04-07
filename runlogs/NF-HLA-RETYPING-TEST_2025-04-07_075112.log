@@ -1,0 +1,76 @@
+
+ N E X T F L O W   ~  version 24.10.5
+
+Launching `main.nf` [insane_allen] DSL2 - revision: 584d4c685e
+
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL   -
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL -
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[226T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz]
+[231T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz]
+[962T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz]
+
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL   -
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL -
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[226T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz]
+[231T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz]
+[962T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz
+
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL   -
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL -
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[226T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz]
+[231T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz]
+[962T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz
+
+executor >  local (1)
+[b9/943180] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (2) [  0%] 0 of 1
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL   -
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL   -
+[226T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz]
+[231T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz]
+[962T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz
+
+executor >  local (2)
+[c5/789ec6] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (1) [  0%] 0 of 2
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL   -
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL   -
+[226T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz]
+[231T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz]
+[962T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz
+
+executor >  local (2)
+[c5/789ec6] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (1) [  0%] 0 of 3
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL   -
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL   -
+[226T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz]
+[231T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz]
+[962T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz
