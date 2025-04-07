@@ -1,7 +1,6 @@
 // Fix mate information
 process FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL {
-    errorStrategy 'finish'
-    maxForks 1
+    maxForks 4
     publishDir "${params.output_dir}/${sampleName}/SAMTOOLS-postproc-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__preproc}"

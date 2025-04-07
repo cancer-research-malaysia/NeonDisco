@@ -1,6 +1,5 @@
 // type HLA allotypes using arcasHLA (s3local profile version)
 process TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL {
-    errorStrategy 'finish'
     container "${params.container__arcashla}"
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name arcashla-typing -v \$(pwd):/home/app/nf_work -v ${params.bin_dir}:/home/app/scripts"
     
