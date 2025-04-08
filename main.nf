@@ -290,11 +290,12 @@ workflow {
     // Execute workflows based on hla_only parameter
     if (params.hla_only) {
         // test delete stage s3 files
-        DELETE_STAGE_S3FILES(procInput_Ch)
+        // DELETE_STAGE_S3FILES(procInput_Ch)
+
         // Run only HLA typing from fq files using arcasHLA
-        // aligned_Ch = ALIGN_READS_2PASS_S3LOCAL(procInput_Ch)
-        // aligned_Ch.view()
-        // HLA_TYPING_ARCASHLA_S3LOCAL(aligned_Ch)
+        aligned_Ch = ALIGN_READS_2PASS_S3LOCAL(procInput_Ch)
+        aligned_Ch.view()
+        HLA_TYPING_ARCASHLA_S3LOCAL(aligned_Ch)
     } else {
         // pass
     }
