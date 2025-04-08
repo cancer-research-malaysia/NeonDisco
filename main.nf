@@ -298,7 +298,6 @@ workflow {
         aligned_Ch = ALIGN_READS_2PASS_S3LOCAL(procInput_Ch)
         aligned_Ch.view()
         HLA_TYPING_ARCASHLA_S3LOCAL(aligned_Ch)
-        UPLOAD_S3FILES(HLA_TYPING_ARCASHLA_S3LOCAL.out.output_path)
         
     } else {
         // pass
