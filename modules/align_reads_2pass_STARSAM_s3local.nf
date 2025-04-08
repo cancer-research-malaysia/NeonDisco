@@ -1,6 +1,6 @@
 // align trimmed reads
 process ALIGN_READS_2PASS_STARSAM_S3LOCAL {
-    maxForks 4
+    maxForks 3
     afterScript "find ./ -name '${sampleName}*.f*.gz' -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete"
     //publishDir "${params.output_dir}/${sampleName}/STAR-out-2pass", mode: 'copy',
     //    saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }

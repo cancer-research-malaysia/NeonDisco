@@ -29,8 +29,19 @@ process FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL {
         # clean up original bam
         rm -f ${bam}
         rm -f ${sampleName}_fixmates.bam
+
+        # transfer to s3
+        aws s3 cp ${sampleName}_fixmates_markdupes.bam s3://${params.s3_bucket}/main-outputs/HLA-typing-arcasHLA/MyBrCa-RNA-seq/${sampleName}/
+        aws s3 cp ${sampleName}_fixmates_markdupes.bam.bai s3://${params.s3_bucket}/main-outputs/HLA-typing-arcasHLA/MyBrCa-RNA-seq/${sampleName}/
+        if [ $? -eq 0 ]; then
+            echo "Transfer to S3 complete!"
+        else
+            echo "Transfer to S3 failed. Check logs. Exiting..."
+            exit 1
+        fi
+
     else
-        echo "Fixmate information for ${sampleName} failed. Check logs. Exiting..."
+        echo "Grokking fixmate information for ${sampleName} failed. Check logs. Exiting..."
         exit 1
     fi
     """

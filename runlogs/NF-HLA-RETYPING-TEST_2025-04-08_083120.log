@@ -1,0 +1,294 @@
+
+ N E X T F L O W   ~  version 24.10.5
+
+Launching `main.nf` [maniac_solvay] DSL2 - revision: ef05ca1631
+
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL   -
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL -
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[8T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r2.fq.gz]
+[12T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r2.fq.gz]
+[226T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz]
+[231T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz]
+
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL   -
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL -
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[8T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r2.fq.gz]
+[12T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r2.fq.gz]
+[226T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz]
+[231T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz
+
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL   -
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL -
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[8T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r2.fq.gz]
+[12T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r2.fq.gz]
+[226T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz]
+[231T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz
+
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL   [  0%] 0 of 1
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL -
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[8T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r2.fq.gz]
+[12T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r2.fq.gz]
+[226T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz]
+[231T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz
+
+executor >  local (1)
+[9a/663c96] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (4) [  0%] 0 of 1
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL   -
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL   -
+[8T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r2.fq.gz]
+[12T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r2.fq.gz]
+[226T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz]
+[231T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz
+
+executor >  local (3)
+[c2/97f513] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (1) [  0%] 0 of 3
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL   -
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL   -
+[8T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r2.fq.gz]
+[12T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r2.fq.gz]
+[226T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz]
+[231T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz
+
+executor >  local (3)
+[c2/97f513] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (1) [  0%] 0 of 3
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL   -
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL   -
+[8T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r2.fq.gz]
+[12T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r2.fq.gz]
+[226T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz]
+[231T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz
+
+executor >  local (4)
+[c5/78b3c5] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (2) [  0%] 0 of 4
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL   -
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL   -
+[8T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r2.fq.gz]
+[12T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r2.fq.gz]
+[226T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz]
+[231T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz
+
+executor >  local (4)
+[c5/78b3c5] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (2) [  0%] 0 of 4
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL   -
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL   -
+
+
+
+
+
+
+
+
+
+
+
+
+ERROR ~ Error executing process > 'ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (1)'
+
+Caused by:
+  Process `ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (1)` terminated with an error exit status (1)
+
+
+Command executed:
+
+  # variables
+  SAMPLE_ID=8T
+  CORES=4
+  STAR_INDEX="/home/app/libs/ref_genome.fa.star.idx"
+  
+  echo "Processing files of sample ${SAMPLE_ID}"
+  echo "Number of cores to use: 4"
+  echo "The index path: ${STAR_INDEX}"
+  
+  # STAR 2-pass alignment
+  if bash /home/app/scripts/star-2pass-nf.sh 8T_r1.fq.gz 8T_r2.fq.gz "${SAMPLE_ID}" 4 "${STAR_INDEX}"; then
+      echo "STAR sample-level 2-pass alignment is complete!"
+  else
+      echo "STAR alignment failed. Check logs. Exiting..."
+      exit 1
+  fi
+
+Command exit status:
+  1
+
+Command output:
+  Processing files of sample 8T
+  Number of cores to use: 4
+  The index path: /home/app/libs/ref_genome.fa.star.idx
+  Running STAR with zcat flag
+  	/opt/conda/bin/STAR-avx2 --runThreadN 4 --genomeDir /home/app/libs/ref_genome.fa.star.idx --readFilesIn 8T_r1.fq.gz 8T_r2.fq.gz --readFilesCommand zcat --outFileNamePrefix 8T-STAR_2pass_ --outSAMtype BAM Unsorted --outSAMunmapped Within --outFilterMultimapNmax 50 --chimOutType WithinBAM HardClip --chimSegmentMin 10 --chimJunctionOverhangMin 10 --chimScoreDropMax 30 --chimScoreSeparation 1 --chimScoreJunctionNonGTAG 0 --chimSegmentReadGapMax 3 --chimMultimapNmax 50 --alignSJstitchMismatchNmax 5 -1 5 5 --alignSplicedMateMapLminOverLmate 0.5 --peOverlapNbasesMin 10 --twopassMode Basic
+  	STAR version: 2.7.11b   compiled: 2025-01-09T12:32:06+0000 :/opt/conda/conda-bld/star_1736425784849/work/source
+  Apr 08 08:32:28 ..... started STAR run
+  Apr 08 08:32:28 ..... loading genome
+  Apr 08 08:57:29 ..... started 1st pass mapping
+  Apr 08 09:00:56 ..... finished 1st pass mapping
+  Apr 08 09:00:58 ..... inserting junctions into the genome indices
+  STAR alignment failed. Check logs. Exiting...
+
+Command error:
+  Processing files of sample 8T
+  Number of cores to use: 4
+  The index path: /home/app/libs/ref_genome.fa.star.idx
+  Running STAR with zcat flag
+  	/opt/conda/bin/STAR-avx2 --runThreadN 4 --genomeDir /home/app/libs/ref_genome.fa.star.idx --readFilesIn 8T_r1.fq.gz 8T_r2.fq.gz --readFilesCommand zcat --outFileNamePrefix 8T-STAR_2pass_ --outSAMtype BAM Unsorted --outSAMunmapped Within --outFilterMultimapNmax 50 --chimOutType WithinBAM HardClip --chimSegmentMin 10 --chimJunctionOverhangMin 10 --chimScoreDropMax 30 --chimScoreSeparation 1 --chimScoreJunctionNonGTAG 0 --chimSegmentReadGapMax 3 --chimMultimapNmax 50 --alignSJstitchMismatchNmax 5 -1 5 5 --alignSplicedMateMapLminOverLmate 0.5 --peOverlapNbasesMin 10 --twopassMode Basic
+  	STAR version: 2.7.11b   compiled: 2025-01-09T12:32:06+0000 :/opt/conda/conda-bld/star_1736425784849/work/source
+  Apr 08 08:32:28 ..... started STAR run
+  Apr 08 08:32:28 ..... loading genome
+  Apr 08 08:57:29 ..... started 1st pass mapping
+  Apr 08 09:00:56 ..... finished 1st pass mapping
+  Apr 08 09:00:58 ..... inserting junctions into the genome indices
+  STAR alignment failed. Check logs. Exiting...
+  /opt/conda/bin/STAR: line 8:   278 Killed                  "${cmd}" "$@"
+
+Work dir:
+  /data/nf-works/c2/97f513a1047654d4bc3001f5fdbedc
+
+Container:
+  sufyazi/preproc-crmy
+
+Tip: when you have fixed the problem you can continue the execution adding the option `-resume` to the run command line
+
+ -- Check '.nextflow.log' file for details
+Pipeline completed at: 2025-04-08T09:01:35.504813917Z
+Execution status: failed
+WARN: Killing running tasks (3)
+
+executor >  local (4)
+[c2/97f513] process > ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (1) [ 25%] 1 of 4, failed: 1
+[-        ] process > ALIGN_READS_2PASS_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL   -
+[-        ] process > HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL   -
+ERROR ~ Error executing process > 'ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (1)'
+
+Caused by:
+  Process `ALIGN_READS_2PASS_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (1)` terminated with an error exit status (1)
+
+
+Command executed:
+
+  # variables
+  SAMPLE_ID=8T
+  CORES=4
+  STAR_INDEX="/home/app/libs/ref_genome.fa.star.idx"
+  
+  echo "Processing files of sample ${SAMPLE_ID}"
+  echo "Number of cores to use: 4"
+  echo "The index path: ${STAR_INDEX}"
+  
+  # STAR 2-pass alignment
+  if bash /home/app/scripts/star-2pass-nf.sh 8T_r1.fq.gz 8T_r2.fq.gz "${SAMPLE_ID}" 4 "${STAR_INDEX}"; then
+      echo "STAR sample-level 2-pass alignment is complete!"
+  else
+      echo "STAR alignment failed. Check logs. Exiting..."
+      exit 1
+  fi
+
+Command exit status:
+  1
+
+Command output:
+  Processing files of sample 8T
+  Number of cores to use: 4
+  The index path: /home/app/libs/ref_genome.fa.star.idx
+  Running STAR with zcat flag
+  	/opt/conda/bin/STAR-avx2 --runThreadN 4 --genomeDir /home/app/libs/ref_genome.fa.star.idx --readFilesIn 8T_r1.fq.gz 8T_r2.fq.gz --readFilesCommand zcat --outFileNamePrefix 8T-STAR_2pass_ --outSAMtype BAM Unsorted --outSAMunmapped Within --outFilterMultimapNmax 50 --chimOutType WithinBAM HardClip --chimSegmentMin 10 --chimJunctionOverhangMin 10 --chimScoreDropMax 30 --chimScoreSeparation 1 --chimScoreJunctionNonGTAG 0 --chimSegmentReadGapMax 3 --chimMultimapNmax 50 --alignSJstitchMismatchNmax 5 -1 5 5 --alignSplicedMateMapLminOverLmate 0.5 --peOverlapNbasesMin 10 --twopassMode Basic
+  	STAR version: 2.7.11b   compiled: 2025-01-09T12:32:06+0000 :/opt/conda/conda-bld/star_1736425784849/work/source
+  Apr 08 08:32:28 ..... started STAR run
+  Apr 08 08:32:28 ..... loading genome
+  Apr 08 08:57:29 ..... started 1st pass mapping
+  Apr 08 09:00:56 ..... finished 1st pass mapping
+  Apr 08 09:00:58 ..... inserting junctions into the genome indices
+  STAR alignment failed. Check logs. Exiting...
+
+Command error:
+  Processing files of sample 8T
+  Number of cores to use: 4
+  The index path: /home/app/libs/ref_genome.fa.star.idx
+  Running STAR with zcat flag
+  	/opt/conda/bin/STAR-avx2 --runThreadN 4 --genomeDir /home/app/libs/ref_genome.fa.star.idx --readFilesIn 8T_r1.fq.gz 8T_r2.fq.gz --readFilesCommand zcat --outFileNamePrefix 8T-STAR_2pass_ --outSAMtype BAM Unsorted --outSAMunmapped Within --outFilterMultimapNmax 50 --chimOutType WithinBAM HardClip --chimSegmentMin 10 --chimJunctionOverhangMin 10 --chimScoreDropMax 30 --chimScoreSeparation 1 --chimScoreJunctionNonGTAG 0 --chimSegmentReadGapMax 3 --chimMultimapNmax 50 --alignSJstitchMismatchNmax 5 -1 5 5 --alignSplicedMateMapLminOverLmate 0.5 --peOverlapNbasesMin 10 --twopassMode Basic
+  	STAR version: 2.7.11b   compiled: 2025-01-09T12:32:06+0000 :/opt/conda/conda-bld/star_1736425784849/work/source
+  Apr 08 08:32:28 ..... started STAR run
+  Apr 08 08:32:28 ..... loading genome
+  Apr 08 08:57:29 ..... started 1st pass mapping
+  Apr 08 09:00:56 ..... finished 1st pass mapping
+  Apr 08 09:00:58 ..... inserting junctions into the genome indices
+  STAR alignment failed. Check logs. Exiting...
+  /opt/conda/bin/STAR: line 8:   278 Killed                  "${cmd}" "$@"
+
+Work dir:
+  /data/nf-works/c2/97f513a1047654d4bc3001f5fdbedc
+
+Container:
+  sufyazi/preproc-crmy
+
+Tip: when you have fixed the problem you can continue the execution adding the option `-resume` to the run command line
+
+ -- Check '.nextflow.log' file for details
+
+
+
+
+
+
+
+
+
+
+
+
+

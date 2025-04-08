@@ -21,6 +21,7 @@ include { FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL } from './modules/fixmates_markdup
 include { TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL } from './modules/type_hla_alleles_ARCASHLA_s3local.nf'
 
 include { DELETE_STAGE_S3FILES } from './modules/delete_stage_s3files.nf'
+include { UPLOAD_S3FILES } from './modules/upload_s3files.nf'
 
 // Function to print help message
 def helpMessage() {
@@ -296,6 +297,8 @@ workflow {
         aligned_Ch = ALIGN_READS_2PASS_S3LOCAL(procInput_Ch)
         aligned_Ch.view()
         HLA_TYPING_ARCASHLA_S3LOCAL(aligned_Ch)
+        UPLOAD_S3FILES(HLA_TYPING_ARCASHLA_S3LOCAL.out.arcasHLA_out)
+        
     } else {
         // pass
     }

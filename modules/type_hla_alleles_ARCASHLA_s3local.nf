@@ -11,6 +11,7 @@ process TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL {
     output:
         tuple val(sampleName), path("*.genotype.json"), emit: allotype_json 
         path("*.genotype.log")
+        tuple val(sampleName), path("${params.output_dir}/${sampleName}/arcasHLA-out"), emit: arcasHLA_out
     
     script:
     """
