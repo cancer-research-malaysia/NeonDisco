@@ -1,6 +1,7 @@
 // align trimmed reads
-process ALIGN_READS_2PASS_STARSAM_S3LOCAL {
+process DELETE_STAGE_S3FILES {
     maxForks 4
+    afterScript "find ./ -name '${sampleName}*.f*.gz' -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete"
     //publishDir "${params.output_dir}/${sampleName}/STAR-out-2pass", mode: 'copy',
     //    saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__preproc}"
@@ -9,34 +10,28 @@ process ALIGN_READS_2PASS_STARSAM_S3LOCAL {
     input:
         tuple val(sampleName), path(readFile1), path(readFile2)
 
-    output:
-        tuple val(sampleName), path("*-STAR*Aligned.out.bam", arity: '1'), emit: aligned_bams
+    // output:
+    //     tuple val(sampleName), path("*-STAR*Aligned.out.bam", arity: '1'), emit: aligned_bams
 
     script:
     """
     # variables
     SAMPLE_ID=${sampleName}
     CORES=${params.num_cores}
-    STAR_INDEX="/home/app/libs/ref_genome.fa.star.idx"
 
     echo "Processing files of sample \${SAMPLE_ID}"
     echo "Number of cores to use: ${params.num_cores}"
-    echo "The index path: \${STAR_INDEX}"
 
-    # STAR 2-pass alignment
-    if bash /home/app/scripts/star-2pass-nf.sh ${readFile1} ${readFile2} "\${SAMPLE_ID}" ${params.num_cores} "\${STAR_INDEX}"; then
-        echo "STAR sample-level 2-pass alignment is complete!"
+    # test
+    if touch S3_${sampleName}.txt; then
+        echo "${readFile1} and ${readFile2} are staged at \$(realpath ${readFile1}) and \$(realpath ${readFile2})" > S3_${sampleName}.txt
+        cp ${readFile1} ./read1-test.fq.gz
+        cp ${readFile2} ./read2-test.fq.gz
+        echo "Test files copied to current directory"
     else
-        echo "STAR alignment failed. Check logs. Exiting..."
+        echo "Error. Exiting..."
         exit 1
     fi
 
-    """
-    stub:
-    """
-    touch ${sampleName}-STAR_2pass_Aligned.out.bam
-    touch ${sampleName}-STAR_2pass_Log.final.out
-    touch ${sampleName}-STAR_2pass_SJ.out.tab
-    echo "Stub run finished!" > test_stub_STAR-2pass-align.log
     """
 }

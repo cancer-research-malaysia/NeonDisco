@@ -20,6 +20,8 @@ include { ALIGN_READS_2PASS_STARSAM_S3LOCAL } from './modules/align_reads_2pass_
 include { FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL } from './modules/fixmates_markdupes_SAMTOOLS_s3local.nf'
 include { TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL } from './modules/type_hla_alleles_ARCASHLA_s3local.nf'
 
+include { DELETE_STAGE_S3FILES } from './modules/delete_stage_s3files.nf'
+
 // Function to print help message
 def helpMessage() {
     log.info"""
@@ -287,10 +289,12 @@ workflow {
 
     // Execute workflows based on hla_only parameter
     if (params.hla_only) {
+        // test delete stage s3 files
+        DELETE_STAGE_S3FILES(procInput_Ch)
         // Run only HLA typing from fq files using arcasHLA
-        aligned_Ch = ALIGN_READS_2PASS_S3LOCAL(procInput_Ch)
-        aligned_Ch.view()
-        HLA_TYPING_ARCASHLA_S3LOCAL(aligned_Ch)
+        // aligned_Ch = ALIGN_READS_2PASS_S3LOCAL(procInput_Ch)
+        // aligned_Ch.view()
+        // HLA_TYPING_ARCASHLA_S3LOCAL(aligned_Ch)
     } else {
         // pass
     }
@@ -299,6 +303,6 @@ workflow {
 	workflow.onComplete = {
     	println "Pipeline completed at: $workflow.complete"
     	println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
-        workDir.resolve("stage-${workflow.sessionId}").deleteDir()
+        //workDir.resolve("stage-${workflow.sessionId}").deleteDir()
 	}
 }
