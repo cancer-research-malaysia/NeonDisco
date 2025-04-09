@@ -303,6 +303,6 @@ workflow {
 	workflow.onComplete = {
     	println "Pipeline completed at: $workflow.complete"
     	println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
-        //workDir.resolve("stage-${workflow.sessionId}").deleteDir()
+        workDir.resolve("stage-${workflow.sessionId}").deleteDir()
 	}
 }
