@@ -110,10 +110,10 @@ def createInputChannelFromManifest(manifestPath) {
         .fromPath(manifestPath)
         .splitCsv(header: true, sep: '\t')
         .map { row -> 
-            // Assuming the TSV has columns: sampleName, read1_S3Path, read2_S3Path
+            // manifest TSV MUST HAVE THESE COLUMN NAMES AS HEADER: sampleName, read1Path, read2Path
             def sampleName = row.sampleName
-            def read1 = row.read1_S3Path
-            def read2 = row.read2_S3Path
+            def read1 = row.read1Path
+            def read2 = row.read2Path
             
             // Validate required fields
             if (!sampleName || !read1 || !read2) {

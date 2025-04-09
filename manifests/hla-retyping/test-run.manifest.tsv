@@ -1,4 +1,4 @@
-sampleName	read1_S3Path	read2_S3Path
+sampleName	read1Path	read2Path
 8T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r2.fq.gz
 12T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r2.fq.gz
 40T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/40T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/40T_r2.fq.gz
