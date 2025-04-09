@@ -29,89 +29,91 @@ nextflow run main.nf -profile <local/awsbatch/s3local> <--OPTION NAME> <ARGUMENT
 
 Required Arguments:
 ---------------
-    -profile            Either <local> or <s3local> for testing, or <awsbatch> for AWS Batch cluster [MANDATORY]
-    --input_dir         Path to directory containing RNA-seq FASTQ/BAM files [MANDATORY]
-    --output_dir        Directory path for output files [MANDATORY]
+    -profile            Either <local> or <s3local> for testing, or <awsbatch> for Batch [MANDATORY]
+    --manifest          Path to tab-delimited manifest file [MANDATORY]
+                         – must contain sample ID and read1 and read2 local filepaths or remote s3 filepaths
 
 Optional Arguments:
 ---------------
-    --trimming          Set to <true> to perform read trimming on input files (only works with FASTQ inputs)
-    --hla_only         Set to <true> to run only HLA typing workflow. Default: false
-    --help             Print this help message and exit
+    --inputDir          Path to local directory containing BAM/FASTQ input files
+    --outputDir         Local directory path for output
+    --trimming          Set to <true> to perform read trimming on FASTQ input [DEFAULT: false]
+    --HLATypingOnly     Set to <true> to exclusively run HLA typing workflow [DEFAULT: false]
+    --help              Print this help message and exit
     """.stripIndent()
 }
 
 // Function to validate input directory
-def validateInputDir(dir_path) {
-    if (!file(dir_path).exists() || !file(dir_path).isDirectory()) {
-        log.error "The input directory '${dir_path}' does not exist or is not valid."
+def validateInputDir(dirPath) {
+    if (!file(dirPath).exists() || !file(dirPath).isDirectory()) {
+        log.error "The local input directory '${dirPath}' does not exist or is not valid."
         return false
     }
     return true
 }
 
-// Function to create input channel
-def createInputChannel(dir_path) {
+// Function to create input channel if local directory is provided
+def createInputChannelFromPOSIX(dirPath) {
     // Check for existence of different file types
-    def bam_files = file("${dir_path}/*.bam")
-    def fastq_files = file("${dir_path}/*{R,r}{1,2}*.{fastq,fq}{,.gz}")
+    def bamFiles = file("${dirPath}/*.bam")
+    def fastqFiles = file("${dirPath}/*{R,r}{1,2}*.{fastq,fq}{,.gz}")
     
     // Initialize empty channels
-    def bam_Ch = Channel.empty()
-    def fastq_Ch = Channel.empty()
+    def bamCh = Channel.empty()
+    def fastqCh = Channel.empty()
 
     // Process BAM files if they exist
-    if (bam_files) {
-        log.info "[STATUS] Found BAM files in ${dir_path}"
-        bam_Ch = Channel.fromPath("${dir_path}/*.{bam,bai}")
+    if (bamFiles) {
+        log.info "[STATUS] Found BAM files in ${dirPath}"
+        bamCh = Channel.fromPath("${dirPath}/*.{bam,bai}")
             .map { file -> 
                 def name = file.name.replaceAll(/\.(bam|bai)$/, '')
                 tuple(name, file)
             }
             .groupTuple()
-            .map { sample_name, files -> 
-                def sorted_files = files.sort { a, _b -> 
+            .map { sample, files -> 
+                def sortedFiles = files.sort { a, _b -> 
                     a.name.endsWith("bam") ? -1 : 1
                 }
-                tuple(sample_name, sorted_files)
+                tuple(sample, sortedFiles)
             }
     }
     
     // Process FASTQ files if they exist
-    if (fastq_files) {
-        log.info "[STATUS] Found FASTQ files in ${dir_path}"
-        fastq_Ch = Channel.fromFilePairs("${dir_path}/*{R,r}{1,2}*.{fastq,fq}{,.gz}", checkIfExists: true)
+    if (fastqFiles) {
+        log.info "[STATUS] Found FASTQ files in ${dirPath}"
+        fastqCh = Channel.fromFilePairs("${dirPath}/*{R,r}{1,2}*.{fastq,fq}{,.gz}", checkIfExists: true)
             .toSortedList( { a, b -> a[0] <=> b[0] } )
             .flatMap()
     }
     
     // Check if we found any files
-    if (!bam_files && !fastq_files) {
-        log.error "No BAM or FASTQ files found in ${dir_path}"
+    if (!bamFiles && !fastqFiles) {
+        log.error "No BAM or FASTQ files found in ${dirPath}"
         exit 1
     }
     
-    return bam_Ch.mix(fastq_Ch)
+    return bamCh.mix(fastqCh)
 }
 
-// Function to read manifest file and create input channel
-def createManifestChannel(manifest_path) {
-    // Validate manifest file exists
-    def manifestFile = file(manifest_path)
+// Function to read manifest file and create input channels
+def createInputChannelFromManifest(manifestPath) {
+    // Validate that manifest file exists
+    def manifestFile = file(manifestPath)
     if (!manifestFile.exists()) {
-        log.error "Manifest file not found at path: ${manifest_path}"
+        log.error "Manifest file not found at path: ${manifestPath}"
         exit 1
     }
 
     // Create channel from manifest file
-    def input_Ch = Channel
-        .fromPath(manifest_path)
+    def inputCh = Channel
+        .fromPath(manifestPath)
         .splitCsv(header: true, sep: '\t')
         .map { row -> 
-            // Assuming the TSV has columns: sampleName, read1_s3_path, read2_s3_path
+            // Assuming the TSV has columns: sampleName, read1_S3Path, read2_S3Path
             def sampleName = row.sampleName
-            def read1 = row.read1_s3_path
-            def read2 = row.read2_s3_path
+            def read1 = row.read1_S3Path
+            def read2 = row.read2_S3Path
             
             // Validate required fields
             if (!sampleName || !read1 || !read2) {
@@ -124,79 +126,78 @@ def createManifestChannel(manifest_path) {
         }
         .filter { it != null }
 
-    return input_Ch
+    return inputCh
 }
 
 
 // Subworkflow definitions
-workflow TRIM_READS {
+workflow TRIMMING {
     take:
-        reads_Ch
+        readsCh
     main:
-        TRIM_READS_FASTP(reads_Ch)
+        TRIM_READS_FASTP(readsCh)
     emit:
-        trimmed_reads = TRIM_READS_FASTP.out.trimmed_reads
+        trimmedCh = TRIM_READS_FASTP.out.trimmed_reads
 }
 
-workflow ALIGN_READS_1PASS {
+workflow ALIGNMENT_1P {
     take:
-        reads_Ch
+        trimmedCh
     main:
-        FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_1PASS_STARSAM(reads_Ch).aligned_bams)
+        FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_1PASS_STARSAM(trimmedCh).aligned_bams)
     emit:
-        aligned_Bams = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bams
+        alignedBamCh = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bams
 }
 
-workflow ALIGN_READS_2PASS {
+workflow ALIGNMENT_2P {
     take:
-        reads_Ch
+        trimmedCh
     main:
-        FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_2PASS_STARSAM(reads_Ch).aligned_bams)
+        FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_2PASS_STARSAM(trimmedCh).aligned_bams)
     emit:
-        aligned_Bams = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bams
+        alignedBamCh = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bams
 }
 
-workflow ALIGN_READS_2PASS_S3LOCAL {
+workflow ALIGNMENT_2P_S3LOCAL {
     take:
-        reads_Ch
+        trimmedCh
     main:
-        FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL(ALIGN_READS_2PASS_STARSAM_S3LOCAL(reads_Ch).aligned_bams)
+        FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL(ALIGN_READS_2PASS_STARSAM_S3LOCAL(trimmedCh).aligned_bams)
     emit:
-        aligned_Bams = FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL.out.final_bams
+        alignedBamCh = FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL.out.final_bams
 }
 
 workflow HLA_TYPING_HLAHD {
     take:
-        input_Ch
+        inputCh
     main:
         // First fish for HLA reads
-        FISH_HLA_READS_SAMPBOWT(input_Ch)
+        FISH_HLA_READS_SAMPBOWT(inputCh)
         
         // Then type the HLA alleles using the fished reads
         TYPE_HLA_ALLELES_HLAHD(FISH_HLA_READS_SAMPBOWT.out.fished_files)
     emit:
-        hla_types = TYPE_HLA_ALLELES_HLAHD.out.hla_combined_result
+        hlaTypes = TYPE_HLA_ALLELES_HLAHD.out.hla_combined_result
 }
 
 workflow HLA_TYPING_ARCASHLA {
     take:
-        input_Ch
+        inputCh
     main:
         // Then type the HLA alleles
-        TYPE_HLA_ALLELES_ARCASHLA(input_Ch)
+        TYPE_HLA_ALLELES_ARCASHLA(inputCh)
     emit:
-        hla_types = TYPE_HLA_ALLELES_ARCASHLA.out.allotype_json
+        hlaTypes = TYPE_HLA_ALLELES_ARCASHLA.out.allotype_json
 }
 
 workflow HLA_TYPING_ARCASHLA_S3LOCAL {
     take:
-        input_Ch
+        inputCh
     main:
         // Then type the HLA alleles
-        TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL(input_Ch)
+        TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL(inputCh)
     emit:
-        hla_types = TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL.out.allotype_json
-        output_path = TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL.out.arcasHLA_out
+        hlaTypes = TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL.out.allotype_json
 }
 
 // Main workflow

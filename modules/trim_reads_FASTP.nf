@@ -4,7 +4,7 @@ process TRIM_READS_FASTP {
     publishDir "${params.output_dir}/${sampleName}/FASTP-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__preproc}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name fastp-trimming -v \$(pwd):/home/app/nf_work -v ${params.bin_dir}:/home/app/scripts"
+    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name STEP1 -v \$(pwd):/home/app/nf_work -v ${params.bin_dir}:/home/app/scripts"
     
     input:
         tuple val(sampleName), path(readFiles)
