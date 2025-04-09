@@ -29,7 +29,7 @@ nextflow run main.nf -profile <local/awsbatch/s3local> <--OPTION NAME> <ARGUMENT
 
 Required Arguments:
 ---------------
-    -profile            Either <local> or <s3local> for testing, or <awsbatch> for Batch [MANDATORY]
+    -profile            Either <s3local> for testing, or <awsbatch> for Batch [MANDATORY]
     --manifest          Path to tab-delimited manifest file [MANDATORY]
                          – must contain sample ID and read1 and read2 local filepaths or remote s3 filepaths
 
@@ -283,19 +283,17 @@ workflow {
 
     // Create input channel from manifest file
     // Add a parameter for manifest file path in your nextflow.config or pass via CLI
-    def procInput_Ch = createManifestChannel(params.manifest_path)
+    def inputCh = createInputChannelFromManifest(params.manifestPath)
 
-    procInput_Ch.view()
+    inputCh.view()
 
     // Execute workflows based on hla_only parameter
-    if (params.hla_only) {
-        // test delete stage s3 files
-        // DELETE_STAGE_S3FILES(procInput_Ch)
+    if (params.hlaOnly) {
 
         // Run only HLA typing from fq files using arcasHLA
-        aligned_Ch = ALIGN_READS_2PASS_S3LOCAL(procInput_Ch)
-        aligned_Ch.view()
-        HLA_TYPING_ARCASHLA_S3LOCAL(aligned_Ch)
+        alignedCh = ALIGNMENT_2P_S3LOCAL(inputCh)
+        alignedCh.view()
+        HLA_TYPING_ARCASHLA_S3LOCAL(alignedCh)
         
     } else {
         // pass
