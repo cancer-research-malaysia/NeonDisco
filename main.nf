@@ -30,7 +30,7 @@ nextflow run main.nf -profile <local/awsbatch/s3local> <--OPTION NAME> <ARGUMENT
 Required Arguments:
 ---------------
     -profile            Either <s3local> for testing, or <awsbatch> for Batch [MANDATORY]
-    --manifest          Path to tab-delimited manifest file [MANDATORY]
+    --manifestPath          Path to tab-delimited manifest file [MANDATORY]
                          – must contain sample ID and read1 and read2 local filepaths or remote s3 filepaths
 
 Optional Arguments:

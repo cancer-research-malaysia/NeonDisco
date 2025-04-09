@@ -1,0 +1,76 @@
+
+ N E X T F L O W   ~  version 24.10.5
+
+WARN: It appears you have never run this project before -- Option `-resume` is ignored
+Launching `main.nf` [nauseous_stonebraker] DSL2 - revision: f19b2e398c
+
+[-        ] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL        -
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+ERROR ~ Invalid manifest row: [sampleName:8T, read1_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz, read2_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r2.fq.gz]. Ensure all fields are present.
+
+ -- Check '.nextflow.log' file for details
+ERROR ~ Invalid manifest row: [sampleName:12T, read1_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz, read2_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r2.fq.gz]. Ensure all fields are present.
+
+ -- Check '.nextflow.log' file for details
+ERROR ~ Invalid manifest row: [sampleName:40T, read1_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/40T_r1.fq.gz, read2_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/40T_r2.fq.gz]. Ensure all fields are present.
+
+ -- Check '.nextflow.log' file for details
+ERROR ~ Invalid manifest row: [sampleName:62T, read1_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/62T_r1.fq.gz, read2_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/62T_r2.fq.gz]. Ensure all fields are present.
+
+ -- Check '.nextflow.log' file for details
+ERROR ~ Invalid manifest row: [sampleName:226T, read1_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz, read2_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz]. Ensure all fields are present.
+
+ -- Check '.nextflow.log' file for details
+ERROR ~ Invalid manifest row: [sampleName:231T, read1_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz, read2_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz]. Ensure all fields are present.
+
+ -- Check '.nextflow.log' file for details
+
+[-        ] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL        -
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+Pipeline completed at: 2025-04-09T04:55:08.946694252Z
+Execution status: OK
+ERROR ~ Invalid manifest row: [sampleName:8T, read1_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz, read2_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r2.fq.gz]. Ensure all fields are present.
+
+ -- Check '.nextflow.log' file for details
+ERROR ~ Invalid manifest row: [sampleName:12T, read1_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz, read2_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r2.fq.gz]. Ensure all fields are present.
+
+ -- Check '.nextflow.log' file for details
+ERROR ~ Invalid manifest row: [sampleName:40T, read1_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/40T_r1.fq.gz, read2_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/40T_r2.fq.gz]. Ensure all fields are present.
+
+ -- Check '.nextflow.log' file for details
+ERROR ~ Invalid manifest row: [sampleName:62T, read1_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/62T_r1.fq.gz, read2_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/62T_r2.fq.gz]. Ensure all fields are present.
+
+ -- Check '.nextflow.log' file for details
+ERROR ~ Invalid manifest row: [sampleName:226T, read1_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz, read2_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz]. Ensure all fields are present.
+
+ -- Check '.nextflow.log' file for details
+ERROR ~ Invalid manifest row: [sampleName:231T, read1_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz, read2_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz]. Ensure all fields are present.
+
+ -- Check '.nextflow.log' file for details
+
+[-        ] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL        -
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+Pipeline completed at: 2025-04-09T04:55:08.946694252Z
+Execution status: OK
+ERROR ~ Invalid manifest row: [sampleName:8T, read1_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r1.fq.gz, read2_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/8T_r2.fq.gz]. Ensure all fields are present.
+
+ -- Check '.nextflow.log' file for details
+ERROR ~ Invalid manifest row: [sampleName:12T, read1_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r1.fq.gz, read2_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/12T_r2.fq.gz]. Ensure all fields are present.
+
+ -- Check '.nextflow.log' file for details
+ERROR ~ Invalid manifest row: [sampleName:40T, read1_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/40T_r1.fq.gz, read2_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/40T_r2.fq.gz]. Ensure all fields are present.
+
+ -- Check '.nextflow.log' file for details
+ERROR ~ Invalid manifest row: [sampleName:62T, read1_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/62T_r1.fq.gz, read2_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/62T_r2.fq.gz]. Ensure all fields are present.
+
+ -- Check '.nextflow.log' file for details
+ERROR ~ Invalid manifest row: [sampleName:226T, read1_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r1.fq.gz, read2_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/226T_r2.fq.gz]. Ensure all fields are present.
+
+ -- Check '.nextflow.log' file for details
+ERROR ~ Invalid manifest row: [sampleName:231T, read1_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r1.fq.gz, read2_s3_path:s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/231T_r2.fq.gz]. Ensure all fields are present.
+
+ -- Check '.nextflow.log' file for details
+
