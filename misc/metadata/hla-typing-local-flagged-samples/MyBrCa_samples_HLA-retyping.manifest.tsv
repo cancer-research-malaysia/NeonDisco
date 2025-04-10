@@ -1,24 +1,5 @@
 sampleName	read1Path	read2Path
-254T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/254T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/254T_r2.fq.gz
-258T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/258T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/258T_r2.fq.gz
-270T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/270T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/270T_r2.fq.gz
-274T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/274T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/274T_r2.fq.gz
-281T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/281T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/281T_r2.fq.gz
-282T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/282T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/282T_r2.fq.gz
-285T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/285T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/285T_r2.fq.gz
-295T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/295T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/295T_r2.fq.gz
-357T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/357T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/357T_r2.fq.gz
-358T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/358T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/358T_r2.fq.gz
-397T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/397T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/397T_r2.fq.gz
-404T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/404T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/404T_r2.fq.gz
-441T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/441T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/441T_r2.fq.gz
-454T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/454T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/454T_r2.fq.gz
-467T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/467T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/467T_r2.fq.gz
-479T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/479T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/479T_r2.fq.gz
-503T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/503T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/503T_r2.fq.gz
-509T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/509T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/509T_r2.fq.gz
-543T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/543T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/543T_r2.fq.gz
-551T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/551T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/551T_r2.fq.gz
+
 555T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/555T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/555T_r2.fq.gz
 562T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/562T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/562T_r2.fq.gz
 574T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/574T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/574T_r2.fq.gz
