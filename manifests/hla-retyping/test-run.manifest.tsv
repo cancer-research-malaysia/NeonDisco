@@ -1,7 +1,9 @@
 sampleName	read1Path	read2Path
-85T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/85T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/85T_r2.fq.gz
-88T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/88T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/88T_r2.fq.gz
-111T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/111T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/111T_r2.fq.gz
-216T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/216T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/216T_r2.fq.gz
-223T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/223T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/223T_r2.fq.gz
-224T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/224T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/224T_r2.fq.gz
+225T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/225T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/225T_r2.fq.gz
+235T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/235T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/235T_r2.fq.gz
+236T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/236T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/236T_r2.fq.gz
+237T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/237T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/237T_r2.fq.gz
+242T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/242T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/242T_r2.fq.gz
+245T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/245T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/245T_r2.fq.gz
+249T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/249T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/249T_r2.fq.gz
+252T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/252T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/252T_r2.fq.gz
