@@ -1,6 +1,6 @@
 // 
 process FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL {
-    maxForks 3
+    maxForks 4
     publishDir "${params.outputDir}/${sampleName}/SAMTOOLS-postproc-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__preproc}"
