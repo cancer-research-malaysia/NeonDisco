@@ -1,0 +1,913 @@
+
+ N E X T F L O W   ~  version 24.10.5
+
+Launching `main.nf` [exotic_stone] DSL2 - revision: 87c8fac40e
+
+[-        ] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL        -
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[837T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz]
+[840T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz]
+[843T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz]
+[845T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r2.fq.gz]
+[846T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r2.fq.gz]
+[848T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r2.fq.gz]
+[863T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r2.fq.gz]
+[866T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r2.fq.gz]
+[870T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r2.fq.gz]
+[878T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r2.fq.gz]
+[880T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r2.fq.gz]
+[889T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r2.fq.gz]
+[890T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r2.fq.gz]
+[900T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r2.fq.gz]
+[904T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r2.fq.gz]
+[906T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r2.fq.gz]
+[910T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r2.fq.gz]
+[912T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r2.fq.gz]
+[914T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r2.fq.gz]
+[918T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r2.fq.gz]
+[921T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r2.fq.gz]
+[934T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r2.fq.gz]
+[957T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r2.fq.gz]
+[962T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz]
+
+[-        ] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL        -
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[837T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz]
+[840T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz]
+[843T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz]
+[845T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r2.fq.gz]
+[846T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r2.fq.gz]
+[848T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r2.fq.gz]
+[863T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r2.fq.gz]
+[866T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r2.fq.gz]
+[870T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r2.fq.gz]
+[878T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r2.fq.gz]
+[880T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r2.fq.gz]
+[889T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r2.fq.gz]
+[890T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r2.fq.gz]
+[900T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r2.fq.gz]
+[904T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r2.fq.gz]
+[906T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r2.fq.gz]
+[910T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r2.fq.gz]
+[912T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r2.fq.gz]
+[914T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r2.fq.gz]
+[918T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r2.fq.gz]
+[921T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r2.fq.gz]
+[934T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r2.fq.gz]
+[957T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r2.fq.gz]
+[962T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r1.fq.gz
+
+[-        ] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL        -
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[837T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz]
+[840T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz]
+[843T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz]
+[845T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r2.fq.gz]
+[846T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r2.fq.gz]
+[848T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r2.fq.gz]
+[863T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r2.fq.gz]
+[866T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r2.fq.gz]
+[870T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r2.fq.gz]
+[878T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r2.fq.gz]
+[880T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r2.fq.gz]
+[889T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r2.fq.gz]
+[890T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r2.fq.gz]
+[900T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r2.fq.gz]
+[904T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r2.fq.gz]
+[906T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r2.fq.gz]
+[910T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r2.fq.gz]
+[912T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r2.fq.gz]
+[914T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r2.fq.gz]
+[918T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r2.fq.gz]
+[921T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r2.fq.gz]
+[934T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r2.fq.gz]
+[957T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r2.fq.gz]
+[962T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r2.fq.gz
+
+executor >  local (1)
+[37/5a9195] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (21)   [  0%] 0 of 1
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[837T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz]
+[840T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz]
+[843T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz]
+[845T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r2.fq.gz]
+[846T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r2.fq.gz]
+[848T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r2.fq.gz]
+[863T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r2.fq.gz]
+[866T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r2.fq.gz]
+[870T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r2.fq.gz]
+[878T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r2.fq.gz]
+[880T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r2.fq.gz]
+[889T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r2.fq.gz]
+[890T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r2.fq.gz]
+[900T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r2.fq.gz]
+[904T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r2.fq.gz]
+[906T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r2.fq.gz]
+[910T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r2.fq.gz]
+[912T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r2.fq.gz]
+[914T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r2.fq.gz]
+[918T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r2.fq.gz]
+[921T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r2.fq.gz]
+[934T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r2.fq.gz]
+[957T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r2.fq.gz]
+[962T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r2.fq.gz
+
+executor >  local (2)
+[b8/e90947] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (20)   [  0%] 0 of 2
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[837T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz]
+[840T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz]
+[843T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz]
+[845T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r2.fq.gz]
+[846T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r2.fq.gz]
+[848T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r2.fq.gz]
+[863T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r2.fq.gz]
+[866T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r2.fq.gz]
+[870T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r2.fq.gz]
+[878T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r2.fq.gz]
+[880T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r2.fq.gz]
+[889T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r2.fq.gz]
+[890T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r2.fq.gz]
+[900T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r2.fq.gz]
+[904T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r2.fq.gz]
+[906T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r2.fq.gz]
+[910T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r2.fq.gz]
+[912T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r2.fq.gz]
+[914T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r2.fq.gz]
+[918T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r2.fq.gz]
+[921T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r2.fq.gz]
+[934T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r2.fq.gz]
+[957T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r2.fq.gz]
+[962T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r2.fq.gz
+
+executor >  local (3)
+[b4/843d19] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (17)   [  0%] 0 of 3
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[837T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz]
+[840T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz]
+[843T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz]
+[845T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r2.fq.gz]
+[846T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r2.fq.gz]
+[848T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r2.fq.gz]
+[863T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r2.fq.gz]
+[866T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r2.fq.gz]
+[870T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r2.fq.gz]
+[878T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r2.fq.gz]
+[880T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r2.fq.gz]
+[889T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r2.fq.gz]
+[890T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r2.fq.gz]
+[900T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r2.fq.gz]
+[904T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r2.fq.gz]
+[906T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r2.fq.gz]
+[910T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r2.fq.gz]
+[912T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r2.fq.gz]
+[914T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r2.fq.gz]
+[918T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r2.fq.gz]
+[921T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r2.fq.gz]
+[934T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r2.fq.gz]
+[957T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r2.fq.gz]
+[962T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r2.fq.gz
+
+executor >  local (4)
+[a5/6f04f3] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (3)    [  0%] 0 of 4
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[837T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz]
+[840T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz]
+[843T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz]
+[845T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r2.fq.gz]
+[846T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r2.fq.gz]
+[848T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r2.fq.gz]
+[863T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r2.fq.gz]
+[866T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r2.fq.gz]
+[870T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r2.fq.gz]
+[878T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r2.fq.gz]
+[880T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r2.fq.gz]
+[889T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r2.fq.gz]
+[890T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r2.fq.gz]
+[900T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r2.fq.gz]
+[904T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r2.fq.gz]
+[906T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r2.fq.gz]
+[910T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r2.fq.gz]
+[912T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r2.fq.gz]
+[914T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r2.fq.gz]
+[918T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r2.fq.gz]
+[921T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r2.fq.gz]
+[934T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r2.fq.gz]
+[957T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r2.fq.gz]
+[962T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r2.fq.gz
+
+executor >  local (4)
+[a5/6f04f3] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (3)    [  0%] 0 of 4
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[837T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz]
+[840T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz]
+[843T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz]
+[845T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r2.fq.gz]
+[846T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r2.fq.gz]
+[848T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r2.fq.gz]
+[863T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r2.fq.gz]
+[866T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r2.fq.gz]
+[870T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r2.fq.gz]
+[878T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r2.fq.gz]
+[880T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r2.fq.gz]
+[889T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r2.fq.gz]
+[890T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r2.fq.gz]
+[900T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r2.fq.gz]
+[904T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r2.fq.gz]
+[906T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r2.fq.gz]
+[910T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r2.fq.gz]
+[912T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r2.fq.gz]
+[914T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r2.fq.gz]
+[918T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r2.fq.gz]
+[921T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r2.fq.gz]
+[934T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r2.fq.gz]
+[957T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r2.fq.gz]
+[962T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r2.fq.gz
+
+executor >  local (5)
+[8e/37384b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (5)    [  0%] 0 of 5
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[837T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz]
+[840T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz]
+[843T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz]
+[845T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r2.fq.gz]
+[846T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r2.fq.gz]
+[848T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r2.fq.gz]
+[863T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r2.fq.gz]
+[866T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r2.fq.gz]
+[870T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r2.fq.gz]
+[878T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r2.fq.gz]
+[880T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r2.fq.gz]
+[889T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r2.fq.gz]
+[890T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r2.fq.gz]
+[900T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r2.fq.gz]
+[904T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r2.fq.gz]
+[906T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r2.fq.gz]
+[910T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r2.fq.gz]
+[912T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r2.fq.gz]
+[914T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r2.fq.gz]
+[918T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r2.fq.gz]
+[921T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r2.fq.gz]
+[934T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r2.fq.gz]
+[957T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r2.fq.gz]
+[962T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r2.fq.gz
+
+executor >  local (5)
+[8e/37384b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (5)    [  0%] 0 of 6
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r2.fq.gz
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+executor >  local (5)
+[8e/37384b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (5)    [  0%] 0 of 7
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/918T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/846T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/910T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/921T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/863T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/848T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/914T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/878T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/889T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/962T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/912T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/890T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/870T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/866T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/957T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/880T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/845T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/900T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/904T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/934T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/906T_r2.fq.gz
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+executor >  local (5)
+[8e/37384b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (5)    [  0%] 0 of 8
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+executor >  local (5)
+[8e/37384b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (5)    [  0%] 0 of 9
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+executor >  local (5)
+[8e/37384b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (5)    [  0%] 0 of 10
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+
+executor >  local (5)
+[8e/37384b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (5)    [  0%] 0 of 11
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+
+executor >  local (5)
+[8e/37384b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (5)    [  0%] 0 of 12
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+
+executor >  local (5)
+[8e/37384b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (5)    [  0%] 0 of 13
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+
+executor >  local (5)
+[8e/37384b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (5)    [  0%] 0 of 14
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+
+executor >  local (5)
+[8e/37384b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (5)    [  0%] 0 of 15
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+
+executor >  local (5)
+[8e/37384b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (5)    [  0%] 0 of 16
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+
+executor >  local (5)
+[8e/37384b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (5)    [  0%] 0 of 17
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+
+executor >  local (5)
+[8e/37384b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (5)    [  0%] 0 of 18
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+
+executor >  local (5)
+[8e/37384b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (5)    [  0%] 0 of 19
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+
+executor >  local (5)
+[8e/37384b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (5)    [  0%] 0 of 20
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
