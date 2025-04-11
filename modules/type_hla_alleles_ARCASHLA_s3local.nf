@@ -1,5 +1,6 @@
 // 
 process TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL {
+    afterScript "find ./ -name ${bambaiPair[0]} -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete"
     publishDir "${params.outputDir}/${sampleName}/arcasHLA-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__arcashla}"
@@ -27,9 +28,8 @@ process TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL {
     # Running arcasHLA
     if bash /home/app/scripts/arcasHLA-nf.sh "\${SAMPLE_ID}" "\${BAM}" "${params.numCores * 2}"; then
         echo "arcasHLA typing finished successfully!"
-        # remove bam file
-        rm -f \${BAM}
-        rm -f \${BAM_IDX}
+        # remove fq files
+        rm -f *.f*q.*
     else
         echo "arcasHLA typing failed. Check logs. Exiting..."
         exit 1

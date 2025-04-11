@@ -1,0 +1,250 @@
+
+ N E X T F L O W   ~  version 24.10.5
+
+Launching `main.nf` [distraught_solvay] DSL2 - revision: 87c8fac40e
+
+[-        ] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL        -
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[801T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r2.fq.gz]
+[818T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r2.fq.gz]
+[820T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r2.fq.gz]
+[827T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r2.fq.gz]
+
+[-        ] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL        -
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[801T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r2.fq.gz]
+[818T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r2.fq.gz]
+[820T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r2.fq.gz]
+[827T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r1.fq.gz
+
+[-        ] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL        -
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[801T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r2.fq.gz]
+[818T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r2.fq.gz]
+[820T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r2.fq.gz]
+[827T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r2.fq.gz
+
+[-        ] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL        [  0%] 0 of 1
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[801T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r2.fq.gz]
+[818T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r2.fq.gz]
+[820T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r2.fq.gz]
+[827T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r2.fq.gz
+
+executor >  local (1)
+[24/1da1c5] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (1)    [  0%] 0 of 1
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[801T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r2.fq.gz]
+[818T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r2.fq.gz]
+[820T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r2.fq.gz]
+[827T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r2.fq.gz
+
+executor >  local (2)
+[cc/38236c] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (3)    [  0%] 0 of 2
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[801T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r2.fq.gz]
+[818T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r2.fq.gz]
+[820T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r2.fq.gz]
+[827T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r2.fq.gz
+
+executor >  local (4)
+[b2/a065ff] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (2)    [  0%] 0 of 4
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[801T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r2.fq.gz]
+[818T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r2.fq.gz]
+[820T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r2.fq.gz]
+[827T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r2.fq.gz
+
+executor >  local (4)
+[b2/a065ff] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (2)    [  0%] 0 of 4
+[-        ] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL      -
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+[801T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r2.fq.gz]
+[818T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r2.fq.gz]
+[820T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r2.fq.gz]
+[827T, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r1.fq.gz, s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r2.fq.gz]
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r1.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r2.fq.gz
+Staging foreign file: s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r2.fq.gz
+
+executor >  local (5)
+[24/1da1c5] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (1)    [ 25%] 1 of 4
+[f6/8d01cb] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (1)  [  0%] 0 of 1
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+
+
+
+
+
+
+
+
+
+
+
+
+
+executor >  local (6)
+[cc/38236c] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (3)    [ 50%] 2 of 4
+[64/44272f] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (2)  [  0%] 0 of 2
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+
+
+
+
+
+
+
+
+
+
+
+
+
+executor >  local (7)
+[b2/a065ff] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (2)    [ 75%] 3 of 4
+[63/b6c027] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (3)  [  0%] 0 of 3
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+
+executor >  local (8)
+[16/4b363b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (4)    [100%] 4 of 4 ✔
+[a3/30ded6] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (4)  [  0%] 0 of 4
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+
+executor >  local (8)
+[16/4b363b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (4)    [100%] 4 of 4 ✔
+[a3/30ded6] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (4)  [  0%] 0 of 4
+[-        ] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL -
+
+executor >  local (9)
+[16/4b363b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (4)        [100%] 4 of 4 ✔
+[a3/30ded6] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (4)      [  0%] 0 of 4
+[dc/581e1c] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL (1) [  0%] 0 of 1
+[801T, [/data/nf-works/f6/8d01cb87b52ebdba49061fc15d7380/801T_fixmates_markdupes.bam, /data/nf-works/f6/8d01cb87b52ebdba49061fc15d7380/801T_fixmates_markdupes.bam.bai]]
+
+executor >  local (9)
+[16/4b363b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (4)        [100%] 4 of 4 ✔
+[f6/8d01cb] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (1)      [ 25%] 1 of 4
+[dc/581e1c] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL (1) [  0%] 0 of 1
+[801T, [/data/nf-works/f6/8d01cb87b52ebdba49061fc15d7380/801T_fixmates_markdupes.bam, /data/nf-works/f6/8d01cb87b52ebdba49061fc15d7380/801T_fixmates_markdupes.bam.bai]]
+
+executor >  local (10)
+[16/4b363b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (4)        [100%] 4 of 4 ✔
+[64/44272f] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (2)      [ 50%] 2 of 4
+[8c/3e9c0d] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL (2) [  0%] 0 of 2
+[820T, [/data/nf-works/64/44272f3d2283ca78e390fea0925d4d/820T_fixmates_markdupes.bam, /data/nf-works/64/44272f3d2283ca78e390fea0925d4d/820T_fixmates_markdupes.bam.bai]]
+
+
+executor >  local (11)
+[16/4b363b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (4)        [100%] 4 of 4 ✔
+[63/b6c027] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (3)      [ 75%] 3 of 4
+[98/40cc4f] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL (3) [  0%] 0 of 3
+[818T, [/data/nf-works/63/b6c0279c22c6a7ce8f788e34187d50/818T_fixmates_markdupes.bam, /data/nf-works/63/b6c0279c22c6a7ce8f788e34187d50/818T_fixmates_markdupes.bam.bai]]
+
+
+executor >  local (12)
+[16/4b363b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (4)        [100%] 4 of 4 ✔
+[63/b6c027] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (3)      [ 75%] 3 of 4
+[9e/cef65b] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL (4) [  0%] 0 of 4
+[827T, [/data/nf-works/a3/30ded6d70b0d2d0f9523303c47a3de/827T_fixmates_markdupes.bam, /data/nf-works/a3/30ded6d70b0d2d0f9523303c47a3de/827T_fixmates_markdupes.bam.bai]]
+
+
+executor >  local (12)
+[16/4b363b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (4)        [100%] 4 of 4 ✔
+[a3/30ded6] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (4)      [100%] 4 of 4 ✔
+[9e/cef65b] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL (4) [  0%] 0 of 4
+[827T, [/data/nf-works/a3/30ded6d70b0d2d0f9523303c47a3de/827T_fixmates_markdupes.bam, /data/nf-works/a3/30ded6d70b0d2d0f9523303c47a3de/827T_fixmates_markdupes.bam.bai]]
+
+
+executor >  local (12)
+[16/4b363b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (4)        [100%] 4 of 4 ✔
+[a3/30ded6] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (4)      [100%] 4 of 4 ✔
+[dc/581e1c] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL (1) [ 25%] 1 of 4
+
+
+executor >  local (12)
+[16/4b363b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (4)        [100%] 4 of 4 ✔
+[a3/30ded6] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (4)      [100%] 4 of 4 ✔
+[8c/3e9c0d] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL (2) [ 50%] 2 of 4
+
+
+executor >  local (12)
+[16/4b363b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (4)        [100%] 4 of 4 ✔
+[a3/30ded6] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (4)      [100%] 4 of 4 ✔
+[9e/cef65b] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL (4) [ 75%] 3 of 4
+
+executor >  local (12)
+[16/4b363b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (4)        [100%] 4 of 4 ✔
+[a3/30ded6] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (4)      [100%] 4 of 4 ✔
+[98/40cc4f] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL (3) [100%] 4 of 4 ✔
+Pipeline completed at: 2025-04-11T03:07:17.327726794Z
+Execution status: OK
+
+executor >  local (12)
+[16/4b363b] ALIGNMENT_2P_S3LOCAL:ALIGN_READS_2PASS_STARSAM_S3LOCAL (4)        [100%] 4 of 4 ✔
+[a3/30ded6] ALIGNMENT_2P_S3LOCAL:FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL (4)      [100%] 4 of 4 ✔
+[98/40cc4f] HLA_TYPING_ARCASHLA_S3LOCAL:TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL (3) [100%] 4 of 4 ✔
+Pipeline completed at: 2025-04-11T03:07:17.327726794Z
+Execution status: OK
+Completed at: 11-Apr-2025 03:07:17
+Duration    : 27m 45s
+CPU hours   : 1.5
+Succeeded   : 12
+
+

@@ -1,12 +1,4 @@
 sampleName	read1Path	read2Path
-
-
-801T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/801T_r2.fq.gz
-818T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/818T_r2.fq.gz
-820T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/820T_r2.fq.gz
-827T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/827T_r2.fq.gz
-828T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/828T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/828T_r2.fq.gz
-831T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/831T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/831T_r2.fq.gz
 837T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz
 840T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/840T_r2.fq.gz
 843T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/843T_r2.fq.gz

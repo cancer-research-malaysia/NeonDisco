@@ -1,6 +1,7 @@
 // 
 process FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL {
     maxForks 4
+    afterScript "find ./ -name ${bamFile} -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete"
     publishDir "${params.outputDir}/${sampleName}/SAMTOOLS-postproc-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__preproc}"
@@ -26,8 +27,7 @@ process FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL {
         # then index
         samtools index ${sampleName}_fixmates_markdupes.bam && echo "Indexing complete!"
 
-        # clean up original bam
-        rm -f ${bamFile}
+        # clean up intermediate bam
         rm -f ${sampleName}_fixmates.bam
     else
         echo "Grokking fixmate information for ${sampleName} failed. Check logs. Exiting..."
