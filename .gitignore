@@ -102,3 +102,5 @@ work/
 inputs/*
 docker/arcashla/src/IMGTHLA-3.5*.0/*
 outputs/*
+
+.DS_Store
