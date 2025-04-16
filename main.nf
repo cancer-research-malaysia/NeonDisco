@@ -22,14 +22,17 @@ def helpMessage() {
     log.info"""
 Usage:
 
-nextflow run main.nf -profile <local/awsbatch/s3local> <--OPTION NAME> <ARGUMENT>
+nextflow run main.nf -profile <local | awsbatch> <--OPTION NAME> <ARGUMENT>
 
 Required Arguments:
 ---------------
-    -profile            Either <s3local> for local runs with remote S3 files, <local> for testing, or <awsbatch> for AWS Batch [MANDATORY]
+    -profile            Either <local> for local runs or <awsbatch> for AWS Batch [MANDATORY]
     --manifestPath      Path to tab-delimited manifest file [REQUIRED if inputDir not provided]
                          – must contain sample ID and read1 and read2 local filepaths or remote s3 filepaths
     --inputDir          Path to local directory containing BAM/FASTQ input files [REQUIRED if manifestPath not provided]
+    --inputSource      Specify the input source type: <local> or <s3> [MANDATORY]
+                         – local: local directory containing BAM/FASTQ files
+                         – s3: S3 bucket containing BAM/FASTQ files
 
 Optional Arguments:
 ---------------
@@ -154,13 +157,23 @@ workflow {
     params.hlaTypingOnly = params.hlaTypingOnly == null ? false : params.hlaTypingOnly
 
     // Set output directory based on profile
-    if (workflow.profile in ['local', 'awsbatch']) {
-        if (params.s3OutDir) {
-            log.info "Using the specified S3 output directory: ${params.s3OutDir}"
-            params.outputDir = params.s3OutDir
+    if (!params.inputSource) {
+        log.error "No input source specified. Please specify --inputSource <local/s3>"
+        exit 1
+    } else if (params.inputSource == 's3') {
+        if (!params.s3Bucket) {
+            log.error "Input source is set to 's3' but no S3 bucket specified. Please specify --s3Bucket <s3://bucket> for output directory"
+            exit 1
         } else {
+            params.outputDir = "${params.s3Bucket}/${params.s3OutDirPrefix}/${workflow.name}/${workflow.sessionId}/"
+            log.info "Constructed remote output directory: ${params.outputDir}"
+        }
+    } else if (params.inputSource == 'local') {
+        // Check if output directory is provided
+        if (!params.outputDir) {
+            log.warn "Input source is set to 'local' but no output directory specified."
+            log.warn "Defaulting to './outputs'. Please rerun with --outputDir <path> to set a custom output directory."
             params.outputDir = params.outputDir ?: "./outputs"
-            log.info "Using local output directory: ${params.outputDir}"
         }
     }
     
@@ -172,7 +185,7 @@ workflow {
     
     // Check that profile is set to one of the allowed values
     if (!workflow.profile) {
-        log.error "No profile specified. Please specify -profile <local/awsbatch/s3local>"
+        log.error "No profile specified. Please specify -profile <local/awsbatch/>"
         exit 1
     } else if (!['local', 'awsbatch'].contains(workflow.profile)) {
         log.error "Invalid profile: ${workflow.profile}. Must be one of: {local, awsbatch}"
@@ -193,17 +206,11 @@ workflow {
     if (params.manifestPath) {
         inputCh = createInputChannelFromManifest(params.manifestPath)
         log.info "Using manifest file: ${params.manifestPath}"
-        // set cleanupIntermediates to true if manifest is used
-        params.cleanupIntermediates = true
-        log.info "Setting cleanupIntermediates to ${params.cleanupIntermediates}. Staged remote files will be deleted as soon as their dependent processes are completed."
     } else {
         if (!validateInputDir(params.inputDir)) {
             exit 1
         }
         inputCh = createInputChannelFromPOSIX(params.inputDir)
-        // set cleanupIntermediates to false if inputDir is used
-        params.cleanupIntermediates = false
-        log.info "Setting cleanupIntermediates to ${params.cleanupIntermediates}. Original input files will be retained."
         log.info "Input directory: ${params.inputDir}"
     }
     
