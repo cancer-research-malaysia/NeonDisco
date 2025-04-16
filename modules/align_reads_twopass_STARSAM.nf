@@ -5,7 +5,7 @@ process ALIGN_READS_TWOPASS_STARSAM {
     container "${params.container__preproc}"
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name ALIGNMENT-2P -v ${params.arribaDB}:/home/app/refs -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
     
-    afterScript params.cleanupIntermediates ? "find ./ -name '${sampleName}_trimmed.f*q.*' -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping intermediate file cleanup...'"
+    afterScript params.cleanupIntermediates ? "find ./ -name '${sampleName}_trimmed.R?.f*q.*' -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping intermediate file cleanup...'"
 
     input:
         tuple val(sampleName), path(readFiles)
