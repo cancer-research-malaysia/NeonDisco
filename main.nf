@@ -26,17 +26,15 @@ nextflow run main.nf -profile <local | awsbatch> <--OPTION NAME> <ARGUMENT>
 
 Required Arguments:
 ---------------
-    -profile            Either <local> for local runs or <awsbatch> for AWS Batch [MANDATORY]
+    -profile            Either <local> for local runs or <awsbatch> for AWS Batch [REQUIRED]
     --manifestPath      Path to tab-delimited manifest file [REQUIRED if inputDir not provided]
                          – must contain sample ID and read1 and read2 local filepaths or remote s3 filepaths
     --inputDir          Path to local directory containing BAM/FASTQ input files [REQUIRED if manifestPath not provided]
-    --inputSource      Specify the input source type: <local> or <s3> [MANDATORY]
-                         – local: local directory containing BAM/FASTQ files
-                         – s3: S3 bucket containing BAM/FASTQ files
+    --outputDir         Directory path for output; can be s3 URIs [DEFAULT: ./outputs]
 
 Optional Arguments:
 ---------------
-    --outputDir         Local directory path for output [DEFAULT: ./results]
+    --outputDir         Directory path for output; can be s3 URIs [DEFAULT: ./outputs]
     --trimReads         Set to <false> to skip read trimming on FASTQ input [DEFAULT: true]
     --hlaTypingOnly     Set to <true> to exclusively run HLA typing workflow [DEFAULT: false]
     --help              Print this help message and exit
@@ -149,33 +147,11 @@ workflow TWOPASS_ALIGNMENT_WF {
 }
 
 
-
 // Main workflow
 workflow {
     // Define default parameters
     params.trimReads = params.trimReads == null ? true : params.trimReads
     params.hlaTypingOnly = params.hlaTypingOnly == null ? false : params.hlaTypingOnly
-
-    // Set output directory based on profile
-    if (!params.inputSource) {
-        log.error "No input source specified. Please specify --inputSource <local/s3>"
-        exit 1
-    } else if (params.inputSource == 's3') {
-        if (!params.s3Bucket) {
-            log.error "Input source is set to 's3' but no S3 bucket specified. Please specify --s3Bucket <s3://bucket> for output directory"
-            exit 1
-        } else {
-            params.outputDir = "${params.s3Bucket}/${params.s3OutDirPrefix}/${workflow.name}/${workflow.sessionId}/"
-            log.info "Constructed remote output directory: ${params.outputDir}"
-        }
-    } else if (params.inputSource == 'local') {
-        // Check if output directory is provided
-        if (!params.outputDir) {
-            log.warn "Input source is set to 'local' but no output directory specified."
-            log.warn "Defaulting to './outputs'. Please rerun with --outputDir <path> to set a custom output directory."
-            params.outputDir = params.outputDir ?: "./outputs"
-        }
-    }
     
     // Show help message if requested
     if (params.help) {
@@ -185,7 +161,7 @@ workflow {
     
     // Check that profile is set to one of the allowed values
     if (!workflow.profile) {
-        log.error "No profile specified. Please specify -profile <local/awsbatch/>"
+        log.error "No profile specified. Please specify -profile <local | awsbatch>"
         exit 1
     } else if (!['local', 'awsbatch'].contains(workflow.profile)) {
         log.error "Invalid profile: ${workflow.profile}. Must be one of: {local, awsbatch}"
@@ -215,9 +191,9 @@ workflow {
     }
     
     // Log the key parameters
-    log.info "trimReads: ${params.trimReads}"
-    log.info "hlaTypingOnly: ${params.hlaTypingOnly}"
-    log.info "outputDir: ${params.outputDir}"
+    log.info "Output directory: ${params.outputDir}"
+    log.info "Read trimming: ${params.trimReads}"
+    log.info "HLA typing only mode: ${params.hlaTypingOnly}"
     
     // Process input based on trimReads parameter
     def processedInputCh = params.trimReads ? TRIMMING_WF(inputCh).trimmedCh : inputCh
