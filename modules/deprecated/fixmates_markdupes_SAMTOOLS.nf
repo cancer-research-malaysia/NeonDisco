@@ -1,36 +1,33 @@
-// 
+// Fix mate information
 process FIXMATES_MARKDUPES_SAMTOOLS {
-    maxForks 4
-    //afterScript "find ./ -name ${bamFile} -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete"
-    publishDir "${params.outputDir}/${sampleName}/2PASS-ALIGNMENT-out", mode: 'copy',
+    errorStrategy 'finish'
+    maxForks 2
+    publishDir "${params.output_dir}/${sampleName}/SAMTOOLS-postproc-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__preproc}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name BAM-POSTPROC -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name samtools-postproc-bams -v \$(pwd):/home/app/nf_work -v ${params.bin_dir}:/home/app/scripts"
     
     input:
-        tuple val(sampleName), path(bamFile)
+        tuple val(sampleName), path(bam)
     
     output:
         tuple val(sampleName), path("*_fixmates_markdupes.ba*", arity: '2'), emit: final_bams
     
     script:
     """
-    samtools sort -n -@ ${params.numCores} -m 4G -O bam ${bamFile} | \
+    samtools sort -n -@ ${params.num_cores} -m 4G -O bam ${bam} | \
     samtools fixmate -pcmu -O bam - ${sampleName}_fixmates.bam
 
     if [ -f ${sampleName}_fixmates.bam ]; then
         echo "Fixmate information for ${sampleName} is complete!"
         # mark duplicates
-        samtools sort -@ ${params.numCores} -m 4G -O bam ${sampleName}_fixmates.bam | \
-        samtools markdup -@ ${params.numCores} - ${sampleName}_fixmates_markdupes.bam
+        samtools sort -@ ${params.num_cores} -m 4G -O bam ${sampleName}_fixmates.bam | \
+        samtools markdup -@ ${params.num_cores} - ${sampleName}_fixmates_markdupes.bam
 
         # then index
         samtools index ${sampleName}_fixmates_markdupes.bam && echo "Indexing complete!"
-
-        # clean up intermediate bam
-        rm -f ${sampleName}_fixmates.bam
     else
-        echo "Grokking fixmate information for ${sampleName} failed. Check logs. Exiting..."
+        echo "Fixmate information for ${sampleName} failed. Check logs. Exiting..."
         exit 1
     fi
     """

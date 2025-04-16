@@ -4,8 +4,7 @@ nextflow.enable.dsl = 2
 
 // Import submodules
 include { TRIM_READS_FASTP } from './modules/trim_reads_FASTP.nf'
-include { ALIGN_READS_1PASS_STARSAM } from './modules/align_reads_1pass_STARSAM.nf'
-include { ALIGN_READS_2PASS_STARSAM } from './modules/align_reads_2pass_STARSAM.nf'
+include { ALIGN_READS_TWOPASS_STARSAM } from './modules/align_reads_twopass_STARSAM.nf'
 include { FIXMATES_MARKDUPES_SAMTOOLS } from './modules/fixmates_markdupes_SAMTOOLS.nf'
 include { FISH_HLA_READS_SAMPBOWT } from './modules/fish_hla_reads_SAMPBOWT.nf'
 include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD.nf'
@@ -16,8 +15,6 @@ include { COLLATE_FUSIONS_PYENV } from './modules/collate_fusions_PYENV.nf'
 include { PREDICT_CODING_SEQ_AGFUSION } from './modules/predict_coding_seq_AGFUSION.nf'
 
 // s3local testing submodules
-include { ALIGN_READS_2PASS_STARSAM_S3LOCAL } from './modules/align_reads_2pass_STARSAM_s3local.nf'
-include { FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL } from './modules/fixmates_markdupes_SAMTOOLS_s3local.nf'
 include { TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL } from './modules/type_hla_alleles_ARCASHLA_s3local.nf'
 
 // Function to print help message
@@ -29,16 +26,16 @@ nextflow run main.nf -profile <local/awsbatch/s3local> <--OPTION NAME> <ARGUMENT
 
 Required Arguments:
 ---------------
-    -profile            Either <s3local> for testing, or <awsbatch> for Batch [MANDATORY]
-    --manifestPath          Path to tab-delimited manifest file [MANDATORY]
+    -profile            Either <s3local> for local runs with remote S3 files, <local> for testing, or <awsbatch> for AWS Batch [MANDATORY]
+    --manifestPath      Path to tab-delimited manifest file [REQUIRED if inputDir not provided]
                          – must contain sample ID and read1 and read2 local filepaths or remote s3 filepaths
+    --inputDir          Path to local directory containing BAM/FASTQ input files [REQUIRED if manifestPath not provided]
 
 Optional Arguments:
 ---------------
-    --inputDir          Path to local directory containing BAM/FASTQ input files
-    --outputDir         Local directory path for output
-    --trimming          Set to <true> to perform read trimming on FASTQ input [DEFAULT: false]
-    --HLATypingOnly     Set to <true> to exclusively run HLA typing workflow [DEFAULT: false]
+    --outputDir         Local directory path for output [DEFAULT: ./results]
+    --trimReads         Set to <false> to skip read trimming on FASTQ input [DEFAULT: true]
+    --hlaTypingOnly     Set to <true> to exclusively run HLA typing workflow [DEFAULT: false]
     --help              Print this help message and exit
     """.stripIndent()
 }
@@ -122,16 +119,15 @@ def createInputChannelFromManifest(manifestPath) {
             }
             
             // Return tuple of sample name and read file paths
-            return tuple(sampleName, read1, read2)
+            return tuple(sampleName, [read1, read2])
         }
         .filter { it != null }
 
     return inputCh
 }
 
-
 // Subworkflow definitions
-workflow TRIMMING {
+workflow READ_TRIMMING_WF {
     take:
         readsCh
     main:
@@ -140,169 +136,119 @@ workflow TRIMMING {
         trimmedCh = TRIM_READS_FASTP.out.trimmed_reads
 }
 
-workflow ALIGNMENT_1P {
+workflow TWOPASS_ALIGNMENT_WF {
     take:
         trimmedCh
     main:
-        FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_1PASS_STARSAM(trimmedCh).aligned_bams)
+        FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_TWOPASS_STARSAM(trimmedCh).aligned_bams)
     emit:
         alignedBamCh = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bams
 }
 
-workflow ALIGNMENT_2P {
-    take:
-        trimmedCh
-    main:
-        FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_2PASS_STARSAM(trimmedCh).aligned_bams)
-    emit:
-        alignedBamCh = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bams
-}
 
-workflow ALIGNMENT_2P_S3LOCAL {
-    take:
-        trimmedCh
-    main:
-        FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL(ALIGN_READS_2PASS_STARSAM_S3LOCAL(trimmedCh).aligned_bams)
-    emit:
-        alignedBamCh = FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL.out.final_bams
-}
-
-workflow HLA_TYPING_HLAHD {
-    take:
-        inputCh
-    main:
-        // First fish for HLA reads
-        FISH_HLA_READS_SAMPBOWT(inputCh)
-        
-        // Then type the HLA alleles using the fished reads
-        TYPE_HLA_ALLELES_HLAHD(FISH_HLA_READS_SAMPBOWT.out.fished_files)
-    emit:
-        hlaTypes = TYPE_HLA_ALLELES_HLAHD.out.hla_combined_result
-}
-
-workflow HLA_TYPING_ARCASHLA {
-    take:
-        inputCh
-    main:
-        // Then type the HLA alleles
-        TYPE_HLA_ALLELES_ARCASHLA(inputCh)
-    emit:
-        hlaTypes = TYPE_HLA_ALLELES_ARCASHLA.out.allotype_json
-}
-
-workflow HLA_TYPING_ARCASHLA_S3LOCAL {
-    take:
-        inputCh
-    main:
-        // Then type the HLA alleles
-        TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL(inputCh)
-    emit:
-        hlaTypes = TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL.out.allotype_json
-}
 
 // Main workflow
-// workflow {
-//     // Show help message if requested
-//     if (params.help) {
-//         helpMessage()
-//         exit 0
-//     }
-
-//     // Validate required parameters
-//     if (!params.input_dir || !params.output_dir) {
-//         log.error "Input and output directories must be specified."
-//         exit 1
-//     }
-
-//     // Validate input directory
-//     if (!validateInputDir(params.input_dir)) {
-//         exit 1
-//     }
-
-//     // Create input channel
-//     def input_Ch = createInputChannel(params.input_dir)
-
-//     // Branch input channel based on file type (just peek at the 1st element of the second element [file list] of the input tuple)
-//     def branched = input_Ch.branch {
-//         fastq: it[1][0].name =~ /\.(fastq|fq)(\.gz)?$/
-//         bam: it[1][0].name =~ /\.bam$/
-//     }
-
-//     // Process FASTQ files if present and trimming is requested
-//     def procInput_Ch
-//     def trimmedFastqs = params.trimming ? TRIM_READS(branched.fastq).trimmed_reads : branched.fastq
-//     procInput_Ch = trimmedFastqs.mix(branched.bam)
-//     procInput_Ch.view()
-
-//     // Execute workflows based on hla_only parameter
-//     if (params.hla_only) {
-//         // Run only HLA typing using HLAHD
-//         HLA_TYPING_HLAHD(procInput_Ch)
-
-//         // Run only HLA typing from fq files using arcasHLA
-//         aligned_Ch = ALIGN_READS_2PASS(procInput_Ch)
-//         HLA_TYPING_ARCASHLA(aligned_Ch)
-
-//     } else {
-//         // main pipeline
-//         aligned_Ch = ALIGN_READS_2PASS(procInput_Ch)
-//         HLA_TYPING_ARCASHLA(aligned_Ch)
-
-//         // gene fusion identification submodule
-//         CALL_FUSIONS_ARRIBA(procInput_Ch)
-//         CALL_FUSIONS_FUSIONCATCHER(procInput_Ch)
-
-//         // Join the outputs based on sample name
-//         CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
-//             .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
-//             .set { combinedFTFiles_Ch }
-        
-//         combinedFTFiles_Ch.view()
-    
-//         // Run the collation process with the joined output
-//         COLLATE_FUSIONS_PYENV(combinedFTFiles_Ch)
-
-//         // Run AGFusion to predict fusion protein sequences
-//         PREDICT_CODING_SEQ_AGFUSION(COLLATE_FUSIONS_PYENV.out.collatedFTList)
-//     }
-
-// 	// Completion handler
-// 	workflow.onComplete = {
-//     	println "Pipeline completed at: $workflow.complete"
-//     	println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
-// 	}
-// }
-
-// temp workflow for HLA retyping
 workflow {
+    // Define default parameters
+    params.trimReads = params.trimReads == null ? true : params.trimReads
+    params.hlaTypingOnly = params.hlaTypingOnly == null ? false : params.hlaTypingOnly
+
+    // Set output directory based on profile
+    if (workflow.profile in ['local', 'awsbatch']) {
+        if (params.s3OutDir) {
+            log.info "Using the specified S3 output directory: ${params.s3OutDir}"
+            params.outputDir = params.s3OutDir
+        } else {
+            params.outputDir = params.outputDir ?: "./outputs"
+            log.info "Using local output directory: ${params.outputDir}"
+        }
+    }
+    
     // Show help message if requested
     if (params.help) {
         helpMessage()
         exit 0
     }
-
-    // Create input channel from manifest file
-    // Add a parameter for manifest file path in your nextflow.config or pass via CLI
-    def inputCh = createInputChannelFromManifest(params.manifestPath)
-
-    inputCh.view()
-
-    // Execute workflows based on hla_only parameter
-    if (params.hlaOnly) {
-
-        // Run only HLA typing from fq files using arcasHLA
-        alignedCh = ALIGNMENT_2P_S3LOCAL(inputCh)
-        alignedCh.view()
-        HLA_TYPING_ARCASHLA_S3LOCAL(alignedCh)
-        
-    } else {
-        // pass
+    
+    // Check that profile is set to one of the allowed values
+    if (!workflow.profile) {
+        log.error "No profile specified. Please specify -profile <local/awsbatch/s3local>"
+        exit 1
+    } else if (!['local', 'awsbatch'].contains(workflow.profile)) {
+        log.error "Invalid profile: ${workflow.profile}. Must be one of: {local, awsbatch}"
+        exit 1
     }
+    
+    // Check that either inputDir or manifestPath is provided
+    if (!params.inputDir && !params.manifestPath) {
+        log.error "Either --inputDir or --manifestPath must be specified"
+        exit 1
+    } else if (params.inputDir && params.manifestPath) {
+        log.error "Both --inputDir and --manifestPath cannot be specified at the same time"
+        exit 1
+    }
+    
+    // Create input channel based on provided input method
+    def inputCh
+    if (params.manifestPath) {
+        inputCh = createInputChannelFromManifest(params.manifestPath)
+        log.info "Using manifest file: ${params.manifestPath}"
+        // set cleanupIntermediates to true if manifest is used
+        params.cleanupIntermediates = true
+        log.info "Setting cleanupIntermediates to ${params.cleanupIntermediates}. Staged remote files will be deleted as soon as their dependent processes are completed."
+    } else {
+        if (!validateInputDir(params.inputDir)) {
+            exit 1
+        }
+        inputCh = createInputChannelFromPOSIX(params.inputDir)
+        // set cleanupIntermediates to false if inputDir is used
+        params.cleanupIntermediates = false
+        log.info "Setting cleanupIntermediates to ${params.cleanupIntermediates}. Original input files will be retained."
+        log.info "Input directory: ${params.inputDir}"
+    }
+    
+    // Log the key parameters
+    log.info "trimReads: ${params.trimReads}"
+    log.info "hlaTypingOnly: ${params.hlaTypingOnly}"
+    log.info "outputDir: ${params.outputDir}"
+    
+    // Process input based on trimReads parameter
+    def processedInputCh = params.trimReads ? TRIMMING_WF(inputCh).trimmedCh : inputCh
+    processedInputCh.view()
 
-	// Completion handler
-	workflow.onComplete = {
-    	println "Pipeline completed at: $workflow.complete"
-    	println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
-        workDir.resolve("stage-${workflow.sessionId}").deleteDir()
-	}
+    // Choose alignment workflow based on profile
+    def alignedCh = TWOPASS_ALIGNMENT_WF(processedInputCh)
+    alignedCh.view()
+    // if (workflow.profile == 's3local') {
+    //     alignedCh = ALIGNMENT_2P_S3LOCAL(processedInputCh)
+    // } else {
+    //     alignedCh = ALIGNMENT_2P(processedInputCh)
+    // }
+    
+    // Execute workflows based on hlaTypingOnly parameter
+    // if (params.hlaTypingOnly) {
+    //     // Run only HLA typing
+    //     if (workflow.profile == 's3local') {
+    //         HLA_TYPING_ARCASHLA_S3LOCAL(alignedCh)
+    //     } else {
+    //         HLA_TYPING_ARCASHLA(alignedCh)
+    //     }
+    // } else {
+    //     // Run full workflow including HLA typing and fusion detection
+    //     if (workflow.profile == 's3local') {
+    //         HLA_TYPING_ARCASHLA_S3LOCAL(alignedCh)
+    //     } else {
+    //         HLA_TYPING_ARCASHLA(alignedCh)
+    //     }
+        
+    //     // Run fusion calling
+    //     FUSION_CALLING(processedInputCh)
+    // }
+
+    // Completion handler
+    workflow.onComplete = {
+        println "Pipeline completed at: $workflow.complete"
+        println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
+        //workDir.resolve("stage-${workflow.sessionId}").deleteDir()
+    }
 }

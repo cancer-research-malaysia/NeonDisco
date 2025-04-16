@@ -2,10 +2,10 @@
 process FIXMATES_MARKDUPES_SAMTOOLS_S3LOCAL {
     maxForks 4
     afterScript "find ./ -name ${bamFile} -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete"
-    publishDir "${params.outputDir}/${sampleName}/SAMTOOLS-postproc-out", mode: 'copy',
+    publishDir "${params.outputDir}/${sampleName}/2PASS-ALIGNMENT-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     container "${params.container__preproc}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name BAMPOSTPROC -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name BAM-POSTPROC -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
     
     input:
         tuple val(sampleName), path(bamFile)
