@@ -127,7 +127,7 @@ def createInputChannelFromManifest(manifestPath) {
 }
 
 // Subworkflow definitions
-workflow READ_TRIMMING_WF {
+workflow TRIMMING_WF {
     take:
         readsCh
     main:
