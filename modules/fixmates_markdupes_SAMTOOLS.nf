@@ -1,9 +1,11 @@
 // 
 process FIXMATES_MARKDUPES_SAMTOOLS {
     maxForks 4
-    //afterScript "find ./ -name ${bamFile} -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete"
     publishDir "${params.outputDir}/${sampleName}/2PASS-ALIGNMENT-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
+    
+    afterScript params.deleteIntMedFiles ? "find ./ -name \"${sampleName}*STAR_2pass_Aligned.out.bam\" -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping intermediate file cleanup...'"
+    
     container "${params.container__preproc}"
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name BAM-POSTPROC -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
     

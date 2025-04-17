@@ -14,9 +14,6 @@ include { CALL_FUSIONS_FUSIONCATCHER } from './modules/call_fusions_FUSIONCATCHE
 include { COLLATE_FUSIONS_PYENV } from './modules/collate_fusions_PYENV.nf'
 include { PREDICT_CODING_SEQ_AGFUSION } from './modules/predict_coding_seq_AGFUSION.nf'
 
-// s3local testing submodules
-include { TYPE_HLA_ALLELES_ARCASHLA_S3LOCAL } from './modules/type_hla_alleles_ARCASHLA_s3local.nf'
-
 // Function to print help message
 def helpMessage() {
     log.info"""
@@ -26,18 +23,22 @@ nextflow run main.nf -profile <local | awsbatch> <--OPTION NAME> <ARGUMENT>
 
 Required Arguments:
 ---------------
-    -profile            Either <local> for local runs or <awsbatch> for AWS Batch [REQUIRED]
-    --manifestPath      Path to tab-delimited manifest file [REQUIRED if inputDir not provided]
-                         – must contain sample ID and read1 and read2 local filepaths or remote s3 filepaths
-    --inputDir          Path to local directory containing BAM/FASTQ input files [REQUIRED if manifestPath not provided]
-    --outputDir         Directory path for output; can be s3 URIs [DEFAULT: ./outputs]
+    -c <configFile>      Path to the config file. [REQUIRED]
+    -profile             Either <local> for local runs or <awsbatch> for AWS Batch [REQUIRED]
+    --manifestPath       Path to tab-delimited manifest file [REQUIRED if inputDir not provided]
+                          – must contain sample ID and read1 and read2 local filepaths or remote s3 filepaths
+    --inputDir           Path to local directory containing BAM/FASTQ input files [REQUIRED if manifestPath not provided]
+    --inputSource        Input source type: <local> for local files, <s3> for S3 files [REQUIRED]
+                          – if inputSource is set to <s3>, --inputDir cannot be used and --manifestPath must be provided
+    
 
 Optional Arguments:
 ---------------
-    --outputDir         Directory path for output; can be s3 URIs [DEFAULT: ./outputs]
-    --trimReads         Set to <false> to skip read trimming on FASTQ input [DEFAULT: true]
-    --hlaTypingOnly     Set to <true> to exclusively run HLA typing workflow [DEFAULT: false]
-    --help              Print this help message and exit
+    --outputDir          Directory path for output; can be s3 URIs [DEFAULT: ./outputs]
+    --trimReads          Set to <false> to skip read trimming on FASTQ input [DEFAULT: true]
+    --hlaTypingOnly      Set to <true> to exclusively run HLA typing workflow [DEFAULT: false]
+    --deleteIntMedFiles  Set to <true> to delete intermediate files right after they are not needed. [DEFAULT: false]
+    --help               Print this help message and exit
     """.stripIndent()
 }
 
@@ -149,10 +150,6 @@ workflow TWOPASS_ALIGNMENT_WF {
 
 // Main workflow
 workflow {
-    // Define default parameters
-    params.trimReads = params.trimReads == null ? true : params.trimReads
-    params.hlaTypingOnly = params.hlaTypingOnly == null ? false : params.hlaTypingOnly
-    
     // Show help message if requested
     if (params.help) {
         helpMessage()
@@ -176,7 +173,30 @@ workflow {
         log.error "Both --inputDir and --manifestPath cannot be specified at the same time"
         exit 1
     }
-    
+    // Check the inputSource parameter
+    if (!params.inputSource) {
+        log.error "Input source must be specified with --inputSource <local | s3>"
+        exit 1
+    } else if (!['local', 's3'].contains(params.inputSource)) {
+        log.error "Invalid input source: ${params.inputSource}. Must be one of: {local, s3}"
+        exit 1
+    }
+
+    if (params.inputSource == 's3' && !params.manifestPath) {
+        log.error "If inputSource is set to 's3', --manifestPath must be provided"
+        exit 1
+    } else if (params.inputSource == 's3' && params.inputDir) {
+        log.error "If inputSource is set to 's3', --inputDir cannot be used"
+        exit 1
+    } else {
+        log.info "Input source is set to ${params.inputSource}"
+        // set deleteStagedFiles to false if inputSource is local
+        if (params.inputSource == 's3') {
+            params.deleteStagedFiles = true
+        }
+        log.info "deleteIntMedFiles parameter is set to ${params.deleteIntMedFiles}. Intermediate files will be deleted once dependent processes are complete..."
+    }
+
     // Create input channel based on provided input method
     def inputCh
     if (params.manifestPath) {
@@ -187,7 +207,7 @@ workflow {
             exit 1
         }
         inputCh = createInputChannelFromPOSIX(params.inputDir)
-        log.info "Input directory: ${params.inputDir}"
+        log.info "Input files are provided as local directory: ${params.inputDir}"
     }
     
     // Log the key parameters
@@ -197,7 +217,6 @@ workflow {
     
     // Process input based on trimReads parameter
     def processedInputCh = params.trimReads ? TRIMMING_WF(inputCh).trimmedCh : inputCh
-    processedInputCh.view()
 
     // Choose alignment workflow based on profile
     def alignedCh = TWOPASS_ALIGNMENT_WF(processedInputCh)
@@ -232,6 +251,6 @@ workflow {
     workflow.onComplete = {
         println "Pipeline completed at: $workflow.complete"
         println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
-        //workDir.resolve("stage-${workflow.sessionId}").deleteDir()
+        workDir.resolve("stage-${workflow.sessionId}").deleteDir()
     }
 }
