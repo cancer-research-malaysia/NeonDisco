@@ -24,11 +24,11 @@ process TYPE_HLA_ALLELES_ARCASHLA {
     
     echo "Processing files: \${BAM} of sample \${SAMPLE_ID}"
     echo "The index file is: \${BAM_IDX}"
-    echo "Number of cores to use: ${params.num_cores}"
+    echo "Number of cores to use: ${params.numCores}"
     echo "Starting arcasHLA typing..."
 
     # Running arcasHLA
-    if bash /home/app/scripts/arcasHLA-nf.sh "\${SAMPLE_ID}" "\${BAM}" "${params.num_cores}"; then
+    if bash /home/app/scripts/arcasHLA-nf.sh "\${SAMPLE_ID}" "\${BAM}" "${params.numCores}"; then
         echo "arcasHLA typing finished successfully!"
     else
         echo "arcasHLA typing failed. Check logs. Exiting..."
