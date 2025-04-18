@@ -9,6 +9,7 @@ include { FIXMATES_MARKDUPES_SAMTOOLS } from './modules/fixmates_markdupes_SAMTO
 include { FISH_HLA_READS_SAMPBOWT } from './modules/fish_hla_reads_SAMPBOWT.nf'
 include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD.nf'
 include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_ARCASHLA.nf'
+include { EXTRACT_HLATYPING_JSONS_PYENV } from './modules/extract_hlatyping_jsons_PYENV.nf'
 include { CALL_FUSIONS_ARRIBA } from './modules/call_fusions_ARRIBA.nf'
 include { CALL_FUSIONS_FUSIONCATCHER } from './modules/call_fusions_FUSIONCATCHER.nf'
 include { COLLATE_FUSIONS_PYENV } from './modules/collate_fusions_PYENV.nf'
@@ -151,10 +152,10 @@ workflow HLA_TYPING_WF {
     take:
         alignedBamCh
     main:
-        TYPE_HLA_ALLELES_ARCASHLA(alignedBamCh)
+        EXTRACT_HLATYPING_JSONS_PYENV(TYPE_HLA_ALLELES_ARCASHLA(alignedBamCh).allotype_json)
         // TYPE_HLA_ALLELES_HLAHD(alignedBamCh)
     emit:
-        hlaTypingCh = TYPE_HLA_ALLELES_ARCASHLA.out.allotype_json
+        hlaTypingCh = EXTRACT_HLATYPING_JSONS_PYENV.out.hlaTypingTsv
 }
 
 // Main workflow
@@ -203,7 +204,12 @@ workflow {
         if (params.inputSource == 's3') {
             params.deleteStagedFiles = true
         }
-        log.info "deleteIntMedFiles parameter is set to ${params.deleteIntMedFiles}. Intermediate files will be deleted once dependent processes are complete..."
+        log.info "deleteIntMedFiles parameter is set to ${params.deleteIntMedFiles}." 
+        if (params.deleteIntMedFiles) {
+            log.info "Intermediate files will be deleted once dependent processes are complete..."
+        } else {
+            log.info "Intermediate files will be kept for debugging purposes."
+        }
     }
 
     // Create input channel based on provided input method
@@ -234,7 +240,15 @@ workflow {
     // Execute workflows based on hlaTypingOnly parameter
     if (params.hlaTypingOnly) {
     // Run only HLA typing
-        HLA_TYPING_WF(alignedCh)
+        def reformattedHlaFiles = HLA_TYPING_WF(alignedCh)
+
+        // collate HLA typing results
+        reformattedHlaFiles
+        .map { sampleName, tsvFile -> 
+            [sampleName, tsvFile.text]
+        }
+        .collectFile(name: 'combined_results.tsv', newLine: true)
+
     } else {
         // Run full workflow including HLA typing and fusion detection
         // Run HLA typing

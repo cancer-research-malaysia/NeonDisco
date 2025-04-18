@@ -1,2 +1,3 @@
 sampleName	read1Path	read2Path
 837T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/837T_r2.fq.gz
+85T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/85T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/85T_r2.fq.gz
