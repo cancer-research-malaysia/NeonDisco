@@ -144,9 +144,18 @@ workflow TWOPASS_ALIGNMENT_WF {
     main:
         FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_TWOPASS_STARSAM(trimmedCh).aligned_bams)
     emit:
-        alignedBamCh = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bams
+        alignedBamCh = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bam
 }
 
+workflow HLA_TYPING_WF {
+    take:
+        alignedBamCh
+    main:
+        TYPE_HLA_ALLELES_ARCASHLA(alignedBamCh)
+        // TYPE_HLA_ALLELES_HLAHD(alignedBamCh)
+    emit:
+        hlaTypingCh = TYPE_HLA_ALLELES_ARCASHLA.out.allotype_json
+}
 
 // Main workflow
 workflow {
@@ -221,31 +230,18 @@ workflow {
     // Choose alignment workflow based on profile
     def alignedCh = TWOPASS_ALIGNMENT_WF(processedInputCh)
     alignedCh.view()
-    // if (workflow.profile == 's3local') {
-    //     alignedCh = ALIGNMENT_2P_S3LOCAL(processedInputCh)
-    // } else {
-    //     alignedCh = ALIGNMENT_2P(processedInputCh)
-    // }
     
     // Execute workflows based on hlaTypingOnly parameter
-    // if (params.hlaTypingOnly) {
-    //     // Run only HLA typing
-    //     if (workflow.profile == 's3local') {
-    //         HLA_TYPING_ARCASHLA_S3LOCAL(alignedCh)
-    //     } else {
-    //         HLA_TYPING_ARCASHLA(alignedCh)
-    //     }
-    // } else {
-    //     // Run full workflow including HLA typing and fusion detection
-    //     if (workflow.profile == 's3local') {
-    //         HLA_TYPING_ARCASHLA_S3LOCAL(alignedCh)
-    //     } else {
-    //         HLA_TYPING_ARCASHLA(alignedCh)
-    //     }
-        
-    //     // Run fusion calling
-    //     FUSION_CALLING(processedInputCh)
-    // }
+    if (params.hlaTypingOnly) {
+    // Run only HLA typing
+        HLA_TYPING_WF(alignedCh)
+    } else {
+        // Run full workflow including HLA typing and fusion detection
+        // Run HLA typing
+        HLA_TYPING_WF(alignedCh)
+        // Run fusion calling
+        //FUSION_CALLING(processedInputCh)
+    }
 
     // Completion handler
     workflow.onComplete = {

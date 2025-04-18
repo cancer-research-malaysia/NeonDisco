@@ -13,7 +13,7 @@ process FIXMATES_MARKDUPES_SAMTOOLS {
         tuple val(sampleName), path(bamFile)
     
     output:
-        tuple val(sampleName), path("*_fixmates_markdupes.ba*", arity: '2'), emit: final_bams
+        tuple val(sampleName), path("*_fixmates_markdupes.bam"), path("*_fixmates_markdupes.bam.bai"), emit: final_bam
     
     script:
     """

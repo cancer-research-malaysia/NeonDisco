@@ -1,13 +1,15 @@
 // type HLA allotypes using arcasHLA
 process TYPE_HLA_ALLELES_ARCASHLA {
-    errorStrategy 'finish'
-    publishDir "${params.output_dir}/${sampleName}/arcasHLA-out", mode: 'copy',
+    publishDir "${params.outputDir}/${sampleName}/arcasHLA-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
+
+    //afterScript params.deleteIntMedFiles ? "find ./ -name \"${sampleName}*STAR_2pass_Aligned.out.bam\" -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping intermediate file cleanup...'"
+
     container "${params.container__arcashla}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name arcashla-typing -v \$(pwd):/home/app/nf_work -v ${params.bin_dir}:/home/app/scripts"
+    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name arcashla-typing -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
     
     input:
-        tuple val(sampleName), path(bambaiPair)
+        tuple val(sampleName), path(bam), path(bamIdx)
 
     output:
         tuple val(sampleName), path("*.genotype.json"), emit: allotype_json
@@ -17,8 +19,8 @@ process TYPE_HLA_ALLELES_ARCASHLA {
     """
     # Initialize variables
     SAMPLE_ID=${sampleName}
-    BAM=${bambaiPair[0]}
-    BAM_IDX=${bambaiPair[1]}
+    BAM=${bam}
+    BAM_IDX=${bamIdx}
     
     echo "Processing files: \${BAM} of sample \${SAMPLE_ID}"
     echo "The index file is: \${BAM_IDX}"
