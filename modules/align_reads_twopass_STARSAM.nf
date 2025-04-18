@@ -1,6 +1,6 @@
 //
 process ALIGN_READS_TWOPASS_STARSAM {
-    maxForks 5
+    maxForks 1
 
     afterScript params.deleteIntMedFiles ? "find ./ -name \"${sampleName}*_trimmed.R?.f*q.*\" -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping intermediate file cleanup...'"
     
