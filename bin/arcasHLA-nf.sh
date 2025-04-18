@@ -14,7 +14,7 @@ STARTTIME=$(date +%s)
 # run arcasHLA extract command
 # arcasHLA extract ${BAM} -t ${CORES} -v && arcasHLA genotype *.1.fq.gz *.2.fq.gz -t ${CORES} -v
 # MHCI only run
-arcasHLA extract ${BAM} -t ${CORES} -v && arcasHLA genotype *.1.fq.gz *.2.fq.gz --genes A,B,C -t ${CORES} -v
+arcasHLA extract ${BAM} -t ${CORES} -v && arcasHLA genotype *.1.fq* *.2.fq* --genes A,B,C -t ${CORES} -v
 
 if [ $? -eq 0 ]; then
     echo "arcasHLA run successfully for sample ${SAMPLE_ID}."
