@@ -1,0 +1,48 @@
+// 
+process COMBINE_HLA_FILES_BASH {
+    publishDir "${params.outputDir}/HLA-types-combined", mode: 'copy',
+        saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
+
+    container "${params.container__pyenv}"
+    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name COMBINE-HLA-FILES -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+    
+    input:
+    val hlaData
+    
+    output:
+    path "Cohort-wide_HLA_types.tsv"
+    
+    script:
+
+    // Create a string that will be parsed correctly in bash
+    def hlaDataStr = hlaData.collect { item -> 
+        "${item[0]}:${item[1]}"
+    }.join(' ')
+
+    """
+    touch "Cohort-wide_HLA_types.tsv"
+    
+    # Process each sample file pair with a delimiter we can easily parse
+    for item in ${hlaDataStr}; do
+        # Split the item using the delimiter
+        sample_id=\$(echo "\$item" | cut -d':' -f1)
+        file_path=\$(echo "\$item" | cut -d':' -f2)
+        
+        # Get the content from the file if it exists
+        if [ -f "\$file_path" ]; then
+            hla_content=\$(cat "\$file_path")
+            
+            # Append to the combined file
+            echo -e "\$sample_id\t\$hla_content" >> Cohort-wide_HLA_types.tsv
+        else
+            echo "Warning: File not found: \$file_path"
+        fi
+    done
+    """
+
+    stub:
+    """
+    touch "Cohort-wide_HLA_types.tsv"
+    echo "Stub run finished!" > test_stub_combine-hla-files.log
+    """
+}

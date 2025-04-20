@@ -10,6 +10,7 @@ include { FISH_HLA_READS_SAMPBOWT } from './modules/fish_hla_reads_SAMPBOWT.nf'
 include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD.nf'
 include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_ARCASHLA.nf'
 include { EXTRACT_HLATYPING_JSONS_PYENV } from './modules/extract_hlatyping_jsons_PYENV.nf'
+include { COMBINE_HLA_FILES_BASH } from './modules/combine_hla_files_BASH.nf'
 include { CALL_FUSIONS_ARRIBA } from './modules/call_fusions_ARRIBA.nf'
 include { CALL_FUSIONS_FUSIONCATCHER } from './modules/call_fusions_FUSIONCATCHER.nf'
 include { COLLATE_FUSIONS_PYENV } from './modules/collate_fusions_PYENV.nf'
@@ -153,6 +154,7 @@ workflow HLA_TYPING_WF {
         alignedBamCh
     main:
         EXTRACT_HLATYPING_JSONS_PYENV(TYPE_HLA_ALLELES_ARCASHLA(alignedBamCh).allotype_json)
+
         // TYPE_HLA_ALLELES_HLAHD(alignedBamCh)
     emit:
         hlaTypingCh = EXTRACT_HLATYPING_JSONS_PYENV.out.hlaTypingTsv
@@ -235,20 +237,34 @@ workflow {
 
     // Choose alignment workflow based on profile
     def alignedCh = TWOPASS_ALIGNMENT_WF(processedInputCh)
-    alignedCh.view()
     
     // Execute workflows based on hlaTypingOnly parameter
     if (params.hlaTypingOnly) {
     // Run only HLA typing
-        def reformattedHlaFiles = HLA_TYPING_WF(alignedCh)
+        def reformattedHlaFilesCh = HLA_TYPING_WF(alignedCh)
 
         // collate HLA typing results
-        reformattedHlaFiles
-        .map { sampleName, tsvFile -> 
-            [sampleName, tsvFile.text]
-        }
-        .collectFile(name: 'combined_results.tsv', newLine: true)
+        reformattedHlaFilesCh
+        .collect(flat: false).view()
 
+        COMBINE_HLA_FILES_BASH(reformattedHlaFilesCh.collect(flat: false))
+
+        
+        // // combined HLA typing results
+        // reformattedHlaFiles
+        // .map { sampleId, file -> 
+        // // Read file content and combine with sample ID
+        //     def content = file.text.trim()
+        //     return [sampleId, content]
+        // }
+        // .collectFile(
+        //     name: 'combined_hla_types.tsv',
+        //     newLine: true,
+        //     seed: "SampleID\tHLA_Types",  // Header
+        //     storeDir: "${params.outputDir}/combined-HLA-types"
+        // ) { sampleId, content ->
+        //     return "${sampleId}\t${content}"
+        // }
     } else {
         // Run full workflow including HLA typing and fusion detection
         // Run HLA typing

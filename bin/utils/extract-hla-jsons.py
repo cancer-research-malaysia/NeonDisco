@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 import json
 
@@ -34,4 +35,4 @@ output_line = ",".join(formatted_values)
 with open(f"{sample_name}-HLA-types-reformatted.tsv", "w") as f:
     f.write(output_line)
 
-print(f"Output: {output_line}")
+print(f"{output_line}")

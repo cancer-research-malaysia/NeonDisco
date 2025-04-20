@@ -14,7 +14,7 @@ process EXTRACT_HLATYPING_JSONS_PYENV {
   
     script:
     """
-    python bin/utils/extract-hla-jsons.py ${sampleName} ${jsonFile} > ${sampleName}-HLA-types-reformatted.tsv
+    python /home/app/scripts/utils/extract-hla-jsons.py ${sampleName} ${jsonFile} > ${sampleName}-HLA-types-reformatted.tsv
     """
     stub:
     """
