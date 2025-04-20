@@ -160,6 +160,12 @@ workflow HLA_TYPING_WF {
         hlaTypingCh = EXTRACT_HLATYPING_JSONS_PYENV.out.hlaTypingTsv
 }
 
+workflow HLA_TYPE_COLLATION_WF {
+    take:
+        hlaTypingCh
+    main:
+        COMBINE_HLA_FILES_BASH(hlaTypingCh)
+}
 // Main workflow
 workflow {
     // Show help message if requested
@@ -241,13 +247,10 @@ workflow {
     // Execute workflows based on hlaTypingOnly parameter
     if (params.hlaTypingOnly) {
     // Run only HLA typing
-        def reformattedHlaFilesCh = HLA_TYPING_WF(alignedCh)
+        def hlaFilesCh = HLA_TYPING_WF(alignedCh)
 
         // collate HLA typing results
-        reformattedHlaFilesCh
-        .collect(flat: false).view()
-
-        COMBINE_HLA_FILES_BASH(reformattedHlaFilesCh.collect(flat: false))
+        HLA_TYPE_COLLATION_WF(hlaFilesCh.collect(flat: false))
 
         
         // // combined HLA typing results
@@ -277,6 +280,6 @@ workflow {
     workflow.onComplete = {
         println "Pipeline completed at: $workflow.complete"
         println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
-        workDir.resolve("stage-${workflow.sessionId}").deleteDir()
+        //workDir.resolve("stage-${workflow.sessionId}").deleteDir()
     }
 }
