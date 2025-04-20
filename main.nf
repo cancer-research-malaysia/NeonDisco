@@ -6,8 +6,6 @@ nextflow.enable.dsl = 2
 include { TRIM_READS_FASTP } from './modules/trim_reads_FASTP.nf'
 include { ALIGN_READS_TWOPASS_STARSAM } from './modules/align_reads_twopass_STARSAM.nf'
 include { FIXMATES_MARKDUPES_SAMTOOLS } from './modules/fixmates_markdupes_SAMTOOLS.nf'
-include { FISH_HLA_READS_SAMPBOWT } from './modules/fish_hla_reads_SAMPBOWT.nf'
-include { TYPE_HLA_ALLELES_HLAHD } from './modules/type_hla_alleles_HLAHD.nf'
 include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_ARCASHLA.nf'
 include { EXTRACT_HLATYPING_JSONS_PYENV } from './modules/extract_hlatyping_jsons_PYENV.nf'
 include { COMBINE_HLA_FILES_BASH } from './modules/combine_hla_files_BASH.nf'
@@ -155,7 +153,6 @@ workflow HLA_TYPING_WF {
     main:
         EXTRACT_HLATYPING_JSONS_PYENV(TYPE_HLA_ALLELES_ARCASHLA(alignedBamCh).allotype_json)
 
-        // TYPE_HLA_ALLELES_HLAHD(alignedBamCh)
     emit:
         hlaTypingCh = EXTRACT_HLATYPING_JSONS_PYENV.out.hlaTypingTsv
 }
@@ -165,6 +162,29 @@ workflow HLA_TYPE_COLLATION_WF {
         hlaTypingCh
     main:
         COMBINE_HLA_FILES_BASH(hlaTypingCh)
+}
+
+workflow CONSENSUS_FUSION_CALLING_WF {
+    take:
+        trimmedCh
+    main:
+        // gene fusion identification submodule
+        CALL_FUSIONS_ARRIBA(trimmedCh)
+        CALL_FUSIONS_FUSIONCATCHER(trimmedCh)
+
+        // Join the outputs based on sample name
+        CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
+            .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
+            .set { combinedFTFilesCh }
+        
+        combinedFTFilesCh.view()
+
+        // Run the collation process with the joined output
+        COLLATE_FUSIONS_PYENV(combinedFTFilesCh)
+
+    emit:
+        fusionCh = COLLATE_FUSIONS_PYENV.out.collatedFTList
+        
 }
 // Main workflow
 workflow {
@@ -241,14 +261,16 @@ workflow {
     // Process input based on trimReads parameter
     def processedInputCh = params.trimReads ? TRIMMING_WF(inputCh).trimmedCh : inputCh
 
-    // Choose alignment workflow based on profile
+
+    ///////// Two-pass STAR alignment workflow ////////////
     def alignedCh = TWOPASS_ALIGNMENT_WF(processedInputCh)
-    
-    // Execute workflows based on hlaTypingOnly parameter
+    ////////////////////////////////////////////////////////
+
+
+    // Execute workflow branching based on hlaTypingOnly parameter
     if (params.hlaTypingOnly) {
     // Run only HLA typing
         def hlaFilesCh = HLA_TYPING_WF(alignedCh)
-
         // collate HLA typing results
         HLA_TYPE_COLLATION_WF(hlaFilesCh.collect(flat: false))
 
@@ -268,12 +290,15 @@ workflow {
         // ) { sampleId, content ->
         //     return "${sampleId}\t${content}"
         // }
+
     } else {
-        // Run full workflow including HLA typing and fusion detection
-        // Run HLA typing
-        HLA_TYPING_WF(alignedCh)
-        // Run fusion calling
-        //FUSION_CALLING(processedInputCh)
+        // HLA typing
+        def hlaFilesCh = HLA_TYPING_WF(alignedCh)
+        // collate HLA typing results
+        HLA_TYPE_COLLATION_WF(hlaFilesCh.collect(flat: false))
+        
+        // Fusion calling
+        def fusionCh = CONSENSUS_FUSION_CALLING_WF(processedInputCh)
     }
 
     // Completion handler

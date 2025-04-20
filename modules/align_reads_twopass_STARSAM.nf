@@ -2,13 +2,13 @@
 process ALIGN_READS_TWOPASS_STARSAM {
     maxForks 1
 
-    afterScript params.deleteIntMedFiles ? "find ./ -name \"${sampleName}*_trimmed.R?.f*q.*\" -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping intermediate file cleanup...'"
+    //afterScript params.deleteIntMedFiles ? "find ./ -name \"${sampleName}*_trimmed.R?.f*q.*\" -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping intermediate file cleanup...'"
     
     container "${params.container__preproc}"
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name ALIGNMENT-2P -v ${params.arribaDB}:/home/app/refs -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
 
     input:
-        tuple val(sampleName), path(readFiles)
+        tuple val(sampleName), path(trimmedReads)
 
     output:
         tuple val(sampleName), path("*-STAR*Aligned.out.bam", arity: '1'), emit: aligned_bams
@@ -19,8 +19,8 @@ process ALIGN_READS_TWOPASS_STARSAM {
     SAMPLE_ID=${sampleName}
     CORES=${params.numCores}
     STAR_INDEX="/home/app/refs/ref_genome.fa.star.idx"
-    READ1=${readFiles[0]}  # First file in the nested list will be read 1 file
-    READ2=${readFiles[1]}
+    READ1=${trimmedReads[0]}  # First file in the nested list will be read 1 file
+    READ2=${trimmedReads[1]}
 
     echo "Processing files of sample \${SAMPLE_ID}"
     echo "Number of cores to use: ${params.numCores}"
