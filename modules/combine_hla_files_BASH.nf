@@ -25,7 +25,6 @@ process COMBINE_HLA_FILES_BASH {
     # Process each sample file pair with a delimiter we can easily parse
     for item in ${hlaDataStr}; do
         # Split the item using the delimiter
-        sample_id=\$(echo "\$item" | cut -d':' -f1)
         file_path=\$(echo "\$item" | cut -d':' -f2)
         
         # Get the content from the file if it exists
@@ -33,7 +32,7 @@ process COMBINE_HLA_FILES_BASH {
             hla_content=\$(cat "\$file_path")
             
             # Append to the combined file
-            echo -e "\$sample_id\t\$hla_content" >> Cohort-wide_HLA_types.tsv
+            echo -e "\$hla_content" >> Cohort-wide_HLA_types.tsv
         else
             echo "Warning: File not found: \$file_path"
         fi
