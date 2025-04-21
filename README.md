@@ -73,3 +73,11 @@ This pipeline defined two run profiles that users can specify to run the pipelin
 
 ### Stub Commands (dry run)
 This pipeline also comes with _dry run_ capability; it makes use of `stub` processes that would generate dummy outputs. This is useful to test the pipeline without generating real output files that can be massive in size. Specify `-stub` at runtime to invoke this. Note that `-stub` runs separately from normal runs, so if you specify `-stub -resume` it resumes whatever interrupted previous stub runs (or validate previous stub run cached outputs). This combination does not put stub output files in previously run work directory with real output files. 
+
+
+Example command for testing:
+
+> nextflow run main.nf -c conf/nextflow.config -profile local --inputSource s3 --manifestPath /home/ec2-user/repos/NeonDisco/manifests/hla-retyping/test-run.manifest.tsv --deleteIntMedFiles false --hlaTypingOnly false -resume
+
+
+

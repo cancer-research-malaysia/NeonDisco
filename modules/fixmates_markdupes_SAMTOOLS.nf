@@ -1,8 +1,13 @@
 // 
 process FIXMATES_MARKDUPES_SAMTOOLS {
     maxForks 2
-    publishDir "${params.outputDir}/${sampleName}/2PASS-ALIGNMENT-out", mode: 'copy',
-        saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
+    
+    // Only apply publishDir when inputSource is 's3'
+    if (params.inputSource == 's3') {
+        publishDir "${params.outputDir}/${sampleName}/2PASS-ALIGNMENT-out", 
+            mode: 'copy',
+            saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
+    }
     
     afterScript params.deleteIntMedFiles ? "find ./ -name \"${sampleName}*STAR_2pass_Aligned.out.bam\" -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping intermediate file cleanup...'"
     

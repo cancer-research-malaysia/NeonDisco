@@ -1,6 +1,6 @@
 // 
 process COMBINE_HLA_FILES_BASH {
-    publishDir "${params.outputDir}/HLA-types-combined", mode: 'copy',
+    publishDir "${params.outputDir}/HLA-Types-Cohortwide", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
 
     container "${params.container__pyenv}"
