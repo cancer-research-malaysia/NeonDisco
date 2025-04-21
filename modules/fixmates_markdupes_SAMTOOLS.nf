@@ -1,6 +1,6 @@
 // 
 process FIXMATES_MARKDUPES_SAMTOOLS {
-    maxForks 4
+    maxForks 2
     publishDir "${params.outputDir}/${sampleName}/2PASS-ALIGNMENT-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
