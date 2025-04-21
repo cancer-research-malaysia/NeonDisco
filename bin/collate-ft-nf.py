@@ -115,12 +115,12 @@ def main():
         [pl.col(col).cast(pl.Categorical) for col in ['fusionTranscriptID', 'fusionGenePair', 'breakpointID', 'strand1', 'strand2', 'site1', 'site2', 'type', 'confidence', 'toolID']]).with_columns(
             pl.col("sampleID").cast(pl.Int64)).collect()
 
-    print(results)
+    # print(results)
 
     # save as parquet and tsv
     print(f"Saving as parquet and tsv files...")
-    results.write_parquet(f"{sample_name}-collated-FT-raw-list.parquet")
-    results.write_csv(f"{sample_name}-collated-FT-raw-list.tsv", separator="\t")
+    results.write_parquet(f"{sample_name}-collated-FT-UNFILTERED.parquet")
+    results.write_csv(f"{sample_name}-collated-FT-UNFILTERED.tsv", separator="\t")
 
     print("Done.")
 

@@ -1,6 +1,6 @@
 // Run FT calling module
 process CALL_FUSIONS_ARRIBA {
-    maxForks 1
+    maxForks 2
     publishDir "${params.outputDir}/${sampleName}/ARRIBA-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     

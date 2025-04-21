@@ -1,6 +1,6 @@
 // Run POLARS post-processing module
 process COLLATE_FUSIONS_PYENV {
-    publishDir "${params.outputDir}/${sampleName}/FT/FT-UNFILTERED-out", mode: 'copy',
+    publishDir "${params.outputDir}/${sampleName}/Fusion-Call-Combined-UNFILTERED-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__pyenv}"
