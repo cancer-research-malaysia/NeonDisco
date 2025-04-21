@@ -2,8 +2,8 @@
 process FIXMATES_MARKDUPES_SAMTOOLS {
     maxForks 2
     
-    // Only apply publishDir when inputSource is 's3'
-    if (params.inputSource == 's3') {
+    // Apply publishDir conditionally based on whether outputDir starts with 's3://'
+    if (params.outputDir.toString().startsWith('s3://')) {
         publishDir "${params.outputDir}/${sampleName}/2PASS-ALIGNMENT-out", 
             mode: 'copy',
             saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
