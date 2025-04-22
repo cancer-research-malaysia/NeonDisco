@@ -1,5 +1,6 @@
 // 
 process COMBINE_HLA_FILES_BASH {
+    
     publishDir "${params.outputDir}/HLA-Types-Cohortwide", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
 

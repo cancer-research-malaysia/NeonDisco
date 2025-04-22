@@ -1,10 +1,11 @@
 // Run FT calling module
 process CALL_FUSIONS_FUSIONCATCHER {
     maxForks 2
+    
     publishDir "${params.outputDir}/${sampleName}/FUSIONCATCHER-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
-    container "${params.container__fuscat}"
     
+    container "${params.container__fuscat}"
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FT-CALLING-FUSCAT -v ${params.fuscatDB}:/work/libs -v \$(pwd):/work/nf_work -v ${params.binDir}:/work/scripts"
     
     input:
