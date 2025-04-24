@@ -114,7 +114,7 @@ def generate_agfusion_commands_for_sample(parsed_commands, sample_id, db_path='/
     return commands
 
 
-def generate_all_commands(parsed_results, db_path='/mnt/db/agfusion.homo_sapiens.95.db', output_dir=None):
+def generate_all_commands(parsed_results, db_path='/mnt/db/agfusion.homo_sapiens.95.db', output_dir="./"):
     """Generate commands for all samples"""
     all_commands = {}
     for sample_id in parsed_results:

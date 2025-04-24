@@ -186,6 +186,15 @@ workflow CONSENSUS_FUSION_CALLING_WF {
         fusionCh = COLLATE_FUSIONS_PYENV.out.collatedFTList
         
 }
+
+workflow PREDICT_CODING_SEQ_WF {
+    take:
+        fusionCh
+    main:
+        PREDICT_CODING_SEQ_AGFUSION(fusionCh)
+
+}
+
 // Main workflow
 workflow {
     // Show help message if requested
@@ -299,6 +308,9 @@ workflow {
         
         // Fusion calling
         def fusionCh = CONSENSUS_FUSION_CALLING_WF(processedInputCh)
+
+        // run AGFUSION coding sequence prediction
+        PREDICT_CODING_SEQ_WF(fusionCh)
     }
 
     // Completion handler
