@@ -78,7 +78,7 @@ def parse_fusion_transcripts(fusion_dict):
     return parsed_commands
 
 
-def generate_agfusion_commands_for_sample(parsed_commands, sample_id, db_path='/mnt/db/agfusion.homo_sapiens.95.db', output_dir=None):
+def generate_agfusion_commands_for_sample(parsed_commands, sample_id, db_path='/mnt/db/agfusion.homo_sapiens.95.db', output_dir="./agfusion-OUT"):
     """
     Generate all AGFusion bash commands for a specific sample ID
     
@@ -114,7 +114,7 @@ def generate_agfusion_commands_for_sample(parsed_commands, sample_id, db_path='/
     return commands
 
 
-def generate_all_commands(parsed_results, db_path='/mnt/db/agfusion.homo_sapiens.95.db', output_dir="./"):
+def generate_all_commands(parsed_results, db_path='/mnt/db/agfusion.homo_sapiens.95.db', output_dir="./agfusion-OUT"):
     """Generate commands for all samples"""
     all_commands = {}
     for sample_id in parsed_results:
@@ -125,7 +125,7 @@ def generate_all_commands(parsed_results, db_path='/mnt/db/agfusion.homo_sapiens
     return all_commands
 
 
-def write_bash_script(output_file, all_commands, log_dir=None):
+def write_bash_script(output_file, all_commands, log_dir):
     """
     Write commands to a bash script with error handling
     
@@ -143,7 +143,7 @@ def write_bash_script(output_file, all_commands, log_dir=None):
             f.write(f"# Create log directory\n")
             f.write(f"mkdir -p {log_dir}\n\n")
         else:
-            log_dir = "logs"
+            log_dir = "agfusion-logs"
             f.write(f"# Create log directory\n")
             f.write(f"mkdir -p {log_dir}\n\n")
         
@@ -230,10 +230,10 @@ def main():
                         help='Path to AGFusion database')
     parser.add_argument('--append-t', '-t', action='store_true', 
                         help='Append "T" to sample IDs')
-    parser.add_argument('--output-script', '-c', 
-                        help='Write commands to bash script file (optional)')
-    parser.add_argument('--log-dir', '-l', default='logs',
-                        help='Directory to store command logs (default: logs)')
+    parser.add_argument('--output-script', '-c', action='store_true',
+                        help='Write commands to bash script file')
+    parser.add_argument('--log-dir', '-l', default='agfusion-logs',
+                        help='Directory to store command logs (default: agfusion-logs)')
     
     args = parser.parse_args()
     
@@ -286,8 +286,9 @@ def main():
             # Output commands
             if args.output_script:
                 # Write to bash script with error handling
-                write_bash_script(args.output_script, all_commands, args.log_dir)
-                print(f"Bash script written to {args.output_script}")
+                bash_script_name ='agfusion_cmd.sh'
+                write_bash_script(bash_script_name, all_commands, args.log_dir)
+                print(f"Bash script written to {bash_script_name}")
             else:
                 # Print to stdout
                 for sample_id, cmds in all_commands.items():
@@ -299,7 +300,6 @@ def main():
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()
