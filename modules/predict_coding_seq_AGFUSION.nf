@@ -17,7 +17,7 @@ process PREDICT_CODING_SEQ_AGFUSION {
     """
     echo "Path to collated fusion transcripts: ${collatedFTList}"
     echo "Running parser to extract fusion transcripts from the collated raw lists of fusion transcripts from Arriba and Fusioncatcher..."
-    if python /work/scripts/parse-collation-4-agf-nf.py -i ${collatedFTList} -t -c "./agfusion-cmd.sh" -o "./"; then
+    if python /work/scripts/parse-collation-4-agf-nf.py -i ${collatedFTList} -t -c; then
         echo "Parser has finished running the output of the selected FT calling tool of ${sampleName}."
     fi
 

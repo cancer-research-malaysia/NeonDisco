@@ -286,7 +286,7 @@ def main():
             # Output commands
             if args.output_script:
                 # Write to bash script with error handling
-                bash_script_name ='agfusion_cmd.sh'
+                bash_script_name ='agfusion-cmd.sh'
                 write_bash_script(bash_script_name, all_commands, args.log_dir)
                 print(f"Bash script written to {bash_script_name}")
             else:
@@ -296,7 +296,7 @@ def main():
                     for cmd in cmds:
                         print(cmd)
                         print()  # Add blank line between commands
-        
+                    
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
