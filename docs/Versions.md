@@ -4,6 +4,7 @@
 
 
 - ✅ Add option to either run NeonDisco with `--inputDir` (for locally stored input files) or `--manifestPath` (for s3 remote files or locally stored files)
-- ✅ Streamlined sample/individual-centric processing up until combined Arriba+FusionCatcher output fusion transcripts (UNFILTERED)
-- ☑️ 
-- ✅
+- ✅ Streamline sample/individual-centric processing up until combined Arriba+FusionCatcher output fusion transcripts (UNFILTERED)
+- ☑️ Replace `HLAHD` with `arcasHLA` for HLA typing; this removes the need to use WES or DNA-seq data as extra inputs
+- ☑️ Incorporate "panel of normals" filtering step on the UNFILTERED Arriba+FusionCatcher output fusion transcript list
+- ☑️ Implement parser and executor script for FusionInspector
