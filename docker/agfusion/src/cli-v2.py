@@ -28,7 +28,7 @@ def list_available_databases():
     #"""
 
     print("\n")
-    print("Species\t\tRelease\t\tShortbut(s)")
+    print("Species\t\tRelease\t\tShortcut(s)")
     for species, releases in utils.AVAILABLE_ENSEMBL_SPECIES.items():
         for release in releases:
             shortcut = []
@@ -220,7 +220,7 @@ def builddb(args):
 
 def add_common_flags(parser):
     """
-    Add commaond line flags that are common to multiple sub parsers
+    Add command line flags that are common to multiple sub parsers
     """
 
     parser.add_argument(
