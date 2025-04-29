@@ -52,9 +52,6 @@ RUN addgroup --gid 9999 app && \
 # change user
 USER app
 
-# install pyensembl
-RUN pyensembl install --release 103 --species homo_sapiens
-
 # change user back to root
 USER root
 
@@ -65,8 +62,11 @@ COPY agfusion/src/Pfam-A.clans.tsv /tmp/Pfam-A.clans.tsv
 COPY agfusion/src/cli-v2.py /tmp/cli-v2.py
 RUN mv /tmp/cli-v2.py /tmp/cli.py && rm -rf /opt/conda/lib/python3.12/site-packages/agfusion/cli.py && mv /tmp/cli.py /opt/conda/lib/python3.12/site-packages/agfusion/
 
+
+# install pyensembl
+RUN pyensembl install --release 113 --species homo_sapiens
 # build agfusion db
-RUN agfusion build -d . -s homo_sapiens -r 103 --pfam Pfam-A.clans.tsv
+RUN agfusion build -d . -s homo_sapiens -r 113 --pfam Pfam-A.clans.tsv
 
 # set workdir
 WORKDIR /home/app
