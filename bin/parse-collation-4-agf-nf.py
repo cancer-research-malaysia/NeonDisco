@@ -78,7 +78,7 @@ def parse_fusion_transcripts(fusion_dict):
     return parsed_commands
 
 
-def generate_agfusion_commands_for_sample(parsed_commands, sample_id, db_path='/mnt/db/agfusion.homo_sapiens.95.db', output_dir="./agfusion-OUT"):
+def generate_agfusion_commands_for_sample(parsed_commands, sample_id, db_path='/tmp/agfusion.homo_sapiens.111.db', output_dir="./agfusion-OUT"):
     """
     Generate all AGFusion bash commands for a specific sample ID
     
@@ -114,7 +114,7 @@ def generate_agfusion_commands_for_sample(parsed_commands, sample_id, db_path='/
     return commands
 
 
-def generate_all_commands(parsed_results, db_path='/mnt/db/agfusion.homo_sapiens.95.db', output_dir="./agfusion-OUT"):
+def generate_all_commands(parsed_results, db_path='/tmp/agfusion.homo_sapiens.111.db', output_dir="./agfusion-OUT"):
     """Generate commands for all samples"""
     all_commands = {}
     for sample_id in parsed_results:
@@ -226,7 +226,7 @@ def main():
     parser.add_argument('--input', '-i', required=True, help='Input TSV file with fusion data')
     parser.add_argument('--sample', '-s', help='Specific sample ID to process (optional)')
     parser.add_argument('--output-dir', '-o', help='Output directory for AGFusion results')
-    parser.add_argument('--db-path', '-d', default='/work/libs/agfusion.homo_sapiens.95.db', 
+    parser.add_argument('--db-path', '-d', default='/tmp/agfusion.homo_sapiens.111.db', 
                         help='Path to AGFusion database')
     parser.add_argument('--append-t', '-t', action='store_true', 
                         help='Append "T" to sample IDs')

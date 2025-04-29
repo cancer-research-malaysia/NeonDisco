@@ -5,7 +5,7 @@ process PREDICT_CODING_SEQ_AGFUSION {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__agfusion}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name AGFUSION-CODSEQ-PREDICTION -v ${params.agfusionDB}:/work/libs -v \$(pwd):/work/nf_work -v ${params.binDir}:/work/scripts"
+    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name AGFUSION-CODSEQ-PREDICTION -v \$(pwd):/work/nf_work -v ${params.binDir}:/work/scripts"
     
     input:
         tuple val(sampleName), path(collatedFTList)

@@ -8,7 +8,7 @@ LABEL description="container image of AGFusion program v1.4.1"
 USER root
 # update Debian OS packages and install additional Linux system utilities, then finally remove cached package lists
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed \
+tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed less nano \
 && rm -rf /var/lib/apt/lists/*
 
 # change user
@@ -29,7 +29,24 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 
 # install pip packages
 RUN pip install agfusion
-RUN pip install mysqlclient
+# RUN pip install mysqlclient
+
+
+# add pfam file
+COPY agfusion/src/Pfam-A.clans.tsv /tmp/Pfam-A.clans.tsv
+
+# replace the cli.py of agfusion with my edited one that handles running agfusion cli with no arguments
+COPY --chown=$MAMBA_USER:$MAMBA_USER agfusion/src/cli-v2.py /tmp/cli-v2.py
+RUN chmod +x /tmp/cli-v2.py
+RUN mv /tmp/cli-v2.py /tmp/cli.py && rm -rf /opt/conda/lib/python3.12/site-packages/agfusion/cli.py && mv /tmp/cli.py /opt/conda/lib/python3.12/site-packages/agfusion/
+
+
+# install pyensembl
+RUN pyensembl install --release 111 --species homo_sapiens
+# build agfusion db
+# RUN agfusion build -d . -s homo_sapiens -r 113 --pfam Pfam-A.clans.tsv
+RUN agfusion download -g hg38
+
 
 # add conda bins to PATH
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
@@ -47,26 +64,6 @@ RUN gunzip /sbin/matchhostfsowner.gz && \
   chmod +x /sbin/matchhostfsowner
 RUN addgroup --gid 9999 app && \
   adduser --uid 9999 --gid 9999 --disabled-password --gecos App app
-
-
-# change user
-USER app
-
-# change user back to root
-USER root
-
-# add pfam file
-COPY agfusion/src/Pfam-A.clans.tsv /tmp/Pfam-A.clans.tsv
-
-# replace the cli.py of agfusion with my edited one that handles running agfusion cli with no arguments
-COPY agfusion/src/cli-v2.py /tmp/cli-v2.py
-RUN mv /tmp/cli-v2.py /tmp/cli.py && rm -rf /opt/conda/lib/python3.12/site-packages/agfusion/cli.py && mv /tmp/cli.py /opt/conda/lib/python3.12/site-packages/agfusion/
-
-
-# install pyensembl
-RUN pyensembl install --release 113 --species homo_sapiens
-# build agfusion db
-RUN agfusion build -d . -s homo_sapiens -r 113 --pfam Pfam-A.clans.tsv
 
 # set workdir
 WORKDIR /home/app
