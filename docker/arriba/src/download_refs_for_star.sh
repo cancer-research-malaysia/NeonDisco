@@ -8,7 +8,7 @@ ASSEMBLIES[hs37d5]="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/referenc
 ASSEMBLIES[hg19]="http://hgdownload.cse.ucsc.edu/goldenpath/hg19/bigZips/chromFa.tar.gz"
 ASSEMBLIES[GRCh37]="http://ftp.ensembl.org/pub/grch37/release-87/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.dna.primary_assembly.fa.gz"
 ASSEMBLIES[hg38]="http://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.chromFa.tar.gz"
-ASSEMBLIES[GRCh38]="http://ftp.ensembl.org/pub/release-93/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"
+ASSEMBLIES[GRCh38]="http://ftp.ensembl.org/pub/release-113/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"
 ASSEMBLIES[mm10]="http://hgdownload.cse.ucsc.edu/goldenpath/mm10/bigZips/chromFa.tar.gz"
 ASSEMBLIES[GRCm38]="http://ftp.ensembl.org/pub/release-99/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz"
 ASSEMBLIES[mm39]="http://hgdownload.cse.ucsc.edu/goldenpath/mm39/bigZips/mm39.chromFa.tar.gz"
@@ -21,6 +21,7 @@ ANNOTATIONS[ENSEMBL87]="http://ftp.ensembl.org/pub/grch37/release-87/gtf/homo_sa
 ANNOTATIONS[GENCODE38]="http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_38/gencode.v38.annotation.gtf.gz"
 ANNOTATIONS[RefSeq_hg38]="http://hgdownload.cse.ucsc.edu/goldenpath/hg38/database/refGene.txt.gz"
 ANNOTATIONS[ENSEMBL104]="http://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/Homo_sapiens.GRCh38.104.chr.gtf.gz"
+ANNOTATIONS[ENSEMBL113]="http://ftp.ensembl.org/pub/release-113/gtf/homo_sapiens/Homo_sapiens.GRCh38.113.chr.gtf.gz"
 ANNOTATIONS[GENCODEM25]="http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M25/gencode.vM25.annotation.gtf.gz"
 ANNOTATIONS[RefSeq_mm10]="http://hgdownload.cse.ucsc.edu/goldenpath/mm10/database/refGene.txt.gz"
 ANNOTATIONS[GENCODEM27]="http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M27/gencode.vM27.annotation.gtf.gz"
@@ -42,6 +43,7 @@ COMBINATIONS["hg38+ENSEMBL104"]="hg38+ENSEMBL104"
 COMBINATIONS["GRCh38+GENCODE38"]="GRCh38+GENCODE38"
 COMBINATIONS["GRCh38+RefSeq"]="GRCh38+RefSeq_hg38"
 COMBINATIONS["GRCh38+ENSEMBL104"]="GRCh38+ENSEMBL104"
+COMBINATIONS["GRCh38+ENSEMBL113"]="GRCh38+ENSEMBL113"
 COMBINATIONS["GRCm38+GENCODEM25"]="GRCm38+GENCODEM25"
 COMBINATIONS["GRCm38+RefSeq"]="GRCm38+RefSeq_mm10"
 COMBINATIONS["mm10+GENCODEM25"]="mm10+GENCODEM25"
@@ -258,16 +260,16 @@ if [[ $(samtools --version-only 2> /dev/null) =~ ^1\. ]]; then
 fi
 
 if [[ ! -z $2 ]]; then
-	mkdir -p /home/app/ref/STAR_index_${ASSEMBLY_NAME}_${ANNOTATION_NAME}
-	if STAR --runMode genomeGenerate --genomeDir /home/app/ref/STAR_index_${ASSEMBLY_NAME}_${ANNOTATION_NAME} --genomeFastaFiles "${ASSEMBLY_NAME}.fa" --sjdbGTFfile "$ANNOTATION_NAME.gtf" --runThreadN "$THREADS" --sjdbOverhang "$SJDBOVERHANG"; then
+	mkdir -p /home/app/refs/STAR_index_${ASSEMBLY_NAME}_${ANNOTATION_NAME}
+	if STAR --runMode genomeGenerate --genomeDir /home/app/refs/STAR_index_${ASSEMBLY_NAME}_${ANNOTATION_NAME} --genomeFastaFiles "${ASSEMBLY_NAME}.fa" --sjdbGTFfile "$ANNOTATION_NAME.gtf" --runThreadN "$THREADS" --sjdbOverhang "$SJDBOVERHANG"; then
 		echo "STAR index created successfully"
 	else
 		echo "STAR index creation failed"
 		exit 1
 	fi
 else
-	mkdir -p /home/app/ref/STAR_index_${ASSEMBLY}_${ANNOTATION}
-	if STAR --runMode genomeGenerate --genomeDir /home/app/ref/STAR_index_${ASSEMBLY}_${ANNOTATION} --genomeFastaFiles "$ASSEMBLY.fa" --sjdbGTFfile "$ANNOTATION.gtf" --runThreadN "$THREADS" --sjdbOverhang "$SJDBOVERHANG"; then
+	mkdir -p /home/app/refs/STAR_index_${ASSEMBLY}_${ANNOTATION}
+	if STAR --runMode genomeGenerate --genomeDir /home/app/refs/STAR_index_${ASSEMBLY}_${ANNOTATION} --genomeFastaFiles "$ASSEMBLY.fa" --sjdbGTFfile "$ANNOTATION.gtf" --runThreadN "$THREADS" --sjdbOverhang "$SJDBOVERHANG"; then
 		echo "STAR index created successfully"
 	else
 		echo "STAR index creation failed"
