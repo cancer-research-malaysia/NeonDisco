@@ -1,4 +1,4 @@
-FROM mambaorg/micromamba:git-911a014-bookworm-slim
+FROM mambaorg/micromamba
 
 LABEL maintainer="Suffian Azizan"
 LABEL version="1.0"

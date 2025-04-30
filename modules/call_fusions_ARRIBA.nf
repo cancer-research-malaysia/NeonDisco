@@ -6,7 +6,7 @@ process CALL_FUSIONS_ARRIBA {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__arriba}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FT-CALLING-ARRIBA -v ${params.arribaDB}:/work/libs -v \$(pwd):/work/nf_work -v ${params.binDir}:/work/scripts"
+    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FT-CALLING-ARRIBA -v ${params.arribaDB}:/home/app/arriba-db -v ${params.starIndex}:/home/app/starIdx -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
     
     input:
         tuple val(sampleName), path(trimmedReads)
@@ -18,7 +18,7 @@ process CALL_FUSIONS_ARRIBA {
     """
     echo "Path to input read file 1: ${trimmedReads[0]}"
     echo "Path to input read file 2: ${trimmedReads[1]}"
-    if bash /work/scripts/arriba-nf.sh ${trimmedReads[0]} ${trimmedReads[1]} ${params.numCores}; then
+    if bash /home/app/scripts/arriba-nf.sh ${trimmedReads[0]} ${trimmedReads[1]} ${params.numCores}; then
         echo "Arriba has finished running on ${sampleName}. Copying main output file..."
         cp ${sampleName}-arriba-fusions.tsv ${sampleName}_arr.tsv
     fi

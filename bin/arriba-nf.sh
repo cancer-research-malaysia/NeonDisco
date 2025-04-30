@@ -1,9 +1,13 @@
 #!/usr/bin/bash
 
 # Set env variables
-CTAT_LIB="/work/libs"
-ARR_OUTDIR="/work/nf_work"
+STARINDEX="/home/app/starIdx"
+ARRIBA_DB="/home/app/arriba-db"
+ARR_OUTDIR="/home/app/nf_work"
 ARRIBA_PKG="/opt/conda/var/lib/arriba"
+
+ARRIBA_ASSEMBLY="${ARRIBA_DB}/Homo_sapiens.GRCh38.113.dna.primary_assembly.fa.gz"
+ARRIBA_ANNOT="${ARRIBA_DB}/Homo_sapiens.GRCh38.113.chr.gtf.gz"
 
 READ1=$1
 READ2=$2
@@ -27,13 +31,15 @@ run_star_and_arriba() {
   local READ1=$1
   local READ2=$2
   local SAMPLE_ID=$3
-  local CTAT_LIB=$4
+  local STARINDEX=$4
   local ARRIBA_PKG=$5
   local ARR_OUTDIR=$6
   local CORES=$7
+  local ARRIBA_ASSEMBLY=$8
+  local ARRIBA_ANNOT=$9
 
   if STAR --runThreadN "${CORES}" \
-  --genomeDir "${CTAT_LIB}/ref_genome.fa.star.idx" \
+  --genomeDir "${STARINDEX}" \
   --genomeLoad LoadAndRemove \
   --readFilesIn "${READ1}" "${READ2}" \
   --readFilesCommand zcat \
@@ -59,8 +65,8 @@ run_star_and_arriba() {
       -x "${ARR_OUTDIR}/${SAMPLE_ID}-STAR_Aligned.out.bam" \
       -o "${ARR_OUTDIR}/${SAMPLE_ID}-arriba-fusions.tsv" \
       -O "${ARR_OUTDIR}/${SAMPLE_ID}-fusions.discarded.tsv" \
-      -a "${CTAT_LIB}/ref_genome.fa" \
-      -g "${CTAT_LIB}/ref_annot.gtf" \
+      -a "${ARRIBA_ASSEMBLY}" \
+      -g "${ARRIBA_ANNOT}" \
       -b "${ARRIBA_PKG}/blacklist_hg38_GRCh38_v2.3.0.tsv.gz" \
       -k "${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz" \
       -t "${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz" \
@@ -71,7 +77,7 @@ run_star_and_arriba() {
 echo "Starting STAR and then Arriba..."
 # measure execution time
 STARTTIME=$(date +%s)
-if run_star_and_arriba "${READ1}" "${READ2}" "${SAMPLE_ID}" "${CTAT_LIB}" "${ARRIBA_PKG}" "${ARR_OUTDIR}" "${CORE}"; then
+if run_star_and_arriba "${READ1}" "${READ2}" "${SAMPLE_ID}" "${STARINDEX}" "${ARRIBA_PKG}" "${ARR_OUTDIR}" "${CORE}" "${ARRIBA_ASSEMBLY}" "${ARRIBA_ANNOT}"; then
     ENDTIME=$(date +%s)
     ELAP=$(( ENDTIME - STARTTIME ))
     echo "Arriba run of ${SAMPLE_ID} completed successfully. Time taken: ${ELAP} seconds. Check log file for run details."

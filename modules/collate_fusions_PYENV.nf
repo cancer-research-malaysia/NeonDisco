@@ -4,7 +4,7 @@ process COLLATE_FUSIONS_PYENV {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__pyenv}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FT-POSTPROCESS -v \$(pwd):/work/nf_work -v ${params.binDir}:/work/scripts"
+    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FT-POSTPROCESS -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
     
     input:
         tuple val(sampleName), path(arFile), path(fcFile)
@@ -17,7 +17,7 @@ process COLLATE_FUSIONS_PYENV {
     """
     echo "Path to Arriba tsv file of raw fusion transcripts: ${arFile}"
     echo "Path to FusionCatcher tsv file of raw fusion transcripts: ${fcFile}"
-    if python /work/scripts/collate-ft-nf.py ${sampleName} ${arFile} arr ${fcFile} fc; then
+    if python /home/app/scripts/collate-ft-nf.py ${sampleName} ${arFile} arr ${fcFile} fc; then
         echo "Wrangling completed."
     fi
     """

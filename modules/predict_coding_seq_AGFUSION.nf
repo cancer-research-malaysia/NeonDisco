@@ -5,7 +5,7 @@ process PREDICT_CODING_SEQ_AGFUSION {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__agfusion}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name AGFUSION-CODSEQ-PREDICTION -v \$(pwd):/work/nf_work -v ${params.binDir}:/work/scripts"
+    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name AGFUSION-CODSEQ-PREDICTION -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
     
     input:
         tuple val(sampleName), path(collatedFTList)
@@ -17,7 +17,7 @@ process PREDICT_CODING_SEQ_AGFUSION {
     """
     echo "Path to collated fusion transcripts: ${collatedFTList}"
     echo "Running parser to extract fusion transcripts from the collated raw lists of fusion transcripts from Arriba and Fusioncatcher..."
-    if python /work/scripts/parse-collation-4-agf-nf.py -i ${collatedFTList} -t -c; then
+    if python /home/app/scripts/parse-collation-4-agf-nf.py -i ${collatedFTList} -t -c; then
         echo "Parser has finished running the output of the selected FT calling tool of ${sampleName}."
     fi
 

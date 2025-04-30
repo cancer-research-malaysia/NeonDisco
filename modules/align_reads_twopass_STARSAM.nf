@@ -5,7 +5,7 @@ process ALIGN_READS_TWOPASS_STARSAM {
     //afterScript params.deleteIntMedFiles ? "find ./ -name \"${sampleName}*_trimmed.R?.f*q.*\" -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping intermediate file cleanup...'"
     
     container "${params.container__preproc}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name ALIGNMENT-2P -v ${params.arribaDB}:/home/app/refs -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name ALIGNMENT-2P -v ${params.starIndex}:/home/app/starIdx -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
 
     input:
         tuple val(sampleName), path(trimmedReads)
@@ -18,7 +18,7 @@ process ALIGN_READS_TWOPASS_STARSAM {
     # variables
     SAMPLE_ID=${sampleName}
     CORES=${params.numCores}
-    STAR_INDEX="/home/app/refs/ref_genome.fa.star.idx"
+    STAR_INDEX=${params.starIndex}
     READ1=${trimmedReads[0]}  # First file in the nested list will be read 1 file
     READ2=${trimmedReads[1]}
 
