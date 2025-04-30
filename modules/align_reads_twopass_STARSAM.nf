@@ -18,7 +18,7 @@ process ALIGN_READS_TWOPASS_STARSAM {
     # variables
     SAMPLE_ID=${sampleName}
     CORES=${params.numCores}
-    STAR_INDEX=${params.starIndex}
+    STAR_INDEX="/home/app/starIdx"
     READ1=${trimmedReads[0]}  # First file in the nested list will be read 1 file
     READ2=${trimmedReads[1]}
 

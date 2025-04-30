@@ -1,18 +1,18 @@
 #!/usr/bin/bash
 
 # Set env variables
-STARINDEX="/home/app/starIdx"
-ARRIBA_DB="/home/app/arriba-db"
 ARR_OUTDIR="/home/app/nf_work"
 ARRIBA_PKG="/opt/conda/var/lib/arriba"
-
-ARRIBA_ASSEMBLY="${ARRIBA_DB}/Homo_sapiens.GRCh38.113.dna.primary_assembly.fa.gz"
-ARRIBA_ANNOT="${ARRIBA_DB}/Homo_sapiens.GRCh38.113.chr.gtf.gz"
 
 READ1=$1
 READ2=$2
 SAMPLE_ID="${READ1%%_*}"
 CORE=$3
+STARINDEX=$4
+ARRIBA_DB=$5
+
+ARRIBA_ASSEMBLY="${ARRIBA_DB}/Homo_sapiens.GRCh38.113.dna.primary_assembly.fa.gz"
+ARRIBA_ANNOT="${ARRIBA_DB}/Homo_sapiens.GRCh38.113.chr.gtf.gz"
 
 echo "Environment variables set! Listing fastq files..."
 echo "READ1 File: $READ1"

@@ -18,7 +18,7 @@ process CALL_FUSIONS_ARRIBA {
     """
     echo "Path to input read file 1: ${trimmedReads[0]}"
     echo "Path to input read file 2: ${trimmedReads[1]}"
-    if bash /home/app/scripts/arriba-nf.sh ${trimmedReads[0]} ${trimmedReads[1]} ${params.numCores}; then
+    if bash /home/app/scripts/arriba-nf.sh ${trimmedReads[0]} ${trimmedReads[1]} ${params.numCores} "/home/app/starIdx" "/home/app/arriba-db"; then
         echo "Arriba has finished running on ${sampleName}. Copying main output file..."
         cp ${sampleName}-arriba-fusions.tsv ${sampleName}_arr.tsv
     fi
