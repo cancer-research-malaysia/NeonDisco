@@ -11,7 +11,7 @@ CORE=$3
 STARINDEX=$4
 ARRIBA_DB=$5
 
-ARRIBA_ASSEMBLY="${ARRIBA_DB}/Homo_sapiens.GRCh38.113.dna.primary_assembly.fa.gz"
+ARRIBA_ASSEMBLY="${ARRIBA_DB}/Homo_sapiens.GRCh38.113.dna.primary_assembly.fa"
 ARRIBA_ANNOT="${ARRIBA_DB}/Homo_sapiens.GRCh38.113.chr.gtf.gz"
 
 echo "Environment variables set! Listing fastq files..."

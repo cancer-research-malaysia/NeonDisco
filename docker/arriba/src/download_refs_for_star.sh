@@ -97,7 +97,7 @@ if [ ! -z $ASSEMBLY ] && [ ! -z $ANNOTATION ]; then
 		awk '/^>/{ contig=$1 } contig!~/^>NC_|^>AC_/{ print }'
 	else
 		cat
-	fi > "${ASSEMBLY_NAME}.fa"
+	fi > "/home/app/refs/${ASSEMBLY_NAME}.fa"
 
 	echo "Using provided annotation"
 	if [[ ${ANNOTATION} =~ \.gz$ ]]; then
@@ -147,11 +147,11 @@ if [ ! -z $ASSEMBLY ] && [ ! -z $ANNOTATION ]; then
 	else
 		cat
 	fi |
-	if ! grep -q '^>chr' "${ASSEMBLY_NAME}.fa"; then
+	if ! grep -q '^>chr' "/home/app/refs/${ASSEMBLY_NAME}.fa"; then
 		sed -e 's/^chrM/MT/' -e 's/^chr//'
 	else
 		sed -e 's/^MT/chrM/' -e 's/^\([1-9XY]\|[12][0-9]\)/chr\1/'
-	fi > "${ANNOTATION_NAME}.gtf"
+	fi > "/home/app/refs/${ANNOTATION_NAME}.gtf"
 
 else
 	ASSEMBLY="${COMBINATIONS[$1]%+*}"
@@ -177,7 +177,7 @@ else
 		awk '/^>/{ contig=$1 } contig!~/^>NC_|^>AC_/{ print }'
 	else
 		cat
-	fi > "$ASSEMBLY.fa"
+	fi > "/home/app/refs/$ASSEMBLY.fa"
 
 	echo "Downloading annotation: ${ANNOTATIONS[$ANNOTATION]}"
 	$WGET "${ANNOTATIONS[$ANNOTATION]}" |
@@ -228,11 +228,11 @@ else
 	else
 		cat
 	fi |
-	if ! grep -q '^>chr' "$ASSEMBLY.fa"; then
+	if ! grep -q '^>chr' "/home/app/refs/$ASSEMBLY.fa"; then
 		sed -e 's/^chrM/MT/' -e 's/^chr//'
 	else
 		sed -e 's/^MT/chrM/' -e 's/^\([1-9XY]\|[12][0-9]\)/chr\1/'
-	fi > "$ANNOTATION.gtf"
+	fi > "/home/app/refs/$ANNOTATION.gtf"
 
 fi
 
@@ -244,24 +244,24 @@ if [ "$VIRAL" = "viral" ]; then
 		exit 1
 	fi
 	if [ ! -z ${ASSEMBLY_NAME} ]; then
-		gunzip -c "$REFSEQ_VIRAL_GENOMES" >> "${ASSEMBLY_NAME}.fa"
+		gunzip -c "$REFSEQ_VIRAL_GENOMES" >> "/home/app/refs/${ASSEMBLY_NAME}.fa"
 	else
-		gunzip -c "$REFSEQ_VIRAL_GENOMES" >> "${ASSEMBLY}.fa"
+		gunzip -c "$REFSEQ_VIRAL_GENOMES" >> "/home/app/refs/${ASSEMBLY}.fa"
 	fi
 fi
 
 if [[ $(samtools --version-only 2> /dev/null) =~ ^1\. ]]; then
 	echo "Indexing assembly"
 	if [ ! -z "$ASSEMBLY_NAME" ]; then
-		samtools faidx "$ASSEMBLY_NAME.fa"
+		samtools faidx "/home/app/refs/$ASSEMBLY_NAME.fa"
 	else
-		samtools faidx "$ASSEMBLY.fa"
+		samtools faidx "/home/app/refs/$ASSEMBLY.fa"
 	fi
 fi
 
 if [[ ! -z $2 ]]; then
 	mkdir -p /home/app/refs/STAR_index_${ASSEMBLY_NAME}_${ANNOTATION_NAME}
-	if STAR --runMode genomeGenerate --genomeDir /home/app/refs/STAR_index_${ASSEMBLY_NAME}_${ANNOTATION_NAME} --genomeFastaFiles "${ASSEMBLY_NAME}.fa" --sjdbGTFfile "$ANNOTATION_NAME.gtf" --runThreadN "$THREADS" --sjdbOverhang "$SJDBOVERHANG"; then
+	if STAR --runMode genomeGenerate --genomeDir /home/app/refs/STAR_index_${ASSEMBLY_NAME}_${ANNOTATION_NAME} --genomeFastaFiles "/home/app/refs/${ASSEMBLY_NAME}.fa" --sjdbGTFfile "/home/app/refs/$ANNOTATION_NAME.gtf" --runThreadN "$THREADS" --sjdbOverhang "$SJDBOVERHANG"; then
 		echo "STAR index created successfully"
 	else
 		echo "STAR index creation failed"
@@ -269,7 +269,7 @@ if [[ ! -z $2 ]]; then
 	fi
 else
 	mkdir -p /home/app/refs/STAR_index_${ASSEMBLY}_${ANNOTATION}
-	if STAR --runMode genomeGenerate --genomeDir /home/app/refs/STAR_index_${ASSEMBLY}_${ANNOTATION} --genomeFastaFiles "$ASSEMBLY.fa" --sjdbGTFfile "$ANNOTATION.gtf" --runThreadN "$THREADS" --sjdbOverhang "$SJDBOVERHANG"; then
+	if STAR --runMode genomeGenerate --genomeDir /home/app/refs/STAR_index_${ASSEMBLY}_${ANNOTATION} --genomeFastaFiles "/home/app/refs/$ASSEMBLY.fa" --sjdbGTFfile "/home/app/refs/$ANNOTATION.gtf" --runThreadN "$THREADS" --sjdbOverhang "$SJDBOVERHANG"; then
 		echo "STAR index created successfully"
 	else
 		echo "STAR index creation failed"
