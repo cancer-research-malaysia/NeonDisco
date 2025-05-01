@@ -5,7 +5,7 @@
 
 - ✅ Add option to either run NeonDisco with `--inputDir` (for locally stored input files) or `--manifestPath` (for s3 remote files or locally stored files)
 - ✅ Streamline sample/individual-centric processing up until combined Arriba+FusionCatcher output fusion transcripts (UNFILTERED)
-- ☑️ Replace `HLAHD` with `arcasHLA` for HLA typing; this removes the need to use WES or DNA-seq data as extra inputs
+- ✅ Replace `HLAHD` with `arcasHLA` for HLA typing; this removes the need to use WES or DNA-seq data as extra inputs
 - ☑️ Incorporate "panel of normals" filtering step on the UNFILTERED Arriba+FusionCatcher output fusion transcript list
 - ☑️ Implement parser and executor script for FusionInspector
 - ☑️ Upgrade AGFusion database used (originally Ensembl 95) to 113 to match the one used with FusionCatcher. v113 is chosen because Fusioncatcher is only able to fetch the latest release so to harmonize AGFusion, Arriba and Fusioncatcher, we have to use v113. (also Fusioncatcher is using Gencode v47 GTF annotation)
