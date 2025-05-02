@@ -31,22 +31,24 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 RUN pip install agfusion
 # RUN pip install mysqlclient
 
-
-# add pfam file
-COPY agfusion/src/Pfam-A.clans.tsv /tmp/Pfam-A.clans.tsv
-
 # replace the cli.py of agfusion with my edited one that handles running agfusion cli with no arguments
 COPY --chown=$MAMBA_USER:$MAMBA_USER agfusion/src/cli-v2.py /tmp/cli-v2.py
 RUN chmod +x /tmp/cli-v2.py
 RUN mv /tmp/cli-v2.py /tmp/cli.py && rm -rf /opt/conda/lib/python3.12/site-packages/agfusion/cli.py && mv /tmp/cli.py /opt/conda/lib/python3.12/site-packages/agfusion/
 
+# add pfam file
+COPY agfusion/src/Pfam-A.clans.tsv /tmp/Pfam-A.clans.tsv
+
 # install pyensembl ##### THIS STEP DID NOT PERSIST THE PYENSEMBL DATABASE: DO MANUALLY
-# RUN pyensembl install --release 111 --species homo_sapiens && agfusion download -g hg38
+# RUN pyensembl install --release 111 --species homo_sapiens &&
 # build agfusion db
 # RUN agfusion build -d . -s homo_sapiens -r 113 --pfam Pfam-A.clans.tsv
 
 # manually move pyensembl database into the image
 COPY --chown=$MAMBA_USER:$MAMBA_USER agfusion/src/cache_pyensembl_GRCh38_ENSEMBL111 /home/app/.cache/pyensembl
+
+# download agfusion db to /tmp
+RUN agfusion download -g hg38
 
 # add conda bins to PATH
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
