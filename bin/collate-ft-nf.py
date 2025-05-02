@@ -41,9 +41,22 @@ def wrangle_df(file_path, sample_id, tool_name):
             pl.lit(tool_name).alias("toolID")
             ])
         case 'FusionCatcher':
+            # Handle NaN values in gene symbol columns by replacing with gene IDs
+            gene1_expr = (
+                pl.when(pl.col('Gene_1_symbol(5end_fusion_partner)').is_null() | (pl.col('Gene_1_symbol(5end_fusion_partner)') == ""))
+                .then(pl.col('Gene_1_id(5end_fusion_partner)'))
+                .otherwise(pl.col('Gene_1_symbol(5end_fusion_partner)'))
+            )
+            
+            gene2_expr = (
+                pl.when(pl.col('Gene_2_symbol(3end_fusion_partner)').is_null() | (pl.col('Gene_2_symbol(3end_fusion_partner)') == ""))
+                .then(pl.col('Gene_2_id(3end_fusion_partner)'))
+                .otherwise(pl.col('Gene_2_symbol(3end_fusion_partner)'))
+            )
+            
             base_columns = [
-            (pl.col('Gene_1_symbol(5end_fusion_partner)') + "::" + pl.col('Gene_2_symbol(3end_fusion_partner)') + '__' + extract_fuscat_breakpoint(pl.col('Fusion_point_for_gene_1(5end_fusion_partner)')) + "-" + extract_fuscat_breakpoint(pl.col('Fusion_point_for_gene_2(3end_fusion_partner)'))).alias("fusionTranscriptID"),
-            (pl.col('Gene_1_symbol(5end_fusion_partner)') + "::" + pl.col('Gene_2_symbol(3end_fusion_partner)')).alias("fusionGenePair"),
+            (gene1_expr + "::" + gene2_expr + '__' + extract_fuscat_breakpoint(pl.col('Fusion_point_for_gene_1(5end_fusion_partner)')) + "-" + extract_fuscat_breakpoint(pl.col('Fusion_point_for_gene_2(3end_fusion_partner)'))).alias("fusionTranscriptID"),
+            (gene1_expr + "::" + gene2_expr).alias("fusionGenePair"),
             (extract_fuscat_breakpoint(pl.col('Fusion_point_for_gene_1(5end_fusion_partner)')) + "-" + extract_fuscat_breakpoint(pl.col('Fusion_point_for_gene_2(3end_fusion_partner)'))).alias("breakpointID"),
             (pl.col('Fusion_point_for_gene_1(5end_fusion_partner)').str.split(":").list.get(2)).alias("strand1"),
             (pl.col('Fusion_point_for_gene_2(3end_fusion_partner)').str.split(":").list.get(2)).alias("strand2")
@@ -116,7 +129,6 @@ def main():
             pl.col("sampleID").cast(pl.Int64)).collect()
 
     # print(results)
-
     # save as parquet and tsv
     print(f"Saving as parquet and tsv files...")
     results.write_parquet(f"{sample_name}-collated-FT-UNFILTERED.parquet")
@@ -126,4 +138,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
+
+#############################################################

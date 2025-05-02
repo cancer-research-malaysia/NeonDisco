@@ -1,4 +1,4 @@
-// Run HLA typing module
+// 
 process PREDICT_CODING_SEQ_AGFUSION {
     
     publishDir "${params.outputDir}/${sampleName}/AGFUSION-out", mode: 'copy',
