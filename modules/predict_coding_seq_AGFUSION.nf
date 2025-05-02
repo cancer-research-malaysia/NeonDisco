@@ -8,16 +8,16 @@ process PREDICT_CODING_SEQ_AGFUSION {
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name AGFUSION-CODSEQ-PREDICTION -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
     
     input:
-        tuple val(sampleName), path(collatedFTList)
+        tuple val(sampleName), path(filteredFusionList)
 
-    // output:
-    //     tuple val(sampleName), path("${sampleName}_agfusion_*"), emit: agfusion_outdir
+    output:
+        tuple val(sampleName), path("agfusion-OUT/**"), emit: agfusion_outdir
 
     script:
     """
-    echo "Path to collated fusion transcripts: ${collatedFTList}"
+    echo "Path to collated fusion transcripts: ${filteredFusionList}"
     echo "Running parser to extract fusion transcripts from the collated raw lists of fusion transcripts from Arriba and Fusioncatcher..."
-    if python /home/app/scripts/parse-collation-4-agf-nf.py -i ${collatedFTList} -t -c; then
+    if python /home/app/scripts/parse-inp-and-generate-agf-cmd.py -i ${filteredFusionList} -t -c; then
         echo "Parser has finished running the output of the selected FT calling tool of ${sampleName}."
     fi
 
@@ -28,7 +28,7 @@ process PREDICT_CODING_SEQ_AGFUSION {
     """
     stub:
     """
-    mkdir -p ${sampleName}_agfusion_test_stub
-    echo "stub run finished!" > ${sampleName}_agfusion_test_stub/stub.out
+    mkdir -p agfusion-OUT
+    echo "stub run finished!" > agfusion-OUT/stub.out
     """
 }

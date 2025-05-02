@@ -96,9 +96,7 @@ def generate_agfusion_commands_for_sample(parsed_commands, sample_id, db_path='/
         
     commands = []
     for cmd_dict in parsed_commands[sample_id]:
-        output_path = cmd_dict['output']
-        if output_dir:
-            output_path = os.path.join(output_dir, output_path)
+        output_path = f"{output_dir}/{cmd_dict['output']}"
             
         command = f"agfusion annotate \\\n" \
                  f"  -g5 {cmd_dict['gene5']} \\\n" \
@@ -142,6 +140,7 @@ def write_bash_script(output_file, all_commands, log_dir):
         if log_dir:
             f.write(f"# Create log directory\n")
             f.write(f"mkdir -p {log_dir}\n\n")
+            f.write(f"log_dir=\"{log_dir}\"\n\n")
         else:
             log_dir = "agfusion-logs"
             f.write(f"# Create log directory\n")
@@ -226,7 +225,7 @@ def main():
     parser = argparse.ArgumentParser(description='Process fusion data and generate AGFusion commands')
     parser.add_argument('--input', '-i', required=True, help='Input TSV file with fusion data')
     parser.add_argument('--sample', '-s', help='Specific sample ID to process (optional)')
-    parser.add_argument('--output-dir', '-o', help='Output directory for AGFusion results')
+    parser.add_argument('--output-dir', '-o', default='./agfusion-OUT', help='Output directory for AGFusion results')
     parser.add_argument('--db-path', '-d', default='/tmp/agfusion.homo_sapiens.111.db', 
                         help='Path to AGFusion database')
     parser.add_argument('--append-t', '-t', action='store_true', 

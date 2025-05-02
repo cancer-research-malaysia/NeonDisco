@@ -88,7 +88,7 @@ def wrangle_df(file_path, sample_id, tool_name):
 
 def main():
     # this script would take these parameters:
-    # collate-FTs-nf.py <FT_arr.tsv file> <tool_suffix matching the file name> <FT_fc.tsv> <tool_suffix matching the file name>
+    # combine-FTs-nf.py <sample id> <FT_arr.tsv file> <tool_suffix matching the file name> <FT_fc.tsv> <tool_suffix matching the file name>
     sample_name = sys.argv[1]
     input_tuples = [(os.path.abspath(sys.argv[2]), sys.argv[3]), (os.path.abspath(sys.argv[4]), sys.argv[5])]
     

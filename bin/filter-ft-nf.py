@@ -1,140 +1,68 @@
 #!/usr/bin/env python3
 
 import os
-import re
 import sys
 import polars as pl
-from pathlib import Path
-
-def extract_sample_id(filename, suffix):
-    # use the lines below if you want to keep the T in the sample ID
-    # pattern = rf'^(\d+)(T)_{re.escape(suffix)}\.tsv$'
-    # match = re.search(pattern, os.path.basename(filename))
-    # return f"{match.group(1)}{match.group(2)}" if match else None
-
-    pattern = rf'^(\d+)T_{re.escape(suffix)}\.tsv$'
-    match = re.search(pattern, os.path.basename(filename))
-    return match.group(1) if match else None
-
-def extract_fuscat_breakpoint(s):
-    return s.str.split(':').list.slice(0, 2).list.join(':')
-
-def natural_sort_key(s):
-    return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', s)]
-
-def wrangle_df(file_path, sample_id, tool_name):
-    lazy_df = pl.scan_csv(file_path, separator="\t")
-    match tool_name:
-        case 'Arriba':
-            return lazy_df.select([
-            (pl.col('#gene1') + "::" + pl.col('gene2') + '__' + pl.col('breakpoint1').str.replace("chr", "") + "-" + pl.col('breakpoint2').str.replace("chr", "")).alias("fusionTranscriptID"),
-            (pl.col('#gene1') + "::" + pl.col('gene2')).alias("fusionGenePair"),
-            (pl.col('breakpoint1').str.replace("chr", "") + "-" + pl.col('breakpoint2').str.replace("chr", "")).alias("breakpointID"),
-            (pl.col('strand1(gene/fusion)').str.split("/").list.get(1)).alias("strand1"),
-            (pl.col('strand2(gene/fusion)').str.split("/").list.get(1)).alias("strand2"),
-            'site1', 
-            'site2', 
-            'type', 
-            'confidence',
-            pl.lit(sample_id).alias("sampleID"),
-            pl.lit(sample_id).cast(pl.Utf8).str.zfill(3).alias("sampleID_padded"),
-            pl.lit(tool_name).alias("toolID")
-            ])
-        case 'FusionCatcher':
-            # Handle NaN values in gene symbol columns by replacing with gene IDs
-            gene1_expr = (
-                pl.when(pl.col('Gene_1_symbol(5end_fusion_partner)').is_null() | (pl.col('Gene_1_symbol(5end_fusion_partner)') == ""))
-                .then(pl.col('Gene_1_id(5end_fusion_partner)'))
-                .otherwise(pl.col('Gene_1_symbol(5end_fusion_partner)'))
-            )
-            
-            gene2_expr = (
-                pl.when(pl.col('Gene_2_symbol(3end_fusion_partner)').is_null() | (pl.col('Gene_2_symbol(3end_fusion_partner)') == ""))
-                .then(pl.col('Gene_2_id(3end_fusion_partner)'))
-                .otherwise(pl.col('Gene_2_symbol(3end_fusion_partner)'))
-            )
-            
-            base_columns = [
-            (gene1_expr + "::" + gene2_expr + '__' + extract_fuscat_breakpoint(pl.col('Fusion_point_for_gene_1(5end_fusion_partner)')) + "-" + extract_fuscat_breakpoint(pl.col('Fusion_point_for_gene_2(3end_fusion_partner)'))).alias("fusionTranscriptID"),
-            (gene1_expr + "::" + gene2_expr).alias("fusionGenePair"),
-            (extract_fuscat_breakpoint(pl.col('Fusion_point_for_gene_1(5end_fusion_partner)')) + "-" + extract_fuscat_breakpoint(pl.col('Fusion_point_for_gene_2(3end_fusion_partner)'))).alias("breakpointID"),
-            (pl.col('Fusion_point_for_gene_1(5end_fusion_partner)').str.split(":").list.get(2)).alias("strand1"),
-            (pl.col('Fusion_point_for_gene_2(3end_fusion_partner)').str.split(":").list.get(2)).alias("strand2")
-            ]
-            # Check if 'Predicted_effect' column exists
-            if 'Predicted_effect' in lazy_df.collect_schema().names():
-                # print(f'Sample ID: {sample_id} has Predicted_effect column')
-                predicted_effect_columns = [
-                    pl.col('Predicted_effect').str.extract(r'^([^/]+)(?:/|$)').alias('site1'),
-                    pl.when(pl.col('Predicted_effect').str.contains('/'))
-                        .then(pl.col('Predicted_effect').str.extract(r'/(.+)$'))
-                        .otherwise(pl.lit('.'))
-                        .alias('site2')
-                    ]
-            else:
-                # print(f'Sample ID: {sample_id} does not have Predicted_effect column')
-                predicted_effect_columns = [
-                    pl.lit('.').alias("site1"),
-                    pl.lit('.').alias("site2")
-                    ]
-            
-            return lazy_df.select(base_columns + predicted_effect_columns + [pl.lit('.').alias("type"),
-            pl.lit('.').alias("confidence"),
-            pl.lit(sample_id).alias("sampleID"),
-            pl.lit(sample_id).cast(pl.Utf8).str.zfill(3).alias("sampleID_padded"),
-            pl.lit(tool_name).alias("toolID")]) 
-        case _:
-            raise ValueError(f"Unsupported tool name: {tool_name}")
+import pandas as pd
 
 def main():
     # this script would take these parameters:
-    # collate-FTs-nf.py <FT_arr.tsv file> <tool_suffix matching the file name> <FT_fc.tsv> <tool_suffix matching the file name>
+    # filter-ft-nf.py <sample id> <parquet file of combined FTs> <panel of normals tsv file>
     sample_name = sys.argv[1]
-    input_tuples = [(os.path.abspath(sys.argv[2]), sys.argv[3]), (os.path.abspath(sys.argv[4]), sys.argv[5])]
+    parquet_input_file = os.path.abspath(sys.argv[2])
+    panel_of_normals_file = os.path.abspath(sys.argv[3])
     
     # print parameters for debugging
     print(f"Sample name: {sample_name}")
-    print(f"Input arguments: {input_tuples}")
+    print(f"Parquet file of combined FTs: {parquet_input_file}")
+    print(f"Location of panel-of-normal tsv file: {panel_of_normals_file}")
 
-    # initialize an empty dictionary to store the lazy DataFrames
-    lazy_dfs = []
-
-    for input_path, suffix in input_tuples:
-        if not Path(input_path).exists():
-            print(f"Error: File {input_path} does not exist. Aborting...")
-            sys.exit(1)
-        
-        print('Setting tool name...')
-        tool_name = {'arr': 'Arriba', 'fc': 'FusionCatcher'}.get(suffix)
-
-        # extract sample id
-        sample_id = extract_sample_id(input_path, suffix)
-        print(f'Reading {tool_name} of {sample_name} TSV file...(sample ID: {sample_id})')
-
-        # Create a lazy dataframe for each file
-        lazy_df = wrangle_df(input_path, sample_id, tool_name)
-
-        # Append the lazy DataFrame to the list
-        lazy_dfs.append(lazy_df)
+    #### 1. Get unique breakpointIDs from the combined ft dataframe based on toolID and add detection information
+    # Load the combined parquet file
+    combined_pq_df = pl.scan_parquet(parquet_input_file).collect().to_pandas(use_pyarrow_extension_array=True)
     
-    # Concatenate all lazy DataFrames
-    print("Concatenating lazy DataFrames from Arriba and FusionCatcher...")
-    combined_lazy_df = pl.concat(lazy_dfs, rechunk=True)
-    
-    print("Concatenation completed. Collecting...")
+    # Split the dataframe by toolID
+    arriba_df = combined_pq_df[combined_pq_df['toolID'] == 'Arriba'].copy()
+    fusioncatcher_df = combined_pq_df[combined_pq_df['toolID'] == 'FusionCatcher'].copy()
 
-    # Sort by Sample ID (padded), drop that column, then collect
-    results = combined_lazy_df.sort("sampleID_padded").drop("sampleID_padded").with_columns(
-        [pl.col(col).cast(pl.Categorical) for col in ['fusionTranscriptID', 'fusionGenePair', 'breakpointID', 'strand1', 'strand2', 'site1', 'site2', 'type', 'confidence', 'toolID']]).with_columns(
-            pl.col("sampleID").cast(pl.Int64)).collect()
+    # Drop duplicates by breakpointID for each tool separately
+    arriba_unique_df = arriba_df.drop_duplicates(subset=['breakpointID']).copy()
+    fusioncatcher_unique_df = fusioncatcher_df.drop_duplicates(subset=['breakpointID']).copy()
 
-    # print(results)
-    # save as parquet and tsv
-    print(f"Saving as parquet and tsv files...")
-    results.write_parquet(f"{sample_name}-collated-FT-UNFILTERED.parquet")
-    results.write_csv(f"{sample_name}-collated-FT-UNFILTERED.tsv", separator="\t")
+    # Get sets of breakpointIDs from each tool
+    arriba_breakpoints = set(arriba_unique_df['breakpointID'])
+    fusioncatcher_breakpoints = set(fusioncatcher_unique_df['breakpointID'])
 
-    print("Done.")
+    # Find breakpoints detected by both tools
+    common_breakpoints = arriba_breakpoints.intersection(fusioncatcher_breakpoints)
+
+    # Add detection information using assign() with the new column name
+    arriba_unique_df = arriba_unique_df.assign(detectedBy='Arriba')
+    fusioncatcher_unique_df = fusioncatcher_unique_df.assign(detectedBy='FusionCatcher')
+
+    # Mark breakpoints found by both tools
+    mask = arriba_unique_df['breakpointID'].isin(common_breakpoints)
+    arriba_unique_df.loc[mask, 'detectedBy'] = 'Both'
+
+    # Only keep FusionCatcher rows that weren't detected by Arriba
+    fusioncatcher_exclusive_df = fusioncatcher_unique_df[~fusioncatcher_unique_df['breakpointID'].isin(arriba_breakpoints)]
+
+    # Combine Arriba rows with FusionCatcher-exclusive rows
+    combined_unique_df = pd.concat([arriba_unique_df, fusioncatcher_exclusive_df])
+
+    # 2. Filter out breakpoints seen in TCGA normals
+    # load up the TCGA normals (all Arr and FC) dataframe
+    panel_normals_uniq_df = pd.read_csv(panel_of_normals_file, sep='\t')
+
+    # Get the unique breakpointIDs from the panel normals
+    panel_normals_uniq_fts = set(panel_normals_uniq_df['breakpointID'])
+    panel_normals_uniq_fts
+
+    # Filter out breakpoints seen in TCGA normals
+    final_unique_df = combined_unique_df[~combined_unique_df['breakpointID'].isin(panel_normals_uniq_fts)]
+
+    # Save the result
+    final_unique_df.to_csv(f"{sample_name}-combined-tool-FT-FILTERED.tsv", sep='\t', index=False)
 
 if __name__ == "__main__":
     main()

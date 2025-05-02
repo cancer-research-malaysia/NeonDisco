@@ -12,13 +12,12 @@ process FILTER_FUSIONS_PYENV {
 
     output:
         tuple val(sampleName), path("${sampleName}-combined-tool-FT-FILTERED.tsv"), emit: filteredFusionList
-        tuple val(sampleName), path("${sampleName}-combined-tool-FT-FILTERED.parquet"), emit: filteredFusionParquet
 
     script:
     """
     echo "Path to collated fusion transcripts: ${combinedFTParquet}"
-    echo "Running filtering script to filter FT lists based on multiple criteria..."
-    if python /home/app/scripts/filter-ft-nf.py ${sampleName} ${combinedFTParquet}; then
+    echo "Running filtering script to filter for tumor-specific FTs..."
+    if python /home/app/scripts/filter-ft-nf.py ${sampleName} ${combinedFTParquet} ${params.panelOfNormalsTsv}; then
         echo "Filtering completed."
     fi
 
@@ -26,6 +25,5 @@ process FILTER_FUSIONS_PYENV {
     stub:
     """
     echo "stub run finished!" > ${sampleName}-combined-tool-FT-FILTERED.tsv
-    echo "stub run finished!" > ${sampleName}-combined-tool-FT-FILTERED.parquet
     """
 }

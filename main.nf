@@ -190,9 +190,9 @@ workflow CONSENSUS_FUSION_CALLING_WF {
 
 workflow PREDICT_CODING_SEQ_WF {
     take:
-        fusionListCh
+        filteredFusionCh
     main:
-        PREDICT_CODING_SEQ_AGFUSION(fusionListCh)
+        PREDICT_CODING_SEQ_AGFUSION(filteredFusionCh)
 
 }
 
@@ -308,10 +308,10 @@ workflow {
         HLA_TYPE_COLLATION_WF(hlaFilesCh.collect(flat: false))
         
         // Fusion calling
-        def fusionCh = CONSENSUS_FUSION_CALLING_WF(processedInputCh)
+        def filteredFusionCh = CONSENSUS_FUSION_CALLING_WF(processedInputCh)
 
         // run AGFUSION coding sequence prediction
-        PREDICT_CODING_SEQ_WF(fusionCh)
+        PREDICT_CODING_SEQ_WF(filteredFusionCh)
     }
 
     // Completion handler
