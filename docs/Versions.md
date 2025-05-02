@@ -9,3 +9,4 @@
 - ☑️ Incorporate "panel of normals" filtering step on the UNFILTERED Arriba+FusionCatcher output fusion transcript list
 - ☑️ Implement parser and executor script for FusionInspector
 - ☑️ Upgrade AGFusion database used (originally Ensembl 95) to 113 to match the one used with FusionCatcher. v113 is chosen because Fusioncatcher is only able to fetch the latest release so to harmonize AGFusion, Arriba and Fusioncatcher, we have to use v113. (also Fusioncatcher is using Gencode v47 GTF annotation)
+- Add a "BOTH" tool filtering on the UNFILTERED FT list.
