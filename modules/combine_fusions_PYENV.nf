@@ -1,6 +1,6 @@
 // Run POLARS post-processing module
-process COLLATE_FUSIONS_PYENV {
-    publishDir "${params.outputDir}/${sampleName}/Fusion-Call-Combined-UNFILTERED-out", mode: 'copy',
+process COMBINE_FUSIONS_PYENV {
+    publishDir "${params.outputDir}/${sampleName}/Combined-FT-UNFILTERED-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__pyenv}"
@@ -10,21 +10,21 @@ process COLLATE_FUSIONS_PYENV {
         tuple val(sampleName), path(arFile), path(fcFile)
 
     output:
-        tuple val(sampleName), path("${sampleName}-collated-FT-UNFILTERED.tsv"), emit: collatedFTList
-        tuple val(sampleName), path("${sampleName}-collated-FT-UNFILTERED.parquet"), emit: collatedFTParquet
+        tuple val(sampleName), path("${sampleName}-combined-tool-FT-UNFILTERED.tsv"), emit: combinedFTList
+        tuple val(sampleName), path("${sampleName}-combined-tool-FT-UNFILTERED.parquet"), emit: combinedFTParquet
 
     script:
     """
     echo "Path to Arriba tsv file of raw fusion transcripts: ${arFile}"
     echo "Path to FusionCatcher tsv file of raw fusion transcripts: ${fcFile}"
-    if python /home/app/scripts/collate-ft-nf.py ${sampleName} ${arFile} arr ${fcFile} fc; then
+    if python /home/app/scripts/combine-ft-nf.py ${sampleName} ${arFile} arr ${fcFile} fc; then
         echo "Wrangling completed."
     fi
     """
     stub:
     """
-    touch ${sampleName}-collated-FT-UNFILTERED.tsv
-    touch ${sampleName}-collated-FT-UNFILTERED.parquet
-    echo "stub run finished!\thello my world!" > ${sampleName}-collated-FT-UNFILTERED.tsv
+    touch ${sampleName}-combined-tool-FT-UNFILTERED.tsv
+    touch ${sampleName}-combined-tool-FT-UNFILTERED.parquet
+    echo "stub run finished!\thello my world!" > ${sampleName}-combined-tool-FT-UNFILTERED.tsv
     """
 }

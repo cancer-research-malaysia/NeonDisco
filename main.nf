@@ -11,7 +11,8 @@ include { EXTRACT_HLATYPING_JSONS_PYENV } from './modules/extract_hlatyping_json
 include { COMBINE_HLA_FILES_BASH } from './modules/combine_hla_files_BASH.nf'
 include { CALL_FUSIONS_ARRIBA } from './modules/call_fusions_ARRIBA.nf'
 include { CALL_FUSIONS_FUSIONCATCHER } from './modules/call_fusions_FUSIONCATCHER.nf'
-include { COLLATE_FUSIONS_PYENV } from './modules/collate_fusions_PYENV.nf'
+include { COMBINE_FUSIONS_PYENV } from './modules/combine_fusions_PYENV.nf'
+include { FILTER_FUSIONS_PYENV } from './modules/filter_fusions_PYENV.nf'
 include { PREDICT_CODING_SEQ_AGFUSION } from './modules/predict_coding_seq_AGFUSION.nf'
 
 // Function to print help message
@@ -179,19 +180,19 @@ workflow CONSENSUS_FUSION_CALLING_WF {
         
         combinedFTFilesCh.view()
 
-        // Run the collation process with the joined output
-        COLLATE_FUSIONS_PYENV(combinedFTFilesCh)
+        // Run the combining process with the joined output then channel into filtering process
+        FILTER_FUSIONS_PYENV(COMBINE_FUSIONS_PYENV(combinedFTFilesCh).out.combinedFTParquet)
 
     emit:
-        fusionCh = COLLATE_FUSIONS_PYENV.out.collatedFTList
+        filteredFusionCh = FILTER_FUSIONS_PYENV.out.filteredFusionList
         
 }
 
 workflow PREDICT_CODING_SEQ_WF {
     take:
-        fusionCh
+        fusionListCh
     main:
-        PREDICT_CODING_SEQ_AGFUSION(fusionCh)
+        PREDICT_CODING_SEQ_AGFUSION(fusionListCh)
 
 }
 
