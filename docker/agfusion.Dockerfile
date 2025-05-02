@@ -40,13 +40,13 @@ COPY --chown=$MAMBA_USER:$MAMBA_USER agfusion/src/cli-v2.py /tmp/cli-v2.py
 RUN chmod +x /tmp/cli-v2.py
 RUN mv /tmp/cli-v2.py /tmp/cli.py && rm -rf /opt/conda/lib/python3.12/site-packages/agfusion/cli.py && mv /tmp/cli.py /opt/conda/lib/python3.12/site-packages/agfusion/
 
-
-# install pyensembl
-RUN pyensembl install --release 111 --species homo_sapiens
+# install pyensembl ##### THIS STEP DID NOT PERSIST THE PYENSEMBL DATABASE: DO MANUALLY
+# RUN pyensembl install --release 111 --species homo_sapiens && agfusion download -g hg38
 # build agfusion db
 # RUN agfusion build -d . -s homo_sapiens -r 113 --pfam Pfam-A.clans.tsv
-RUN agfusion download -g hg38
 
+# manually move pyensembl database into the image
+COPY --chown=$MAMBA_USER:$MAMBA_USER agfusion/src/cache_pyensembl_GRCh38_ENSEMBL111 /home/app/.cache/pyensembl
 
 # add conda bins to PATH
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"

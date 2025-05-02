@@ -102,5 +102,6 @@ work/
 inputs/*
 docker/arcashla/src/IMGTHLA-3.5*.0/*
 outputs/*
-
+docker/agfusion/src/cache_pyensembl_GRCh38_ENSEMBL111/**
 .DS_Store
+

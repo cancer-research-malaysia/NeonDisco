@@ -146,6 +146,7 @@ def write_bash_script(output_file, all_commands, log_dir):
             log_dir = "agfusion-logs"
             f.write(f"# Create log directory\n")
             f.write(f"mkdir -p {log_dir}\n\n")
+            f.write(f"log_dir=\"{log_dir}\"\n\n")
         
         # Initialize counters
         f.write("# Initialize counters\n")
