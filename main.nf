@@ -181,7 +181,7 @@ workflow CONSENSUS_FUSION_CALLING_WF {
         combinedFTFilesCh.view()
 
         // Run the combining process with the joined output then channel into filtering process
-        FILTER_FUSIONS_PYENV(COMBINE_FUSIONS_PYENV(combinedFTFilesCh).out.combinedFTParquet)
+        FILTER_FUSIONS_PYENV(COMBINE_FUSIONS_PYENV(combinedFTFilesCh).combinedFTParquet)
 
     emit:
         filteredFusionCh = FILTER_FUSIONS_PYENV.out.filteredFusionList
