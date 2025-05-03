@@ -131,8 +131,8 @@ def main():
     # print(results)
     # save as parquet and tsv
     print(f"Saving as parquet and tsv files...")
-    results.write_parquet(f"{sample_name}-collated-FT-UNFILTERED.parquet")
-    results.write_csv(f"{sample_name}-collated-FT-UNFILTERED.tsv", separator="\t")
+    results.write_parquet(f"{sample_name}-combined-tool-FT-UNFILTERED.parquet")
+    results.write_csv(f"{sample_name}-combined-tool-FT-UNFILTERED.tsv", separator="\t")
 
     print("Done.")
 
