@@ -11,7 +11,7 @@ process PREDICT_CODING_SEQ_AGFUSION {
         tuple val(sampleName), path(filteredFusionList)
 
     output:
-        tuple val(sampleName), path("agfusion-OUT/**"), emit: agfusion_outdir
+        tuple val(sampleName), path("agfusion-dirs/"), emit: agfusion_outdir
 
     script:
     """
@@ -28,7 +28,7 @@ process PREDICT_CODING_SEQ_AGFUSION {
     """
     stub:
     """
-    mkdir -p agfusion-OUT
-    echo "stub run finished!" > agfusion-OUT/stub.out
+    mkdir -p agfusion-dirs
+    echo "stub run finished!" > agfusion-dirs/stub.out
     """
 }
