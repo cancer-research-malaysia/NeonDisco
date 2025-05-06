@@ -1,0 +1,37 @@
+//
+process FILTER_ALIGNED_READS_EASYFUSE {
+    maxForks 1
+    
+    container "${params.container__pyenv}"
+    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name ALIGNED-READS-FILTERING -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+
+    input:
+        tuple val(sampleName), path(bamFile)
+
+    output:
+        tuple val(sampleName), path("*.filtered.bam", arity: '1'), emit: filtered_bams
+
+    script:
+    """
+    # variables
+    SAMPLE_ID=${sampleName}
+    BAM=${bamFile}
+
+    echo "Processing files of sample \${SAMPLE_ID}"
+    echo "The bam file: \${BAM}"
+    
+    # Use the read filtering script from EasyFuse program
+    if python /home/app/scripts/fusionreadfilter_EASYFUSE.py --input "\${BAM}" --output "\${SAMPLE_ID}.filtered.bam"; then
+        echo "EasyFuse read filtering is complete!"
+    else
+        echo "EasyFuse read filtering failed. Check logs. Exiting..."
+        exit 1
+    fi
+
+    """
+    stub:
+    """
+    touch ${sampleName}.filtered.bam
+    echo "Stub run finished!"
+    """
+}
