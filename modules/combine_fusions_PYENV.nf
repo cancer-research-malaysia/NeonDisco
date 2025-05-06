@@ -10,8 +10,8 @@ process COMBINE_FUSIONS_PYENV {
         tuple val(sampleName), path(arFile), path(fcFile)
 
     output:
-        tuple val(sampleName), path("${sampleName}-combined-tool-FT-UNFILTERED.tsv"), emit: combinedFTList
         tuple val(sampleName), path("${sampleName}-combined-tool-FT-UNFILTERED.parquet"), emit: combinedFTParquet
+        //tuple val(sampleName), path("${sampleName}-combined-tool-FT-UNFILTERED.tsv"), emit: combinedFTList
 
     script:
     """

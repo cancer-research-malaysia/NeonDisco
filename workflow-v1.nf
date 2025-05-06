@@ -165,7 +165,7 @@ workflow HLA_TYPE_COLLATION_WF {
         COMBINE_HLA_FILES_BASH(hlaTypingCh)
 }
 
-workflow CONSENSUS_FUSION_CALLING_WF {
+workflow AGGREGATE_FUSION_CALLING_WF {
     take:
         trimmedCh
     main:
@@ -178,7 +178,7 @@ workflow CONSENSUS_FUSION_CALLING_WF {
             .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
             .set { combinedFTFilesCh }
         
-        combinedFTFilesCh.view()
+        //combinedFTFilesCh.view()
 
         // Run the combining process with the joined output then channel into filtering process
         FILTER_FUSIONS_PYENV(COMBINE_FUSIONS_PYENV(combinedFTFilesCh).combinedFTParquet)
@@ -308,7 +308,7 @@ workflow {
         HLA_TYPE_COLLATION_WF(hlaFilesCh.collect(flat: false))
         
         // Fusion calling
-        def filteredFusionCh = CONSENSUS_FUSION_CALLING_WF(processedInputCh)
+        def filteredFusionCh = AGGREGATE_FUSION_CALLING_WF(processedInputCh)
 
         // run AGFUSION coding sequence prediction
         PREDICT_CODING_SEQ_WF(filteredFusionCh)

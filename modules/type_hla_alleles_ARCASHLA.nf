@@ -11,7 +11,7 @@ process TYPE_HLA_ALLELES_ARCASHLA {
 
     output:
         tuple val(sampleName), path("*.genotype.json"), emit: allotype_json
-        path("*.genotype.log"), emit: allotype_log
+        //path("*.genotype.log"), emit: allotype_log
     
     script:
     """
