@@ -158,9 +158,50 @@ workflow TWOPASS_ALIGNMENT_WF {
     take:
         trimmedCh
     main:
-        FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_TWOPASS_STARSAM(trimmedCh).aligned_bams)
+        FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_TWOPASS_STARSAM(trimmedCh).aligned_bam)
     emit:
         alignedBamCh = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bam
+}
+
+workflow GENERAL_ALIGNMENT_WF {
+    take:
+        trimmedCh
+    main:
+        FILTER_ALIGNED_READS_EASYFUSE(ALIGN_READS_STAR_GENERAL(trimmedCh).aligned_bam)
+        CONVERT_FILT_BAMS2FASTQ_EASYFUSE(FILTER_ALIGNED_READS_EASYFUSE.out.filtered_bam)
+    emit:
+        filtFastqsCh = CONVERT_FILT_BAMS2FASTQ_EASYFUSE.out.filtered_fastqs
+}
+
+workflow AGGREGATE_FUSION_CALLING_WF {
+    take:
+        filtFastqsCh
+    main:
+        // gene fusion identification submodule
+        CALL_FUSIONS_ARRIBA(ALIGN_READS_STAR_ARRIBA(filtFastqsCh).aligned_bam)
+        CALL_FUSIONS_FUSIONCATCHER(filtFastqsCh)
+
+        // Join the outputs based on sample name
+        CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
+            .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
+            .set { combinedFTFilesCh }
+        
+        //combinedFTFilesCh.view()
+
+        // Run the combining process with the joined output then channel into filtering process
+        FILTER_FUSIONS_PYENV(COMBINE_FUSIONS_PYENV(combinedFTFilesCh).combinedFTParquet)
+
+    emit:
+        filteredFusionCh = FILTER_FUSIONS_PYENV.out.filteredFusionList
+        
+}
+
+workflow PREDICT_CODING_SEQ_WF {
+    take:
+        filteredFusionCh
+    main:
+        PREDICT_CODING_SEQ_AGFUSION(filteredFusionCh)
+
 }
 
 workflow HLA_TYPING_WF {
@@ -180,36 +221,6 @@ workflow HLA_TYPE_COLLATION_WF {
         COMBINE_HLA_FILES_BASH(hlaTypingCh)
 }
 
-workflow CONSENSUS_FUSION_CALLING_WF {
-    take:
-        trimmedCh
-    main:
-        // gene fusion identification submodule
-        CALL_FUSIONS_ARRIBA(trimmedCh)
-        CALL_FUSIONS_FUSIONCATCHER(trimmedCh)
-
-        // Join the outputs based on sample name
-        CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
-            .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
-            .set { combinedFTFilesCh }
-        
-        combinedFTFilesCh.view()
-
-        // Run the combining process with the joined output then channel into filtering process
-        FILTER_FUSIONS_PYENV(COMBINE_FUSIONS_PYENV(combinedFTFilesCh).combinedFTParquet)
-
-    emit:
-        filteredFusionCh = FILTER_FUSIONS_PYENV.out.filteredFusionList
-        
-}
-
-workflow PREDICT_CODING_SEQ_WF {
-    take:
-        filteredFusionCh
-    main:
-        PREDICT_CODING_SEQ_AGFUSION(filteredFusionCh)
-
-}
 
 // Main workflow
 workflow {
@@ -284,11 +295,11 @@ workflow {
     log.info "HLA typing only mode: ${params.hlaTypingOnly}"
     
     // Process input based on trimReads parameter
-    def processedInputCh = params.trimReads ? TRIMMING_WF(inputCh).trimmedCh : inputCh
+    def qcProcInputCh = params.trimReads ? TRIMMING_WF(inputCh).trimmedCh : inputCh
 
 
     ///////// Two-pass STAR alignment workflow ////////////
-    def alignedCh = TWOPASS_ALIGNMENT_WF(processedInputCh)
+    def alignedCh = TWOPASS_ALIGNMENT_WF(qcProcInputCh)
     ////////////////////////////////////////////////////////
 
 
@@ -322,8 +333,11 @@ workflow {
         // collate HLA typing results
         HLA_TYPE_COLLATION_WF(hlaFilesCh.collect(flat: false))
         
+        // Run the general alignment workflow
+        def filtFastqsCh = GENERAL_ALIGNMENT_WF(qcProcInputCh)
+        
         // Fusion calling
-        def filteredFusionCh = CONSENSUS_FUSION_CALLING_WF(processedInputCh)
+        def filteredFusionCh = AGGREGATE_FUSION_CALLING_WF(filtFastqsCh)
 
         // run AGFUSION coding sequence prediction
         PREDICT_CODING_SEQ_WF(filteredFusionCh)

@@ -9,18 +9,17 @@ process CALL_FUSIONS_ARRIBA {
     containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FT-CALLING-ARRIBA -v ${params.arribaDB}:/home/app/arriba-db -v ${params.starIndex}:/home/app/starIdx -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
     
     input:
-        tuple val(sampleName), path(trimmedReads)
+        tuple val(sampleName), path(bamFile)
 
     output:
         tuple val(sampleName), path("${sampleName}_arr.tsv"), emit: arriba_fusion_tuple
 
     script:
     """
-    echo "Path to input read file 1: ${trimmedReads[0]}"
-    echo "Path to input read file 2: ${trimmedReads[1]}"
-    if bash /home/app/scripts/arriba-nf.sh ${trimmedReads[0]} ${trimmedReads[1]} ${params.numCores} "/home/app/starIdx" "/home/app/arriba-db"; then
+    echo "Path to input bam for Arriba: ${bamFile}"
+    if bash /home/app/scripts/arriba-v2-nf.sh ${bamFile} ${sampleName} "/home/app/arriba-db" ${params.numCores}; then
         echo "Arriba has finished running on ${sampleName}. Copying main output file..."
-        cp ${sampleName}-arriba-fusions.tsv ${sampleName}_arr.tsv
+        mv ${sampleName}-arriba-fusions.tsv ${sampleName}_arr.tsv
     fi
     """
     stub:

@@ -11,7 +11,7 @@ process ALIGN_READS_TWOPASS_STARSAM {
         tuple val(sampleName), path(trimmedReads)
 
     output:
-        tuple val(sampleName), path("*-STAR*Aligned.out.bam", arity: '1'), emit: aligned_bams
+        tuple val(sampleName), path("*-STAR*Aligned.out.bam", arity: '1'), emit: aligned_bam
 
     script:
     """

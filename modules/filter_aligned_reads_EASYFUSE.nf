@@ -8,7 +8,7 @@ process FILTER_ALIGNED_READS_EASYFUSE {
         tuple val(sampleName), path(bamFile)
 
     output:
-        tuple val(sampleName), path("*.filtered.bam", arity: '1'), emit: filtered_bams
+        tuple val(sampleName), path("*.filtered.bam", arity: '1'), emit: filtered_bam
 
     script:
     """

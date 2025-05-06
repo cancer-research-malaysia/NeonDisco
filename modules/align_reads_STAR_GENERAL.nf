@@ -9,7 +9,7 @@ process ALIGN_READS_STAR_GENERAL {
         tuple val(sampleName), path(trimmedReads)
 
     output:
-        tuple val(sampleName), path("*-STAR-GEN_Aligned.out.bam", arity: '1'), emit: aligned_bams
+        tuple val(sampleName), path("*-STAR-GEN_Aligned.out.bam", arity: '1'), emit: aligned_bam
         tuple val(sampleName), path("*-STAR-GEN_Chimeric.out.junction"), emit: chimeric_reads
         tuple val(sampleName), path("*-STAR-GEN_Log.final.out"), emit: read_stats
 

@@ -143,7 +143,7 @@ workflow TWOPASS_ALIGNMENT_WF {
     take:
         trimmedCh
     main:
-        FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_TWOPASS_STARSAM(trimmedCh).aligned_bams)
+        FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_TWOPASS_STARSAM(trimmedCh).aligned_bam)
     emit:
         alignedBamCh = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bam
 }
