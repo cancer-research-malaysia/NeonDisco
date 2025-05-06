@@ -15,7 +15,7 @@ case $READ1 in
         --genomeDir "${INDEX}" \
         --readFilesIn "${READ1}" "${READ2}" \
         --readFilesCommand zcat \
-        --outFileNamePrefix "${SAMPLE_ID}-STAR-ARR_" \
+        --outFileNamePrefix "${SAMPLE_ID}-STAR-GEN_" \
         --outFilterMultimapNmax 1000 \
         --outSAMmultNmax 1 \
         --chimSegmentMin 10 \
@@ -39,7 +39,7 @@ case $READ1 in
         --genomeDir "${INDEX}" \
         --readFilesIn "${READ1}" "${READ2}" \
         --readFilesCommand zcat \
-        --outFileNamePrefix "${SAMPLE_ID}-STAR-ARR_" \
+        --outFileNamePrefix "${SAMPLE_ID}-STAR-GEN_" \
         --outFilterMultimapNmax 1000 \
         --outSAMmultNmax 1 \
         --chimSegmentMin 10 \
