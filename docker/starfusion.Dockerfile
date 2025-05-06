@@ -28,7 +28,19 @@ RUN gunzip /sbin/matchhostfsowner.gz && \
 RUN addgroup --gid 9999 app && \
   adduser --uid 9999 --gid 9999 --disabled-password --gecos App app
 
-# set workdir
+# Set workdir
 WORKDIR /home/app
+
+# Create the entrypoint directory if it doesn't exist
+RUN mkdir -p /usr/local/bin
+
+# Create the entrypoint script
+RUN echo '#!/bin/sh' > /usr/local/bin/_entrypoint.sh && \
+    echo 'exec "$@"' >> /usr/local/bin/_entrypoint.sh && \
+    chmod +x /usr/local/bin/_entrypoint.sh
+
+# Verify the entrypoint script exists and is executable
+RUN ls -la /usr/local/bin/_entrypoint.sh && \
+    cat /usr/local/bin/_entrypoint.sh
 
 ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "/sbin/matchhostfsowner"]
