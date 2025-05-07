@@ -12,22 +12,21 @@ include { FIXMATES_MARKDUPES_SAMTOOLS } from './modules/fixmates_markdupes_SAMTO
 include { ALIGN_READS_STAR_ARRIBA } from './modules/align_reads_STAR_ARRIBA.nf'
 include { ALIGN_READS_STAR_GENERAL } from './modules/align_reads_STAR_GENERAL.nf'
 include { FILTER_ALIGNED_READS_EASYFUSE } from './modules/filter_aligned_reads_EASYFUSE.nf'
-include { CONVERT_FILT_BAMS2FASTQ_EASYFUSE } from './modules/convert_filt_bams2fastq_EASYFUSE.nf'
+include { CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE } from './modules/convert_filtreads_bam2fastq_EASYFUSE.nf'
 
 ////// FUSION CALLING MODULES //////////
 include { CALL_FUSIONS_ARRIBA } from './modules/call_fusions_ARRIBA.nf'
 include { CALL_FUSIONS_FUSIONCATCHER } from './modules/call_fusions_FUSIONCATCHER.nf'
-include { COMBINE_FUSIONS_PYENV } from './modules/combine_fusions_PYENV.nf'
+include { COLLATE_FUSIONS_PYENV } from './modules/collate_fusions_PYENV.nf'
 
 ////// FUSION FILTERING AND ANNOTATION MODULES //////////
 include { FILTER_FUSIONS_PYENV } from './modules/filter_fusions_PYENV.nf'
-include { PREDICT_CODING_SEQ_AGFUSION } from './modules/predict_coding_seq_AGFUSION.nf'
+include { TRANSLATE_IN_SILICO_AGFUSION } from './modules/translate_in_silico_AGFUSION.nf'
 
 /////// HLA TYPING MODULES //////////
 include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_ARCASHLA.nf'
-include { EXTRACT_HLATYPING_JSONS_PYENV } from './modules/extract_hlatyping_jsons_PYENV.nf'
-include { COMBINE_HLA_FILES_BASH } from './modules/combine_hla_files_BASH.nf'
-
+include { REFORMAT_HLA_TYPES_PYENV } from './modules/reformat_hla_types_PYENV.nf'
+include { COLLATE_HLA_FILES_BASH } from './modules/collate_hla_files_BASH.nf'
 
 
 // Function to print help message
@@ -168,9 +167,9 @@ workflow GENERAL_ALIGNMENT_WF {
         trimmedCh
     main:
         FILTER_ALIGNED_READS_EASYFUSE(ALIGN_READS_STAR_GENERAL(trimmedCh).aligned_bam)
-        CONVERT_FILT_BAMS2FASTQ_EASYFUSE(FILTER_ALIGNED_READS_EASYFUSE.out.filtered_bam)
+        CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE(FILTER_ALIGNED_READS_EASYFUSE.out.filtered_bam)
     emit:
-        filtFastqsCh = CONVERT_FILT_BAMS2FASTQ_EASYFUSE.out.filtered_fastqs
+        filtFastqsCh = CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE.out.filtered_fastqs
 }
 
 workflow AGGREGATE_FUSION_CALLING_WF {
@@ -185,22 +184,20 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
             .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
             .set { combinedFTFilesCh }
-        
-        //combinedFTFilesCh.view()
 
         // Run the combining process with the joined output then channel into filtering process
-        FILTER_FUSIONS_PYENV(COMBINE_FUSIONS_PYENV(combinedFTFilesCh).combinedFTParquet)
+        FILTER_FUSIONS_PYENV(COLLATE_FUSIONS_PYENV(combinedFTFilesCh).collatedFTParquet)
 
     emit:
-        filteredFusionCh = FILTER_FUSIONS_PYENV.out.filteredFusionList
+        filteredFusionCh = FILTER_FUSIONS_PYENV.out.filteredFusions
         
 }
 
-workflow PREDICT_CODING_SEQ_WF {
+workflow IN_SILICO_TRANSCRIPT_TRANSLATION_WF {
     take:
         filteredFusionCh
     main:
-        PREDICT_CODING_SEQ_AGFUSION(filteredFusionCh)
+        TRANSLATE_IN_SILICO_AGFUSION(filteredFusionCh)
 
 }
 
@@ -208,19 +205,11 @@ workflow HLA_TYPING_WF {
     take:
         alignedBamCh
     main:
-        EXTRACT_HLATYPING_JSONS_PYENV(TYPE_HLA_ALLELES_ARCASHLA(alignedBamCh).allotype_json)
+        REFORMAT_HLA_TYPES_PYENV(TYPE_HLA_ALLELES_ARCASHLA(alignedBamCh).allotype_json)
+        hlaFilesCh = REFORMAT_HLA_TYPES_PYENV.out.hlaTypingTsv
+        COLLATE_HLA_FILES_BASH(hlaFilesCh.collect(flat: false))
 
-    emit:
-        hlaTypingCh = EXTRACT_HLATYPING_JSONS_PYENV.out.hlaTypingTsv
 }
-
-workflow HLA_TYPE_COLLATION_WF {
-    take:
-        hlaTypingCh
-    main:
-        COMBINE_HLA_FILES_BASH(hlaTypingCh)
-}
-
 
 // Main workflow
 workflow {
@@ -299,39 +288,20 @@ workflow {
 
 
     ///////// Two-pass STAR alignment workflow ////////////
-    def alignedCh = TWOPASS_ALIGNMENT_WF(qcProcInputCh)
+    def alignedBamsCh = TWOPASS_ALIGNMENT_WF(qcProcInputCh)
     ////////////////////////////////////////////////////////
 
 
     // Execute workflow branching based on hlaTypingOnly parameter
     if (params.hlaTypingOnly) {
-    // Run only HLA typing
-        def hlaFilesCh = HLA_TYPING_WF(alignedCh)
-        // collate HLA typing results
-        HLA_TYPE_COLLATION_WF(hlaFilesCh.collect(flat: false))
-
         
-        // // combined HLA typing results
-        // reformattedHlaFiles
-        // .map { sampleId, file -> 
-        // // Read file content and combine with sample ID
-        //     def content = file.text.trim()
-        //     return [sampleId, content]
-        // }
-        // .collectFile(
-        //     name: 'combined_hla_types.tsv',
-        //     newLine: true,
-        //     seed: "SampleID\tHLA_Types",  // Header
-        //     storeDir: "${params.outputDir}/combined-HLA-types"
-        // ) { sampleId, content ->
-        //     return "${sampleId}\t${content}"
-        // }
+        // Run only HLA typing
+        HLA_TYPING_WF(alignedBamsCh)
 
     } else {
+        
         // HLA typing
-        def hlaFilesCh = HLA_TYPING_WF(alignedCh)
-        // collate HLA typing results
-        HLA_TYPE_COLLATION_WF(hlaFilesCh.collect(flat: false))
+        HLA_TYPING_WF(alignedBamsCh)
         
         // Run the general alignment workflow
         def filtFastqsCh = GENERAL_ALIGNMENT_WF(qcProcInputCh)
@@ -340,7 +310,8 @@ workflow {
         def filteredFusionCh = AGGREGATE_FUSION_CALLING_WF(filtFastqsCh)
 
         // run AGFUSION coding sequence prediction
-        PREDICT_CODING_SEQ_WF(filteredFusionCh)
+        IN_SILICO_TRANSCRIPT_TRANSLATION_WF(filteredFusionCh)
+
     }
 
     // Completion handler
