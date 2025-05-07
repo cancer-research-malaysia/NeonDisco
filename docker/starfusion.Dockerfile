@@ -15,6 +15,14 @@ tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed l
 COPY starfusion/src/fusion_lib.Mar2021.dat.gz /tmp/fusion_lib.Mar2021.dat.gz
 COPY starfusion/src/AnnotFilterRule.pm /tmp/AnnotFilterRule.pm
 
+# delete source codes that require hotfixes
+RUN rm -f /usr/local/src/STAR-Fusion/ctat-genome-lib-builder/prep_genome_lib.pl && rm -f /usr/local/src/STAR-Fusion/ctat-genome-lib-builder/util/mask_confounding_features_from_genome.pl
+#replace the default prep_genome_lib.pl script with a hotfix for PAR region by github/zhuchcn (SHA: dc5c779a21f23f5c07e67850ba6845da7b058234)
+COPY --chown=root:root starfusion/src/prep_genome_lib-par-hotfix.pl /usr/local/src/STAR-Fusion/ctat-genome-lib-builder/prep_genome_lib.pl
+COPY --chown=root:root starfusion/src/mask_confounding_features_from_genome-par-hotfix.pl /usr/local/src/STAR-Fusion/ctat-genome-lib-builder/util/mask_confounding_features_from_genome.pl
+RUN chmod +x /usr/local/src/STAR-Fusion/ctat-genome-lib-builder/prep_genome_lib.pl && \
+    chmod +x /usr/local/src/STAR-Fusion/ctat-genome-lib-builder/util/mask_confounding_features_from_genome.pl
+
 # Docker suffers from absolutely atrocious way of consolidating the paradigm of restricting privileges when running containers (rootless mode) with writing outputs to bound host volumes without using Docker volumes or other convoluted workarounds.
 
 # Fortunately there is this tool that removes this altogether and helps matches the UID and GID of whoever is running the container image on a host machine
