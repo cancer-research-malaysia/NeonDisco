@@ -11,6 +11,7 @@ def main():
     sample_name = sys.argv[1]
     parquet_input_file = os.path.abspath(sys.argv[2])
     panel_of_normals_file = os.path.abspath(sys.argv[3])
+    output_filename = sys.argv[4]
     
     # print parameters for debugging
     print(f"Sample name: {sample_name}")
@@ -62,7 +63,7 @@ def main():
     final_unique_df = combined_unique_df[~combined_unique_df['breakpointID'].isin(panel_normals_uniq_fts)]
 
     # Save the result
-    final_unique_df.to_csv(f"{sample_name}-combined-tool-FT-FILTERED.tsv", sep='\t', index=False)
+    final_unique_df.to_csv(f"{output_filename}.tsv", sep='\t', index=False)
 
 if __name__ == "__main__":
     main()

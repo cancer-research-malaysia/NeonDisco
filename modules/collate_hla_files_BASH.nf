@@ -1,11 +1,11 @@
 // 
-process COMBINE_HLA_FILES_BASH {
+process COLLATE_HLA_FILES_BASH {
     
-    publishDir "${params.outputDir}/HLA-Types-Cohortwide", mode: 'copy',
+    publishDir "${params.outputDir}", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
 
     container "${params.container__pyenv}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name COMBINE-HLA-FILES -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name COLLATE-HLA-FILES -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
     
     input:
     val hlaData

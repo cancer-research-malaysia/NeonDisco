@@ -3,7 +3,7 @@ process ALIGN_READS_STAR_ARRIBA {
     maxForks 1
     
     container "${params.container__preproc}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name ALIGNMENT-STARARRIBA -v ${params.starIndex}:/home/app/starIdx -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name ALIGNMENT-STARARRIBA -v ${params.starIndex}:/home/app/starIdx -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
 
     input:
         tuple val(sampleName), path(trimmedReads)
@@ -25,7 +25,7 @@ process ALIGN_READS_STAR_ARRIBA {
     echo "The index path: \${STAR_INDEX}"
     
     # STAR normal alignment (1-pass) for Arriba
-    if bash /home/app/scripts/star-for-arriba-nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" ${params.numCores} "\${STAR_INDEX}"; then
+    if bash /home/app/scripts/star-for-arriba--nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" ${params.numCores} "\${STAR_INDEX}"; then
         echo "STAR normal 1-pass alignment for Arriba is complete!"
     else
         echo "STAR alignment failed. Check logs. Exiting..."

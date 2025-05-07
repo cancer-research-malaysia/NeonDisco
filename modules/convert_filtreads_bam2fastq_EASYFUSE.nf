@@ -1,8 +1,8 @@
 //
-process CONVERT_FILT_BAMS2FASTQ_EASYFUSE {
+process CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE {
     
     container "${params.container__preproc}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FILTERED-BAM-2-FASTQ -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FILTERED-BAM-2-FASTQ -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
 
     input:
         tuple val(sampleName), path(filteredBam)

@@ -5,7 +5,7 @@ process ALIGN_READS_TWOPASS_STARSAM {
     //afterScript params.deleteIntMedFiles ? "find ./ -name \"${sampleName}*_trimmed.R?.f*q.*\" -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping intermediate file cleanup...'"
     
     container "${params.container__preproc}"
-    containerOptions "-e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name ALIGNMENT-2P -v ${params.starIndex}:/home/app/starIdx -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name ALIGNMENT-2P -v ${params.starIndex}:/home/app/starIdx -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
 
     input:
         tuple val(sampleName), path(trimmedReads)
@@ -27,7 +27,7 @@ process ALIGN_READS_TWOPASS_STARSAM {
     echo "The index path: \${STAR_INDEX}"
     
     # STAR 2-pass alignment
-    if bash /home/app/scripts/star-2pass-nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" ${params.numCores} "\${STAR_INDEX}"; then
+    if bash /home/app/scripts/star-2pass--nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" ${params.numCores} "\${STAR_INDEX}"; then
         echo "STAR sample-level 2-pass alignment is complete!"
     else
         echo "STAR alignment failed. Check logs. Exiting..."

@@ -88,13 +88,15 @@ def wrangle_df(file_path, sample_id, tool_name):
 
 def main():
     # this script would take these parameters:
-    # combine-FTs-nf.py <sample id> <FT_arr.tsv file> <tool_suffix matching the file name> <FT_fc.tsv> <tool_suffix matching the file name>
+    # collate-FTs-nf.py <sample id> <FT_arr.tsv file> <tool_suffix matching the file name> <FT_fc.tsv> <tool_suffix matching the file name>
     sample_name = sys.argv[1]
     input_tuples = [(os.path.abspath(sys.argv[2]), sys.argv[3]), (os.path.abspath(sys.argv[4]), sys.argv[5])]
+    output_file = sys.argv[6]
     
     # print parameters for debugging
     print(f"Sample name: {sample_name}")
     print(f"Input arguments: {input_tuples}")
+    print(f"Output filename: {output_file}")
 
     # initialize an empty dictionary to store the lazy DataFrames
     lazy_dfs = []
@@ -131,8 +133,8 @@ def main():
     # print(results)
     # save as parquet and tsv
     print(f"Saving as parquet and tsv files...")
-    results.write_parquet(f"{sample_name}-combined-tool-FT-UNFILTERED.parquet")
-    results.write_csv(f"{sample_name}-combined-tool-FT-UNFILTERED.tsv", separator="\t")
+    results.write_parquet(f"{output_file}.parquet")
+    results.write_csv(f"{output_file}.tsv", separator="\t")
 
     print("Done.")
 

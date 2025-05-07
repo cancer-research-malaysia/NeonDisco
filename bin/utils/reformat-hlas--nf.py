@@ -4,7 +4,7 @@ import json
 
 # grab the first command line argument
 if len(sys.argv) != 3:
-    print("Usage: python extract-hla-jsons.py <sample_name> <input_json>")
+    print("Usage: python reformat-hlas.py <sample_name> <input_json>")
     sys.exit(1)
     
 # assign the argument to a variable
