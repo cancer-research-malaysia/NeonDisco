@@ -3,18 +3,30 @@
 nextflow.enable.dsl = 2
 
 // Import submodules
+////// PREPROCESSING MODULES //////////
 include { TRIM_READS_FASTP } from './modules/trim_reads_FASTP.nf'
 include { ALIGN_READS_TWOPASS_STARSAM } from './modules/align_reads_twopass_STARSAM.nf'
 include { FIXMATES_MARKDUPES_SAMTOOLS } from './modules/fixmates_markdupes_SAMTOOLS.nf'
-include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_ARCASHLA.nf'
-include { EXTRACT_HLATYPING_JSONS_PYENV } from './modules/extract_hlatyping_jsons_PYENV.nf'
-include { COMBINE_HLA_FILES_BASH } from './modules/combine_hla_files_BASH.nf'
+
+////// FUSION ALIGNMENT MODULES //////////
+include { ALIGN_READS_STAR_ARRIBA } from './modules/align_reads_STAR_ARRIBA.nf'
+include { ALIGN_READS_STAR_GENERAL } from './modules/align_reads_STAR_GENERAL.nf'
+include { FILTER_ALIGNED_READS_EASYFUSE } from './modules/filter_aligned_reads_EASYFUSE.nf'
+include { CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE } from './modules/convert_filtreads_bam2fastq_EASYFUSE.nf'
+
+////// FUSION CALLING MODULES //////////
 include { CALL_FUSIONS_ARRIBA } from './modules/call_fusions_ARRIBA.nf'
 include { CALL_FUSIONS_FUSIONCATCHER } from './modules/call_fusions_FUSIONCATCHER.nf'
-include { COMBINE_FUSIONS_PYENV } from './modules/combine_fusions_PYENV.nf'
-include { FILTER_FUSIONS_PYENV } from './modules/filter_fusions_PYENV.nf'
-include { PREDICT_CODING_SEQ_AGFUSION } from './modules/predict_coding_seq_AGFUSION.nf'
+include { COLLATE_FUSIONS_PYENV } from './modules/collate_fusions_PYENV.nf'
 
+////// FUSION FILTERING AND ANNOTATION MODULES //////////
+include { FILTER_FUSIONS_PYENV } from './modules/filter_fusions_PYENV.nf'
+include { TRANSLATE_IN_SILICO_AGFUSION } from './modules/translate_in_silico_AGFUSION.nf'
+
+/////// HLA TYPING MODULES //////////
+include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_ARCASHLA.nf'
+include { REFORMAT_HLA_TYPES_PYENV } from './modules/reformat_hla_types_PYENV.nf'
+include { COLLATE_HLA_FILES_BASH } from './modules/collate_hla_files_BASH.nf'
 // Function to print help message
 def helpMessage() {
     log.info"""

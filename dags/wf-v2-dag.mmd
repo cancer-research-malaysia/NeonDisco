@@ -1,0 +1,63 @@
+flowchart TB
+    subgraph " "
+    v0["Channel.fromPath"]
+    end
+    subgraph TRIMMING_WF
+    v4([TRIM_READS_FASTP])
+    v1(( ))
+    end
+    subgraph TWOPASS_ALIGNMENT_WF
+    v5([ALIGN_READS_TWOPASS_STARSAM])
+    v6([FIXMATES_MARKDUPES_SAMTOOLS])
+    end
+    subgraph HLA_TYPING_WF
+    v7([TYPE_HLA_ALLELES_ARCASHLA])
+    v8([REFORMAT_HLA_TYPES_PYENV])
+    v10([COLLATE_HLA_FILES_BASH])
+    v9(( ))
+    end
+    subgraph " "
+    v11[" "]
+    v13[" "]
+    v14[" "]
+    v24[" "]
+    end
+    subgraph GENERAL_ALIGNMENT_WF
+    v12([ALIGN_READS_STAR_GENERAL])
+    v15([FILTER_ALIGNED_READS_EASYFUSE])
+    v16([CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE])
+    end
+    subgraph AGGREGATE_FUSION_CALLING_WF
+    v17([ALIGN_READS_STAR_ARRIBA])
+    v18([CALL_FUSIONS_ARRIBA])
+    v19([CALL_FUSIONS_FUSIONCATCHER])
+    v21([COLLATE_FUSIONS_PYENV])
+    v22([FILTER_FUSIONS_PYENV])
+    v20(( ))
+    end
+    subgraph IN_SILICO_TRANSCRIPT_TRANSLATION_WF
+    v23([TRANSLATE_IN_SILICO_AGFUSION])
+    end
+    v0 --> v1
+    v1 --> v4
+    v4 --> v5
+    v4 --> v12
+    v5 --> v6
+    v6 --> v7
+    v7 --> v8
+    v8 --> v9
+    v9 --> v10
+    v10 --> v11
+    v12 --> v15
+    v12 --> v14
+    v12 --> v13
+    v15 --> v16
+    v16 --> v17
+    v16 --> v19
+    v17 --> v18
+    v18 --> v20
+    v19 --> v20
+    v20 --> v21
+    v21 --> v22
+    v22 --> v23
+    v23 --> v24

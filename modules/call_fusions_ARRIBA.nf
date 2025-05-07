@@ -2,7 +2,7 @@
 process CALL_FUSIONS_ARRIBA {
     maxForks 1
     
-    publishDir "${params.outputDir}/${sampleName}/AGGREGATE-FUSION-CALLING/ARRIBA-out", mode: 'copy',
+    publishDir "${params.outputDir}/${sampleName}/AGGREGATE-FUSION-CALLING-out/ARRIBA-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__arriba}"

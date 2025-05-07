@@ -2,7 +2,7 @@
 process CALL_FUSIONS_FUSIONCATCHER {
     maxForks 1
     
-    publishDir "${params.outputDir}/${sampleName}/AGGREGATE-FUSION-CALLING/FUSIONCATCHER-out", mode: 'copy',
+    publishDir "${params.outputDir}/${sampleName}/AGGREGATE-FUSION-CALLING-out/FUSIONCATCHER-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__fuscat}"
