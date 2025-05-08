@@ -17,7 +17,7 @@ include { FILTER_ALIGNED_READS_EASYFUSE } from './modules/filter_aligned_reads_E
 include { CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE } from './modules/convert_filtreads_bam2fastq_EASYFUSE.nf'
 
 ////// FUSION CALLING MODULES //////////
-include { CALL_FUSIONS_ARRIBA } from './modules/call_fusions_ARRIBA.nf'
+include { CALL_FUSIONS_ARRIBA_V1 } from './modules/call_fusions_ARRIBA-v1.nf'
 include { CALL_FUSIONS_FUSIONCATCHER } from './modules/call_fusions_FUSIONCATCHER.nf'
 include { COLLATE_FUSIONS_PYENV } from './modules/collate_fusions_PYENV.nf'
 
@@ -186,11 +186,11 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         trimmedCh
     main:
         // gene fusion identification submodule
-        CALL_FUSIONS_ARRIBA(trimmedCh)
+        CALL_FUSIONS_ARRIBA_V1(trimmedCh)
         CALL_FUSIONS_FUSIONCATCHER(trimmedCh)
 
         // Join the outputs based on sample name
-        CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
+        CALL_FUSIONS_ARRIBA_V1.out.arriba_fusion_tuple
             .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
             .set { combinedFTFilesCh }
         
