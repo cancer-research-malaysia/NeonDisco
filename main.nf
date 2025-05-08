@@ -164,20 +164,15 @@ workflow TWOPASS_ALIGNMENT_WF {
         alignedBamCh = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bam
 }
 
-workflow GENERAL_ALIGNMENT_WF {
+workflow AGGREGATE_FUSION_CALLING_WF {
     take:
         trimmedCh
     main:
+        // Preprocess reads for aggregate fusion calling
         FILTER_ALIGNED_READS_EASYFUSE(ALIGN_READS_STAR_GENERAL(trimmedCh).aligned_bam)
         CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE(FILTER_ALIGNED_READS_EASYFUSE.out.filtered_bam)
-    emit:
         filtFastqsCh = CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE.out.filtered_fastqs
-}
 
-workflow AGGREGATE_FUSION_CALLING_WF {
-    take:
-        filtFastqsCh
-    main:
         // gene fusion identification submodule
         CALL_FUSIONS_ARRIBA(ALIGN_READS_STAR_ARRIBA(filtFastqsCh).aligned_bam)
         CALL_FUSIONS_FUSIONCATCHER(filtFastqsCh)
@@ -302,11 +297,8 @@ workflow {
         // HLA typing
         HLA_TYPING_WF(alignedBamsCh)
         
-        // Run the general alignment workflow
-        def filtFastqsCh = GENERAL_ALIGNMENT_WF(qcProcInputCh)
-        
         // Fusion calling
-        def filteredFusionCh = AGGREGATE_FUSION_CALLING_WF(filtFastqsCh)
+        def filteredFusionCh = AGGREGATE_FUSION_CALLING_WF(qcProcInputCh)
 
         // run AGFUSION coding sequence prediction
         IN_SILICO_TRANSCRIPT_TRANSLATION_WF(filteredFusionCh)
