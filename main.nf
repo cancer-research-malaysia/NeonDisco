@@ -1,6 +1,8 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl = 2
+// Set default parameter values
+params.deleteStagedFiles = params.inputSource == 's3' ? true : false
 
 // Import submodules
 ////// PREPROCESSING MODULES //////////
@@ -253,10 +255,7 @@ workflow {
         exit 1
     } else {
         log.info "Input source is set to ${params.inputSource}"
-        // set deleteStagedFiles to false if inputSource is local
-        if (params.inputSource == 's3') {
-            params.deleteStagedFiles = true
-        }
+        log.info "deleteStagedFiles parameter is set to ${params.deleteStagedFiles}"
         log.info "deleteIntMedFiles parameter is set to ${params.deleteIntMedFiles}." 
         if (params.deleteIntMedFiles) {
             log.info "Intermediate files will be deleted once dependent processes are complete..."

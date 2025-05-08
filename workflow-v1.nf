@@ -1,6 +1,8 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl = 2
+// Set default parameter values
+params.deleteStagedFiles = params.inputSource == 's3' ? true : false
 
 // Import submodules
 ////// PREPROCESSING MODULES //////////
@@ -27,6 +29,8 @@ include { TRANSLATE_IN_SILICO_AGFUSION } from './modules/translate_in_silico_AGF
 include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_ARCASHLA.nf'
 include { REFORMAT_HLA_TYPES_PYENV } from './modules/reformat_hla_types_PYENV.nf'
 include { COLLATE_HLA_FILES_BASH } from './modules/collate_hla_files_BASH.nf'
+
+
 // Function to print help message
 def helpMessage() {
     log.info"""
@@ -164,17 +168,17 @@ workflow HLA_TYPING_WF {
     take:
         alignedBamCh
     main:
-        EXTRACT_HLATYPING_JSONS_PYENV(TYPE_HLA_ALLELES_ARCASHLA(alignedBamCh).allotype_json)
+        REFORMAT_HLA_TYPES_PYENV(TYPE_HLA_ALLELES_ARCASHLA(alignedBamCh).allotype_json)
 
     emit:
-        hlaTypingCh = EXTRACT_HLATYPING_JSONS_PYENV.out.hlaTypingTsv
+        hlaTypingCh = REFORMAT_HLA_TYPES_PYENV.out.hlaTypingTsv
 }
 
 workflow HLA_TYPE_COLLATION_WF {
     take:
         hlaTypingCh
     main:
-        COMBINE_HLA_FILES_BASH(hlaTypingCh)
+        COLLATE_HLA_FILES_BASH(hlaTypingCh)
 }
 
 workflow AGGREGATE_FUSION_CALLING_WF {
@@ -193,10 +197,10 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         //combinedFTFilesCh.view()
 
         // Run the combining process with the joined output then channel into filtering process
-        FILTER_FUSIONS_PYENV(COMBINE_FUSIONS_PYENV(combinedFTFilesCh).combinedFTParquet)
+        FILTER_FUSIONS_PYENV(COLLATE_FUSIONS_PYENV(combinedFTFilesCh).collatedFTParquet)
 
     emit:
-        filteredFusionCh = FILTER_FUSIONS_PYENV.out.filteredFusionList
+        filteredFusionCh = FILTER_FUSIONS_PYENV.out.filteredFusions
         
 }
 
@@ -204,7 +208,7 @@ workflow PREDICT_CODING_SEQ_WF {
     take:
         filteredFusionCh
     main:
-        PREDICT_CODING_SEQ_AGFUSION(filteredFusionCh)
+        TRANSLATE_IN_SILICO_AGFUSION(filteredFusionCh)
 
 }
 
@@ -250,10 +254,7 @@ workflow {
         exit 1
     } else {
         log.info "Input source is set to ${params.inputSource}"
-        // set deleteStagedFiles to false if inputSource is local
-        if (params.inputSource == 's3') {
-            params.deleteStagedFiles = true
-        }
+        log.info "deleteStagedFiles parameter is set to ${params.deleteStagedFiles}"
         log.info "deleteIntMedFiles parameter is set to ${params.deleteIntMedFiles}." 
         if (params.deleteIntMedFiles) {
             log.info "Intermediate files will be deleted once dependent processes are complete..."
