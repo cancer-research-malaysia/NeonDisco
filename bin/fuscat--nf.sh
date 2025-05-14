@@ -12,7 +12,7 @@ run_fuscat() {
   local OUTDIR=$4
   local CORES=$5
 
-  fusioncatcher -d ${DB} --input ${FASTQ_R1_FILE},${FASTQ_R2_FILE} --output ${OUTDIR} -p $5 2>&1 | tee "${OUTDIR}/fuscat-run.log-$(date +%Y%m%d_%H-%M-%S).txt"
+  fusioncatcher -d ${DB} --input ${FASTQ_R1_FILE},${FASTQ_R2_FILE} --output ${OUTDIR} --skip-readthroughs -p $5 2>&1 | tee "${OUTDIR}/fuscat-run.log-$(date +%Y%m%d_%H-%M-%S).txt"
 }
 
 # Set env variables
