@@ -250,8 +250,13 @@ workflow {
         exit 1
     } else {
         log.info "Input source is set to ${params.inputSource}"
-        log.info "deleteStagedFiles parameter is set to ${params.deleteStagedFiles}"
-        log.info "deleteIntMedFiles parameter is set to ${params.deleteIntMedFiles}." 
+        log.info "deleteStagedFiles parameter is set to <<${params.deleteStagedFiles}>>"
+        if (params.deleteStagedFiles) {
+            log.info "Staged files will be deleted once dependent processes are complete..."
+        } else {
+            log.info "Staged files will be kept for debugging purposes."
+        }
+        log.info "deleteIntMedFiles parameter is set to <<${params.deleteIntMedFiles}>>" 
         if (params.deleteIntMedFiles) {
             log.info "Intermediate files will be deleted once dependent processes are complete..."
         } else {
