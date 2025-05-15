@@ -19,8 +19,9 @@ process FILTER_FUSIONS_PYENV {
     echo "Sample name: ${sampleName}"
     echo "Generating output file name: ${sampleName}-collated-FT-normFiltered"
     OUTPUT_NAME="${sampleName}-collated-FT-normFiltered"
+
     echo "Running filtering script to filter for tumor-specific FTs..."
-    if python /home/app/scripts/filter-FTs--nf.py ${sampleName} ${collatedFTParquet} ${params.panelOfNormalsTsv} \${OUTPUT_NAME}; then
+    if python /home/app/scripts/wrangle-and-filter-FTs--nf.py ${sampleName} ${collatedFTParquet} ${params.panelOfNormalsPq} ${params.panelOfCCLEInternalsPq} \${OUTPUT_NAME}; then
         echo "Filtering completed."
     fi
 
