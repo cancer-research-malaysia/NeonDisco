@@ -71,7 +71,12 @@ def main():
     # Step 7: Filter out breakpoints that appear in the Panel of Normals
     print("Filtering out breakpoints that appear in the Panel of Normals...")
     pon_set = set(pon_df['breakpointID'].to_list())
-    final_result_df = ccle_added_df.filter(~pl.col('breakpointID').is_in(pon_set))
+    normfilt_df = ccle_added_df.filter(~pl.col('breakpointID').is_in(pon_set))
+
+    # Step 8: Finally add a column for FusionInspector, where it contains the same value as 'fusionGenePair' but with the separator :: changed into --
+    final_result_df = normfilt_df.with_columns(
+        pl.col('fusionGenePair').str.replace('::', '--').alias('fusionGenePair_FusIns')
+    )
     
     # Save the result
     print(f"Saving filtered results to {output_filename}.tsv...")
