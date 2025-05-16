@@ -233,8 +233,6 @@ def main():
     parser.add_argument('--output-dir', '-o', default='./agfusion-dirs', help='Output base directory for AGFusion results')
     parser.add_argument('--db-path', '-d', default='/tmp/agfusion.homo_sapiens.111.db', 
                         help='Path to AGFusion database')
-    parser.add_argument('--append-t', '-t', action='store_true', 
-                        help='Append "T" to sample IDs')
     parser.add_argument('--output-script', '-c', action='store_true',
                         help='Write commands to bash script file')
     parser.add_argument('--log-dir', '-l', default='agfusion-logs',
@@ -253,10 +251,6 @@ def main():
         # Convert numpy arrays to lists
         for key in fusion_dict:
             fusion_dict[key] = fusion_dict[key].tolist()
-        
-        # Append 'T' to sample IDs if requested
-        if args.append_t:
-            fusion_dict = {f'{key}T': val for key, val in fusion_dict.items()}
         
         # Parse transcripts
         parsed_results = parse_fusion_transcripts(fusion_dict)
