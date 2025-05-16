@@ -73,15 +73,22 @@ def main():
     pon_set = set(pon_df['breakpointID'].to_list())
     normfilt_df = ccle_added_df.filter(~pl.col('breakpointID').is_in(pon_set))
 
-    # Step 8: Finally add a column for FusionInspector, where it contains the same value as 'fusionGenePair' but with the separator :: changed into --
+    # Step 8: First cast the categorical column 'fusionGenePair' to string, then do the replacement
+    print("Creating FusionInspector format column...")
     final_result_df = normfilt_df.with_columns(
-        pl.col('fusionGenePair').str.replace('::', '--').alias('fusionGenePair_FusIns')
+        pl.col('fusionGenePair').cast(pl.Utf8).str.replace('::', '--').alias('fusionGenePair_FusIns')
     )
     
     # Save the result
     print(f"Saving filtered results to {output_filename}.tsv...")
+
+    # Format detectedBy column to use " | " as separator between tools because polars represents the list as nested data
+    export_df = final_result_df.with_columns([
+        pl.col('detectedBy').list.eval(pl.element().cast(pl.Utf8)).list.join(" | ").alias('detectedBy')
+    ])
+
     # write to tsv using polars
-    final_result_df.write_csv(f"{output_filename}.tsv", separator='\t')
+    export_df.write_csv(f"{output_filename}.tsv", separator='\t')
     
     print("Processing complete!")
 

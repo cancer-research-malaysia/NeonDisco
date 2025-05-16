@@ -291,10 +291,13 @@ def main():
         
         # Add specified tool files
         if args.arriba:
+            print (f"Adding Arriba file: {args.arriba}")
             input_files.append((os.path.abspath(args.arriba), 'arr'))
         if args.fusioncatcher:
+            print (f"Adding FusionCatcher file: {args.fusioncatcher}")
             input_files.append((os.path.abspath(args.fusioncatcher), 'fc'))
         if args.starfusion:
+            print (f"Adding STARFusion file: {args.starfusion}")
             input_files.append((os.path.abspath(args.starfusion), 'sf'))
             
         # Add additional inputs if provided
@@ -306,6 +309,7 @@ def main():
             for i in range(0, len(args.inputs), 2):
                 input_files.append((os.path.abspath(args.inputs[i]), args.inputs[i+1]))
         
+        print(f"Input files: {input_files}")
         # Call the collate function
         try:
             collate_fusion_data(
@@ -316,41 +320,6 @@ def main():
         except Exception as e:
             print(f"Error: {str(e)}")
             sys.exit(1)
-    
-    else:
-        # Legacy positional argument handling for backward compatibility
-        if len(sys.argv) < 4:
-            print("Usage: collate-FTs--nf.py <sample_id> <output_file> [<file_path> <tool_suffix>]...")
-            print("Example: collate-FTs--nf.py 123T output path/to/123T_arr.tsv arr path/to/123T_fc.tsv fc path/to/123T_sf.tsv sf")
-            print("\nAlternatively, use the new argument format:")
-            print("collate-FTs--nf.py --sample_id 123T --output output --arriba path/to/123T_arr.tsv --fusioncatcher path/to/123T_fc.tsv")
-            sys.exit(1)
-            
-        sample_id = sys.argv[1]
-        output_file = sys.argv[2]
-        
-        # Check if the number of remaining arguments is even (each file needs a suffix)
-        if (len(sys.argv) - 3) % 2 != 0:
-            print("Error: Each input file provided must be tagged with its corresponding tool suffix as an argument.")
-            sys.exit(1)
-        
-        # Create a list of tuples (file_path, suffix)
-        input_files = []
-        for i in range(3, len(sys.argv), 2):
-            if i+1 < len(sys.argv):
-                input_files.append((os.path.abspath(sys.argv[i]), sys.argv[i+1]))
-        
-        # Call the collate function
-        try:
-            collate_fusion_data(
-                sample_id=sample_id,
-                output_filename=output_file,
-                input_files=input_files
-            )
-        except Exception as e:
-            print(f"Error: {str(e)}")
-            sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

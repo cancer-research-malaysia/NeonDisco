@@ -22,7 +22,7 @@ process COLLATE_FUSIONS_PYENV {
     echo "Generated output filename using sample name: \${OUTPUT_NAME}"
 
     echo "Running Python script to collate FT files..."
-    if python /home/app/scripts/collate-FTs--nf.py ${sampleName} ${arFile} arr ${fcFile} fc \${OUTPUT_NAME}; then
+    if python /home/app/scripts/collate-FTs--nf.py -s ${sampleName} -o \${OUTPUT_NAME} --arriba ${arFile} --fusioncatcher ${fcFile}; then
         echo "Collation completed successfully."
     else
         echo "Collation failed. Please check the logs for errors."
