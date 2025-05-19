@@ -68,7 +68,7 @@ def parse_fusion_transcripts(fusion_dict):
                     'gene3': gene2,
                     'junction5': pos1,
                     'junction3': pos2,
-                    'output': f"{sample_id}_{gene1}-{gene2}"  # Include sampleID in output name
+                    'output': f"{sample_id}_{gene1}--{gene2}__{chrom1}-{pos1}__{chrom2}-{pos2}"  # Include sampleID in output name
                 }
                 
                 parsed_commands[sample_id].append(command_dict)
