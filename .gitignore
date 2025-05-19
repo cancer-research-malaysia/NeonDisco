@@ -98,6 +98,7 @@ config.json
 docker/hla-hd/src/IMGTHLA-3.58.0/*
 .nextflow/
 .nextflow.log*
+conf/nextflow.config
 work/
 inputs/*
 docker/arcashla/src/IMGTHLA-3.5*.0/*
