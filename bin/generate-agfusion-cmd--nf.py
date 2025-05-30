@@ -68,7 +68,7 @@ def parse_fusion_transcripts(fusion_dict):
                     'gene3': gene2,
                     'junction5': pos1,
                     'junction3': pos2,
-                    'output': f"{sample_id}_{gene1}--{gene2}__{chrom1}-{pos1}__{chrom2}-{pos2}"  # Include sampleID in output name
+                    'output': f"{sample_id}_{gene1}--{gene2}__{chrom1}-{pos1}--{chrom2}-{pos2}"  # Include sampleID in output name
                 }
                 
                 parsed_commands[sample_id].append(command_dict)
@@ -192,10 +192,10 @@ def write_bash_script(output_file, all_commands, log_dir, output_prefix):
                 gene3 = cmd.split("-g3 ")[1].split(" ")[0]
                 
                 # Create a unique log file for each command
-                log_file = f"{log_dir}/{sample_id}_{gene5}-{gene3}.log"
+                log_file = f"{log_dir}/{sample_id}_{gene5}--{gene3}.log"
                 
                 # Write a descriptive label for this command
-                desc = f"sample {sample_id}, fusion {i}/{len(commands)}: {gene5}-{gene3}"
+                desc = f"sample {sample_id}, fusion {i}/{len(commands)}: {gene5}--{gene3}"
                 
                 # Use the run_command function to execute with error handling
                 f.write(f"run_command \"{cmd}\" \"{desc}\" \"{log_file}\"\n\n")
