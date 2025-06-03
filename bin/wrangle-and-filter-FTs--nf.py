@@ -1,7 +1,6 @@
 import os
 import sys
 import polars as pl
-import pandas as pd
 
 def main():
     """
@@ -10,6 +9,8 @@ def main():
     2. Adding tool overlap information
     3. Checking presence in CCLE and internal cell lines
     4. Filtering out fusions found in panel of normals
+    5. Formatting for FusionInspector compatibility
+    The script takes command-line arguments for input files and outputs the results in TSV format and a txt format for Fusion Inspector.
     """
     # Parse command-line arguments
     sample_name = sys.argv[1]
@@ -89,6 +90,10 @@ def main():
 
     # write to tsv using polars
     export_df.write_csv(f"{output_filename}.tsv", separator='\t')
+    print(f"Results saved to {output_filename}.tsv")
+    # write to txt file just the FusIns column
+    export_df.select('fusionGenePair_FusIns').unique().write_csv(f"{output_filename}-unique-genePairs-for-FusIns.txt", include_header=False)
+    print(f"Unique fusion gene pairs for FusionInspector saved to {output_filename}-unique-genePairs-for-FusIns.txt")
     
     print("Processing complete!")
 

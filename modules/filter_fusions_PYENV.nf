@@ -12,6 +12,7 @@ process FILTER_FUSIONS_PYENV {
 
     output:
         tuple val(sampleName), path("${sampleName}-collated-FT-normFiltered.tsv"), emit: filteredFusions
+        tuple val(sampleName), path("${sampleName}-collated-FT-normFiltered-unique-genePairs-for-FusIns.txt"), emit: uniqueFiltFusionPairsForFusIns
 
     script:
     """

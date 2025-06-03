@@ -61,6 +61,10 @@ A `nextflow.config` file is already created containing the default values of man
 
 > nextflow run main.nf 
 
+## Minimal Pipeline Hardware Requirement
+
+At the time of testing, an average size of raw fastq files from our MyBrCa transcriptomic dataset (~approximately 800MB per read file on average) require at minimum an 8-core CPU and 128GB of RAM (when running the pipeline using default parameters).
+
 ### Resuming and Caching
 Nextflow can resume interrupted processes so specify `-resume` flag to restart runs.
 

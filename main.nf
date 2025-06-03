@@ -24,6 +24,7 @@ include { COLLATE_FUSIONS_PYENV } from './modules/collate_fusions_PYENV.nf'
 ////// FUSION FILTERING AND ANNOTATION MODULES //////////
 include { FILTER_FUSIONS_PYENV } from './modules/filter_fusions_PYENV.nf'
 include { TRANSLATE_IN_SILICO_AGFUSION } from './modules/translate_in_silico_AGFUSION.nf'
+include { VALIDATE_IN_SILICO_FUSIONINSPECTOR } from './modules/validate_in_silico_FUSIONINSPECTOR.nf'
 
 /////// HLA TYPING MODULES //////////
 include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_ARCASHLA.nf'
@@ -186,15 +187,17 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         FILTER_FUSIONS_PYENV(COLLATE_FUSIONS_PYENV(combinedFTFilesCh).collatedFTParquet)
 
     emit:
-        filteredFusionCh = FILTER_FUSIONS_PYENV.out.filteredFusions
+        filteredFusionsCh = FILTER_FUSIONS_PYENV.out.filteredFusions
+        uniqueFiltFusionPairsForFusInsCh = FILTER_FUSIONS_PYENV.out.uniqueFiltFusionPairsForFusIns
         
 }
 
-workflow IN_SILICO_TRANSCRIPT_TRANSLATION_WF {
+workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
     take:
-        filteredFusionCh
+        filteredFusionsCh
+        uniqueFiltFusionPairsForFusInsCh
     main:
-        TRANSLATE_IN_SILICO_AGFUSION(filteredFusionCh)
+        VALIDATE_IN_SILICO_FUSIONINSPECTOR(TRANSLATE_IN_SILICO_AGFUSION(filteredFusionsCh).agfusion_outdir, uniqueFiltFusionPairsForFusInsCh)
 
 }
 
@@ -250,11 +253,15 @@ workflow {
         exit 1
     } else {
         log.info "Input source is set to ${params.inputSource}"
-        log.info "deleteStagedFiles parameter is set to <<${params.deleteStagedFiles}>>"
-        if (params.deleteStagedFiles) {
-            log.info "Staged files will be deleted once dependent processes are complete..."
+        if (params.inputSource == 's3') {
+            log.info "deleteStagedFiles parameter is set to <<${params.deleteStagedFiles}>>"
+            if (params.deleteStagedFiles) {
+                log.info "Staged files will be deleted once dependent processes are complete..."
+            } else {
+                log.info "Staged files will be kept for debugging purposes."
+            }
         } else {
-            log.info "Staged files will be kept for debugging purposes."
+            log.info "Input files will be read from local directory: ${params.inputDir}"
         }
         log.info "deleteIntMedFiles parameter is set to <<${params.deleteIntMedFiles}>>" 
         if (params.deleteIntMedFiles) {
@@ -303,10 +310,13 @@ workflow {
         HLA_TYPING_WF(alignedBamsCh)
         
         // Fusion calling
-        def filteredFusionCh = AGGREGATE_FUSION_CALLING_WF(qcProcInputCh)
+        AGGREGATE_FUSION_CALLING_WF(qcProcInputCh)
 
         // run AGFUSION coding sequence prediction
-        IN_SILICO_TRANSCRIPT_TRANSLATION_WF(filteredFusionCh)
+        IN_SILICO_TRANSCRIPT_VALIDATION_WF(
+                AGGREGATE_FUSION_CALLING_WF.out.filteredFusionsCh, 
+                AGGREGATE_FUSION_CALLING_WF.out.uniqueFiltFusionPairsForFusInsCh
+            )
 
     }
 
