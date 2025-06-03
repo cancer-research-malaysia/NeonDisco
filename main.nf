@@ -19,6 +19,7 @@ include { CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE } from './modules/convert_filtrea
 ////// FUSION CALLING MODULES //////////
 include { CALL_FUSIONS_ARRIBA } from './modules/call_fusions_ARRIBA.nf'
 include { CALL_FUSIONS_FUSIONCATCHER } from './modules/call_fusions_FUSIONCATCHER.nf'
+include { CALL_FUSIONS_STARFUSION } from './modules/call_fusions_STARFUSION.nf'
 include { COLLATE_FUSIONS_PYENV } from './modules/collate_fusions_PYENV.nf'
 
 ////// FUSION FILTERING AND ANNOTATION MODULES //////////
@@ -177,6 +178,7 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         // gene fusion identification submodule
         CALL_FUSIONS_ARRIBA(ALIGN_READS_STAR_ARRIBA(filtFastqsCh).aligned_bam)
         CALL_FUSIONS_FUSIONCATCHER(filtFastqsCh)
+        CALL_FUSIONS_STARFUSION(filtFastqsCh)
 
         // Join the outputs based on sample name
         CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
