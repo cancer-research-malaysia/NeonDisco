@@ -196,8 +196,9 @@ workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
     take:
         filteredFusionsCh
         uniqueFiltFusionPairsForFusInsCh
+        trimmedCh
     main:
-        VALIDATE_IN_SILICO_FUSIONINSPECTOR(TRANSLATE_IN_SILICO_AGFUSION(filteredFusionsCh).agfusion_outdir, uniqueFiltFusionPairsForFusInsCh)
+        VALIDATE_IN_SILICO_FUSIONINSPECTOR(TRANSLATE_IN_SILICO_AGFUSION(filteredFusionsCh).agfusion_outdir, uniqueFiltFusionPairsForFusInsCh, trimmedCh)
 
 }
 
@@ -315,7 +316,8 @@ workflow {
         // run AGFUSION coding sequence prediction
         IN_SILICO_TRANSCRIPT_VALIDATION_WF(
                 AGGREGATE_FUSION_CALLING_WF.out.filteredFusionsCh, 
-                AGGREGATE_FUSION_CALLING_WF.out.uniqueFiltFusionPairsForFusInsCh
+                AGGREGATE_FUSION_CALLING_WF.out.uniqueFiltFusionPairsForFusInsCh,
+                qcProcInputCh
             )
 
     }
