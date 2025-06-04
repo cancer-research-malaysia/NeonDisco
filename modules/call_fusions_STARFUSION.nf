@@ -20,8 +20,7 @@ process CALL_FUSIONS_STARFUSION {
     echo "Path to input read file 2: ${filtFastqs[1]}"
     if bash /home/app/scripts/starfusion--nf.sh ${filtFastqs[0]} ${filtFastqs[1]} ${sampleName} ${params.numCores} /home/app/libs; then
         echo "STARFusion has finished running on ${sampleName}. Copying main output file..."
-        #cp final-list_candidate-fusion-genes.txt ${sampleName}_sf.tsv
-        touch ${sampleName}_sf.tsv
+        cp ${sampleName}-STARFusion-out/star-fusion.fusion_predictions.abridged.tsv ${sampleName}_sf.tsv
     fi
     """
     stub:

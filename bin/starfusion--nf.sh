@@ -13,7 +13,8 @@ run_starfusion() {
   local CORES=$4
   local DB=$5
 
-  STAR-Fusion --genome_lib_dir $DB --left_fq $FASTQ_R1_FILE --right_fq $FASTQ_R2_FILE --output_dir "${SAMPLE_ID}-STARFusion-out" --no_annotation_filter
+  STAR-Fusion --genome_lib_dir $DB --left_fq $FASTQ_R1_FILE --right_fq $FASTQ_R2_FILE --output_dir "${SAMPLE_ID}-STARFusion-out"
+  #--no_annotation_filter
 }
 
 # measure execution time
