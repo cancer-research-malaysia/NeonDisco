@@ -8,7 +8,7 @@ process COLLATE_FUSIONS_PYENV {
     containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name COLLATE-FUSIONS -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
     
     input:
-        tuple val(sampleName), path(arFile), path(fcFile)
+        tuple val(sampleName), path(arFile), path(fcFile), path(sfFile)
 
     output:
         tuple val(sampleName), path("${sampleName}-collated-FT-raw.parquet"), emit: collatedFTParquet
@@ -17,12 +17,14 @@ process COLLATE_FUSIONS_PYENV {
     """
     echo "Path to Arriba tsv file of raw fusion transcripts: ${arFile}"
     echo "Path to FusionCatcher tsv file of raw fusion transcripts: ${fcFile}"
+    echo "Path to StarFusion tsv file of raw fusion transcripts: ${sfFile}"
+    echo "Sample name: ${sampleName}"
 
     OUTPUT_NAME="${sampleName}-collated-FT-raw"
     echo "Generated output filename using sample name: \${OUTPUT_NAME}"
 
     echo "Running Python script to collate FT files..."
-    if python /home/app/scripts/collate-FTs--nf.py -s ${sampleName} -o \${OUTPUT_NAME} --arriba ${arFile} --fusioncatcher ${fcFile}; then
+    if python /home/app/scripts/collate-FTs--nf.py -s ${sampleName} -o \${OUTPUT_NAME} --arriba ${arFile} --fusioncatcher ${fcFile} --starfusion ${sfFile}; then
         echo "Collation completed successfully."
     else
         echo "Collation failed. Please check the logs for errors."

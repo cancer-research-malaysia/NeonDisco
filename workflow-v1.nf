@@ -19,11 +19,13 @@ include { CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE } from './modules/convert_filtrea
 ////// FUSION CALLING MODULES //////////
 include { CALL_FUSIONS_ARRIBA_V1 } from './modules/call_fusions_ARRIBA-v1.nf'
 include { CALL_FUSIONS_FUSIONCATCHER } from './modules/call_fusions_FUSIONCATCHER.nf'
+include { CALL_FUSIONS_STARFUSION } from './modules/call_fusions_STARFUSION.nf'
 include { COLLATE_FUSIONS_PYENV } from './modules/collate_fusions_PYENV.nf'
 
 ////// FUSION FILTERING AND ANNOTATION MODULES //////////
 include { FILTER_FUSIONS_PYENV } from './modules/filter_fusions_PYENV.nf'
 include { TRANSLATE_IN_SILICO_AGFUSION } from './modules/translate_in_silico_AGFUSION.nf'
+include { VALIDATE_IN_SILICO_FUSIONINSPECTOR } from './modules/validate_in_silico_FUSIONINSPECTOR.nf'
 
 /////// HLA TYPING MODULES //////////
 include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_ARCASHLA.nf'
@@ -188,10 +190,12 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         // gene fusion identification submodule
         CALL_FUSIONS_ARRIBA_V1(trimmedCh)
         CALL_FUSIONS_FUSIONCATCHER(trimmedCh)
+        CALL_FUSIONS_STARFUSION(trimmedCh)
 
         // Join the outputs based on sample name
         CALL_FUSIONS_ARRIBA_V1.out.arriba_fusion_tuple
             .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
+            .join(CALL_FUSIONS_STARFUSION.out.starfus_fusion_tuple)
             .set { combinedFTFilesCh }
         
         //combinedFTFilesCh.view()
@@ -200,15 +204,18 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         FILTER_FUSIONS_PYENV(COLLATE_FUSIONS_PYENV(combinedFTFilesCh).collatedFTParquet)
 
     emit:
-        filteredFusionCh = FILTER_FUSIONS_PYENV.out.filteredFusions
+        filteredFusionsCh = FILTER_FUSIONS_PYENV.out.filteredFusions
+        uniqueFiltFusionPairsForFusInsCh = FILTER_FUSIONS_PYENV.out.uniqueFiltFusionPairsForFusIns
         
 }
 
-workflow PREDICT_CODING_SEQ_WF {
+workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
     take:
-        filteredFusionCh
+        filteredFusionsCh
+        uniqueFiltFusionPairsForFusInsCh
+        trimmedCh
     main:
-        TRANSLATE_IN_SILICO_AGFUSION(filteredFusionCh)
+        VALIDATE_IN_SILICO_FUSIONINSPECTOR(TRANSLATE_IN_SILICO_AGFUSION(filteredFusionsCh).agfusion_outdir, uniqueFiltFusionPairsForFusInsCh, trimmedCh)
 
 }
 
@@ -292,27 +299,10 @@ workflow {
 
     // Execute workflow branching based on hlaTypingOnly parameter
     if (params.hlaTypingOnly) {
-    // Run only HLA typing
+        // Run only HLA typing
         def hlaFilesCh = HLA_TYPING_WF(alignedCh)
         // collate HLA typing results
         HLA_TYPE_COLLATION_WF(hlaFilesCh.collect(flat: false))
-
-        
-        // // combined HLA typing results
-        // reformattedHlaFiles
-        // .map { sampleId, file -> 
-        // // Read file content and combine with sample ID
-        //     def content = file.text.trim()
-        //     return [sampleId, content]
-        // }
-        // .collectFile(
-        //     name: 'combined_hla_types.tsv',
-        //     newLine: true,
-        //     seed: "SampleID\tHLA_Types",  // Header
-        //     storeDir: "${params.outputDir}/combined-HLA-types"
-        // ) { sampleId, content ->
-        //     return "${sampleId}\t${content}"
-        // }
 
     } else {
         // HLA typing
@@ -321,10 +311,14 @@ workflow {
         HLA_TYPE_COLLATION_WF(hlaFilesCh.collect(flat: false))
         
         // Fusion calling
-        def filteredFusionCh = AGGREGATE_FUSION_CALLING_WF(processedInputCh)
+        AGGREGATE_FUSION_CALLING_WF(processedInputCh)
 
         // run AGFUSION coding sequence prediction
-        PREDICT_CODING_SEQ_WF(filteredFusionCh)
+        IN_SILICO_TRANSCRIPT_VALIDATION_WF(
+                AGGREGATE_FUSION_CALLING_WF.out.filteredFusionsCh, 
+                AGGREGATE_FUSION_CALLING_WF.out.uniqueFiltFusionPairsForFusInsCh,
+                processedInputCh
+            )
     }
 
     // Completion handler

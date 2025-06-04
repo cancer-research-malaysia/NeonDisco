@@ -144,6 +144,7 @@ def wrangle_df(file_path: str, sample_id:str, sample_num: str, tool_name: str) -
                 pl.col('LargeAnchorSupport').alias("largeAnchorSupport"),
                 pl.col('JunctionReadCount').alias("junctionReadCount"),
                 pl.col('SpanningFragCount').alias("spanningFragCount"),
+                pl.col('annots').alias("fusionPairAnnotation"),
                 # Sample identification
                 pl.lit(tool_name).alias("originalTool"),
                 pl.lit(sample_id).alias("sampleID"),
@@ -236,7 +237,7 @@ def collate_fusion_data(
         "originalTool",
         "sampleID"
     ]
-
+    
     ints = [
         "junctionReadCount",
         "spanningFragCount",

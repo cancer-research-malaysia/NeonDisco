@@ -183,6 +183,7 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         // Join the outputs based on sample name
         CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
             .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
+            .join(CALL_FUSIONS_STARFUSION.out.starfus_fusion_tuple)
             .set { combinedFTFilesCh }
 
         // Run the combining process with the joined output then channel into filtering process
@@ -200,7 +201,10 @@ workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
         uniqueFiltFusionPairsForFusInsCh
         trimmedCh
     main:
-        VALIDATE_IN_SILICO_FUSIONINSPECTOR(TRANSLATE_IN_SILICO_AGFUSION(filteredFusionsCh).agfusion_outdir, uniqueFiltFusionPairsForFusInsCh, trimmedCh)
+        VALIDATE_IN_SILICO_FUSIONINSPECTOR(TRANSLATE_IN_SILICO_AGFUSION(filteredFusionsCh).agfusion_outdir, 
+        uniqueFiltFusionPairsForFusInsCh, 
+        trimmedCh
+        )
 
 }
 
