@@ -36,6 +36,7 @@ def wrangle_df(file_path: str, sample_id:str, sample_num: str, tool_name: str) -
                 pl.lit('.').alias("largeAnchorSupport"),
                 pl.lit(None).cast(pl.Int64).alias("junctionReadCount"),
                 pl.lit(None).cast(pl.Int64).alias("spanningFragCount"),
+                pl.lit('.').alias("fusionPairAnnotation"),
                 # Sample identification
                 pl.lit(tool_name).alias("originalTool"),
                 pl.lit(sample_id).alias("sampleID"),
@@ -86,6 +87,7 @@ def wrangle_df(file_path: str, sample_id:str, sample_num: str, tool_name: str) -
                 pl.lit('.').alias("largeAnchorSupport"),
                 pl.lit(None).cast(pl.Int64).alias("junctionReadCount"),
                 pl.lit(None).cast(pl.Int64).alias("spanningFragCount"),
+                pl.lit('.').alias("fusionPairAnnotation"),
                 # Sample identification
                 pl.lit(tool_name).alias("originalTool"),
                 pl.lit(sample_id).alias("sampleID"),
