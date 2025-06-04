@@ -89,13 +89,13 @@ def main():
     ])
 
     # filter for rows where 'toolOverlapCount' is greater than 1
-    # export_consensus_df = export_df.filter(pl.col('toolOverlapCount') > 1)
+    export_consensus_df = export_df.filter(pl.col('toolOverlapCount') > 1)
 
     # write to tsv using polars
-    export_df.write_csv(f"{output_filename}.tsv", separator='\t')
+    export_consensus_df.write_csv(f"{output_filename}.tsv", separator='\t')
     print(f"Results saved to {output_filename}.tsv")
     # write to txt file just the FusIns column
-    export_df.select('fusionGenePair_FusIns').unique().write_csv(f"{output_filename}-unique-genePairs-for-FusIns.txt", include_header=False)
+    export_consensus_df.select('fusionGenePair_FusIns').unique().write_csv(f"{output_filename}-unique-genePairs-for-FusIns.txt", include_header=False)
     print(f"Unique fusion gene pairs for FusionInspector saved to {output_filename}-unique-genePairs-for-FusIns.txt")
     
     print("Processing complete!")
