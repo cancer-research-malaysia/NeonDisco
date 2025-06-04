@@ -88,6 +88,9 @@ def main():
         pl.col('detectedBy').list.eval(pl.element().cast(pl.Utf8)).list.join(" | ").alias('detectedBy')
     ])
 
+    # filter for rows where 'toolOverlapCount' is greater than 1
+    # export_consensus_df = export_df.filter(pl.col('toolOverlapCount') > 1)
+
     # write to tsv using polars
     export_df.write_csv(f"{output_filename}.tsv", separator='\t')
     print(f"Results saved to {output_filename}.tsv")

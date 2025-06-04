@@ -17,9 +17,8 @@ fi
 FusionInspector --fusions "$FUSIONLIST" \
                 --genome_lib "${CTATDB}" \
                 --left_fq "${READ1}" --right_fq "${READ2}" \
-                --out_prefix finspector-test \
+                --out_prefix finspector-out \
                 --predict_cosmic_like \
                 --only_fusion_reads \
-                --cleanup \
-                --examine_coding_effect
+                --cleanup
 				

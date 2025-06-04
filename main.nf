@@ -195,6 +195,17 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         
 }
 
+workflow GET_COHORT_RECURRENT_FUSIONS_WF {
+    //take:
+        //filteredFusionsCh
+    //main:
+        // Get cohort recurrent fusions
+        //GET_COHORT_RECURRENT_FUSIONS_PYENV(filteredFusionsCh)
+    //emit:
+        //cohortRecurrentFusionsCh = GET_COHORT_RECURRENT_FUSIONS_PYENV.out.cohortRecurrentFusions
+}
+
+
 workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
     take:
         filteredFusionsCh
