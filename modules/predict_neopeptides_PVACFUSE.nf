@@ -5,7 +5,7 @@ process PREDICT_NEOPEPTIDES_PVACFUSE {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__pvactools}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name PREDICT_NEOPEPTIDES -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts -v ${params.metadata}:/home/app/metadata"
+    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name PREDICT_NEOPEPTIDES -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts -v ${params.metaFilesLoc}:/home/app/metadata"
     
     input:
         tuple val(sampleName), path(validatedAgfusionDir)
