@@ -30,7 +30,7 @@ As most of the bioinformatics tools used in this neoantigen identification workf
     </tr>
     <tr>
         <td>In silico validation of fusion calls </td>
-        <td>FusionInspector (v2.8.0) </td>
+        <td>FusionInspector (version shipped with STARFusion) </td>
         <td>CTAT Genome Library</td>
         <td>.fastq of RNA-Seq data (raw file)  </td>
     </tr>

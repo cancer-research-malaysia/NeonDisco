@@ -11,7 +11,7 @@ process TRANSLATE_IN_SILICO_AGFUSION {
         tuple val(sampleName), path(filteredFusions)
 
     output:
-        path("filtered-agfusion-dirs/"), emit: agfusion_outdir
+        path("filtered-agfusion-dirs/"), emit: filtered_agfusion_outdir
 
     script:
     """
