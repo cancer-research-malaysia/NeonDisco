@@ -1,4 +1,3 @@
-
 // 
 process KEEP_VALIDATED_FUSIONS_PYENV {
     
@@ -44,12 +43,22 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
         echo "Looking for AGFusion directories containing: \$gene_pair"
         
         # Find subdirectories in AGFusion output that contain the gene pair as substring
-        find ${filtered_agfusion_outdir} -maxdepth 1 -type d -name "*\${gene_pair}*" | while read -r agf_dir; do
+        # Use ls instead of find to debug what's actually in the directory
+        echo "Contents of AGFusion directory:"
+        
+        for agf_dir in ${filtered_agfusion_outdir}/*; do
             if [ -d "\$agf_dir" ]; then
                 dir_basename=\$(basename "\$agf_dir")
-                echo "Found matching directory: \$dir_basename"
-                echo "Copying \$agf_dir to validated-agfusion-outdir/\$dir_basename"
-                cp -r "\$agf_dir" validated-agfusion-outdir/
+                echo "Checking directory: \$dir_basename"
+                
+                # Check if the gene pair is contained in the directory name
+                if [[ "\$dir_basename" == *"\$gene_pair"* ]]; then
+                    echo "Found matching directory: \$dir_basename"
+                    echo "Copying \$agf_dir to validated-agfusion-outdir/\$dir_basename"
+                    cp -r "\$agf_dir" validated-agfusion-outdir/
+                else
+                    echo "No match for \$gene_pair in \$dir_basename"
+                fi
             fi
         done
         

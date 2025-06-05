@@ -29,6 +29,7 @@ include { VALIDATE_IN_SILICO_FUSIONINSPECTOR } from './modules/validate_in_silic
 
 ////// FUSION NEOEPITOPE PREDICTION MODULES //////////
 include { KEEP_VALIDATED_FUSIONS_PYENV } from './modules/keep_validated_fusions_PYENV.nf'
+include { PREDICT_NEOPEPTIDES_PVACFUSE } from './modules/predict_neopeptides_PVACFUSE.nf'
 
 ////// HLA TYPING MODULES //////////
 include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_ARCASHLA.nf'
@@ -235,8 +236,9 @@ workflow NEOPEPTIDE_PREDICTION_WF {
     main:
         // Preprocess agfusion output for neoepitope prediction
         KEEP_VALIDATED_FUSIONS_PYENV(fusInspectorTsv, filteredAgfusionOutdir, filteredFusionsCh)
-        // Placeholder for neoepitope prediction process
-        //NEOEPITOPE_PREDICTION_PYENV(fusInspectorTsv)
+        // Neopeptide prediction process
+        PREDICT_NEOPEPTIDES_PVACFUSE(KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir)
+        
     emit:
         validatedFusionsCh = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions
         validatedAgfusionDir = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir

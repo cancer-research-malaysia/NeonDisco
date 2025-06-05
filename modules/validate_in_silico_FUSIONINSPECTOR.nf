@@ -5,7 +5,7 @@ process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__starfusion}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name PREP-FUSIONS-FOR-FUSINS -v \$(pwd):/home/app/nf_work -v ${params.ctatDB}:/home/refs/ctat-db -v ${params.binDir}:/home/app/scripts"
+    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FUSION_INSPECTOR_VALIDATION -v \$(pwd):/home/app/nf_work -v ${params.ctatDB}:/home/refs/ctat-db -v ${params.binDir}:/home/app/scripts"
     
     input:
         path(filtered_agfusion_outdir)

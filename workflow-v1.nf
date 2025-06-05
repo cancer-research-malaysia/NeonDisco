@@ -27,7 +27,11 @@ include { FILTER_FUSIONS_PYENV } from './modules/filter_fusions_PYENV.nf'
 include { TRANSLATE_IN_SILICO_AGFUSION } from './modules/translate_in_silico_AGFUSION.nf'
 include { VALIDATE_IN_SILICO_FUSIONINSPECTOR } from './modules/validate_in_silico_FUSIONINSPECTOR.nf'
 
-/////// HLA TYPING MODULES //////////
+////// FUSION NEOEPITOPE PREDICTION MODULES //////////
+include { KEEP_VALIDATED_FUSIONS_PYENV } from './modules/keep_validated_fusions_PYENV.nf'
+include { PREDICT_NEOPEPTIDES_PVACFUSE } from './modules/predict_neopeptides_PVACFUSE.nf'
+
+////// HLA TYPING MODULES //////////
 include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_ARCASHLA.nf'
 include { REFORMAT_HLA_TYPES_PYENV } from './modules/reformat_hla_types_PYENV.nf'
 include { COLLATE_HLA_FILES_BASH } from './modules/collate_hla_files_BASH.nf'
@@ -215,8 +219,33 @@ workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
         uniqueFiltFusionPairsForFusInsCh
         trimmedCh
     main:
-        VALIDATE_IN_SILICO_FUSIONINSPECTOR(TRANSLATE_IN_SILICO_AGFUSION(filteredFusionsCh).agfusion_outdir, uniqueFiltFusionPairsForFusInsCh, trimmedCh)
+        VALIDATE_IN_SILICO_FUSIONINSPECTOR(TRANSLATE_IN_SILICO_AGFUSION(filteredFusionsCh).filtered_agfusion_outdir, 
+        uniqueFiltFusionPairsForFusInsCh, 
+        trimmedCh
+        )
 
+    emit:
+        fusInspectorTsv = VALIDATE_IN_SILICO_FUSIONINSPECTOR.out.fusInspectorTsv
+        filteredAgfusionOutdir = TRANSLATE_IN_SILICO_AGFUSION.out.filtered_agfusion_outdir
+
+}
+
+workflow NEOPEPTIDE_PREDICTION_WF {
+    take:
+        fusInspectorTsv
+        filteredAgfusionOutdir
+        filteredFusionsCh
+
+    main:
+        // Preprocess agfusion output for neoepitope prediction
+        KEEP_VALIDATED_FUSIONS_PYENV(fusInspectorTsv, filteredAgfusionOutdir, filteredFusionsCh)
+        // Neopeptide prediction process
+        PREDICT_NEOPEPTIDES_PVACFUSE(KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir)
+        
+    emit:
+        validatedFusionsCh = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions
+        validatedAgfusionDir = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir
+        //neoepitopePredictionsCh = NEOEPITOPE_PREDICTION_PYENV.out.neoepitopePredictions
 }
 
 // Main workflow
@@ -318,6 +347,15 @@ workflow {
                 AGGREGATE_FUSION_CALLING_WF.out.filteredFusionsCh, 
                 AGGREGATE_FUSION_CALLING_WF.out.uniqueFiltFusionPairsForFusInsCh,
                 processedInputCh
+            )
+
+        // Get cohort recurrent fusions
+
+        // Run neoepitope prediction
+        NEOPEPTIDE_PREDICTION_WF(
+                IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.fusInspectorTsv, 
+                IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.filteredAgfusionOutdir, 
+                AGGREGATE_FUSION_CALLING_WF.out.filteredFusionsCh
             )
     }
 
