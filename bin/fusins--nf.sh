@@ -10,7 +10,7 @@ SAMPLEID=$5
 # ./fusins--nf.sh input_genepair.txt /path/to/ctat_genome_lib/ rnaseq_1.fq rnaseq_2.fq 124T
 
 # check arguments
-if [ $# -ne 4 ]; then
+if [ $# -ne 5 ]; then
 	echo "Usage: $0 <input_genepair.txt> <ctat_genome_lib_path> <read1.fq> <read2.fq> <sample_id>"
 	exit 1
 fi
