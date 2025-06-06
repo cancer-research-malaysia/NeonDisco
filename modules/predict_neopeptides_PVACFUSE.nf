@@ -19,8 +19,9 @@ process PREDICT_NEOPEPTIDES_PVACFUSE {
     echo "Sample name: ${sampleName}"
     echo "Running PVACFUSE to predict neoepitopes from validated AGFusion results..."
     echo "Using sample-specific HLA alleles: ${params.sampleSpecificHLA}"
+    echo "Number of cores to use: ${params.numCores}"
 
-    if pvacfuse run ${validatedAgfusionDir} ${sampleName} ${params.sampleSpecificHLA} all "${sampleName}_sample-specific-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /home/app/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz -e1 8,9; then
+    if pvacfuse run ${validatedAgfusionDir} ${sampleName} ${params.sampleSpecificHLA} all "${sampleName}_sample-specific-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /home/app/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz; then
         echo "pVacFuse run finished!"
     else
         echo "Something went wrong."
