@@ -1,4 +1,4 @@
-## NeonDisco Version 6.0 alpha
+## NeonDisco Version 8.0 alpha
 
 This massive update primarily consists of optimization of the gene fusion discovery module of the base NeonDisco.
 
