@@ -43,15 +43,15 @@ def wrangle_df(file_path: str, sample_id: str, sample_num: str, tool_name: str) 
             
             # Placeholder columns for other tools
             fc_columns = [
-                pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_FC"),
-                pl.lit("NA").cast(pl.String).alias("predictedEffect_FC")
+                pl.lit("NA").cast(pl.String).alias("predictedEffect_FC"),
+                pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_FC")
             ]
             
             sf_columns = [
-                pl.lit("NA").cast(pl.String).alias("largeAnchorSupport_SF"),
+                pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_SF"),
                 pl.lit("NA").cast(pl.String).alias("junctionReadCount_SF"),
                 pl.lit("NA").cast(pl.String).alias("spanningFragCount_SF"),
-                pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_SF")
+                pl.lit("NA").cast(pl.String).alias("largeAnchorSupport_SF")
             ]
             
             return lazy_df.select(base_columns + arriba_columns + fc_columns + sf_columns)
@@ -59,13 +59,13 @@ def wrangle_df(file_path: str, sample_id: str, sample_num: str, tool_name: str) 
         case 'FusionCatcher':
             # Handle NaN values in gene symbol columns by replacing with gene IDs
             gene1_expr = (
-                pl.when(pl.col('Gene_1_symbol(5end_fusion_partner)').is_null() | (pl.col('Gene_1_symbol(5end_fusion_partner)') == "."))
+                pl.when((pl.col('Gene_1_symbol(5end_fusion_partner)') == "NA"))
                 .then(pl.col('Gene_1_id(5end_fusion_partner)'))
                 .otherwise(pl.col('Gene_1_symbol(5end_fusion_partner)'))
             )
             
             gene2_expr = (
-                pl.when(pl.col('Gene_2_symbol(3end_fusion_partner)').is_null() | (pl.col('Gene_2_symbol(3end_fusion_partner)') == "."))
+                pl.when((pl.col('Gene_2_symbol(3end_fusion_partner)') == "NA"))
                 .then(pl.col('Gene_2_id(3end_fusion_partner)'))
                 .otherwise(pl.col('Gene_2_symbol(3end_fusion_partner)'))
             )
@@ -84,15 +84,15 @@ def wrangle_df(file_path: str, sample_id: str, sample_num: str, tool_name: str) 
             ]
             
             # FusionCatcher-specific columns
-            fc_columns = [
-                pl.col('Fusion_description').alias("fusionPairAnnotation_FC")
-            ]
+            fc_columns = []
             
             # Check if 'Predicted_effect' column exists and add it
             if 'Predicted_effect' in lazy_df.collect_schema().names():
                 fc_columns.append(pl.col('Predicted_effect').alias('predictedEffect_FC'))
             else:
                 fc_columns.append(pl.lit("NA").cast(pl.String).alias('predictedEffect_FC'))
+
+            fc_columns.append(pl.col('Fusion_description').alias("fusionPairAnnotation_FC"))
             
             # Placeholder columns for other tools
             arr_columns = [
@@ -103,10 +103,10 @@ def wrangle_df(file_path: str, sample_id: str, sample_num: str, tool_name: str) 
             ]
             
             sf_columns = [
-                pl.lit("NA").cast(pl.String).alias("largeAnchorSupport_SF"),
+                pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_SF"),
                 pl.lit("NA").cast(pl.String).alias("junctionReadCount_SF"),
                 pl.lit("NA").cast(pl.String).alias("spanningFragCount_SF"),
-                pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_SF")
+                pl.lit("NA").cast(pl.String).alias("largeAnchorSupport_SF")
             ]
             
             return lazy_df.select(base_columns + arr_columns + fc_columns + sf_columns)
@@ -160,10 +160,10 @@ def wrangle_df(file_path: str, sample_id: str, sample_num: str, tool_name: str) 
             
             # STARFusion-specific columns
             sf_columns = [
-                pl.col('LargeAnchorSupport').cast(pl.String).alias("largeAnchorSupport_SF"),
+                pl.col('annots').cast(pl.String).alias("fusionPairAnnotation_SF"),
                 pl.col('JunctionReadCount').cast(pl.String).alias("junctionReadCount_SF"),
                 pl.col('SpanningFragCount').cast(pl.String).alias("spanningFragCount_SF"),
-                pl.col('annots').cast(pl.String).alias("fusionPairAnnotation_SF")
+                pl.col('LargeAnchorSupport').cast(pl.String).alias("largeAnchorSupport_SF")
             ]
             
             # Placeholder columns for other tools
@@ -175,8 +175,8 @@ def wrangle_df(file_path: str, sample_id: str, sample_num: str, tool_name: str) 
             ]
             
             fc_columns = [
-                pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_FC"),
-                pl.lit("NA").cast(pl.String).alias("predictedEffect_FC")
+                pl.lit("NA").cast(pl.String).alias("predictedEffect_FC"),
+                pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_FC")
             ]
             
             return lazy_df.select(base_columns + arr_columns + fc_columns + sf_columns)

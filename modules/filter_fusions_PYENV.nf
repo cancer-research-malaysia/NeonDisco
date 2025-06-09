@@ -12,7 +12,7 @@ process FILTER_FUSIONS_PYENV {
 
     output:
         tuple val(sampleName), path("${sampleName}-collated-FT-normFiltered.tsv"), emit: filteredFusions
-        tuple val(sampleName), path("${sampleName}-collated-FT-normFiltered-unique-genePairs-for-FusIns.txt"), emit: uniqueFiltFusionPairsForFusIns
+        tuple val(sampleName), path("${sampleName}-collated-FT-normFiltered-unique-genePairs-for-FusInspector.txt"), emit: uniqueFiltFusionPairsForFusIns
 
     script:
     """
@@ -30,5 +30,7 @@ process FILTER_FUSIONS_PYENV {
     stub:
     """
     echo "stub run finished!" > ${sampleName}-collated-FT-normFiltered.tsv
+    echo "stub run finished!" > ${sampleName}-collated-FT-normFiltered-unique-genePairs-for-FusInspector.txt
+    echo "Stub run for FILTER_FUSIONS_PYENV completed successfully."
     """
 }
