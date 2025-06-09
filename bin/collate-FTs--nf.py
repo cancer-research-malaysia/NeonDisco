@@ -13,105 +13,119 @@ def extract_sample_num(filename: str, tool_suffix: str) -> Optional[str]:
     match = re.search(pattern, os.path.basename(filename))
     return match.group(1) if match else None
 
-# def natural_sort_key(s):
-#     return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', s)]
-
-def wrangle_df(file_path: str, sample_id:str, sample_num: str, tool_name: str) -> pl.LazyFrame:
+def wrangle_df(file_path: str, sample_id: str, sample_num: str, tool_name: str) -> pl.LazyFrame:
     """Process input file based on the tool name and return a standardized lazy DataFrame."""
-    lazy_df = pl.scan_csv(file_path, separator="\t")
+    # Read with null replacement
+    lazy_df = pl.scan_csv(file_path, separator="\t").fill_null("NA")
     
     match tool_name:
         case 'Arriba':
-            return lazy_df.select([
+            # Base columns
+            base_columns = [
                 (pl.col('#gene1') + "::" + pl.col('gene2') + '__' + pl.col('breakpoint1').str.replace("chr", "") + "-" + pl.col('breakpoint2').str.replace("chr", "")).alias("fusionTranscriptID"),
                 (pl.col('#gene1') + "::" + pl.col('gene2')).alias("fusionGenePair"),
                 (pl.col('breakpoint1').str.replace("chr", "") + "-" + pl.col('breakpoint2').str.replace("chr", "")).alias("breakpointID"),
                 (pl.col('strand1(gene/fusion)').str.split("/").list.get(1)).alias("5pStrand"),
                 (pl.col('strand2(gene/fusion)').str.split("/").list.get(1)).alias("3pStrand"),
-                (pl.col('site1')).alias("5pSite"),
-				(pl.col('site2')).alias("3pSite"), 
-                (pl.col('type')).alias("mutationType"),
-				(pl.col('confidence')).alias("confidenceLabel"),
-                # Add placeholder columns for STARFusion specific fields
-                pl.lit('.').alias("largeAnchorSupport"),
-                pl.lit(None).cast(pl.Int64).alias("junctionReadCount"),
-                pl.lit(None).cast(pl.Int64).alias("spanningFragCount"),
-                pl.lit('.').alias("fusionPairAnnotation"),
-                # Sample identification
                 pl.lit(tool_name).alias("originalTool"),
                 pl.lit(sample_id).alias("sampleID"),
                 pl.lit(sample_num).cast(pl.Int64).alias("sampleNum"),
                 pl.lit(sample_num).cast(pl.Utf8).str.zfill(4).alias("sampleNum_Padded")
-            ])
+            ]
+            
+            # Arriba-specific columns
+            arriba_columns = [
+                (pl.col('site1')).alias("5pSite_ARR"),
+                (pl.col('site2')).alias("3pSite_ARR"), 
+                (pl.col('type')).alias("mutationType_ARR"),
+                (pl.col('confidence')).alias("confidenceLabel_ARR")
+            ]
+            
+            # Placeholder columns for other tools
+            fc_columns = [
+                pl.lit('.').alias("fusionPairAnnotation_FC"),
+                pl.lit('.').alias("predictedEffect_FC")
+            ]
+            
+            sf_columns = [
+                pl.lit('.').alias("largeAnchorSupport_SF"),
+                pl.lit("NA").alias("junctionReadCount_SF"),
+                pl.lit("NA").alias("spanningFragCount_SF"),
+                pl.lit('.').alias("fusionPairAnnotation_SF")
+            ]
+            
+            return lazy_df.select(base_columns + arriba_columns + fc_columns + sf_columns)
+            
         case 'FusionCatcher':
             # Handle NaN values in gene symbol columns by replacing with gene IDs
             gene1_expr = (
-                pl.when(pl.col('Gene_1_symbol(5end_fusion_partner)').is_null() | (pl.col('Gene_1_symbol(5end_fusion_partner)') == ""))
+                pl.when(pl.col('Gene_1_symbol(5end_fusion_partner)').is_null() | (pl.col('Gene_1_symbol(5end_fusion_partner)') == "."))
                 .then(pl.col('Gene_1_id(5end_fusion_partner)'))
                 .otherwise(pl.col('Gene_1_symbol(5end_fusion_partner)'))
             )
             
             gene2_expr = (
-                pl.when(pl.col('Gene_2_symbol(3end_fusion_partner)').is_null() | (pl.col('Gene_2_symbol(3end_fusion_partner)') == ""))
+                pl.when(pl.col('Gene_2_symbol(3end_fusion_partner)').is_null() | (pl.col('Gene_2_symbol(3end_fusion_partner)') == "."))
                 .then(pl.col('Gene_2_id(3end_fusion_partner)'))
                 .otherwise(pl.col('Gene_2_symbol(3end_fusion_partner)'))
             )
             
+            # Base columns
             base_columns = [
                 (gene1_expr + "::" + gene2_expr + '__' + pl.col('Fusion_point_for_gene_1(5end_fusion_partner)').str.split(':').list.slice(0, 2).list.join(':') + "-" + pl.col('Fusion_point_for_gene_2(3end_fusion_partner)').str.split(':').list.slice(0, 2).list.join(':')).alias("fusionTranscriptID"),
                 (gene1_expr + "::" + gene2_expr).alias("fusionGenePair"),
                 (pl.col('Fusion_point_for_gene_1(5end_fusion_partner)').str.split(':').list.slice(0, 2).list.join(':') + "-" + pl.col('Fusion_point_for_gene_2(3end_fusion_partner)').str.split(':').list.slice(0, 2).list.join(':')).alias("breakpointID"),
                 (pl.col('Fusion_point_for_gene_1(5end_fusion_partner)').str.split(":").list.get(2)).alias("5pStrand"),
                 (pl.col('Fusion_point_for_gene_2(3end_fusion_partner)').str.split(":").list.get(2)).alias("3pStrand"),
-            ]
-            
-            # Check if 'Predicted_effect' column exists
-            if 'Predicted_effect' in lazy_df.collect_schema().names():
-                predicted_effect_columns = [
-                    pl.col('Predicted_effect').str.extract(r'^([^/]+)(?:/|$)').alias('5pSite'),
-                    pl.when(pl.col('Predicted_effect').str.contains('/'))
-                        .then(pl.col('Predicted_effect').str.extract(r'/(.+)$'))
-                        .otherwise(pl.lit('.'))
-                        .alias('3pSite')
-                    ]
-            else:
-                predicted_effect_columns = [
-                    pl.lit('.').alias("5pSite"),
-                    pl.lit('.').alias("3pSite")
-                    ]
-
-            additional_columns = [
-                pl.lit('.').alias("mutationType"),
-                pl.lit('.').alias("confidenceLabel"),
-                # Add placeholder columns for STARFusion specific fields
-                pl.lit('.').alias("largeAnchorSupport"),
-                pl.lit(None).cast(pl.Int64).alias("junctionReadCount"),
-                pl.lit(None).cast(pl.Int64).alias("spanningFragCount"),
-                pl.lit('.').alias("fusionPairAnnotation"),
-                # Sample identification
                 pl.lit(tool_name).alias("originalTool"),
                 pl.lit(sample_id).alias("sampleID"),
                 pl.lit(sample_num).cast(pl.Int64).alias("sampleNum"),
                 pl.lit(sample_num).cast(pl.Utf8).str.zfill(4).alias("sampleNum_Padded")
             ]
             
-            return lazy_df.select(base_columns + predicted_effect_columns + additional_columns)
+            # FusionCatcher-specific columns
+            fc_columns = [
+                pl.col('Fusion_description').alias("fusionPairAnnotation_FC")
+            ]
+            
+            # Check if 'Predicted_effect' column exists and add it
+            if 'Predicted_effect' in lazy_df.collect_schema().names():
+                fc_columns.append(pl.col('Predicted_effect').alias('predictedEffect_FC'))
+            else:
+                fc_columns.append(pl.lit('.').alias('predictedEffect_FC'))
+            
+            # Placeholder columns for other tools
+            arr_columns = [
+                pl.lit('.').alias("5pSite_ARR"),
+                pl.lit('.').alias("3pSite_ARR"),
+                pl.lit('.').alias("mutationType_ARR"),
+                pl.lit('.').alias("confidenceLabel_ARR")
+            ]
+            
+            sf_columns = [
+                pl.lit('.').alias("largeAnchorSupport_SF"),
+                pl.lit("NA").alias("junctionReadCount_SF"),
+                pl.lit("NA").alias("spanningFragCount_SF"),
+                pl.lit('.').alias("fusionPairAnnotation_SF")
+            ]
+            
+            return lazy_df.select(base_columns + arr_columns + fc_columns + sf_columns)
         
         case 'STARFusion':
             # Extract gene names with fallback to gene IDs
             gene1_expr = (
                 pl.when(pl.col('LeftGene').str.split("^").list.get(0) != "")
-        	    .then(pl.col('LeftGene').str.split("^").list.get(0))
-        		.otherwise(
-            		pl.col('LeftGene').str.split("^").list.get(1).str.split(".").list.get(0)
-        			)
+                .then(pl.col('LeftGene').str.split("^").list.get(0))
+                .otherwise(
+                    pl.col('LeftGene').str.split("^").list.get(1).str.split(".").list.get(0)
+                )
             )
             gene2_expr = (
                 pl.when(pl.col('RightGene').str.split("^").list.get(0) != "")
-        	    .then(pl.col('RightGene').str.split("^").list.get(0))
-        		.otherwise(
-            		pl.col('RightGene').str.split("^").list.get(1).str.split(".").list.get(0)
-        			)
+                .then(pl.col('RightGene').str.split("^").list.get(0))
+                .otherwise(
+                    pl.col('RightGene').str.split("^").list.get(1).str.split(".").list.get(0)
+                )
             )
             
             # Handle breakpoints: Format from chr17:38243106:+ to 17:38243106
@@ -131,28 +145,42 @@ def wrangle_df(file_path: str, sample_id:str, sample_num: str, tool_name: str) -
             left_strand = pl.col('LeftBreakpoint').str.split(':').list.get(2)
             right_strand = pl.col('RightBreakpoint').str.split(':').list.get(2)
             
-            return lazy_df.select([
-                # Core fusion identification columns
+            # Base columns
+            base_columns = [
                 (gene1_expr + "::" + gene2_expr + '__' + left_breakpoint + "-" + right_breakpoint).alias("fusionTranscriptID"),
                 (gene1_expr + "::" + gene2_expr).alias("fusionGenePair"),
                 (left_breakpoint + "-" + right_breakpoint).alias("breakpointID"),
                 left_strand.alias("5pStrand"),
                 right_strand.alias("3pStrand"),
-                pl.lit('.').alias("5pSite"),
-                pl.lit('.').alias("3pSite"),
-                pl.lit('.').alias("mutationType"),
-                pl.lit('.').alias("confidenceLabel"),
-                # STARFusion specific columns
-                pl.col('LargeAnchorSupport').alias("largeAnchorSupport"),
-                pl.col('JunctionReadCount').alias("junctionReadCount"),
-                pl.col('SpanningFragCount').alias("spanningFragCount"),
-                pl.col('annots').alias("fusionPairAnnotation"),
-                # Sample identification
                 pl.lit(tool_name).alias("originalTool"),
                 pl.lit(sample_id).alias("sampleID"),
                 pl.lit(sample_num).cast(pl.Int64).alias("sampleNum"),
                 pl.lit(sample_num).cast(pl.Utf8).str.zfill(4).alias("sampleNum_Padded")
-            ])
+            ]
+            
+            # STARFusion-specific columns
+            sf_columns = [
+                pl.col('LargeAnchorSupport').alias("largeAnchorSupport_SF"),
+                pl.col('JunctionReadCount').cast(pl.String).alias("junctionReadCount_SF"),
+                pl.col('SpanningFragCount').cast(pl.String).alias("spanningFragCount_SF"),
+                pl.col('annots').alias("fusionPairAnnotation_SF")
+            ]
+            
+            # Placeholder columns for other tools
+            arr_columns = [
+                pl.lit('.').alias("5pSite_ARR"),
+                pl.lit('.').alias("3pSite_ARR"),
+                pl.lit('.').alias("mutationType_ARR"),
+                pl.lit('.').alias("confidenceLabel_ARR")
+            ]
+            
+            fc_columns = [
+                pl.lit('.').alias("fusionPairAnnotation_FC"),
+                pl.lit('.').alias("predictedEffect_FC")
+            ]
+            
+            return lazy_df.select(base_columns + arr_columns + fc_columns + sf_columns)
+            
         case _:
             raise ValueError(f"Unsupported tool name: {tool_name}")
 
@@ -222,38 +250,49 @@ def collate_fusion_data(
     
     print("Concatenation completed. Collecting...")
 
-    # Define categorical columns including the new STARFusion specific columns
-    categoricals = [
+    # Define categorical columns for the new structure
+    base_categoricals = [
         "fusionTranscriptID",
         "fusionGenePair",
         "breakpointID",
         "5pStrand",
         "3pStrand",
-        "5pSite",
-        "3pSite",
-        "mutationType",
-        "confidenceLabel",
-        # Additional STARFusion specific columns
-        "largeAnchorSupport",
-        # Sample identification columns
         "originalTool",
         "sampleID"
     ]
     
+    # Tool-specific categorical columns
+    tool_categoricals = [
+        # Arriba columns
+        "5pSite_ARR",
+        "3pSite_ARR",
+        "mutationType_ARR",
+        "confidenceLabel_ARR",
+        # FusionCatcher columns
+        "fusionPairAnnotation_FC",
+        "predictedEffect_FC",
+        # STARFusion columns
+        "largeAnchorSupport_SF",
+        "fusionPairAnnotation_SF"
+    ]
+    
+    all_categoricals = base_categoricals + tool_categoricals
+    
+    # Integer columns
     ints = [
-        "junctionReadCount",
-        "spanningFragCount",
         "sampleNum"
     ]
 
     # Cast columns to appropriate types
     results = combined_lazy_df.with_columns(
-        [pl.col(col).cast(pl.Categorical) for col in categoricals]
+        [pl.col(col).cast(pl.Categorical) for col in all_categoricals]
     ).with_columns(
         [pl.col(col).cast(pl.Int64) for col in ints]
     ).collect()
     
     print("DataFrame collected.")
+    print(f"Final DataFrame shape: {results.shape}")
+    print(f"Columns: {results.columns}")
     print(f"Saving as parquet and tsv files...")
         
     # Save as parquet and tsv
@@ -294,13 +333,13 @@ def main():
         
         # Add specified tool files
         if args.arriba:
-            print (f"Adding Arriba file: {args.arriba}")
+            print(f"Adding Arriba file: {args.arriba}")
             input_files.append((os.path.abspath(args.arriba), 'arr'))
         if args.fusioncatcher:
-            print (f"Adding FusionCatcher file: {args.fusioncatcher}")
+            print(f"Adding FusionCatcher file: {args.fusioncatcher}")
             input_files.append((os.path.abspath(args.fusioncatcher), 'fc'))
         if args.starfusion:
-            print (f"Adding STARFusion file: {args.starfusion}")
+            print(f"Adding STARFusion file: {args.starfusion}")
             input_files.append((os.path.abspath(args.starfusion), 'sf'))
             
         # Add additional inputs if provided
