@@ -2,6 +2,21 @@ import os
 import sys
 import polars as pl
 
+def check_file_empty(file_path, file_description):
+    """
+    Check if a parquet file is empty or contains no data rows.
+    Returns True if empty, False if it contains data.
+    """
+    try:
+        df = pl.scan_parquet(file_path).collect()
+        if df.height == 0:
+            print(f"WARNING: {file_description} is empty (no data rows)")
+            return True
+        return False
+    except Exception as e:
+        print(f"ERROR: Could not read {file_description}: {e}")
+        return True
+
 def main():
     """
     Process and filter fusion transcript data based on:
@@ -26,6 +41,34 @@ def main():
     print(f"Parquet file of CCLE + internal cell line FTs: {ccle_internal_cell_line_file}")
     print(f"Output filename: {output_filename}")
 
+    # Check if main input file is empty - if so, create empty outputs and exit
+    if check_file_empty(parquet_input_file, "Collated fusion transcript data"):
+        print(f"No fusion transcripts detected for sample {sample_name}. Creating empty output files...")
+        
+        # Create empty output files with proper headers
+        # You'll need to adjust these column names to match your expected schema
+        empty_df = pl.DataFrame({
+            'fusionTranscriptID': [],
+            'breakpointID': [],
+            'fusionGenePair': [],
+            'detectedBy': [],
+            'toolOverlapCount': [],
+            'foundInCCLE&InternalCLs': [],
+            'fusionGenePair_FusIns': []
+        })
+        
+        # Write empty TSV
+        empty_df.write_csv(f"{output_filename}.tsv", separator='\t')
+        print(f"Empty results file saved to {output_filename}.tsv")
+        
+        # Write empty txt file for FusionInspector
+        with open(f"{output_filename}-unique-genePairs-for-FusIns.txt", 'w') as f:
+            pass  # Create empty file
+        print(f"Empty fusion gene pairs file saved to {output_filename}-unique-genePairs-for-FusIns.txt")
+        
+        print("Processing complete - no fusions detected!")
+        return
+    
     # Load the collated fusion transcript data
     print("Loading collated fusion transcript data...")
     collated_df = pl.scan_parquet(parquet_input_file).collect()
@@ -57,10 +100,10 @@ def main():
     # Step 4: Load CCLE & Internal Cell Line FT data
     print("Loading CCLE & Internal Cell Line FT data...")
     ccle_df = pl.scan_parquet(ccle_internal_cell_line_file).collect()
-    
+    ccle_set = set(ccle_df['breakpointID'].to_list())
+
     # Step 5: Add 'foundInCCLE&InternalCLs' column to unique fusions
     print("Adding 'foundInCCLE&InternalCLs' column to unique fusions...")
-    ccle_set = set(ccle_df['breakpointID'].to_list())
     ccle_added_df = unique_fusions_df.with_columns(
         pl.when(pl.col('breakpointID').is_in(ccle_set)).then(True).otherwise(False).alias('foundInCCLE&InternalCLs')
     )
@@ -68,11 +111,38 @@ def main():
     # Step 6: Load Panel of Normals (TCGA Normals) data
     print("Loading Panel of Normals data...")
     pon_df = pl.scan_parquet(panel_of_normals_file).collect()
-    
+    pon_set = set(pon_df['breakpointID'].to_list())
+
     # Step 7: Filter out breakpoints that appear in the Panel of Normals
     print("Filtering out breakpoints that appear in the Panel of Normals...")
-    pon_set = set(pon_df['breakpointID'].to_list())
     normfilt_df = ccle_added_df.filter(~pl.col('breakpointID').is_in(pon_set))
+
+
+    ###### EDGE CASE ###### Check if filtering removed all fusions
+    if normfilt_df.height == 0:
+        print("WARNING: All fusions were filtered out by Panel of Normals filtering.")
+        print("Creating empty output files...")
+        
+        # Create empty output files
+        empty_df = pl.DataFrame({
+            'fusionTranscriptID': [],
+            'breakpointID': [],
+            'fusionGenePair': [],
+            'detectedBy': [],
+            'toolOverlapCount': [],
+            'foundInCCLE&InternalCLs': [],
+            'fusionGenePair_FusIns': []
+        })
+
+        empty_df.write_csv(f"{output_filename}.tsv", separator='\t')
+        print(f"Empty results file saved to {output_filename}.tsv")
+        
+        with open(f"{output_filename}-unique-genePairs-for-FusIns.txt", 'w') as f:
+            pass
+        print(f"Empty fusion gene pairs file saved to {output_filename}-unique-genePairs-for-FusIns.txt")
+        
+        print("Processing complete - all fusions filtered out!")
+        return
 
     # Step 8: First cast the categorical column 'fusionGenePair' to string, then do the replacement
     print("Creating FusionInspector format column...")
@@ -88,8 +158,36 @@ def main():
         pl.col('detectedBy').list.eval(pl.element().cast(pl.Utf8)).list.join(" | ").alias('detectedBy')
     ])
 
-    # filter for rows where 'toolOverlapCount' is greater than 1
-    export_consensus_df = export_df.filter(pl.col('toolOverlapCount') > 1)
+    # filter for rows based on 'toolOverlapCount'
+    # > 0 is default to keep the union of all fusions detected by at least one tool
+    # change this value for different filtering
+    export_consensus_df = export_df.filter(pl.col('toolOverlapCount') > 0)
+
+    # Check if consensus filtering removed all fusions
+    if export_consensus_df.height == 0:
+        print("WARNING: No fusions passed the consensus filter.")
+        print("Creating empty output files...")
+        
+        # Create empty output files
+        empty_df = pl.DataFrame({
+            'fusionTranscriptID': [],
+            'breakpointID': [],
+            'fusionGenePair': [],
+            'detectedBy': [],
+            'toolOverlapCount': [],
+            'foundInCCLE&InternalCLs': [],
+            'fusionGenePair_FusIns': []
+        })
+        
+        empty_df.write_csv(f"{output_filename}.tsv", separator='\t')
+        print(f"Empty results file saved to {output_filename}.tsv")
+        
+        with open(f"{output_filename}-unique-genePairs-for-FusIns.txt", 'w') as f:
+            pass
+        print(f"Empty fusion gene pairs file saved to {output_filename}-unique-genePairs-for-FusIns.txt")
+        
+        print("Processing complete - no consensus fusions found!")
+        return
 
     # write to tsv using polars
     export_consensus_df.write_csv(f"{output_filename}.tsv", separator='\t')
