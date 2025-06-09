@@ -43,15 +43,15 @@ def wrangle_df(file_path: str, sample_id: str, sample_num: str, tool_name: str) 
             
             # Placeholder columns for other tools
             fc_columns = [
-                pl.lit('.').alias("fusionPairAnnotation_FC"),
-                pl.lit('.').alias("predictedEffect_FC")
+                pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_FC"),
+                pl.lit("NA").cast(pl.String).alias("predictedEffect_FC")
             ]
             
             sf_columns = [
-                pl.lit('.').alias("largeAnchorSupport_SF"),
-                pl.lit("NA").alias("junctionReadCount_SF"),
-                pl.lit("NA").alias("spanningFragCount_SF"),
-                pl.lit('.').alias("fusionPairAnnotation_SF")
+                pl.lit("NA").cast(pl.String).alias("largeAnchorSupport_SF"),
+                pl.lit("NA").cast(pl.String).alias("junctionReadCount_SF"),
+                pl.lit("NA").cast(pl.String).alias("spanningFragCount_SF"),
+                pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_SF")
             ]
             
             return lazy_df.select(base_columns + arriba_columns + fc_columns + sf_columns)
@@ -92,21 +92,21 @@ def wrangle_df(file_path: str, sample_id: str, sample_num: str, tool_name: str) 
             if 'Predicted_effect' in lazy_df.collect_schema().names():
                 fc_columns.append(pl.col('Predicted_effect').alias('predictedEffect_FC'))
             else:
-                fc_columns.append(pl.lit('.').alias('predictedEffect_FC'))
+                fc_columns.append(pl.lit("NA").cast(pl.String).alias('predictedEffect_FC'))
             
             # Placeholder columns for other tools
             arr_columns = [
-                pl.lit('.').alias("5pSite_ARR"),
-                pl.lit('.').alias("3pSite_ARR"),
-                pl.lit('.').alias("mutationType_ARR"),
-                pl.lit('.').alias("confidenceLabel_ARR")
+                pl.lit("NA").cast(pl.String).alias("5pSite_ARR"),
+                pl.lit("NA").cast(pl.String).alias("3pSite_ARR"),
+                pl.lit("NA").cast(pl.String).alias("mutationType_ARR"),
+                pl.lit("NA").cast(pl.String).alias("confidenceLabel_ARR")
             ]
             
             sf_columns = [
-                pl.lit('.').alias("largeAnchorSupport_SF"),
-                pl.lit("NA").alias("junctionReadCount_SF"),
-                pl.lit("NA").alias("spanningFragCount_SF"),
-                pl.lit('.').alias("fusionPairAnnotation_SF")
+                pl.lit("NA").cast(pl.String).alias("largeAnchorSupport_SF"),
+                pl.lit("NA").cast(pl.String).alias("junctionReadCount_SF"),
+                pl.lit("NA").cast(pl.String).alias("spanningFragCount_SF"),
+                pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_SF")
             ]
             
             return lazy_df.select(base_columns + arr_columns + fc_columns + sf_columns)
@@ -160,23 +160,23 @@ def wrangle_df(file_path: str, sample_id: str, sample_num: str, tool_name: str) 
             
             # STARFusion-specific columns
             sf_columns = [
-                pl.col('LargeAnchorSupport').alias("largeAnchorSupport_SF"),
+                pl.col('LargeAnchorSupport').cast(pl.String).alias("largeAnchorSupport_SF"),
                 pl.col('JunctionReadCount').cast(pl.String).alias("junctionReadCount_SF"),
                 pl.col('SpanningFragCount').cast(pl.String).alias("spanningFragCount_SF"),
-                pl.col('annots').alias("fusionPairAnnotation_SF")
+                pl.col('annots').cast(pl.String).alias("fusionPairAnnotation_SF")
             ]
             
             # Placeholder columns for other tools
             arr_columns = [
-                pl.lit('.').alias("5pSite_ARR"),
-                pl.lit('.').alias("3pSite_ARR"),
-                pl.lit('.').alias("mutationType_ARR"),
-                pl.lit('.').alias("confidenceLabel_ARR")
+                pl.lit("NA").cast(pl.String).alias("5pSite_ARR"),
+                pl.lit("NA").cast(pl.String).alias("3pSite_ARR"),
+                pl.lit("NA").cast(pl.String).alias("mutationType_ARR"),
+                pl.lit("NA").cast(pl.String).alias("confidenceLabel_ARR")
             ]
             
             fc_columns = [
-                pl.lit('.').alias("fusionPairAnnotation_FC"),
-                pl.lit('.').alias("predictedEffect_FC")
+                pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_FC"),
+                pl.lit("NA").cast(pl.String).alias("predictedEffect_FC")
             ]
             
             return lazy_df.select(base_columns + arr_columns + fc_columns + sf_columns)
@@ -269,11 +269,9 @@ def collate_fusion_data(
         "mutationType_ARR",
         "confidenceLabel_ARR",
         # FusionCatcher columns
-        "fusionPairAnnotation_FC",
         "predictedEffect_FC",
         # STARFusion columns
-        "largeAnchorSupport_SF",
-        "fusionPairAnnotation_SF"
+        "largeAnchorSupport_SF"
     ]
     
     all_categoricals = base_categoricals + tool_categoricals
@@ -365,3 +363,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
