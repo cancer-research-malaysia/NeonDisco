@@ -1,5 +1,6 @@
 // 
 process PREDICT_NEOPEPTIDES_PVACFUSE {
+    maxForks 1
     
     publishDir "${params.outputDir}/${sampleName}/PVACFUSE-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
