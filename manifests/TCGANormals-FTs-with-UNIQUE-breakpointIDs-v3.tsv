@@ -1,4 +1,4 @@
-fusionTranscriptID	fusionGeneID	breakpointID	strand1	strand2	site1	site2	type	confidence	sampleID	toolID
+fusionTranscriptID	fusionGenePair	breakpointID	strand1	strand2	site1	site2	type	confidence	sampleID	toolID
 TRPM7::SPPL2A__15:50686531-15:50749746	TRPM7::SPPL2A	15:50686531-15:50749746	-	-	CDS/splice-site	CDS/splice-site	duplication	high	TCGA-A7-A0CE	Arriba
 BOLA2B::SMG1P5__16:30193358-16:30288681	BOLA2B::SMG1P5	16:30193358-16:30288681	-	-	CDS/splice-site	exon	duplication	high	TCGA-A7-A0CE	Arriba
 FBXO25::SEPTIN14__8:435707-7:55796092	FBXO25::SEPTIN14	8:435707-7:55796092	+	-	CDS/splice-site	CDS/splice-site	translocation	high	TCGA-A7-A0CE	Arriba
