@@ -29,12 +29,14 @@ include { VALIDATE_IN_SILICO_FUSIONINSPECTOR } from './modules/validate_in_silic
 
 ////// FUSION NEOEPITOPE PREDICTION MODULES //////////
 include { KEEP_VALIDATED_FUSIONS_PYENV } from './modules/keep_validated_fusions_PYENV.nf'
-include { PREDICT_NEOPEPTIDES_PVACFUSE } from './modules/predict_neopeptides_PVACFUSE.nf'
+include { PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE } from './modules/predict_sample_specific_neopeptides_PVACFUSE.nf'
+include { PREDICT_COHORTWIDE_NEOPEPTIDES_PVACFUSE } from './modules/predict_cohortwide_neopeptides_PVACFUSE.nf'
 
 ////// HLA TYPING MODULES //////////
 include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_ARCASHLA.nf'
 include { REFORMAT_HLA_TYPES_PYENV } from './modules/reformat_hla_types_PYENV.nf'
 include { COLLATE_HLA_FILES_BASH } from './modules/collate_hla_files_BASH.nf'
+include { FILTER_HLA_ALLOTYPES_FREQ_PYENV } from './modules/filter_hla_allotypes_freq_PYENV.nf'
 
 
 // Function to print help message
@@ -232,17 +234,52 @@ workflow NEOPEPTIDE_PREDICTION_WF {
         fusInspectorTsv
         filteredAgfusionOutdir
         filteredFusionsCh
+        sampleSpecificHLAsTsv
 
     main:
         // Preprocess agfusion output for neoepitope prediction
         KEEP_VALIDATED_FUSIONS_PYENV(fusInspectorTsv, filteredAgfusionOutdir, filteredFusionsCh)
-        // Neopeptide prediction process
-        PREDICT_NEOPEPTIDES_PVACFUSE(KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir)
+
+        // Always run sample-specific if enabled
+        if (params.sampleSpecificNeoPeptidePrediction) {
+            PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE(
+                KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir, 
+                sampleSpecificHLAsTsv
+            )
+        }
+
+        // Cohort-wide: conditional execution based on sample count
+        if (params.cohortWideNeoPeptidePrediction) {
+            // Check sample count and conditionally run the pipeline
+            sampleSpecificHLAsTsv
+                .map { file ->
+                    def sampleCount = file.countLines() - 1
+                    log.info "Found ${sampleCount} samples in HLA file"
+                    return sampleCount >= 5 ? file : null
+                }
+                .filter { it != null }
+                .set { validHLAForCohort }
+            
+            // Only run if we have sufficient samples
+            FILTER_HLA_ALLOTYPES_FREQ_PYENV(validHLAForCohort)
+            
+            PREDICT_COHORTWIDE_NEOPEPTIDES_PVACFUSE(
+                KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir,
+                FILTER_HLA_ALLOTYPES_FREQ_PYENV.out.hlaAllotypesFreqFilteredString
+            )
+
+        // Log when skipped (this will happen when validHLAForCohort is empty)
+            sampleSpecificHLAsTsv
+                .map { file -> file.countLines() - 1 }
+                .filter { it < 5 }
+                .subscribe { count ->
+                    log.warn "Cohort-wide prediction skipped: only ${count} samples (minimum 5 required)"
+                }
+        }
         
     emit:
         validatedFusionsCh = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions
         validatedAgfusionDir = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir
-        //neoepitopePredictionsCh = NEOEPITOPE_PREDICTION_PYENV.out.neoepitopePredictions
 }
 
 
@@ -253,6 +290,8 @@ workflow HLA_TYPING_WF {
         REFORMAT_HLA_TYPES_PYENV(TYPE_HLA_ALLELES_ARCASHLA(alignedBamCh).allotype_json)
         hlaFilesCh = REFORMAT_HLA_TYPES_PYENV.out.hlaTypingTsv
         COLLATE_HLA_FILES_BASH(hlaFilesCh.collect(flat: false))
+    emit:
+        sampleSpecificHLAsTsv = COLLATE_HLA_FILES_BASH.out.cohortWideHLAList
 
 }
 
@@ -370,7 +409,8 @@ workflow {
         NEOPEPTIDE_PREDICTION_WF(
                 IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.fusInspectorTsv, 
                 IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.filteredAgfusionOutdir, 
-                AGGREGATE_FUSION_CALLING_WF.out.filteredFusionsCh
+                AGGREGATE_FUSION_CALLING_WF.out.filteredFusionsCh,
+                HLA_TYPING_WF.out.sampleSpecificHLAsTsv
             )
 
     }

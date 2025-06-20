@@ -29,7 +29,7 @@ include { VALIDATE_IN_SILICO_FUSIONINSPECTOR } from './modules/validate_in_silic
 
 ////// FUSION NEOEPITOPE PREDICTION MODULES //////////
 include { KEEP_VALIDATED_FUSIONS_PYENV } from './modules/keep_validated_fusions_PYENV.nf'
-include { PREDICT_NEOPEPTIDES_PVACFUSE } from './modules/predict_neopeptides_PVACFUSE.nf'
+include { PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE } from './modules/predict_sample_specific_neopeptides_PVACFUSE.nf'
 
 ////// HLA TYPING MODULES //////////
 include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_ARCASHLA.nf'
@@ -185,6 +185,9 @@ workflow HLA_TYPE_COLLATION_WF {
         hlaTypingCh
     main:
         COLLATE_HLA_FILES_BASH(hlaTypingCh)
+    
+    emit:
+        cohortHLAs = COLLATE_HLA_FILES_BASH.out.cohortWideHLAList
 }
 
 workflow AGGREGATE_FUSION_CALLING_WF {
@@ -235,12 +238,13 @@ workflow NEOPEPTIDE_PREDICTION_WF {
         fusInspectorTsv
         filteredAgfusionOutdir
         filteredFusionsCh
+        hlaTypingCh
 
     main:
         // Preprocess agfusion output for neoepitope prediction
         KEEP_VALIDATED_FUSIONS_PYENV(fusInspectorTsv, filteredAgfusionOutdir, filteredFusionsCh)
         // Neopeptide prediction process
-        PREDICT_NEOPEPTIDES_PVACFUSE(KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir)
+        PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE(KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir, hlaTypingCh)
         
     emit:
         validatedFusionsCh = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions
@@ -355,7 +359,8 @@ workflow {
         NEOPEPTIDE_PREDICTION_WF(
                 IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.fusInspectorTsv, 
                 IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.filteredAgfusionOutdir, 
-                AGGREGATE_FUSION_CALLING_WF.out.filteredFusionsCh
+                AGGREGATE_FUSION_CALLING_WF.out.filteredFusionsCh,
+                HLA_TYPE_COLLATION_WF.out.cohortHLAs
             )
     }
 

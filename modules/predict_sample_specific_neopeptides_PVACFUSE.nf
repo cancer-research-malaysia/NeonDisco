@@ -13,7 +13,7 @@ process PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE {
         path(cohortWideHLAList)
 
     output:
-        path("${sampleName}_sample-specific-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"), emit: predictedNeopeptides
+        path("${sampleName}_sample-specific-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"), emit: predictedSampleSpecificNeopeptides
 
     script:
     """
@@ -29,6 +29,12 @@ process PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE {
     echo "Extracting sample-specific HLA types from cohort-wide HLA file..."
     SSHLA=$(grep "${sampleName}" ${cohortWideHLAList} | awk '{print $2}')
     echo "Sample-specific HLA types: \${ssHLA}"
+
+    # check if SSHLA is empty
+    if [ -z "\${SSHLA}" ]; then
+        echo "No sample-specific HLA types found for ${sampleName}. Exiting."
+        exit 0
+    fi
 
     # Run pVacFuse with sample-specific HLA types
     echo "Running pVacfuse for sample-specific prediction..."
