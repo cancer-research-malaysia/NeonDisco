@@ -11,7 +11,7 @@ process COLLATE_HLA_FILES_BASH {
     val hlaData
     
     output:
-    path "Cohort-wide_HLA_types.tsv"
+    path "Cohort-wide_HLA_types.tsv", emit: cohortWideHLAList
     
     script:
 
@@ -22,6 +22,7 @@ process COLLATE_HLA_FILES_BASH {
 
     """
     touch "Cohort-wide_HLA_types.tsv"
+    echo -e "sampleName\thlaAllotypes" > Cohort-wide_HLA_types.tsv
     
     # Process each sample file pair with a delimiter we can easily parse
     for item in ${hlaDataStr}; do
