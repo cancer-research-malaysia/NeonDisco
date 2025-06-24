@@ -26,13 +26,16 @@ process PREDICT_COHORTWIDE_NEOPEPTIDES_PVACFUSE {
 
 
     # Run pVacFuse with sample-specific HLA types
-    echo "Running pVacfuse for cohort-wide HLA binding and immunogenicity prediction..."
-    if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${SSHLA} all "${sampleName}_cohortwide-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /home/app/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz; then
-        echo "pVacFuse run finished!"
-    else
-        echo "Something went wrong."
-        exit 1
-    fi
+    echo "Extracting HLA types from cohort-wide 5% frequency HLAs file..."
+    COHORT_HLAS=\$(awk '{print \$1}' ${cohortFivePercentFreqHLAs})
+    echo "Cohort-wide HLA types: testcommand --cohort \${COHORT_HLAS}"
+    # echo "Running pVacfuse for cohort-wide HLA binding and immunogenicity prediction..."
+    # if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${SSHLA} all "${sampleName}_cohortwide-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /home/app/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz; then
+    #    echo "pVacFuse run finished!"
+    #else
+    #    echo "Something went wrong."
+    #    exit 1
+    #fi
 
     """
 

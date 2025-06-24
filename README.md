@@ -21,6 +21,7 @@ The flowchart belows describes the workflow underlying the Nextflow pipeline. Ea
 
 The essential components of the workflow repository are as follows:
 - `main.nf`: Contains the primary workflow code that orchestrates the entire pipeline execution
+- `manifests/`: Contains all the metadata files that should be provided during command execution
 - `modules/`: Contains all of the subprocess definitions that are imported into the primary workflow script
 - `bin/`: Contains all of the standalone scripts which are executed in each individual processes (modules)
 - `docker/`: Contains the Dockerfiles and the associated test scripts used to build Dockerized versions of the tool stack required by the pipeline
