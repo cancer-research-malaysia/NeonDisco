@@ -13,6 +13,7 @@ process AGGREGATE_CUSTOM_PONS_PYENV {
     
     output:
     path("${params.ponsOutputName}.parquet"), emit: finalCustomPONs
+    path("${params.ponsOutputName}.tsv")
     
     script:
     """
