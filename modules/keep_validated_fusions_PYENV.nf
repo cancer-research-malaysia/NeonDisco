@@ -24,14 +24,14 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
     echo "Now retain only validated fusions from Fusion Inspector on the normal-filtered collated FT TSV file..."
     gawk 'NR==FNR {ref[\$1]=1; next} FNR==1 || (\$NF in ref)' ${fusInspectorTsv} ${filteredFusions} > ${sampleName}-collated-FT-normFiltered-FI-validated.tsv
     
+    # Create validated agfusion output directory
+    mkdir -p validated-agfusion-outdir
+
     # check if the output file is empty 
     if [ ! -s ${sampleName}-collated-FT-normFiltered-FI-validated.tsv ]; then
         echo "Output file empty. No validated fusions found in Fusion Inspector output. Aborting this sample run."
         exit 0
     fi
-
-    # Create validated agfusion output directory
-    mkdir -p validated-agfusion-outdir
     
     echo "Copying validated AGFusion directories based on Fusion Inspector results..."
     

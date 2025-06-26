@@ -1,7 +1,7 @@
 // 
 process FILTER_HLA_ALLOTYPES_FREQ_PYENV {
     
-    publishDir "${params.outputDir}", mode: 'copy',
+    publishDir "${params.outputDir}/5-PERCENT-TOP-COHORTWIDE-HLAS-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__pyenv}"

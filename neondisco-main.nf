@@ -2,7 +2,7 @@
 
 nextflow.enable.dsl = 2
 // Set default parameter values
-params.deleteStagedFiles = params.inputSource == 's3' ? true : false
+params.deleteStagedFiles = (params.inputSource == 's3')
 
 // Import submodules
 ////// PREPROCESSING MODULES //////////
@@ -266,31 +266,36 @@ workflow NEOPEPTIDE_PREDICTION_WF {
 
         // Cohort-wide: conditional execution based on sample count
         if (params.cohortWideNeoPeptidePrediction) {
-            // Check sample count and conditionally run the pipeline
-            sampleSpecificHLAsTsv
-                .map { file ->
+            // Check sample count and only proceed if sufficient
+            validHLAForCohort = sampleSpecificHLAsTsv
+                .filter { file ->
                     def sampleCount = file.countLines() - 1
                     log.info "Found ${sampleCount} samples in HLA file"
-                    return sampleCount >= 5 ? file : null
+                    if (sampleCount >= 5) {
+                        log.info "Cohort-wide neopeptide prediction will be executed with ${sampleCount} input samples."
+                        return true
+                    } else {
+                        log.warn "Cohort-wide neopeptide prediction skipped: only ${sampleCount} input samples (minimum 5 required)."
+                        return false
+                    }
                 }
-                .filter { it != null }
-                .set { validHLAForCohort }
-            
-            // Only run if we have sufficient samples
+
+            // Only run if we have sufficient samples - both processes use the same filtered channel
             FILTER_HLA_ALLOTYPES_FREQ_PYENV(validHLAForCohort)
             
-            PREDICT_COHORTWIDE_NEOPEPTIDES_PVACFUSE(
-                KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir,
-                FILTER_HLA_ALLOTYPES_FREQ_PYENV.out.hlaAllotypesFreqFilteredString
-            )
+            // Assuming KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir emits: tuple(sampleName, agfusionDir)
+            cohortInputs = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir
+                .combine(FILTER_HLA_ALLOTYPES_FREQ_PYENV.out.hlaAllotypesFreqFilteredString)
+                // This creates: tuple(sampleName, agfusionDir, cohortHLA)
 
-        // Log when skipped (this will happen when validHLAForCohort is empty)
-            sampleSpecificHLAsTsv
-                .map { file -> file.countLines() - 1 }
-                .filter { it < 5 }
-                .subscribe { count ->
-                    log.warn "Cohort-wide prediction skipped: only ${count} samples (minimum 5 required)"
-                }
+            PREDICT_COHORTWIDE_NEOPEPTIDES_PVACFUSE(
+                cohortInputs.map { sampleName, agfusionDir, _cohortHLA -> 
+                    tuple(sampleName, agfusionDir) 
+                }, // tuple(sampleName, agfusionDir)
+                cohortInputs.map { _sampleName, _agfusionDir, cohortHLA -> 
+                    cohortHLA 
+                }.first() // Single cohort HLA file
+            )
         }
         
     emit:

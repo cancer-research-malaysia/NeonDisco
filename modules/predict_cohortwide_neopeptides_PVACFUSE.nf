@@ -13,12 +13,19 @@ process PREDICT_COHORTWIDE_NEOPEPTIDES_PVACFUSE {
         path(cohortFivePercentFreqHLAs)
 
     output:
-        path("${sampleName}_cohortwide-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"), emit: predictedCohortNeopeptides
+        path("${sampleName}_cohortwide-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"), emit: predictedCohortNeopeptides, optional: true
 
     script:
     """
     echo "Path to validated AGFusion directories: ${validatedAgfusionDir}"
     echo "Sample name: ${sampleName}"
+
+    # Check if the validated AGFusion directory is not empty; if empty, exit this process gracefully
+    if [ -z "\$(ls -A ${validatedAgfusionDir})" ]; then
+        echo "No validated AGFusion directories found for ${sampleName}. Skipping neopeptide prediction process gracefully."
+        exit 0
+    fi
+
     echo "Running PVACFUSE to predict neoepitopes from validated AGFusion results..."
     echo "Path to cohort-wide 5% frequency HLAs: ${cohortFivePercentFreqHLAs}"
     echo "Prediction parameters: Cohort-wide: ${params.cohortWideNeoPeptidePrediction}"
@@ -30,7 +37,7 @@ process PREDICT_COHORTWIDE_NEOPEPTIDES_PVACFUSE {
     COHORT_HLAS=\$(awk '{print \$1}' ${cohortFivePercentFreqHLAs})
     echo "Cohort-wide HLA types: testcommand --cohort \${COHORT_HLAS}"
     # echo "Running pVacfuse for cohort-wide HLA binding and immunogenicity prediction..."
-    # if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${SSHLA} all "${sampleName}_cohortwide-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /home/app/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz; then
+    # if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${SSHLA} DeepImmuno "${sampleName}_cohortwide-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /home/app/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz --netmhc-stab -a sample_name; then
     #    echo "pVacFuse run finished!"
     #else
     #    echo "Something went wrong."

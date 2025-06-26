@@ -28,12 +28,13 @@ process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
     echo "Read 1: \${READ1}"
     echo "Read 2: \${READ2}"
 
+    
     echo "Running preprocessing script to filter for agfusion-compatible gene pairs..."
     if bash /home/app/scripts/fusins-preproc--nf.sh ${uniqueFiltFusionPairsForFusIns} ${filtered_agfusion_outdir} ${sampleName}-genePairs-for-FusIns-filtered.txt; then
         echo "Preprocessing script has finished running."
         echo "Starting FusionInspector run with filtered gene pairs..."
         if bash /home/app/scripts/fusins--nf.sh ${sampleName}-genePairs-for-FusIns-filtered.txt /home/refs/ctat-db \$READ1 \$READ2 ${sampleName}; then
-            echo "FusionInspector run completed successfully."
+            echo "FusionInspector has finished running."
         else
             echo "FusionInspector run failed. Please check the logs for details."
             exit 1

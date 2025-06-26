@@ -13,12 +13,19 @@ process PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE {
         path(cohortWideHLAList)
 
     output:
-        path("${sampleName}_sample-specific-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"), emit: predictedSampleSpecificNeopeptides
+        path("${sampleName}_sample-specific-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"), emit: predictedSampleSpecificNeopeptides, optional: true
 
     script:
     """
     echo "Path to validated AGFusion directories: ${validatedAgfusionDir}"
     echo "Sample name: ${sampleName}"
+
+    # Check if the validated AGFusion directory is not empty; if empty, exit this process gracefully
+    if [ -z "\$(ls -A ${validatedAgfusionDir})" ]; then
+        echo "No validated AGFusion directories found for ${sampleName}. Skipping neopeptide prediction process gracefully."
+        exit 0
+    fi
+
     echo "Running pVacfuse to predict neoepitopes from validated AGFusion results..."
     echo "Path to cohort-wide HLA allotype TSV: ${cohortWideHLAList}"
     echo "Prediction parameter: Sample-specific: ${params.sampleSpecificNeoPeptidePrediction}"
@@ -27,8 +34,8 @@ process PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE {
 
     # extract sample-specific HLA types from the cohort-wide HLA file
     echo "Extracting sample-specific HLA types from cohort-wide HLA file..."
-    SSHLA=$(grep "${sampleName}" ${cohortWideHLAList} | awk '{print $2}')
-    echo "Sample-specific HLA types: \${ssHLA}"
+    SSHLA=\$(grep "${sampleName}" ${cohortWideHLAList} | awk '{print \$2}')
+    echo "Sample-specific HLA types: \${SSHLA}"
 
     # check if SSHLA is empty
     if [ -z "\${SSHLA}" ]; then
@@ -38,7 +45,7 @@ process PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE {
 
     # Run pVacFuse with sample-specific HLA types
     echo "Running pVacfuse for sample-specific prediction..."
-    if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${SSHLA} all "${sampleName}_sample-specific-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /home/app/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz; then
+    if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${SSHLA} DeepImmuno "${sampleName}_sample-specific-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /home/app/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz --netmhc-stab -a sample_name; then
         echo "pVacFuse run finished!"
     else
         echo "Something went wrong."
