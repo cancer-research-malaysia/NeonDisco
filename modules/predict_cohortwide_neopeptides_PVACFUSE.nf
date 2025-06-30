@@ -36,13 +36,15 @@ process PREDICT_COHORTWIDE_NEOPEPTIDES_PVACFUSE {
     echo "Extracting HLA types from cohort-wide 5% frequency HLAs file..."
     COHORT_HLAS=\$(awk '{print \$1}' ${cohortFivePercentFreqHLAs})
     echo "Cohort-wide HLA types: testcommand --cohort \${COHORT_HLAS}"
-    # echo "Running pVacfuse for cohort-wide HLA binding and immunogenicity prediction..."
-    # if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${SSHLA} DeepImmuno "${sampleName}_cohortwide-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /home/app/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz --netmhc-stab -a sample_name; then
-    #    echo "pVacFuse run finished!"
-    #else
-    #    echo "Something went wrong."
-    #    exit 1
-    #fi
+
+
+    echo "Running pVacfuse for cohort-wide HLA binding and immunogenicity prediction..."
+    if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${COHORT_HLAS} BigMHC_EL BigMHC_IM DeepImmuno MHCflurry MHCflurryEL NetMHCpanEL NetMHCcons SMMPMBEC "${sampleName}_cohortwide-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /home/app/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz --netmhc-stab -a sample_name; then
+        echo "pVacFuse run finished!"
+    else
+        echo "Something went wrong."
+        exit 1
+    fi
 
     """
 

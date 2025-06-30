@@ -45,7 +45,7 @@ process PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE {
 
     # Run pVacFuse with sample-specific HLA types
     echo "Running pVacfuse for sample-specific prediction..."
-    if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${SSHLA} DeepImmuno "${sampleName}_sample-specific-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /home/app/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz --netmhc-stab -a sample_name; then
+    if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${SSHLA} BigMHC_EL BigMHC_IM DeepImmuno MHCflurry MHCflurryEL NetMHCpanEL NetMHCcons SMMPMBEC "${sampleName}_sample-specific-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /home/app/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz --netmhc-stab -a sample_name; then
         echo "pVacFuse run finished!"
     else
         echo "Something went wrong."

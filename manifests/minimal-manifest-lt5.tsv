@@ -2,3 +2,4 @@ sampleName	read1Path	read2Path	sampleType
 3T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/3T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/3T_r2.fq.gz	Tumor
 1T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/1T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/1T_r2.fq.gz	Tumor
 148T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/148T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/148T_r2.fq.gz	Tumor
+5T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/5T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/5T_r2.fq.gz	Tumor
