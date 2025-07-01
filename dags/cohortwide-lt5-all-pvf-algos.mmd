@@ -1,0 +1,88 @@
+flowchart TB
+    subgraph " "
+    v4["Channel.fromPath"]
+    end
+    subgraph "TRIMMING_WF [TRIMMING_WF]"
+    v15(["TRIM_READS_FASTP"])
+    end
+    subgraph "TWOPASS_ALIGNMENT_WF [TWOPASS_ALIGNMENT_WF]"
+    v16(["ALIGN_READS_TWOPASS_STARSAM"])
+    v17(["FIXMATES_MARKDUPES_SAMTOOLS"])
+    end
+    subgraph "HLA_TYPING_WF [HLA_TYPING_WF]"
+    v18(["TYPE_HLA_ALLELES_ARCASHLA"])
+    v19(["REFORMAT_HLA_TYPES_PYENV"])
+    v21(["COLLATE_HLA_FILES_BASH"])
+    v20(( ))
+    end
+    subgraph "AGGREGATE_FUSION_CALLING_WF [AGGREGATE_FUSION_CALLING_WF]"
+    v22(["ALIGN_READS_STAR_GENERAL"])
+    v23(["FILTER_ALIGNED_READS_EASYFUSE"])
+    v24(["CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE"])
+    v25(["ALIGN_READS_STAR_ARRIBA"])
+    v26(["CALL_FUSIONS_ARRIBA"])
+    v27(["CALL_FUSIONS_FUSIONCATCHER"])
+    v28(["CALL_FUSIONS_STARFUSION"])
+    v31(["COLLATE_FUSIONS_PYENV"])
+    v32(["FILTER_FUSIONS_PYENV"])
+    v29(( ))
+    end
+    subgraph "IN_SILICO_TRANSCRIPT_VALIDATION_WF [IN_SILICO_TRANSCRIPT_VALIDATION_WF]"
+    v33(["TRANSLATE_IN_SILICO_AGFUSION"])
+    v34(["VALIDATE_IN_SILICO_FUSIONINSPECTOR"])
+    end
+    subgraph "NEOPEPTIDE_PREDICTION_WF [NEOPEPTIDE_PREDICTION_WF]"
+    v35(["KEEP_VALIDATED_FUSIONS_PYENV"])
+    v37(["PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE"])
+    v40(["FILTER_HLA_ALLOTYPES_FREQ_PYENV"])
+    v47(["PREDICT_COHORTWIDE_NEOPEPTIDES_PVACFUSE"])
+    v39(( ))
+    v43(( ))
+    end
+    subgraph " "
+    v36["validatedFusionsCh"]
+    v38[" "]
+    v41[" "]
+    v42[" "]
+    v48[" "]
+    end
+    v5(( ))
+    v4 --> v5
+    v5 --> v15
+    v15 --> v16
+    v15 --> v22
+    v15 --> v34
+    v16 --> v17
+    v17 --> v18
+    v18 --> v19
+    v19 --> v20
+    v20 --> v21
+    v21 --> v37
+    v21 --> v39
+    v22 --> v23
+    v23 --> v24
+    v24 --> v25
+    v24 --> v27
+    v24 --> v28
+    v25 --> v26
+    v26 --> v29
+    v27 --> v29
+    v28 --> v29
+    v29 --> v31
+    v31 --> v32
+    v32 --> v33
+    v32 --> v34
+    v32 --> v35
+    v33 --> v34
+    v33 --> v35
+    v34 --> v35
+    v35 --> v36
+    v35 --> v37
+    v35 --> v43
+    v37 --> v38
+    v39 --> v40
+    v40 --> v42
+    v40 --> v41
+    v40 --> v43
+    v43 --> v47
+    v47 --> v48

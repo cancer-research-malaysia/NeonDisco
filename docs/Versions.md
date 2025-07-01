@@ -23,10 +23,13 @@ This massive update primarily consists of optimization of the gene fusion discov
 
 ### Future Improvement
 #### Execution–Related
-- ☑️ Add parallel execution capability of *sample-specific* and *cohort-wide* neopeptide prediction using both sample-specific HLA types and cohort-determined HLA types based on a population frequency cutoff
+- ✅ Add parallel execution capability of *sample-specific* and *cohort-wide* neopeptide prediction using both sample-specific HLA types and cohort-determined HLA types based on a population frequency cutoff
+- ✅ Add parsing capability on manifest files to process inputs based on `sampleType` (Tumor or Normal)
+- ✅ Add `S3-manifest-file-generator.sh` utility script (in `bin/utils/`)
+- ✅ Implement a subworkflow called `generate-fusion-pons.nf` that can be run prior to main NeonDisco run, to process Normal datasets and add fusions detected in Normals for filtering in the main pipeline
 - ☑️ Wrap the `Nextflow run` command into a CLI-based program written in Golang
 
 #### Program Logic–Related 
 - ☑️ Implement HLAHD as optional alternative HLA typing module that is selectable by a running parameter
-- ☑️ Expand PoN to include Babiceanu et al., Gao et al., and GTEx-based chimeric transcript list (grant proposed – to sequence matched normal of MyBrCa cohort to be added to PoN)
-- ☑️ Improve false-positive filtering module to also use annotation information in Arriba and FusionCatcher output files (STARFusion already does such filtering internally)
+- ☑️ Expand PoN to include Babiceanu et al., Gao et al., and Klijn et al., ~~**GTEx-based**~~ chimeric transcript list (grant proposed – to sequence matched normal of MyBrCa cohort to be added to PoN)
+- ~~☑️ Improve false-positive filtering module to also use annotation information in Arriba and FusionCatcher output files (STARFusion already does such filtering internally)~~
