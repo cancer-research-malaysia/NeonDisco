@@ -24,6 +24,8 @@ include { COLLATE_FUSIONS_PYENV } from './modules/collate_fusions_PYENV.nf'
 
 ////// FUSION FILTERING AND ANNOTATION MODULES //////////
 include { FILTER_FUSIONS_PYENV } from './modules/filter_fusions_PYENV.nf'
+include { CONCAT_NORMFILTERED_FUSION_FILES_PYENV } from './modules/identify_recurrent_fusions_PYENV.nf'
+include { GET_COHORT_RECURRENT_FUSIONS_PYENV } from './modules/identify_recurrent_fusions_PYENV.nf'
 include { TRANSLATE_IN_SILICO_AGFUSION } from './modules/translate_in_silico_AGFUSION.nf'
 include { VALIDATE_IN_SILICO_FUSIONINSPECTOR } from './modules/validate_in_silico_FUSIONINSPECTOR.nf'
 
@@ -217,92 +219,158 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         
 }
 
-workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
+workflow RECURRENT_FUSION_FILTERING_WF {
     take:
         filteredFusionsCh
+    main:
+        // Get cohort recurrent fusions
+        GET_COHORT_RECURRENT_FUSIONS_PYENV(CONCAT_NORMFILTERED_FUSION_FILES_PYENV(filteredFusionsCh).cohortwideFusionsFile)
+    emit:
+        cohortRecurrentFusionsCh = GET_COHORT_RECURRENT_FUSIONS_PYENV.out.cohortRecurrentFusionTsv
+}
+
+workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
+    take:
+        normFilteredFusionsCh
         uniqueFiltFusionPairsForFusInsCh
         trimmedCh
     main:
-        VALIDATE_IN_SILICO_FUSIONINSPECTOR(TRANSLATE_IN_SILICO_AGFUSION(filteredFusionsCh).filtered_agfusion_outdir, 
-        uniqueFiltFusionPairsForFusInsCh, 
-        trimmedCh
+        VALIDATE_IN_SILICO_FUSIONINSPECTOR(
+            TRANSLATE_IN_SILICO_AGFUSION(normFilteredFusionsCh).filtered_agfusion_outdir, 
+            uniqueFiltFusionPairsForFusInsCh, 
+            trimmedCh
         )
 
-    emit:
         fusInspectorTsv = VALIDATE_IN_SILICO_FUSIONINSPECTOR.out.fusInspectorTsv
         filteredAgfusionOutdir = TRANSLATE_IN_SILICO_AGFUSION.out.filtered_agfusion_outdir
 
-}
-
-workflow GET_COHORT_RECURRENT_FUSIONS_WF {
-    //take:
-        //filteredFusionsCh
-    //main:
-        // Get cohort recurrent fusions
-        //GET_COHORT_RECURRENT_FUSIONS_PYENV(filteredFusionsCh)
-    //emit:
-        //cohortRecurrentFusionsCh = GET_COHORT_RECURRENT_FUSIONS_PYENV.out.cohortRecurrentFusions
-}
-
-
-workflow NEOPEPTIDE_PREDICTION_WF {
-    take:
-        fusInspectorTsv
-        filteredAgfusionOutdir
-        filteredFusionsCh
-        sampleSpecificHLAsTsv
-
-    main:
         // Preprocess agfusion output for neoepitope prediction
-        KEEP_VALIDATED_FUSIONS_PYENV(fusInspectorTsv, filteredAgfusionOutdir, filteredFusionsCh)
+        KEEP_VALIDATED_FUSIONS_PYENV(fusInspectorTsv, filteredAgfusionOutdir, normFilteredFusionsCh)
 
-        // Always run sample-specific if enabled
-        if (params.sampleSpecificNeoPeptidePrediction) {
-            PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE(
-                KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir, 
-                sampleSpecificHLAsTsv
-            )
-        }
-
-        // Cohort-wide: conditional execution based on sample count
-        if (params.cohortWideNeoPeptidePrediction) {
-            // Check sample count and only proceed if sufficient
-            validHLAForCohort = sampleSpecificHLAsTsv
-                .filter { file ->
-                    def sampleCount = file.countLines() - 1
-                    log.info "Found ${sampleCount} samples in HLA file"
-                    if (sampleCount >= 5) {
-                        log.info "Cohort-wide neopeptide prediction will be executed with ${sampleCount} input samples."
-                        return true
-                    } else {
-                        log.warn "Cohort-wide neopeptide prediction skipped: only ${sampleCount} input samples (minimum 5 required)."
-                        return false
-                    }
-                }
-
-            // Only run if we have sufficient samples - both processes use the same filtered channel
-            FILTER_HLA_ALLOTYPES_FREQ_PYENV(validHLAForCohort)
-            
-            // Assuming KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir emits: tuple(sampleName, agfusionDir)
-            cohortInputs = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir
-                .combine(FILTER_HLA_ALLOTYPES_FREQ_PYENV.out.hlaAllotypesFreqFilteredString)
-                // This creates: tuple(sampleName, agfusionDir, cohortHLA)
-
-            PREDICT_COHORTWIDE_NEOPEPTIDES_PVACFUSE(
-                cohortInputs.map { sampleName, agfusionDir, _cohortHLA -> 
-                    tuple(sampleName, agfusionDir) 
-                }, // tuple(sampleName, agfusionDir)
-                cohortInputs.map { _sampleName, _agfusionDir, cohortHLA -> 
-                    cohortHLA 
-                }.first() // Single cohort HLA file
-            )
-        }
-        
     emit:
-        validatedFusionsCh = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions
         validatedAgfusionDir = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir
 }
 
+workflow SAMPLE_SPECIFIC_NEOANTIGENS {
+    take:
+        validatedAgfusionDir
+        sampleSpecificHLAsTsv
+    
+    main:
+        PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE(
+            validatedAgfusionDir, 
+            sampleSpecificHLAsTsv
+        )
+}
+
+workflow COHORTWIDE_NEOANTIGENS {
+    take:
+        validatedAgfusionDir
+        sampleSpecificHLAsTsv
+    
+    main:
+        // Filter HLA file based on sample count
+        validHLAForCohort = sampleSpecificHLAsTsv
+            .filter { file ->
+                def sampleCount = file.countLines() - 1
+                log.info "Found ${sampleCount} samples in HLA file"
+                if (sampleCount >= 5) {
+                    log.info "Cohort-wide neopeptide prediction will be executed with ${sampleCount} input samples."
+                    return true
+                } else {
+                    log.warn "Cohort-wide neopeptide prediction skipped: only ${sampleCount} input samples (minimum 5 required)."
+                    return false
+                }
+            }
+
+        // Filter HLA allotypes by frequency
+        FILTER_HLA_ALLOTYPES_FREQ_PYENV(validHLAForCohort)
+        
+        // Combine agfusion dirs with cohort HLA
+        cohortInputs = validatedAgfusionDir
+                        .combine(FILTER_HLA_ALLOTYPES_FREQ_PYENV.out.hlaAllotypesFreqFilteredString)
+
+        PREDICT_COHORTWIDE_NEOPEPTIDES_PVACFUSE(
+            cohortInputs.map { sampleName, agfusionDir, _cohortHLA -> 
+                tuple(sampleName, agfusionDir) 
+            },
+            cohortInputs.map { _sampleName, _agfusionDir, cohortHLA -> 
+                cohortHLA 
+            }.first()
+        )
+    
+}
+
+// Updated main neopeptide workflow - now just orchestrates the sub-workflows
+workflow NEOANTIGEN_PREDICTION_WF {
+    take:
+        validatedAgfusionDir
+        sampleSpecificHLAsTsv
+
+    main:
+        // Initialize empty channels for outputs
+        //sampleSpecificResults = Channel.empty()
+        //cohortWideResults = Channel.empty()
+        
+        // Run sample-specific if enabled
+        if (params.sampleSpecificNeoPeptidePrediction) {
+            SAMPLE_SPECIFIC_NEOANTIGENS(validatedAgfusionDir, sampleSpecificHLAsTsv)
+        }
+
+        // Run cohort-wide if enabled
+        if (params.cohortWideNeoPeptidePrediction) {
+            COHORTWIDE_NEOANTIGENS(validatedAgfusionDir, sampleSpecificHLAsTsv)
+        }
+}
+
+// workflow NEOPEPTIDE_PREDICTION_WF {
+//     take:
+//         validatedAgfusionDir
+//         sampleSpecificHLAsTsv
+
+//     main:
+//         // Always run sample-specific if enabled
+//         if (params.sampleSpecificNeoPeptidePrediction) {
+//             PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE(
+//                 validatedAgfusionDir, 
+//                 sampleSpecificHLAsTsv
+//             )
+//         }
+
+//         // Cohort-wide: conditional execution based on sample count
+//         if (params.cohortWideNeoPeptidePrediction) {
+//             // Check sample count and only proceed if sufficient
+//             validHLAForCohort = sampleSpecificHLAsTsv
+//                 .filter { file ->
+//                     def sampleCount = file.countLines() - 1
+//                     log.info "Found ${sampleCount} samples in HLA file"
+//                     if (sampleCount >= 5) {
+//                         log.info "Cohort-wide neopeptide prediction will be executed with ${sampleCount} input samples."
+//                         return true
+//                     } else {
+//                         log.warn "Cohort-wide neopeptide prediction skipped: only ${sampleCount} input samples (minimum 5 required)."
+//                         return false
+//                     }
+//                 }
+
+//             // Only run if we have sufficient samples - both processes use the same filtered channel
+//             FILTER_HLA_ALLOTYPES_FREQ_PYENV(validHLAForCohort)
+            
+//             // Assuming KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir emits: tuple(sampleName, agfusionDir)
+//             cohortInputs = validatedAgfusionDir
+//                             .combine(FILTER_HLA_ALLOTYPES_FREQ_PYENV.out.hlaAllotypesFreqFilteredString)
+//                             // This creates: tuple(sampleName, agfusionDir, cohortHLA)
+
+//             PREDICT_COHORTWIDE_NEOPEPTIDES_PVACFUSE(
+//                 cohortInputs.map { sampleName, agfusionDir, _cohortHLA -> 
+//                     tuple(sampleName, agfusionDir) 
+//                 }, // tuple(sampleName, agfusionDir)
+//                 cohortInputs.map { _sampleName, _agfusionDir, cohortHLA -> 
+//                     cohortHLA 
+//                 }.first() // Single cohort HLA file
+//             )
+//         }
+// }
 
 workflow HLA_TYPING_WF {
     take:
@@ -410,6 +478,7 @@ workflow {
     log.info "Output directory: ${params.outputDir}"
     log.info "Read trimming: ${params.trimReads}"
     log.info "HLA typing only mode: ${params.hlaTypingOnly}"
+    log.info "Recurrent fusion discovery mode: ${params.recurrentFusionMode}"
     
     // Process tumor samples only (normal channel remains unused but available)
     def qcProcInputCh = params.trimReads ? TRIMMING_WF(tumorCh).trimmedCh : tumorCh
@@ -434,20 +503,27 @@ workflow {
         // Fusion calling
         AGGREGATE_FUSION_CALLING_WF(qcProcInputCh)
 
+        // Determine which filtered fusions to use based on recurrentFusionMode
+        def normFilteredFusionsCh
+        if (params.recurrentFusionMode) {
+            log.info "Recurrent fusion discovery mode is enabled. All downstream workflow will work on cohort-recurrent fusions only."
+            log.info "Running recurrent fusion filtering..."
+            RECURRENT_FUSION_FILTERING_WF(AGGREGATE_FUSION_CALLING_WF.out.filteredFusionsCh.collect())
+            normFilteredFusionsCh = RECURRENT_FUSION_FILTERING_WF.out.cohortRecurrentFusionsCh
+        } else {
+            normFilteredFusionsCh = AGGREGATE_FUSION_CALLING_WF.out.filteredFusionsCh
+        }
+
         // run AGFUSION coding sequence prediction
         IN_SILICO_TRANSCRIPT_VALIDATION_WF(
-                AGGREGATE_FUSION_CALLING_WF.out.filteredFusionsCh, 
+                normFilteredFusionsCh,
                 AGGREGATE_FUSION_CALLING_WF.out.uniqueFiltFusionPairsForFusInsCh,
                 qcProcInputCh
             )
 
-        // Get cohort recurrent fusions
-
         // Run neoepitope prediction
-        NEOPEPTIDE_PREDICTION_WF(
-                IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.fusInspectorTsv, 
-                IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.filteredAgfusionOutdir, 
-                AGGREGATE_FUSION_CALLING_WF.out.filteredFusionsCh,
+        NEOANTIGEN_PREDICTION_WF(
+                IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.validatedAgfusionDir,
                 HLA_TYPING_WF.out.sampleSpecificHLAsTsv
             )
 
