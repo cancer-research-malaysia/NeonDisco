@@ -1,0 +1,44 @@
+flowchart TB
+    subgraph " "
+    v4["Channel.fromPath"]
+    end
+    subgraph "TRIMMING_WF [TRIMMING_WF]"
+    v15(["TRIM_READS_FASTP"])
+    end
+    subgraph "PON_FUSION_CALLING_WF [PON_FUSION_CALLING_WF]"
+    v16(["ALIGN_READS_STAR_GENERAL"])
+    v17(["FILTER_ALIGNED_READS_EASYFUSE"])
+    v18(["CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE"])
+    v19(["ALIGN_READS_STAR_ARRIBA"])
+    v20(["CALL_FUSIONS_ARRIBA"])
+    v21(["CALL_FUSIONS_FUSIONCATCHER"])
+    v22(["CALL_FUSIONS_STARFUSION"])
+    v25(["COLLATE_CUSTOM_PONS_PYENV"])
+    v28(["AGGREGATE_CUSTOM_PONS_PYENV"])
+    v23(( ))
+    v27(( ))
+    end
+    subgraph " "
+    v26[" "]
+    v29[" "]
+    v30["final_pon"]
+    end
+    v5(( ))
+    v4 --> v5
+    v5 --> v15
+    v15 --> v16
+    v16 --> v17
+    v17 --> v18
+    v18 --> v19
+    v18 --> v21
+    v18 --> v22
+    v19 --> v20
+    v20 --> v23
+    v21 --> v23
+    v22 --> v23
+    v23 --> v25
+    v25 --> v26
+    v25 --> v27
+    v27 --> v28
+    v28 --> v30
+    v28 --> v29
