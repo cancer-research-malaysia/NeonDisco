@@ -22,10 +22,9 @@ process FILTER_FUSIONS_PYENV {
     OUTPUT_NAME="${sampleName}-collated-FT-normFiltered"
 
     echo "Running filtering script to filter for tumor-specific FTs..."
-    if python /home/app/scripts/wrangle-and-filter-FTs--nf.py ${sampleName} ${collatedFTParquet} ${params.panelOfNormalsPq} ${params.panelOfCCLEInternalsPq} \${OUTPUT_NAME}; then
+    if python /home/app/scripts/wrangle-and-filter-FTs--nf.py ${sampleName} ${collatedFTParquet} ${params.panelOfNormalsPq} ${params.babiNormalsPq} ${params.panelOfCCLEInternalsPq} ${params.gaoFusionsPq} ${params.mitelmanFusionsPq} ${params.klijnFusionsPq} \${OUTPUT_NAME}; then
         echo "Filtering completed."
     fi
-
     """
     stub:
     """
