@@ -1,17 +1,67 @@
 #!/usr/bin/env python3
 """
 Script to concatenate multiple fusion TSV files into a cohort-wide file
+Fixed version with better schema handling
 """
 import sys
 import argparse
 from pathlib import Path
 import polars as pl
+from collections import defaultdict
+
+def analyze_schemas(input_files):
+    """
+    Analyze schemas of all input files to determine consistent types
+    """
+    column_types = defaultdict(set)
+    
+    for file_path in input_files:
+        file_path = Path(file_path)
+        if not file_path.exists():
+            continue
+            
+        try:
+            # Read just the schema without loading all data
+            df = pl.read_csv(file_path, separator='\t', n_rows=1)
+            for col_name, dtype in df.schema.items():
+                column_types[col_name].add(dtype)
+        except Exception as e:
+            print(f"Warning: Could not read schema from {file_path}: {e}")
+            continue
+    
+    # Create schema overrides for problematic columns
+    schema_overrides = {}
+    
+    for col_name, types in column_types.items():
+        if len(types) > 1:
+            # Handle type conflicts by choosing the most compatible type
+            if pl.Utf8 in types:
+                # If any file has string type, convert all to string
+                schema_overrides[col_name] = pl.Utf8
+            elif pl.Float64 in types and pl.Int64 in types:
+                # If mixing int and float, use float
+                schema_overrides[col_name] = pl.Float64
+            else:
+                # Default to string for safety
+                schema_overrides[col_name] = pl.Utf8
+    
+    return schema_overrides
 
 def concatenate_cohortwide_fusions(input_files, output_file):
     """
     Concatenate multiple TSV files into a cohort-wide fusion file
     """
     try:
+        # First, analyze schemas to determine overrides
+        print("Analyzing file schemas...")
+        schema_overrides = analyze_schemas(input_files)
+        
+        if schema_overrides:
+            print("Found schema conflicts, applying overrides:")
+            for col, dtype in schema_overrides.items():
+                print(f"  {col}: {dtype}")
+            print()
+        
         # List to store all dataframes
         dfs = []
 
@@ -24,15 +74,24 @@ def concatenate_cohortwide_fusions(input_files, output_file):
 
             print(f"Processing: {file_path}")
             
-            # Read TSV file
-            df = pl.read_csv(file_path, separator='\t', schema_overrides={'sampleNum_Padded': pl.Utf8} )
-            
-            if len(df) == 0:
-                print(f"Warning: File {file_path} is empty, skipping...")
+            try:
+                # Read TSV file with schema overrides
+                df = pl.read_csv(
+                    file_path, 
+                    separator='\t', 
+                    schema_overrides=schema_overrides
+                )
+                
+                if len(df) == 0:
+                    print(f"Warning: File {file_path} is empty, skipping...")
+                    continue
+                
+                dfs.append(df)
+                print(f"  - Added {len(df)} rows from {file_path.name}")
+                
+            except Exception as e:
+                print(f"Error reading {file_path}: {e}")
                 continue
-            
-            dfs.append(df)
-            print(f"  - Added {len(df)} rows from {file_path.name}")
         
         if not dfs:
             print("Error: No valid TSV files found!")
@@ -63,6 +122,8 @@ def concatenate_cohortwide_fusions(input_files, output_file):
         
     except Exception as e:
         print(f"Error processing files: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
 def main():
@@ -83,4 +144,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
+    

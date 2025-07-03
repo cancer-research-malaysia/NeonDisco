@@ -1,14 +1,14 @@
 // Process to collect all TSV files and concatenate them
 process CONCAT_NORMFILTERED_FUSION_FILES_PYENV {
     
-    publishDir "${params.outputDir}", mode: 'copy',
+    publishDir "${params.outputDir}/Cohort-Cumulative-Fusions", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__pyenv}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name CONCAT_FUSION_FILES -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name CONCAT_FUSIONS -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
     
     input:
-    path cohortwideFusionsTsvs
+    path validatedFusionsTsvs
     
     output:
     path "cohortwide_concat_fusions.tsv", emit: cohortwideFusionsFile
@@ -16,7 +16,7 @@ process CONCAT_NORMFILTERED_FUSION_FILES_PYENV {
     script:
     """
     python3 /home/app/scripts/concatenate-cohortwide-fusions--nf.py \\
-        --input_files ${cohortwideFusionsTsvs} \\
+        --input_files ${validatedFusionsTsvs} \\
         --output cohortwide_concat_fusions.tsv
     """
     stub:
@@ -29,7 +29,7 @@ process CONCAT_NORMFILTERED_FUSION_FILES_PYENV {
 // Process to filter for recurrent fusions
 process GET_COHORT_RECURRENT_FUSIONS_PYENV {
     
-    publishDir "${params.outputDir}", mode: 'copy',
+    publishDir "${params.outputDir}/Cohort-Recurrent-Fusions", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
 
     container "${params.container__pyenv}"
@@ -39,8 +39,8 @@ process GET_COHORT_RECURRENT_FUSIONS_PYENV {
     path cohortwideFusionsFile
     
     output:
-    path "cohortwide_recurrent_fusions.tsv", emit: cohortRecurrentFusionTsv
-    path "fusion_frequency_report.txt", emit: fusionFrequencyReport
+    tuple val("Cohort-Recurrent-Fusions"), path("cohortwide_recurrent_fusions.tsv"), emit: cohortRecurrentFusionTsv
+    tuple val("Cohort-Recurrent-Fusions"), path("fusion_frequency_report.txt"), emit: fusionFrequencyReport
     
     script:
     """

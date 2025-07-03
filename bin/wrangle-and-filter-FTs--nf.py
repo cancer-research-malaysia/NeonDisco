@@ -327,7 +327,7 @@ def main():
     print("Processing complete!")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 6:
+    if len(sys.argv) != 10:
         print("Usage: wrangle-and-filter-FTs--nf.py <sample id> <parquet file of combined FTs> <panel of normals FTs parquet file> <Babiceanu et al normal fusions parquet file> <ccle+internal cell line FTs parquet file> <Gao et al fusion parquet file> <Mitelman et al fusion parquet file> <Klijn et al fusion parquet file> <output filename>")
         sys.exit(1)
     main()
