@@ -31,7 +31,7 @@ process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
     echo "" >> ${sampleName}_recurrent_filter_report.txt
 
     # Check input files
-    if [ $(tail -n +2 ${validatedFusions} | wc -l) -eq 0 ]; then
+    if [ \$(tail -n +2 ${validatedFusions} | wc -l) -eq 0 ]; then
         echo "No validated fusions for this sample."
         echo "STATUS: No validated fusions" >> ${sampleName}_recurrent_filter_report.txt
         head -1 ${validatedFusions} > ${sampleName}-validated-recurrent-only.tsv
@@ -39,7 +39,7 @@ process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
         exit 0
     fi
 
-    if [ $(tail -n +2 ${recurrentFusionsTsv} | wc -l) -eq 0 ]; then
+    if [ \$(tail -n +2 ${recurrentFusionsTsv} | wc -l) -eq 0 ]; then
         echo "No recurrent fusions in cohort."
         echo "STATUS: No recurrent fusions in cohort" >> ${sampleName}_recurrent_filter_report.txt
         head -1 ${validatedFusions} > ${sampleName}-validated-recurrent-only.tsv

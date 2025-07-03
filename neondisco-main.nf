@@ -346,10 +346,6 @@ workflow NEOANTIGEN_PREDICTION_WF {
                 COHORTWIDE_NEOANTIGENS(validatedRecurrentAgfusionDir, sampleSpecificHLAsTsv)
             }
         }
-
-    emit:
-        validatedAgfusionDir = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir
-        sampleSpecificHLAsTsv = COLLATE_HLA_FILES_BASH.out.cohortWideHLAList
     
 }
 
