@@ -313,40 +313,31 @@ workflow NEOANTIGEN_PREDICTION_WF {
         validatedAgfusionDir = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir
         validatedFusions = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions
 
-        if (cohortRecurrentFusionsCh.isEmpty()) {
-            log.info "No cohort recurrent fusions detected. Running sample-specific and cohort-wide neopeptide predictions on the full set of validated fusions..."
-            // Run sample-specific if enabled
-            if (params.sampleSpecificNeoPeptidePrediction) {
-                SAMPLE_SPECIFIC_NEOANTIGENS(validatedAgfusionDir, sampleSpecificHLAsTsv)
-            }
-
-            // Run cohort-wide if enabled
-            if (params.cohortWideNeoPeptidePrediction) {
-                COHORTWIDE_NEOANTIGENS(validatedAgfusionDir, sampleSpecificHLAsTsv)
-            }
+        // ALWAYS run the recurrent fusion filtering - let the process handle empty inputs
+        FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV(
+            validatedFusions,
+            validatedAgfusionDir, 
+            cohortRecurrentFusionsCh
+        )
         
-        } else {
-            log.info "Cohort recurrent fusions detected. Running neopeptide predictions on the recurrent fusions only..."
-            
-            // Filter validated fusions for recurrent fusions
-            FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV(
-                validatedFusions,
-                validatedAgfusionDir, 
-                cohortRecurrentFusionsCh
-            )
-            validatedRecurrentAgfusionDir = FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV.out.validatedRecurrentAgfusionDir
-
-            // Run sample-specific if enabled
-            if (params.sampleSpecificNeoPeptidePrediction) {
-                SAMPLE_SPECIFIC_NEOANTIGENS(validatedRecurrentAgfusionDir, sampleSpecificHLAsTsv)
-            }
-
-            // Run cohort-wide if enabled
-            if (params.cohortWideNeoPeptidePrediction) {
-                COHORTWIDE_NEOANTIGENS(validatedRecurrentAgfusionDir, sampleSpecificHLAsTsv)
-            }
+        // Create channels for both scenarios
+        fullValidatedDir = validatedAgfusionDir
+        recurrentValidatedDir = FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV.out.validatedRecurrentAgfusionDir
+        
+        // Branch based on whether recurrent fusions exist
+        // Use the recurrent channel if it has content, otherwise use the full validated channel
+        finalAgfusionDir = recurrentValidatedDir
+            .ifEmpty(fullValidatedDir)
+        
+        // Run sample-specific if enabled
+        if (params.sampleSpecificNeoPeptidePrediction) {
+            SAMPLE_SPECIFIC_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv)
         }
-    
+
+        // Run cohort-wide if enabled
+        if (params.cohortWideNeoPeptidePrediction) {
+            COHORTWIDE_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv)
+        }
 }
 
 workflow HLA_TYPING_WF {

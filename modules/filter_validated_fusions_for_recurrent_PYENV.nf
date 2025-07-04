@@ -59,10 +59,14 @@ process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
 
     # Filter validated fusions for recurrent ones
     head -1 ${validatedFusions} > ${sampleName}-validated-recurrent-only.tsv
-    
+    # Filter validated fusions for recurrent ones
     if [ \$sample_recurrent_count -gt 0 ]; then
         while IFS= read -r recurrent_gene_pair; do
-            tail -n +2 ${validatedFusions} | awk -F'\\t' -v gene_pair="\$recurrent_gene_pair" '\$2 == gene_pair' >> ${sampleName}-validated-recurrent-only.tsv
+            if [ -n "\$recurrent_gene_pair" ]; then  # Check if gene pair is not empty
+                tail -n +2 ${validatedFusions} | awk -F'\\t' -v gene_pair="\$recurrent_gene_pair" '\$2 == gene_pair' >> ${sampleName}-validated-recurrent-only.tsv
+            else
+                echo "WARNING: Empty recurrent gene pair found in sample_recurrent_gene_pairs.txt" >> ${sampleName}_recurrent_filter_report.txt
+            fi
         done < sample_recurrent_gene_pairs.txt
     fi
 
@@ -81,6 +85,9 @@ process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
                         cp -r "\$agf_dir" validated-recurrent-agfusion-outdir/
                         echo "COPIED: \$dir_basename" >> ${sampleName}_recurrent_filter_report.txt
                     fi
+                else
+                    echo "WARNING: AGFusion directory contains no subdirectories..."
+                    continue
                 fi
             done
         done < sample_recurrent_gene_pairs.txt
@@ -91,17 +98,24 @@ process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
     echo "SUMMARY:" >> ${sampleName}_recurrent_filter_report.txt
     echo "Input validated fusions: \$validated_count" >> ${sampleName}_recurrent_filter_report.txt
     echo "Final recurrent fusions: \$final_count" >> ${sampleName}_recurrent_filter_report.txt
-    echo "Reduction: \$(( (validated_count - final_count) * 100 / validated_count ))% filtered out" >> ${sampleName}_recurrent_filter_report.txt
+    if [ \$validated_count -gt 0 ]; then
+        reduction_pct=\$(( (validated_count - final_count) * 100 / validated_count ))
+        echo "Reduction: \${reduction_pct}% filtered out" >> ${sampleName}_recurrent_filter_report.txt
+    else
+        echo "Reduction: N/A (no input fusions)" >> ${sampleName}_recurrent_filter_report.txt
+    fi
 
     # Cleanup
     rm -f sample_recurrent_gene_pairs.txt
+
     """
     
     stub:
     """
     mkdir -p validated-recurrent-agfusion-outdir
-    touch ${sampleName}-validated-recurrent-only.tsv
-    touch ${sampleName}_recurrent_filter_report.txt
+    echo -e "sample_name\\tgene_pair\\tfusion_name\\tgene1\\tgene2" > ${sampleName}-validated-recurrent-only.tsv
     echo "FILTER_VALIDATED_FOR_RECURRENT_PYENV: Stub run finished!" > ${sampleName}_recurrent_filter_report.txt
+    echo "STATUS: Stub run" >> ${sampleName}_recurrent_filter_report.txt
     """
+    
 }
