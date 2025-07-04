@@ -1,7 +1,7 @@
 // Process to collect all TSV files and concatenate them
 process CONCAT_NORMFILTERED_FUSION_FILES_PYENV {
     
-    publishDir "${params.outputDir}/Cohort-Cumulative-Fusions", mode: 'copy',
+    publishDir "${params.outputDir}/Cohortwide-Total-Fusions", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__pyenv}"
@@ -11,17 +11,17 @@ process CONCAT_NORMFILTERED_FUSION_FILES_PYENV {
     path validatedFusionsTsvs
     
     output:
-    path "cohortwide_concat_fusions.tsv", emit: cohortwideFusionsFile
+    path "Cohortwide_total_fusions.tsv", emit: cohortwideFusionsFile
     
     script:
     """
     python3 /home/app/scripts/concatenate-cohortwide-fusions--nf.py \\
         --input_files ${validatedFusionsTsvs} \\
-        --output cohortwide_concat_fusions.tsv
+        --output Cohortwide_total_fusions.tsv
     """
     stub:
     """
-    touch cohortwide_concat_fusions.tsv
+    touch Cohortwide_total_fusions.tsv
     echo "[CONCAT_NORMFILTERED_FUSION_FILES_PYENV]: Stub run finished!"
     """
 }
@@ -29,7 +29,7 @@ process CONCAT_NORMFILTERED_FUSION_FILES_PYENV {
 // Process to filter for recurrent fusions
 process GET_COHORT_RECURRENT_FUSIONS_PYENV {
     
-    publishDir "${params.outputDir}/Cohort-Recurrent-Fusions", mode: 'copy',
+    publishDir "${params.outputDir}/Cohortwide-Recurrent-Fusions", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
 
     container "${params.container__pyenv}"
@@ -39,21 +39,21 @@ process GET_COHORT_RECURRENT_FUSIONS_PYENV {
     path cohortwideFusionsFile
     
     output:
-    tuple val("Cohort-Recurrent-Fusions"), path("cohortwide_recurrent_fusions.tsv"), emit: cohortRecurrentFusionTsv
-    tuple val("Cohort-Recurrent-Fusions"), path("fusion_frequency_report.txt"), emit: fusionFrequencyReport
+    tuple val("Cohortwide-Recurrent-Fusions"), path("Cohortwide_recurrent_fusions.tsv"), emit: cohortRecurrentFusionTsv
+    tuple val("Cohort-Recurrent-Fusions"), path("Recurrent_fusion_frequency_report.txt"), emit: fusionFrequencyReport
     
     script:
     """
     python3 /home/app/scripts/get-cohortwide-recurrent-fusions--nf.py \\
         --input ${cohortwideFusionsFile} \\
         --threshold ${params.recurrenceThreshold} \\
-        --output cohortwide_recurrent_fusions.tsv \\
-        --report fusion_frequency_report.txt
+        --output Cohortwide_recurrent_fusions.tsv \\
+        --report Recurrent_fusion_frequency_report.txt
     """
     stub:
     """
-    touch cohortwide_recurrent_fusions.tsv
-    touch fusion_frequency_report.txt
+    touch Cohortwide_recurrent_fusions.tsv
+    touch Recurrent_fusion_frequency_report.txt
     echo "[GET_COHORT_RECURRENT_FUSIONS_PYENV]: Stub run finished!"
     """
 

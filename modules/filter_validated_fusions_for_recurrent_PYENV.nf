@@ -1,7 +1,7 @@
 // Alternative approach: Create a separate recurrent-aware filtering step
 process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
     
-    publishDir "${params.outputDir}/${sampleName}/POST-IN-SILICO-VALIDATION-TSV-out", mode: 'copy',
+    publishDir "${params.outputDir}/${sampleName}/RECURRENT-VALIDATED-FUSIONS-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__pyenv}"
@@ -13,7 +13,7 @@ process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
     tuple val(cohortLabel), path(recurrentFusionsTsv)
 
     output:
-    tuple val(sampleName), path("${sampleName}-validated-recurrent-only.tsv"), emit: validatedRecurrentFusions
+    tuple val(sampleName), path("${sampleName}-validated-recurrent-fusions-only.tsv"), emit: validatedRecurrentFusions
     tuple val(sampleName), path("validated-recurrent-agfusion-outdir"), emit: validatedRecurrentAgfusionDir
     path("${sampleName}_recurrent_filter_report.txt"), emit: recurrentFilterReport
 
@@ -34,7 +34,7 @@ process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
     if [ \$(tail -n +2 ${validatedFusions} | wc -l) -eq 0 ]; then
         echo "No validated fusions for this sample."
         echo "STATUS: No validated fusions" >> ${sampleName}_recurrent_filter_report.txt
-        head -1 ${validatedFusions} > ${sampleName}-validated-recurrent-only.tsv
+        head -1 ${validatedFusions} > ${sampleName}-validated-recurrent-fusions-only.tsv
         mkdir -p validated-recurrent-agfusion-outdir
         exit 0
     fi
@@ -42,36 +42,36 @@ process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
     if [ \$(tail -n +2 ${recurrentFusionsTsv} | wc -l) -eq 0 ]; then
         echo "No recurrent fusions in cohort."
         echo "STATUS: No recurrent fusions in cohort" >> ${sampleName}_recurrent_filter_report.txt
-        head -1 ${validatedFusions} > ${sampleName}-validated-recurrent-only.tsv
+        head -1 ${validatedFusions} > ${sampleName}-validated-recurrent-fusions-only.tsv
         mkdir -p validated-recurrent-agfusion-outdir
         exit 0
     fi
 
+    sample_recurrent_count=\$(wc -l < ${sampleName}_recurrent_gene_pairs.txt)
+    echo "Recurrent fusions for this sample: \$sample_recurrent_count" >> ${sampleName}_recurrent_filter_report.txt
+
     # Get validated fusion count
     validated_count=\$(tail -n +2 ${validatedFusions} | wc -l)
-    echo "Input validated fusions: \$validated_count" >> ${sampleName}_recurrent_filter_report.txt
+    echo "FusionInspector-validated fusions for this sample: \$validated_count" >> ${sampleName}_recurrent_filter_report.txt
 
     # Extract recurrent gene pairs for this sample
-    tail -n +2 ${recurrentFusionsTsv} | awk -F'\\t' -v sample="${sampleName}" '\$8 == sample {print \$2}' | sort -u > sample_recurrent_gene_pairs.txt
+    tail -n +2 ${recurrentFusionsTsv} | awk -F'\\t' -v sample="${sampleName}" '\$8 == sample {print \$2}' | sort -u > ${sampleName}_recurrent_gene_pairs.txt
     
-    sample_recurrent_count=\$(wc -l < sample_recurrent_gene_pairs.txt)
-    echo "Recurrent gene pairs for this sample: \$sample_recurrent_count" >> ${sampleName}_recurrent_filter_report.txt
-
     # Filter validated fusions for recurrent ones
-    head -1 ${validatedFusions} > ${sampleName}-validated-recurrent-only.tsv
+    head -1 ${validatedFusions} > ${sampleName}-validated-recurrent-fusions-only.tsv
     # Filter validated fusions for recurrent ones
     if [ \$sample_recurrent_count -gt 0 ]; then
         while IFS= read -r recurrent_gene_pair; do
             if [ -n "\$recurrent_gene_pair" ]; then  # Check if gene pair is not empty
-                tail -n +2 ${validatedFusions} | awk -F'\\t' -v gene_pair="\$recurrent_gene_pair" '\$2 == gene_pair' >> ${sampleName}-validated-recurrent-only.tsv
+                tail -n +2 ${validatedFusions} | awk -F'\\t' -v gene_pair="\$recurrent_gene_pair" '\$2 == gene_pair' >> ${sampleName}-validated-recurrent-fusions-only.tsv
             else
                 echo "WARNING: Empty recurrent gene pair found in sample_recurrent_gene_pairs.txt" >> ${sampleName}_recurrent_filter_report.txt
             fi
-        done < sample_recurrent_gene_pairs.txt
+        done < ${sampleName}_recurrent_gene_pairs.txt
     fi
 
-    final_count=\$(tail -n +2 ${sampleName}-validated-recurrent-only.tsv | wc -l)
-    echo "Final recurrent validated fusions: \$final_count" >> ${sampleName}_recurrent_filter_report.txt
+    final_count=\$(tail -n +2 ${sampleName}-validated-recurrent-fusions-only.tsv | wc -l)
+    echo "Final recurrent FusionInspector-validated fusions for this sample: \$final_count" >> ${sampleName}_recurrent_filter_report.txt
 
     # Filter AGFusion directories
     mkdir -p validated-recurrent-agfusion-outdir
@@ -90,14 +90,12 @@ process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
                     continue
                 fi
             done
-        done < sample_recurrent_gene_pairs.txt
+        done < ${sampleName}_recurrent_gene_pairs.txt
     fi
 
     # Summary
     echo "" >> ${sampleName}_recurrent_filter_report.txt
     echo "SUMMARY:" >> ${sampleName}_recurrent_filter_report.txt
-    echo "Input validated fusions: \$validated_count" >> ${sampleName}_recurrent_filter_report.txt
-    echo "Final recurrent fusions: \$final_count" >> ${sampleName}_recurrent_filter_report.txt
     if [ \$validated_count -gt 0 ]; then
         reduction_pct=\$(( (validated_count - final_count) * 100 / validated_count ))
         echo "Reduction: \${reduction_pct}% filtered out" >> ${sampleName}_recurrent_filter_report.txt
@@ -105,15 +103,12 @@ process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
         echo "Reduction: N/A (no input fusions)" >> ${sampleName}_recurrent_filter_report.txt
     fi
 
-    # Cleanup
-    rm -f sample_recurrent_gene_pairs.txt
-
     """
     
     stub:
     """
     mkdir -p validated-recurrent-agfusion-outdir
-    echo -e "sample_name\\tgene_pair\\tfusion_name\\tgene1\\tgene2" > ${sampleName}-validated-recurrent-only.tsv
+    echo -e "sample_name\\tgene_pair\\tfusion_name\\tgene1\\tgene2" > ${sampleName}-validated-recurrent-fusions-only.tsv
     echo "FILTER_VALIDATED_FOR_RECURRENT_PYENV: Stub run finished!" > ${sampleName}_recurrent_filter_report.txt
     echo "STATUS: Stub run" >> ${sampleName}_recurrent_filter_report.txt
     """
