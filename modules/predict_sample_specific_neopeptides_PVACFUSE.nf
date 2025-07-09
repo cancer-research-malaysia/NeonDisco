@@ -1,6 +1,5 @@
 // 
 process PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE {
-    maxForks 1
     
     publishDir "${params.outputDir}/${sampleName}/PVACFUSE-SAMPLE-SPECIFIC-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
@@ -28,8 +27,8 @@ process PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE {
 
     echo "Running pVacfuse to predict neoepitopes from validated AGFusion results..."
     echo "Path to cohort-wide HLA allotype TSV: ${cohortWideHLAList}"
-    echo "Prediction parameter: Sample-specific: ${params.sampleSpecificNeoPeptidePrediction}"
-    echo "Number of cores to use: ${params.numCores}"
+    echo "Prediction parameter: Sample-specific: ${params.sampleSpecificNeoPred}"
+    echo "Number of cores to use: ${params.numCores * 3}"
 
 
     # extract sample-specific HLA types from the cohort-wide HLA file
@@ -45,7 +44,7 @@ process PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE {
 
     # Run pVacFuse with sample-specific HLA types
     echo "Running pVacfuse for sample-specific prediction..."
-    if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${SSHLA} BigMHC_EL BigMHC_IM DeepImmuno MHCflurry MHCflurryEL NetMHCpanEL NetMHCcons SMMPMBEC "${sampleName}_sample-specific-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /home/app/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz --netmhc-stab -a sample_name; then
+    if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${SSHLA} BigMHC_EL BigMHC_IM DeepImmuno MHCflurry MHCflurryEL NetMHCpanEL NetMHCcons SMMPMBEC "${sampleName}_sample-specific-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores * 3} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /home/app/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz --netmhc-stab -a sample_name; then
         echo "pVacFuse run finished!"
     else
         echo "Something went wrong."

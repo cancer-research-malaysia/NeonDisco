@@ -59,15 +59,22 @@ Required Arguments:
     --inputDir           Path to local directory containing BAM/FASTQ input files [REQUIRED if manifestPath not provided]
     --inputSource        Input source type: <local> for local files, <s3> for S3 files [REQUIRED]
                           – if inputSource is set to <s3>, --inputDir cannot be used and --manifestPath must be provided
-    
 
 Optional Arguments:
 ---------------
-    --outputDir          Directory path for output; can be s3 URIs [DEFAULT: ./outputs]
-    --trimReads          Set to <false> to skip read trimming on FASTQ input [DEFAULT: true]
-    --hlaTypingOnly      Set to <true> to exclusively run HLA typing workflow [DEFAULT: false]
-    --deleteIntMedFiles  Set to <true> to delete intermediate files right after they are not needed. [DEFAULT: false]
-    --help               Print this help message and exit
+    --outputDir                 Directory path for output; can be s3 URIs [DEFAULT: ./outputs]
+    --trimReads                 Set to <false> to skip read trimming on FASTQ input [DEFAULT: true]
+    --hlaTypingOnly             Set to <true> to exclusively run HLA typing workflow [DEFAULT: false]
+    --deleteIntMedFiles         Set to <true> to delete intermediate files right after they are not needed. [DEFAULT: false]
+    --deleteStagedFiles         Set to <true> to delete staged files after processing. [DEFAULT: true if inputSource is 's3']
+    --sampleSpecificNeoPred     Set to <true> to run sample-specific neopeptide prediction [DEFAULT: true]
+    --cohortWideNeoPred         Set to <true> to run cohort-wide neopeptide prediction [DEFAULT: true]
+    --recurrentFusionsOnly      Analyze recurrent fusions only
+                                    – true: [DEFAULT] Only process population-specific recurrent fusions (skip if none found)
+                                    – false: Process all validated fusions regardless of recurrence in the cohort
+    --recurrenceThreshold       Threshold for recurrent fusions; only applies if recurrentFusionsOnly is set to true
+                                [DEFAULT: 0.005] (0.5% recurrence)
+    --help                      Print this help message and exit
     """.stripIndent()
 }
 
@@ -236,11 +243,17 @@ workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
         uniqueFiltFusionPairsForFusInsCh
         trimmedCh
     main:
-        VALIDATE_IN_SILICO_FUSIONINSPECTOR(
-            TRANSLATE_IN_SILICO_AGFUSION(normFilteredFusionsCh).filtered_agfusion_outdir, 
-            uniqueFiltFusionPairsForFusInsCh, 
-            trimmedCh
-        )
+        agfusionOutput = TRANSLATE_IN_SILICO_AGFUSION(normFilteredFusionsCh)
+
+        // Join channels and fix the tuple structure
+        joinedInputs = uniqueFiltFusionPairsForFusInsCh
+            .join(trimmedCh, by: 0)
+            .join(agfusionOutput.filtered_agfusion_outdir, by: 0)
+            .map { sampleName, uniqueFiltPairs, trimmedReads, agfusionDir -> 
+                tuple(sampleName, agfusionDir, uniqueFiltPairs, trimmedReads)
+            }
+        
+        VALIDATE_IN_SILICO_FUSIONINSPECTOR(joinedInputs)
 
     emit:
         fusInspectorTsv = VALIDATE_IN_SILICO_FUSIONINSPECTOR.out.fusInspectorTsv
@@ -308,34 +321,61 @@ workflow NEOANTIGEN_PREDICTION_WF {
         sampleSpecificHLAsTsv
     
     main:
+
+        // join the fusInspectorTsv, filteredAgfusionOutdir, and normFilteredFusionsCh channel by sampleName
+        joinedInputs = fusInspectorTsv
+            .join(filteredAgfusionOutdir, by: 0)
+            .join(normFilteredFusionsCh, by: 0)
+            .map { sampleName, fusInspectorFile, agfusionDir, filteredFusions -> 
+                tuple(sampleName, fusInspectorFile, agfusionDir, filteredFusions) 
+            }
+        
         // Preprocess agfusion output for neoepitope prediction
-        KEEP_VALIDATED_FUSIONS_PYENV(fusInspectorTsv, filteredAgfusionOutdir, normFilteredFusionsCh)
+        KEEP_VALIDATED_FUSIONS_PYENV(joinedInputs)
+
         validatedAgfusionDir = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir
         validatedFusions = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions
 
-        // ALWAYS run the recurrent fusion filtering - let the process handle empty inputs
+        // join the validatedFusions and validatedAgfusionDir channels by sampleName
+        joinedValidatedFusionsDat = validatedFusions
+            .join(validatedAgfusionDir, by: 0)
+            .map { sampleName, validatedFusionsFile, validatedDir -> 
+                tuple(sampleName, validatedFusionsFile, validatedDir) 
+            }
+
+        // Filter validated fusions for recurrent ones
         FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV(
-            validatedFusions,
-            validatedAgfusionDir, 
+            joinedValidatedFusionsDat,
             cohortRecurrentFusionsCh
         )
         
-        // Create channels for both scenarios
-        fullValidatedDir = validatedAgfusionDir
+        // Get the full validated fusions directory
         recurrentValidatedDir = FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV.out.validatedRecurrentAgfusionDir
         
-        // Branch based on whether recurrent fusions exist
-        // Use the recurrent channel if it has content, otherwise use the full validated channel
-        finalAgfusionDir = recurrentValidatedDir
-            .ifEmpty(fullValidatedDir)
+        // Logic based on recurrentFusionsOnly parameter
+        def finalAgfusionDir = Channel.empty()
+
+        if (params.recurrentFusionsOnly) {
+            // Default mode: Only process recurrent fusions
+            finalAgfusionDir = recurrentValidatedDir
+                .ifEmpty { 
+                    log.warn "No recurrent fusions found in this population cohort. Neoantigen prediction will be skipped."
+                    log.info "Consider using <<--recurrentFusionsOnly false>> to process all validated fusions instead."
+                    Channel.empty()
+                }   
+        } else {
+            // Alternative mode: Process all validated fusions
+            finalAgfusionDir = validatedAgfusionDir
+            log.info "Processing all validated fusions (recurrentFusionsOnly=false)..."
+        }
         
         // Run sample-specific if enabled
-        if (params.sampleSpecificNeoPeptidePrediction) {
+        if (params.sampleSpecificNeoPred) {
             SAMPLE_SPECIFIC_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv)
         }
 
         // Run cohort-wide if enabled
-        if (params.cohortWideNeoPeptidePrediction) {
+        if (params.cohortWideNeoPred) {
             COHORTWIDE_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv)
         }
 }
@@ -446,16 +486,24 @@ workflow {
     log.info "Output directory: ${params.outputDir}"
     log.info "Read trimming: ${params.trimReads}"
     log.info "HLA typing only mode: ${params.hlaTypingOnly}"
-    //log.info "Recurrent fusion discovery mode: ${params.recurrentFusionMode}"
+    // Log the fusion filtering mode
+    def mode = params.recurrentFusionsOnly ? "recurrent-only" : "all-validated"
+    log.info "Neoantigen prediction mode: ${mode} fusions"
+    
+    if (params.recurrentFusionsOnly) {
+        log.info "Recurrent fusion threshold: ${params.recurrenceThreshold}"
+    } else {
+        log.info "Recurrent fusion-only mode is disabled; all validated fusions will be processed."
+    }
+    log.info "Sample-specific neopeptide prediction: ${params.sampleSpecificNeoPred}"
+    log.info "Cohort-wide neopeptide prediction: ${params.cohortWideNeoPred}"
     
     // Process tumor samples only (normal channel remains unused but available)
     def qcProcInputCh = params.trimReads ? TRIMMING_WF(tumorCh).trimmedCh : tumorCh
 
-
     ///////// Two-pass STAR alignment workflow ////////////
     def alignedBamsCh = TWOPASS_ALIGNMENT_WF(qcProcInputCh)
     ////////////////////////////////////////////////////////
-
 
     // Execute workflow branching based on hlaTypingOnly parameter
     if (params.hlaTypingOnly) {

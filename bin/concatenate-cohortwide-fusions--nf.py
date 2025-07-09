@@ -102,10 +102,32 @@ def concatenate_cohortwide_fusions(input_files, output_file):
         cohort_df = pl.concat(dfs, how='vertical')
         
         # Sort by sampleNum_Padded if available, otherwise by sampleID
+
+        # Define the boolean columns to sort descending
+        bool_cols_desc = ['foundInCCLE&InternalCLs', 'foundInGaoTCGARecurrent', 'foundInMitelmanCancerFusions', 'foundInKlijnCancerCellLineFusions']
+
+        # Sort by sampleNum_Padded if available, otherwise by sampleID
+        # Sort by sampleNum_Padded if available, otherwise by sampleID
         if 'sampleNum_Padded' in cohort_df.columns:
-            cohort_df = cohort_df.sort(['sampleNum_Padded', 'fusionGenePair'])
+            cohort_df = cohort_df.sort([
+                'sampleNum_Padded', 
+                'toolOverlapCount', 
+                'foundInCCLE&InternalCLs', 
+                'foundInGaoTCGARecurrent', 
+                'foundInMitelmanCancerFusions', 
+                'foundInKlijnCancerCellLineFusions', 
+                'fusionTranscriptID'
+            ], descending=[False, True, True, True, True, True, False])
         elif 'sampleID' in cohort_df.columns:
-            cohort_df = cohort_df.sort(['sampleID', 'fusionGenePair'])
+            cohort_df = cohort_df.sort([
+                'sampleID', 
+                'toolOverlapCount', 
+                'foundInCCLE&InternalCLs', 
+                'foundInGaoTCGARecurrent', 
+                'foundInMitelmanCancerFusions', 
+                'foundInKlijnCancerCellLineFusions', 
+                'fusionTranscriptID'
+            ], descending=[False, True, True, True, True, True, False])
         
         # Write the concatenated file
         cohort_df.write_csv(output_file, separator='\t')

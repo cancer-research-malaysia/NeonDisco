@@ -1,8 +1,8 @@
 // 
 process TRANSLATE_IN_SILICO_AGFUSION {
     
-    publishDir "${params.outputDir}/${sampleName}/AGFUSION-out", mode: 'copy',
-        saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
+    //publishDir "${params.outputDir}/${sampleName}/AGFUSION-out", mode: 'copy',
+    //    saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__agfusion}"
     containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name TRANSLATE-IN-SILICO -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
@@ -11,7 +11,7 @@ process TRANSLATE_IN_SILICO_AGFUSION {
         tuple val(sampleName), path(filteredFusions)
 
     output:
-        path("filtered-agfusion-dirs/"), emit: filtered_agfusion_outdir
+        tuple val(sampleName), path("filtered-agfusion-dirs/"), emit: filtered_agfusion_outdir
 
     script:
     """

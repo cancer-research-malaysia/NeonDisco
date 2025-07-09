@@ -8,9 +8,7 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
     containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name KEEP-VALIDATED-FUSIONS -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
     
     input:
-        tuple val(sampleName), path(fusInspectorTsv)
-        path(filtered_agfusion_outdir)
-        tuple val(dummyVar), path(filteredFusions)
+        tuple val(sampleName), path(fusInspectorTsv), path(filtered_agfusion_outdir), path(filteredFusions)
 
     output:
         tuple val(sampleName), path("${sampleName}-collated-FT-normFiltered-FI-validated.tsv"), emit: validatedFusions

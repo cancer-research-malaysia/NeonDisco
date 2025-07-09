@@ -1,6 +1,6 @@
 // 
 process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
-    
+    memory '100 GB'
     afterScript params.deleteIntMedFiles ? "find ./ -name \"${sampleName}*_trimmed.R?.f*q.*\" -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping intermediate file cleanup...'"
     
     publishDir "${params.outputDir}/${sampleName}/IN-SILICO-VALIDATION-FUSINS-out", mode: 'copy',
@@ -10,11 +10,8 @@ process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
     containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FUSION_INSPECTOR_VALIDATION -v \$(pwd):/home/app/nf_work -v ${params.ctatDB}:/home/refs/ctat-db -v ${params.binDir}:/home/app/scripts"
     
     input:
-        path(filtered_agfusion_outdir)
-        tuple val(sampleName), path(uniqueFiltFusionPairsForFusIns)
-        tuple val(dummyVar), path(trimmedReads)
+        tuple val(sampleName), path(filtered_agfusion_outdir), path(uniqueFiltFusionPairsForFusIns), path(trimmedReads)
         
-
     output:
         tuple val(sampleName), path("FI/${sampleName}.FusionInspector.fusions.abridged.tsv"), emit: fusInspectorTsv
 
@@ -46,6 +43,8 @@ process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
     """
     stub:
     """
-    echo "stub run finished!" > ${sampleName}-genePairs-for-FusIns-filtered.txt
+    mkdir -p FI
+    touch "FI/${sampleName}.FusionInspector.fusions.abridged.tsv"
+    echo "stub run finished!" > "FI/${sampleName}.FusionInspector.fusions.abridged.tsv"
     """
 }

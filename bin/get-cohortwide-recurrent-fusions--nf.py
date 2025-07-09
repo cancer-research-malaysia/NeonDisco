@@ -108,14 +108,15 @@ def filter_recurrent_fusions(input_file, threshold, output_file, report_file):
             if len(recurrent_fusions) > 0:
                 f.write(f"\nRecurrent Breakpoints (>= {threshold_percent:.2f}%):\n")
                 f.write("-" * 100 + "\n")
-                f.write("BreakpointID\tFusionGenePair\tSample_Count\tFrequency_%\tTotal_Occurrences\tSamples\n")
-                
+                # Write header with fixed-width columns
+                f.write(f"{'BreakpointID':<40} {'FusionGenePair':<40} {'SampleCount':<6} {'Frequency%':<8} {'TotalOccurrences':<6} {'Samples'}\n")
+                f.write("-" * 130 + "\n")
                 for row in recurrent_fusions.iter_rows():
                     breakpoint_id, sample_count, samples, gene_pair, total_occ, freq_pct = row
                     sample_list = ",".join(samples[:5])  # Show first 5 samples
                     if len(samples) > 5:
                         sample_list += f"... (+{len(samples)-5} more)"
-                    f.write(f"{breakpoint_id}\t{gene_pair}\t{sample_count}\t{freq_pct:.2f}\t{total_occ}\t{sample_list}\n")
+                    f.write(f"{breakpoint_id:<35} {gene_pair:<40} {sample_count:<6} {freq_pct:<8.2f} {total_occ:<6} {sample_list}\n")
         
         print(f"Frequency report written to: {report_file}")
         

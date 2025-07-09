@@ -1,14 +1,14 @@
 FROM mambaorg/micromamba:git-911a014-bookworm-slim
 USER root
 LABEL maintainer="Suffian Azizan"
-LABEL version="1.0"
-LABEL description="container image of Spladder program v3.0.2"
+LABEL version="2.0"
+LABEL description="container image of Spladder program v3.1.0"
 
 # change to root user
 USER root
 # update Debian OS packages and install additional Linux system utilities, then finally remove cached package lists
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-git tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed \
+git tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed less nano \
 && rm -rf /var/lib/apt/lists/*
 
 # change user
@@ -28,7 +28,7 @@ micromamba clean --all --yes
 ARG MAMBA_DOCKERFILE_ACTIVATE=1
 
 # clone and install spladder from source
-RUN git clone https://github.com/ratschlab/spladder.git && cd spladder/ && python setup.py install
+RUN pip install spladder==3.1.0
 
 # add conda bins to PATH
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
