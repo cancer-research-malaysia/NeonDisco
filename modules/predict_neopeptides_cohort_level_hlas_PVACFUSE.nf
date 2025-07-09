@@ -1,18 +1,18 @@
 // 
-process PREDICT_COHORTWIDE_NEOPEPTIDES_PVACFUSE {
+process PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE {
     
-    publishDir "${params.outputDir}/${sampleName}/PVACFUSE-COHORTWIDE-out", mode: 'copy',
+    publishDir "${params.outputDir}/${sampleName}/PVACFUSE-COHORT-LEVEL-HLAS-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__pvactools}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name PREDICT_NEOPEPTIDES_COHORTWIDE -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts -v ${params.metaDataDir}:/home/app/metadata"
+    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name PREDICT_NEOPEPTIDES_COHORT_LEVEL -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts -v ${params.metaDataDir}:/home/app/metadata"
     
     input:
         tuple val(sampleName), path(validatedAgfusionDir)
         path(cohortFivePercentFreqHLAs)
 
     output:
-        path("${sampleName}_cohortwide-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"), emit: predictedCohortNeopeptides, optional: true
+        path("${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"), emit: predictedCohortNeopeptides, optional: true
 
     script:
     """
@@ -27,18 +27,18 @@ process PREDICT_COHORTWIDE_NEOPEPTIDES_PVACFUSE {
 
     echo "Running PVACFUSE to predict neoepitopes from validated AGFusion results..."
     echo "Path to cohort-wide 5% frequency HLAs: ${cohortFivePercentFreqHLAs}"
-    echo "Prediction parameters: Cohort-wide: ${params.cohortWideNeoPred}"
+    echo "Prediction mode: Cohort-level --> ${params.cohortLevelHLANeoPred}"
     echo "Number of cores to use: ${params.numCores * 3}"
 
 
-    # Run pVacFuse with sample-specific HLA types
+    # Run pVacFuse with cohort-level HLA types
     echo "Extracting HLA types from cohort-wide 5% frequency HLAs file..."
     COHORT_HLAS=\$(awk '{print \$1}' ${cohortFivePercentFreqHLAs})
-    echo "Cohort-wide HLA types: testcommand --cohort \${COHORT_HLAS}"
+    echo "Cohort-wide HLA types: \${COHORT_HLAS}"
 
 
     echo "Running pVacfuse for cohort-wide HLA binding and immunogenicity prediction..."
-    if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${COHORT_HLAS} BigMHC_EL BigMHC_IM DeepImmuno MHCflurry MHCflurryEL NetMHCpanEL NetMHCcons SMMPMBEC "${sampleName}_cohortwide-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores * 3} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /home/app/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz --netmhc-stab -a sample_name; then
+    if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${COHORT_HLAS} BigMHC_EL BigMHC_IM DeepImmuno MHCflurry MHCflurryEL NetMHCpanEL NetMHCcons SMMPMBEC "${sampleName}_cohort-level-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores * 3} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /home/app/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz --netmhc-stab -a sample_name; then
         echo "pVacFuse run finished!"
     else
         echo "Something went wrong."
@@ -49,7 +49,7 @@ process PREDICT_COHORTWIDE_NEOPEPTIDES_PVACFUSE {
 
     stub:
     """
-    touch "${sampleName}_cohortwide-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"
+    touch "${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"
     echo "Stub run finished!"
     """
 }

@@ -32,8 +32,8 @@ include { VALIDATE_IN_SILICO_FUSIONINSPECTOR } from './modules/validate_in_silic
 ////// FUSION NEOEPITOPE PREDICTION MODULES //////////
 include { KEEP_VALIDATED_FUSIONS_PYENV } from './modules/keep_validated_fusions_PYENV.nf'
 include { FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV } from './modules/filter_validated_fusions_for_recurrent_PYENV.nf'
-include { PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE } from './modules/predict_sample_specific_neopeptides_PVACFUSE.nf'
-include { PREDICT_COHORTWIDE_NEOPEPTIDES_PVACFUSE } from './modules/predict_cohortwide_neopeptides_PVACFUSE.nf'
+include { PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE } from './modules/predict_neopeptides_sample_level_hlas_PVACFUSE.nf'
+include { PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE } from './modules/predict_neopeptides_cohort_level_hlas_PVACFUSE.nf'
 
 ////// HLA TYPING MODULES //////////
 include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_ARCASHLA.nf'
@@ -63,15 +63,15 @@ Required Arguments:
 Optional Arguments:
 ---------------
     --outputDir                 Directory path for output; can be s3 URIs [DEFAULT: ./outputs]
-    --trimReads                 Set to <false> to skip read trimming on FASTQ input [DEFAULT: true]
-    --hlaTypingOnly             Set to <true> to exclusively run HLA typing workflow [DEFAULT: false]
-    --deleteIntMedFiles         Set to <true> to delete intermediate files right after they are not needed. [DEFAULT: false]
-    --deleteStagedFiles         Set to <true> to delete staged files after processing. [DEFAULT: true if inputSource is 's3']
-    --sampleSpecificNeoPred     Set to <true> to run sample-specific neopeptide prediction [DEFAULT: true]
-    --cohortWideNeoPred         Set to <true> to run cohort-wide neopeptide prediction [DEFAULT: true]
+    --trimReads                 Skip read trimming on FASTQ input [DEFAULT: true]
+    --hlaTypingOnly             Exclusively run HLA typing workflow [DEFAULT: false]
+    --deleteIntMedFiles         Delete intermediate files right after they are not needed [DEFAULT: false]
+    --deleteStagedFiles         Delete staged files after processing [DEFAULT: true if inputSource is 's3']
+    --sampleLevelHLANeoPred     Run neopeptide prediction using sample-level HLAs [DEFAULT: true]
+    --cohortLevelHLANeoPred     Run neopeptide prediction using cohort-level HLAs [DEFAULT: true]
     --recurrentFusionsOnly      Analyze recurrent fusions only
-                                    – true: [DEFAULT] Only process population-specific recurrent fusions (skip if none found)
-                                    – false: Process all validated fusions regardless of recurrence in the cohort
+                                    – true: [DEFAULT] Only process cohort-wide recurrent fusions (skip if none found)
+                                    – false: Process all validated fusions regardless of recurrence
     --recurrenceThreshold       Threshold for recurrent fusions; only applies if recurrentFusionsOnly is set to true
                                 [DEFAULT: 0.005] (0.5% recurrence)
     --help                      Print this help message and exit
@@ -261,19 +261,19 @@ workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
         
 }
 
-workflow SAMPLE_SPECIFIC_NEOANTIGENS {
+workflow SAMPLE_LEVEL_HLA_NEOANTIGENS {
     take:
         agfusionFinalDir
         sampleSpecificHLAsTsv
     
     main:
-        PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE(
+        PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE(
             agfusionFinalDir, 
             sampleSpecificHLAsTsv
         )
 }
 
-workflow COHORTWIDE_NEOANTIGENS {
+workflow COHORT_LEVEL_HLA_NEOANTIGENS {
     take:
         agfusionFinalDir
         sampleSpecificHLAsTsv
@@ -283,12 +283,12 @@ workflow COHORTWIDE_NEOANTIGENS {
         validHLAForCohort = sampleSpecificHLAsTsv
             .filter { file ->
                 def sampleCount = file.countLines() - 1
-                log.info "Found ${sampleCount} samples in HLA file"
+                log.info "Found ${sampleCount} samples in HLA file..."
                 if (sampleCount >= 5) {
-                    log.info "Cohort-wide neopeptide prediction will be executed with ${sampleCount} input samples."
+                    log.info "Neopeptide prediction using cohort-level HLA types will be executed with ${sampleCount} input samples."
                     return true
                 } else {
-                    log.warn "Cohort-wide neopeptide prediction skipped: only ${sampleCount} input samples (minimum 5 required)."
+                    log.warn "Neopeptide prediction using cohort-level HLA types skipped: only ${sampleCount} input samples available (minimum 5 required)..."
                     return false
                 }
             }
@@ -300,7 +300,7 @@ workflow COHORTWIDE_NEOANTIGENS {
         cohortInputs = agfusionFinalDir
                         .combine(FILTER_HLA_ALLOTYPES_FREQ_PYENV.out.hlaAllotypesFreqFilteredString)
 
-        PREDICT_COHORTWIDE_NEOPEPTIDES_PVACFUSE(
+        PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE(
             cohortInputs.map { sampleName, agfusionDir, _cohortHLA -> 
                 tuple(sampleName, agfusionDir) 
             },
@@ -359,24 +359,24 @@ workflow NEOANTIGEN_PREDICTION_WF {
             // Default mode: Only process recurrent fusions
             finalAgfusionDir = recurrentValidatedDir
                 .ifEmpty { 
-                    log.warn "No recurrent fusions found in this population cohort. Neoantigen prediction will be skipped."
-                    log.info "Consider using <<--recurrentFusionsOnly false>> to process all validated fusions instead."
+                    log.warn "No recurrent fusions found in this input cohort. Neoantigen prediction will be skipped."
+                    log.info "Consider using [--recurrentFusionsOnly false] flag to process all validated fusions instead."
                     Channel.empty()
                 }   
         } else {
             // Alternative mode: Process all validated fusions
             finalAgfusionDir = validatedAgfusionDir
-            log.info "Processing all validated fusions (recurrentFusionsOnly=false)..."
+            log.info "Processing all validated fusions [--recurrentFusionsOnly false]..."
         }
         
         // Run sample-specific if enabled
-        if (params.sampleSpecificNeoPred) {
-            SAMPLE_SPECIFIC_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv)
+        if (params.sampleLevelHLANeoPred) {
+            SAMPLE_LEVEL_HLA_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv)
         }
 
         // Run cohort-wide if enabled
-        if (params.cohortWideNeoPred) {
-            COHORTWIDE_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv)
+        if (params.cohortLevelHLANeoPred) {
+            COHORT_LEVEL_HLA_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv)
         }
 }
 
@@ -402,10 +402,10 @@ workflow {
     
     // Check that profile is set to one of the allowed values
     if (!workflow.profile) {
-        log.error "No profile specified. Please specify -profile <local | awsbatch>"
+        log.error "No profile specified. Please specify -profile < persoMode-local | popMode-local | awsbatch >"
         exit 1
-    } else if (!['local', 'awsbatch'].contains(workflow.profile)) {
-        log.error "Invalid profile: ${workflow.profile}. Must be one of: {local, awsbatch}"
+    } else if (!['persoMode-local', 'popMode-local', 'awsbatch'].contains(workflow.profile)) {
+        log.error "Invalid profile: ${workflow.profile}. Must be one of: {persoMode-local, popMode-local, awsbatch}"
         exit 1
     }
     
@@ -435,20 +435,20 @@ workflow {
     } else {
         log.info "Input source is set to ${params.inputSource}"
         if (params.inputSource == 's3') {
-            log.info "deleteStagedFiles parameter is set to <<${params.deleteStagedFiles}>>"
+            log.info "deleteStagedFiles parameter is set to << ${params.deleteStagedFiles} >>"
             if (params.deleteStagedFiles) {
-                log.info "Staged files will be deleted once dependent processes are complete..."
+                log.info "----Staged files will be deleted once dependent processes are complete..."
             } else {
-                log.info "Staged files will be kept for debugging purposes."
+                log.info "----Staged files will be kept for debugging purposes."
             }
         } else {
-            log.info "Input files will be read from local directory: ${params.inputDir}"
+            log.info "Input files will be read from local directory: << ${params.inputDir} >>"
         }
-        log.info "deleteIntMedFiles parameter is set to <<${params.deleteIntMedFiles}>>" 
+        log.info "deleteIntMedFiles parameter is set to << ${params.deleteIntMedFiles} >>" 
         if (params.deleteIntMedFiles) {
-            log.info "Intermediate files will be deleted once dependent processes are complete..."
+            log.info "----Intermediate files will be deleted once dependent processes are complete..."
         } else {
-            log.info "Intermediate files will be kept for debugging purposes."
+            log.info "----Intermediate files will be kept for debugging purposes."
         }
     }
 
@@ -458,7 +458,7 @@ workflow {
     
     if (params.manifestPath) {
         def inputCh = createInputChannelFromManifest(params.manifestPath)
-        log.info "Using manifest file: ${params.manifestPath}"
+        log.info "Using manifest file: << ${params.manifestPath} >>"
         
         // Branch the input channel by sample type
         def (branchedTumorCh, branchedNormalCh) = branchInputChannelBySampleType(inputCh)
@@ -466,11 +466,11 @@ workflow {
         normalCh = branchedNormalCh
         
         // Log sample counts
-        tumorCh.count().subscribe { count ->
-            log.info "Found ${count} tumor samples!"
-        }
         normalCh.count().subscribe { count ->
-            log.info "Found ${count} normal samples!"
+            log.info "Found ${count} normal samples! Normal samples will not be processed in the main NeonDisco pipeline."
+        }
+        tumorCh.count().subscribe { count ->
+            log.info "Found ${count} tumor samples! Initializing NeonDisco pipeline..."
         }
         
     } else {
@@ -478,25 +478,25 @@ workflow {
             exit 1
         }
         tumorCh = createInputChannelFromPOSIX(params.inputDir)
-        log.info "Input files are provided as local directory: ${params.inputDir}"
-        log.warn "All samples from input directory will be processed as TUMOR samples! If you have normal samples mixed in, please provide a manifest file with sampleType column at runtime instead of --inputDir !!!"
+        log.info "Input files are provided as local directory: << ${params.inputDir} >>"
+        log.warn "All samples from input directory will be processed as TUMOR samples! If you have normal samples mixed in, please provide a manifest file with sampleType column at runtime instead of --inputDir."
     }
     
     // Log the key parameters
-    log.info "Output directory: ${params.outputDir}"
-    log.info "Read trimming: ${params.trimReads}"
-    log.info "HLA typing only mode: ${params.hlaTypingOnly}"
+    log.info "Output directory: << ${params.outputDir} >>"
+    log.info "Read trimming: << ${params.trimReads} >>"
+    log.info "HLA typing only mode: << ${params.hlaTypingOnly} >>"
     // Log the fusion filtering mode
-    def mode = params.recurrentFusionsOnly ? "recurrent-only" : "all-validated"
+    def mode = params.recurrentFusionsOnly ? "Recurrent-only" : "All-validated"
     log.info "Neoantigen prediction mode: ${mode} fusions"
     
     if (params.recurrentFusionsOnly) {
         log.info "Recurrent fusion threshold: ${params.recurrenceThreshold}"
     } else {
-        log.info "Recurrent fusion-only mode is disabled; all validated fusions will be processed."
+        log.info "Recurrent fusion–only mode is disabled; all validated fusions will be processed."
     }
-    log.info "Sample-specific neopeptide prediction: ${params.sampleSpecificNeoPred}"
-    log.info "Cohort-wide neopeptide prediction: ${params.cohortWideNeoPred}"
+    log.info "Neopeptide prediction mode [Personalized (using sample-level HLA allotypes)]: ${params.sampleLevelHLANeoPred}"
+    log.info "Neopeptide prediction mode [Cohort-based (using cohort-level HLA allotypes)]: ${params.cohortLevelHLANeoPred}"
     
     // Process tumor samples only (normal channel remains unused but available)
     def qcProcInputCh = params.trimReads ? TRIMMING_WF(tumorCh).trimmedCh : tumorCh
