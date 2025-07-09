@@ -39,8 +39,7 @@ flowchart TB
     subgraph " "
     v41[" "]
     v49[" "]
-    v50["recurrentValidatedDir"]
-    v51[" "]
+    v50[" "]
     v55[" "]
     v58[" "]
     v59[" "]
@@ -49,17 +48,18 @@ flowchart TB
     subgraph "NEOANTIGEN_PREDICTION_WF [NEOANTIGEN_PREDICTION_WF]"
     v45(["KEEP_VALIDATED_FUSIONS_PYENV"])
     v48(["FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV"])
-    subgraph "NEOANTIGEN_PREDICTION_WF:SAMPLE_SPECIFIC_NEOANTIGENS [SAMPLE_SPECIFIC_NEOANTIGENS]"
-    v54(["PREDICT_SAMPLE_SPECIFIC_NEOPEPTIDES_PVACFUSE"])
+    subgraph "NEOANTIGEN_PREDICTION_WF:SAMPLE_LEVEL_HLA_NEOANTIGENS [SAMPLE_LEVEL_HLA_NEOANTIGENS]"
+    v54(["PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE"])
     end
-    subgraph "NEOANTIGEN_PREDICTION_WF:COHORTWIDE_NEOANTIGENS [COHORTWIDE_NEOANTIGENS]"
+    subgraph "NEOANTIGEN_PREDICTION_WF:COHORT_LEVEL_HLA_NEOANTIGENS [COHORT_LEVEL_HLA_NEOANTIGENS]"
     v57(["FILTER_HLA_ALLOTYPES_FREQ_PYENV"])
-    v64(["PREDICT_COHORTWIDE_NEOPEPTIDES_PVACFUSE"])
+    v64(["PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE"])
     v56(( ))
     v60(( ))
     end
     v42(( ))
     v46(( ))
+    v53(( ))
     end
     v5(( ))
     v38(( ))
@@ -99,13 +99,12 @@ flowchart TB
     v40 --> v48
     v40 --> v41
     v42 --> v45
-    v45 --> v54
     v45 --> v46
-    v45 --> v60
     v46 --> v48
-    v48 --> v51
     v48 --> v50
     v48 --> v49
+    v48 --> v53
+    v53 --> v54
     v54 --> v55
     v56 --> v57
     v57 --> v59
@@ -113,3 +112,4 @@ flowchart TB
     v57 --> v60
     v60 --> v64
     v64 --> v65
+    v53 --> v60

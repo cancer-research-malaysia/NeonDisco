@@ -283,12 +283,12 @@ workflow COHORT_LEVEL_HLA_NEOANTIGENS {
         validHLAForCohort = sampleSpecificHLAsTsv
             .filter { file ->
                 def sampleCount = file.countLines() - 1
-                log.info "Found ${sampleCount} samples in HLA file..."
+                log.info "Found ${sampleCount} sample(s) in HLA file..."
                 if (sampleCount >= 5) {
-                    log.info "Neopeptide prediction using cohort-level HLA types will be executed with ${sampleCount} input samples."
+                    log.info "Neopeptide prediction using cohort-level HLA types will be executed with ${sampleCount} input sample(s)."
                     return true
                 } else {
-                    log.warn "Neopeptide prediction using cohort-level HLA types skipped: only ${sampleCount} input samples available (minimum 5 required)..."
+                    log.warn "Neopeptide prediction using cohort-level HLA types skipped: only ${sampleCount} input sample(s) available (minimum 5 required)..."
                     return false
                 }
             }
@@ -467,10 +467,11 @@ workflow {
         
         // Log sample counts
         normalCh.count().subscribe { count ->
-            log.info "Found ${count} normal samples! Normal samples will not be processed in the main NeonDisco pipeline."
+            log.info "Found ${count} normal samples! ----Normal samples will not be processed in the main NeonDisco pipeline."
         }
         tumorCh.count().subscribe { count ->
-            log.info "Found ${count} tumor samples! Initializing NeonDisco pipeline..."
+            log.info "Found ${count} tumor samples! ----Initializing NeonDisco pipeline..."
+            log.info ""
         }
         
     } else {
@@ -479,7 +480,7 @@ workflow {
         }
         tumorCh = createInputChannelFromPOSIX(params.inputDir)
         log.info "Input files are provided as local directory: << ${params.inputDir} >>"
-        log.warn "All samples from input directory will be processed as TUMOR samples! If you have normal samples mixed in, please provide a manifest file with sampleType column at runtime instead of --inputDir."
+        log.warn "----All samples from input directory will be processed as TUMOR samples! If you have normal samples mixed in, please provide a manifest file with sampleType column at runtime instead of --inputDir."
     }
     
     // Log the key parameters
@@ -488,15 +489,15 @@ workflow {
     log.info "HLA typing only mode: << ${params.hlaTypingOnly} >>"
     // Log the fusion filtering mode
     def mode = params.recurrentFusionsOnly ? "Recurrent-only" : "All-validated"
-    log.info "Neoantigen prediction mode: ${mode} fusions"
+    log.info "Fusion-derived neoantigen prediction input set: << ${mode} fusions >>"
     
     if (params.recurrentFusionsOnly) {
-        log.info "Recurrent fusion threshold: ${params.recurrenceThreshold}"
+        log.info "----Recurrence threshold: << ${params.recurrenceThreshold * 100}% >>"
     } else {
-        log.info "Recurrent fusion–only mode is disabled; all validated fusions will be processed."
+        log.info "----Recurrent fusion–only parameter is disabled; all validated fusions will be processed"
     }
-    log.info "Neopeptide prediction mode [Personalized (using sample-level HLA allotypes)]: ${params.sampleLevelHLANeoPred}"
-    log.info "Neopeptide prediction mode [Cohort-based (using cohort-level HLA allotypes)]: ${params.cohortLevelHLANeoPred}"
+    log.info "Neopeptide prediction mode [Personalized (using sample-level HLA allotypes)]: << ${params.sampleLevelHLANeoPred} >>"
+    log.info "Neopeptide prediction mode [Cohort-based (using cohort-level HLA allotypes)]: << ${params.cohortLevelHLANeoPred} >>"
     
     // Process tumor samples only (normal channel remains unused but available)
     def qcProcInputCh = params.trimReads ? TRIMMING_WF(tumorCh).trimmedCh : tumorCh
