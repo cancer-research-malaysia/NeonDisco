@@ -1,6 +1,6 @@
 //
 process FILTER_ALIGNED_READS_EASYFUSE {
-    
+    label 'filterReadsEasyfuse'
     container "${params.container__pyenv}"
     containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name ALIGNED-READS-FILTERING -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
 

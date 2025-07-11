@@ -1,7 +1,7 @@
 // Run FT calling module
 process CALL_FUSIONS_STARFUSION {
     maxForks 1
-    
+    label 'callFusionsSF'
     publishDir "${params.outputDir}/${sampleName}/AGGREGATE-FUSION-CALLING-out/STARFUSION-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     

@@ -1,6 +1,6 @@
 // Trim raw reads
 process TRIM_READS_FASTP {
-
+    label 'trimReads'
     afterScript params.deleteStagedFiles ? "find ./ -name \"${sampleName}*_*.f*q*\" -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping staged file cleanup...'"
 
     container "${params.container__preproc}"

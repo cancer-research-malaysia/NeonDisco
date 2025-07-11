@@ -1,6 +1,7 @@
 //
 process ALIGN_READS_STAR_GENERAL {
     maxForks 1
+    label 'alignStarGeneral'
     
     container "${params.container__preproc}"
     containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name ALIGNMENT-STARGENERAL -v ${params.starIndex}:/home/app/starIdx -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
