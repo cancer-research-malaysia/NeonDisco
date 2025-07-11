@@ -28,7 +28,7 @@ def helpMessage() {
     log.info"""
 Usage:
 
-nextflow run generate_pon.nf -profile <local | awsbatch> <--OPTION NAME> <ARGUMENT>
+nextflow run generate_pon.nf -profile <local | aws-batch> <--OPTION NAME> <ARGUMENT>
 
 Description:
 This pipeline processes normal samples to generate Panel of Normals (PoN) entries
@@ -37,7 +37,7 @@ for filtering non-cancer specific fusions in tumor analysis.
 Required Arguments:
 ---------------
     -c <configFile>      Path to the config file. [REQUIRED]
-    -profile             Either <local> for local runs or <awsbatch> for AWS Batch [REQUIRED]
+    -profile             Either <local> for local runs or <aws-batch> for AWS Batch [REQUIRED]
     --manifestPath       Path to tab-delimited manifest file [REQUIRED if inputDir not provided]
                           – must contain sample ID and read1 and read2 local filepaths or remote s3 filepaths
     --inputDir           Path to local directory containing BAM/FASTQ input files [REQUIRED if manifestPath not provided]
@@ -216,10 +216,10 @@ workflow {
     
     // Check that profile is set to one of the allowed values
     if (!workflow.profile) {
-        log.error "No profile specified. Please specify -profile <local | awsbatch>"
+        log.error "No profile specified. Please specify -profile <local | aws-batch>"
         exit 1
-    } else if (!['local', 'awsbatch'].contains(workflow.profile)) {
-        log.error "Invalid profile: ${workflow.profile}. Must be one of: {local, awsbatch}"
+    } else if (!['local', 'aws-batch'].contains(workflow.profile)) {
+        log.error "Invalid profile: ${workflow.profile}. Must be one of: {local, aws-batch}"
         exit 1
     }
     

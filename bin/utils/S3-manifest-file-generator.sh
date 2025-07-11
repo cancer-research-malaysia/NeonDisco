@@ -48,7 +48,11 @@ OUTPUT_FILE="${2:-manifest.tsv}"
 # Remove trailing slash from S3 path if present
 S3_PATH="${S3_PATH%/}"
 
+# Extract bucket name from S3 path
+BUCKET_NAME=$(echo "$S3_PATH" | sed 's|s3://||' | cut -d'/' -f1)
+
 echo "Generating manifest from S3 path: $S3_PATH"
+echo "Bucket name: $BUCKET_NAME"
 echo "Output file: $OUTPUT_FILE"
 echo "Sample types will be inferred from sample name suffix (T=Tumor, N=Normal)"
 
@@ -87,9 +91,9 @@ while IFS= read -r file_path; do
     
     # Determine if this is read 1 or read 2
     if echo "$filename" | grep -qE "[._-][rR]?1[._-]"; then
-        echo "${sample_name}|$S3_PATH/$file_path" >> "$R1_FILE"
+        echo "${sample_name}|s3://$BUCKET_NAME/$file_path" >> "$R1_FILE"
     elif echo "$filename" | grep -qE "[._-][rR]?2[._-]"; then
-        echo "${sample_name}|$S3_PATH/$file_path" >> "$R2_FILE"
+        echo "${sample_name}|s3://$BUCKET_NAME/$file_path" >> "$R2_FILE"
     else
         echo "Warning: Could not determine read number for file: $filename"
     fi
