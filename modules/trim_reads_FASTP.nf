@@ -4,7 +4,7 @@ process TRIM_READS_FASTP {
     afterScript params.deleteStagedFiles ? "find ./ -name \"${sampleName}*_*.f*q*\" -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping staged file cleanup...'"
 
     container "${params.container__preproc}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name TRIM-READS -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+    //containerOptions "--rm --env \"MHF_HOST_UID=\$(id -u)\" --env \"MHF_HOST_GID=\$(id -g)\" --name TRIM-READS -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
     
     input:
         tuple val(sampleName), path(readFiles)
