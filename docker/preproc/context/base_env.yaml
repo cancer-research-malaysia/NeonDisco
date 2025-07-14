@@ -10,4 +10,5 @@ dependencies:
   - bedtools
   - bowtie2
   - star
+  - awscli
   - pip

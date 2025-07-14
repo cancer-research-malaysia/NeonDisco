@@ -216,10 +216,10 @@ workflow {
     
     // Check that profile is set to one of the allowed values
     if (!workflow.profile) {
-        log.error "No profile specified. Please specify -profile <local | aws-batch>"
+        log.error "No profile specified. Please specify -profile < persoMode-local | popMode-local | aws-batch >"
         exit 1
-    } else if (!['local', 'aws-batch'].contains(workflow.profile)) {
-        log.error "Invalid profile: ${workflow.profile}. Must be one of: {local, aws-batch}"
+    } else if (!['persoMode-local', 'popMode-local', 'aws-batch'].contains(workflow.profile)) {
+        log.error "Invalid profile: ${workflow.profile}. Must be one of: {persoMode-local, popMode-local, aws-batch}"
         exit 1
     }
     
@@ -309,10 +309,10 @@ workflow {
     log.info "PoN output file: ${params.ponsOutputName}"
     
     // Process input based on trimReads parameter
-    def qcProcInputCh = params.trimReads ? TRIMMING_WF(normalCh).trimmedCh : normalCh
+    def _qcProcInputCh = params.trimReads ? TRIMMING_WF(normalCh).trimmedCh : normalCh
 
     // Run PoN fusion calling workflow
-    PON_FUSION_CALLING_WF(qcProcInputCh)
+    //PON_FUSION_CALLING_WF(qcProcInputCh)
 
     // Completion handler
     workflow.onComplete = {

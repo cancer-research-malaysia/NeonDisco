@@ -4,7 +4,6 @@ process TRIM_READS_FASTP {
     afterScript params.deleteStagedFiles ? "find ./ -name \"${sampleName}*_*.f*q*\" -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping staged file cleanup...'"
 
     container "${params.container__preproc}"
-    //containerOptions "--rm --env \"MHF_HOST_UID=\$(id -u)\" --env \"MHF_HOST_GID=\$(id -g)\" --name TRIM-READS -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
     
     input:
         tuple val(sampleName), path(readFiles)
@@ -19,10 +18,11 @@ process TRIM_READS_FASTP {
     READ2=${readFiles[1]}
     SAMPLE_ID=${sampleName}
     echo "Processing files: \${READ1} & \${READ2} of sample \${SAMPLE_ID}"
+
     echo "Starting FASTP trimming..."
 
     # Running FASTP
-    if bash /home/app/scripts/fastp--nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}"; then
+    if fastp--nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}"; then
         echo "FASTP trimming finished successfully!"
     else
         echo "FASTP trimming failed. Check logs. Exiting..."
