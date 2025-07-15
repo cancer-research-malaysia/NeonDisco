@@ -4,7 +4,6 @@ process FILTER_ALIGNED_READS_EASYFUSE {
     label 'filterReads'
     
     container "${params.container__pyenv}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name ALIGNED-READS-FILTERING"
 
     input:
         tuple val(sampleName), path(bamFile)

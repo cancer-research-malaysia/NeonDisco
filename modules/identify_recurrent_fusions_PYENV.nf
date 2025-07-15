@@ -7,7 +7,6 @@ process CONCAT_NORMFILTERED_FUSION_FILES_PYENV {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__pyenv}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name CONCAT_FUSIONS -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
     
     input:
     path validatedFusionsTsvs
@@ -17,7 +16,7 @@ process CONCAT_NORMFILTERED_FUSION_FILES_PYENV {
     
     script:
     """
-    python3 /home/app/scripts/concatenate-cohortwide-fusions--nf.py \\
+    concatenate-cohortwide-fusions--nf.py \\
         --input_files ${validatedFusionsTsvs} \\
         --output Cohortwide_total_fusions.tsv
     """
@@ -37,7 +36,6 @@ process GET_COHORT_RECURRENT_FUSIONS_PYENV {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
 
     container "${params.container__pyenv}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name IDENTIFY_RECURRENT_FUSIONS"
     
     input:
     path cohortwideFusionsFile

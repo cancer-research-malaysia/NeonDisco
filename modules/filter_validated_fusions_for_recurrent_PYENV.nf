@@ -7,7 +7,6 @@ process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__pyenv}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FILTER-FOR-RECURRENT"
     
     input:
     tuple val(sampleName), path(validatedFusions), path(validatedAgfusionDir)

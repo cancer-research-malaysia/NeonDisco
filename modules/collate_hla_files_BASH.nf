@@ -7,7 +7,6 @@ process COLLATE_HLA_FILES_BASH {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
 
     container "${params.container__pyenv}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name COLLATE-HLA-FILES"
     
     input:
     val hlaData

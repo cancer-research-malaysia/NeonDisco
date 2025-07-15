@@ -11,7 +11,6 @@ process FIXMATES_MARKDUPES_SAMTOOLS {
     afterScript params.deleteIntMedFiles ? "find ./ -name \"${sampleName}*STAR_2pass_Aligned.out.bam\" -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping intermediate file cleanup...'"
     
     container "${params.container__preproc}"
-    containerOptions "--rm --name BAM-POSTPROC"
     
     input:
         tuple val(sampleName), path(bamFile)

@@ -4,7 +4,6 @@ process CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE {
     label 'convertFilteredReads'
 
     container "${params.container__preproc}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FILTERED-BAM-2-FASTQ"
 
     input:
         tuple val(sampleName), path(filteredBam)
