@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 READ1=$1
 READ2=$2
@@ -59,8 +59,5 @@ case $READ1 in
     *)
         echo "Input reads are not in fastq or fastq.gz format"
         exit 1
-        ;;
+        ;;        
 esac
-
-
-

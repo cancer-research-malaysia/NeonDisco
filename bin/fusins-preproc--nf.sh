@@ -1,4 +1,5 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
+
 # Usage: ./fusins-preproc--nf.sh fusins-genepair.txt filtered-agfusion-dir output_file.txt
 # If output_file is not provided, it will overwrite the input file
 

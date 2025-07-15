@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 # Set env variables
 ARR_OUTDIR="/home/app/nf_work"

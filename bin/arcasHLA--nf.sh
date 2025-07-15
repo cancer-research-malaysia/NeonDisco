@@ -1,4 +1,4 @@
-#!/usr/bin/bash 
+#!/usr/bin/env bash
 
 SAMPLE_ID=$1
 BAM=$2

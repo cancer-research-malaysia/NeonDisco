@@ -1,4 +1,5 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
+
 # get script arguments
 READ1=$1
 READ2=$2

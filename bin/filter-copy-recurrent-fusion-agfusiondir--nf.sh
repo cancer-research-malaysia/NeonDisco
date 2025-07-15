@@ -1,6 +1,6 @@
-#!/usr/bin/bash
-# get script arguments
+#!/usr/bin/env bash
 
+# get script arguments
 SAMPLENAME=$1
 FI_VALIDATED_TSV=$2
 RECURRENT_FUSIONS_TSV=$3

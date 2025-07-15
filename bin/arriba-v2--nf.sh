@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 # Set env variables
 ARRIBA_PKG="/opt/conda/var/lib/arriba"

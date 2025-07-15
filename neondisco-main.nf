@@ -47,18 +47,28 @@ def helpMessage() {
     log.info"""
 Usage:
 
-nextflow run main.nf -profile <local | aws-batch> <--OPTION NAME> <ARGUMENT>
+nextflow run main.nf -profile <EXECUTOR,MODE[,RESOURCE]> <--OPTION NAME> <ARGUMENT>
+
+Profile Examples:
+----------------
+    -profile local,personalizedNeo              # Run locally in personalized neoantigen mode
+    -profile local,sharedNeo                    # Run locally in shared neoantigen mode
+    -profile awsbatch,personalizedNeo           # Run on AWS Batch in personalized neoantigen mode
+    -profile awsbatch,sharedNeo                 # Run on AWS Batch in shared neoantigen mode
 
 Required Arguments:
 ---------------
-    -c <configFile>      Path to the config file. [REQUIRED]
-    -profile             Either <local> for local runs or <aws-batch> for AWS Batch [REQUIRED]
-    --manifestPath       Path to tab-delimited manifest file [REQUIRED if inputDir not provided]
-                          – must contain sample ID and read1 and read2 local filepaths or remote s3 filepaths
-                          – must also contain sampleType column with values 'Tumor' or 'Normal'
-    --inputDir           Path to local directory containing BAM/FASTQ input files [REQUIRED if manifestPath not provided]
-    --inputSource        Input source type: <local> for local files, <s3> for S3 files [REQUIRED]
-                          – if inputSource is set to <s3>, --inputDir cannot be used and --manifestPath must be provided
+    -c <configFile>             Path to the config file. [REQUIRED]
+    -profile                    Comma-separated list of profiles [REQUIRED]
+                                    EXECUTOR:  local | awsbatch
+                                    MODE:  personalizedNeo | sharedNeo
+    --inputDir                  Path to local directory containing BAM/FASTQ input files [REQUIRED if manifestPath not provided]
+    --manifestPath              Path to tab-delimited manifest file [REQUIRED if inputDir not provided]
+                                    – must contain sample ID and read1 and read2 local filepaths or remote s3 filepaths
+                                    – must also contain sampleType column with values 'Tumor' or 'Normal'
+    --inputSource               Input source type: <local> for local files, <s3> for S3 files [REQUIRED]
+                                    – if inputSource is set to <s3>, --inputDir cannot be used and --manifestPath must be provided
+                                    -if inputSource is set to <local> -profile 'awsbatch' is disallowed
 
 Optional Arguments:
 ---------------
@@ -67,16 +77,71 @@ Optional Arguments:
     --hlaTypingOnly             Exclusively run HLA typing workflow [DEFAULT: false]
     --deleteIntMedFiles         Delete intermediate files right after they are not needed [DEFAULT: false]
     --deleteStagedFiles         Delete staged files after processing [DEFAULT: true if inputSource is 's3']
-    --sampleLevelHLANeoPred     Run neopeptide prediction using sample-level HLAs [DEFAULT: true]
-    --cohortLevelHLANeoPred     Run neopeptide prediction using cohort-level HLAs [DEFAULT: true]
-    --recurrentFusionsOnly      Analyze recurrent fusions only
-                                    – true: [DEFAULT] Only process cohort-wide recurrent fusions (skip if none found)
+    --sampleLevelHLANeoPred     Run neopeptide prediction using sample-level HLAs [DEFAULT: varies by mode]
+    --cohortLevelHLANeoPred     Run neopeptide prediction using cohort-level HLAs [DEFAULT: varies by mode]
+    --recurrentFusionsOnly      Analyze recurrent fusions only [DEFAULT: varies by mode]
+                                    – true: Only process cohort-wide recurrent fusions (skip if none found)
                                     – false: Process all validated fusions regardless of recurrence
     --recurrenceThreshold       Threshold for recurrent fusions; only applies if recurrentFusionsOnly is set to true
                                 [DEFAULT: 0.005] (0.5% recurrence)
     --help                      Print this help message and exit
     """.stripIndent()
 }
+
+// Function to validate profiles
+def validateProfiles() {
+    if (!workflow.profile) {
+        log.error "No profile specified. Please specify -profile <EXECUTOR,MODE[,RESOURCE]>"
+        log.error "Examples: -profile local,personalized or -profile awsbatch,population"
+        return false
+    }
+    
+    def profiles = workflow.profile.split(',').collect { it.trim() }
+    def executors = ['local', 'awsbatch']
+    def modes = ['personalizedNeo', 'sharedNeo']
+    
+    // Check for required executor and mode
+    def hasExecutor = profiles.any { executors.contains(it) }
+    def hasMode = profiles.any { modes.contains(it) }
+    
+    if (!hasExecutor) {
+        log.error "You must specify an executor profile: ${executors.join(', ')}"
+        return false
+    }
+    
+    if (!hasMode) {
+        log.error "You must specify a discovery mode profile: ${modes.join(', ')}"
+        return false
+    }
+    
+    // Check for multiple executors or modes
+    def executorCount = profiles.count { executors.contains(it) }
+    def modeCount = profiles.count { modes.contains(it) }
+    
+    if (executorCount > 1) {
+        log.error "Only one executor profile allowed. Found: ${profiles.findAll { executors.contains(it) }.join(', ')}"
+        return false
+    }
+    
+    if (modeCount > 1) {
+        log.error "Only one discovery mode profile allowed. Found: ${profiles.findAll { modes.contains(it) }.join(', ')}"
+        return false
+    }
+    
+    // Validate unknown profiles
+    def validProfiles = executors + modes
+    def unknownProfiles = profiles.findAll { !validProfiles.contains(it) }
+    if (unknownProfiles) {
+        log.error "Unknown profile(s): ${unknownProfiles.join(', ')}"
+        log.error "Valid profiles: ${validProfiles.join(', ')}"
+        log.error "Please rerun by specifying a valid profile combination from the list above."
+        return false
+    }
+    
+    log.info "Using profiles: ${profiles.join(', ')}"
+    return true
+}
+
 
 // Function to validate input directory
 def validateInputDir(dirPath) {

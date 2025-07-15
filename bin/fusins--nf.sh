@@ -1,6 +1,6 @@
-#!/usr/bin/bash
-# Usage: ./fusins--nf.sh input_genepair.txt ctat_genome_lib_path
+#!/usr/bin/env bash
 
+# Usage: ./fusins--nf.sh input_genepair.txt ctat_genome_lib_path
 FUSIONLIST=$1
 CTATDB=$2
 READ1=$3
