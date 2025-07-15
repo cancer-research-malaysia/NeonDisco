@@ -563,7 +563,7 @@ workflow {
     log.info "Output directory: << ${params.outputDir} >>"
     log.info "Read trimming: << ${params.trimReads} >>"
     log.info "HLA typing only? : << ${params.hlaTypingOnly} >>"
-    log.info "Skip neopeptide prediction? : << ${params.includeNeoPepPred} >>"
+    log.info "Include neopeptide prediction? : << ${params.includeNeoPepPred} >>"
     // Log the fusion filtering mode
     def mode = params.recurrentFusionsOnly ? "Recurrent-only" : "All-validated"
     log.info "Fusion-derived neoantigen prediction input set: << ${mode} fusions >>"

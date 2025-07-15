@@ -99,7 +99,7 @@ docker/hla-hd/src/IMGTHLA-3.58.0/*
 .nextflow/
 .nextflow.log*
 conf/nextflow.config
-work/
+work-dir/
 inputs/*
 docker/arcashla/src/IMGTHLA-3.5*.0/*
 outputs/*
