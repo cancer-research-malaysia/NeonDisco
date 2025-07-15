@@ -60,8 +60,8 @@ Required Arguments:
 ---------------
     -c <configFile>             Path to the config file. [REQUIRED]
     -profile                    Comma-separated list of profiles [REQUIRED]
-                                    EXECUTOR:  local | awsbatch
-                                    MODE:  personalizedNeo | sharedNeo
+                                    EXECUTOR:   local | awsbatch
+                                    MODE:       personalizedNeo | sharedNeo
     --inputDir                  Path to local directory containing BAM/FASTQ input files [REQUIRED if manifestPath not provided]
     --manifestPath              Path to tab-delimited manifest file [REQUIRED if inputDir not provided]
                                     – must contain sample ID and read1 and read2 local filepaths or remote s3 filepaths
@@ -74,7 +74,8 @@ Optional Arguments:
 ---------------
     --outputDir                 Directory path for output; can be s3 URIs [DEFAULT: ./outputs]
     --trimReads                 Skip read trimming on FASTQ input [DEFAULT: true]
-    --hlaTypingOnly             Exclusively run HLA typing workflow [DEFAULT: false]
+    --hlaTypingOnly             Exclusively run HLA typing subworkflow [DEFAULT: false]
+    --includeNeoPepPred         Run neopeptide prediction subworkflow [DEFAULT: true]
     --deleteIntMedFiles         Delete intermediate files right after they are not needed [DEFAULT: false]
     --deleteStagedFiles         Delete staged files after processing [DEFAULT: true if inputSource is 's3']
     --sampleLevelHLANeoPred     Run neopeptide prediction using sample-level HLAs [DEFAULT: varies by mode]
@@ -465,23 +466,20 @@ workflow {
         exit 0
     }
     
-    // Check that profile is set to one of the allowed values
-    if (!workflow.profile) {
-        log.error "No profile specified. Please specify -profile < persoMode-local | popMode-local | aws-batch >"
-        exit 1
-    } else if (!['persoMode-local', 'popMode-local', 'aws-batch'].contains(workflow.profile)) {
-        log.error "Invalid profile: ${workflow.profile}. Must be one of: {persoMode-local, popMode-local, aws-batch}"
+    // Validate profiles
+    if (!validateProfiles()) {
         exit 1
     }
-    
+
     // Check that either inputDir or manifestPath is provided
     if (!params.inputDir && !params.manifestPath) {
-        log.error "Either --inputDir or --manifestPath must be specified"
+        log.error "Either --inputDir or --manifestPath must be specified."
         exit 1
     } else if (params.inputDir && params.manifestPath) {
-        log.error "Both --inputDir and --manifestPath cannot be specified at the same time"
+        log.error "Both --inputDir and --manifestPath cannot be specified at the same time."
         exit 1
     }
+
     // Check the inputSource parameter
     if (!params.inputSource) {
         log.error "Input source must be specified with --inputSource <local | s3>"
@@ -491,11 +489,24 @@ workflow {
         exit 1
     }
 
+    // Validate inputSource and executor compatibility
+    def profilesList = workflow.profile.split(',').collect { it.trim() }
+    def isAwsBatch = profilesList.contains('awsbatch')
+    def isLocal = profilesList.contains('local')
+    
+    if (isLocal && isAwsBatch) {
+        log.error "AWS Batch executor is not compatible with local input source."
+        log.error "Please use either:"
+        log.error "  - Local executor with local input: -profile local,<MODE> --inputSource local"
+        log.error "  - AWS Batch executor with S3 input: -profile awsbatch,<MODE> --inputSource s3"
+        exit 1
+    }
+
     if (params.inputSource == 's3' && !params.manifestPath) {
-        log.error "If inputSource is set to 's3', --manifestPath must be provided"
+        log.error "If inputSource is set to 's3', --manifestPath must be provided."
         exit 1
     } else if (params.inputSource == 's3' && params.inputDir) {
-        log.error "If inputSource is set to 's3', --inputDir cannot be used"
+        log.error "If inputSource is set to 's3', --inputDir cannot be used."
         exit 1
     } else {
         log.info "Input source is set to ${params.inputSource}"
@@ -551,7 +562,8 @@ workflow {
     // Log the key parameters
     log.info "Output directory: << ${params.outputDir} >>"
     log.info "Read trimming: << ${params.trimReads} >>"
-    log.info "HLA typing only mode: << ${params.hlaTypingOnly} >>"
+    log.info "HLA typing only? : << ${params.hlaTypingOnly} >>"
+    log.info "Skip neopeptide prediction? : << ${params.skipNeoPrediction} >>"
     // Log the fusion filtering mode
     def mode = params.recurrentFusionsOnly ? "Recurrent-only" : "All-validated"
     log.info "Fusion-derived neoantigen prediction input set: << ${mode} fusions >>"
@@ -596,16 +608,22 @@ workflow {
         RECURRENT_FUSION_FILTERING_WF(AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh
                 .collect { _meta, filepath -> filepath }  // This collects just the filepaths
             )
-
-        // Run neoepitope prediction
-        NEOANTIGEN_PREDICTION_WF(
-            IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.fusInspectorTsv,
-            IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.filteredAgfusionOutdir,
-            AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh,
-            RECURRENT_FUSION_FILTERING_WF.out.cohortRecurrentFusionsCh,
-            HLA_TYPING_WF.out.sampleSpecificHLAsTsv
+        
+        // Run neoepitope prediction subworkflow
+        if (params.includeNeoPepPred) {
+            log.info "Running neoepitope prediction subworkflow..."
+            // Run neoepitope prediction
+            NEOANTIGEN_PREDICTION_WF(
+                IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.fusInspectorTsv,
+                IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.filteredAgfusionOutdir,
+                AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh,
+                RECURRENT_FUSION_FILTERING_WF.out.cohortRecurrentFusionsCh,
+                HLA_TYPING_WF.out.sampleSpecificHLAsTsv
             )
 
+        } else {
+            log.info "Skipping neoepitope prediction subworkflow."
+        }
     }
 
     // Completion handler
