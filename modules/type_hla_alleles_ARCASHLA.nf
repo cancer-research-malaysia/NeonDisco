@@ -4,7 +4,7 @@ process TYPE_HLA_ALLELES_ARCASHLA {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
 
     container "${params.container__arcashla}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name TYPE-HLAS -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name TYPE-HLAS"
     
     input:
         tuple val(sampleName), path(bam), path(bamIdx)
@@ -25,7 +25,7 @@ process TYPE_HLA_ALLELES_ARCASHLA {
     echo "Starting arcasHLA typing..."
 
     # Running arcasHLA
-    if bash /home/app/scripts/arcasHLA--nf.sh "\${SAMPLE_ID}" "\${BAM}" "${params.numCores}"; then
+    if bash arcasHLA--nf.sh "\${SAMPLE_ID}" "\${BAM}" "${params.numCores}"; then
         echo "arcasHLA typing finished successfully!"
     else
         echo "arcasHLA typing failed. Check logs. Exiting..."

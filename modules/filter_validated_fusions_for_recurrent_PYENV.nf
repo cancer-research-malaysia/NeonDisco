@@ -5,7 +5,7 @@ process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__pyenv}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FILTER-FOR-RECURRENT -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FILTER-FOR-RECURRENT"
     
     input:
     tuple val(sampleName), path(validatedFusions), path(validatedAgfusionDir)
@@ -18,7 +18,7 @@ process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
 
     script:
     """
-    bash /home/app/scripts/filter-copy-recurrent-fusion-agfusiondir--nf.sh ${sampleName} ${validatedFusions} ${recurrentFusionsTsv} || echo "ERROR: Cannot run filtering for recurrent script for ${sampleName}. Check logs."
+    filter-copy-recurrent-fusion-agfusiondir--nf.sh ${sampleName} ${validatedFusions} ${recurrentFusionsTsv} || echo "ERROR: Cannot run filtering for recurrent script for ${sampleName}. Check logs."
 
     """
     

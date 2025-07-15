@@ -5,7 +5,7 @@ process AGGREGATE_CUSTOM_PONS_PYENV {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__pyenv}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name AGGREGATE-PONS -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name AGGREGATE-PONS -v \$(pwd):/home/app/nf_work"
     
 
     input:
@@ -21,7 +21,7 @@ process AGGREGATE_CUSTOM_PONS_PYENV {
     echo "Output file name: ${params.ponsOutputName}.parquet"
     echo "Running Python script to aggregate custom PON files..."
 
-    if python /home/app/scripts/concatenate-parquet-pons--nf.py ${params.ponsOutputName}.parquet ${ponFiles}; then
+    if concatenate-parquet-pons--nf.py ${params.ponsOutputName}.parquet ${ponFiles}; then
         echo "Aggregation completed successfully."
     else
         echo "Error during aggregation. Please check the input files and script."

@@ -5,7 +5,7 @@ process FILTER_HLA_ALLOTYPES_FREQ_PYENV {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__pyenv}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FILTER_HLAS_BY_FREQ -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FILTER_HLAS_BY_FREQ"
     
     input:
         path(cohortWideHLAList)
@@ -19,7 +19,7 @@ process FILTER_HLA_ALLOTYPES_FREQ_PYENV {
     script:
     """
     echo "Running Python script to filter HLA types based on cohort-wide frequency..."
-    if python /home/app/scripts/frequency-filter-HLAs--nf.py "${cohortWideHLAList}"; then
+    if frequency-filter-HLAs--nf.py "${cohortWideHLAList}"; then
         echo "HLA allotype cohort-based frequency filtering completed successfully."
     else
         echo "Frequency filtering failed. Please check the logs for errors."

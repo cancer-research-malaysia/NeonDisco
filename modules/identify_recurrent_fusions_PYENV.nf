@@ -33,7 +33,7 @@ process GET_COHORT_RECURRENT_FUSIONS_PYENV {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
 
     container "${params.container__pyenv}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name IDENTIFY_RECURRENT_FUSIONS -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name IDENTIFY_RECURRENT_FUSIONS"
     
     input:
     path cohortwideFusionsFile
@@ -44,7 +44,7 @@ process GET_COHORT_RECURRENT_FUSIONS_PYENV {
     
     script:
     """
-    python3 /home/app/scripts/get-cohortwide-recurrent-fusions--nf.py \\
+    get-cohortwide-recurrent-fusions--nf.py \\
         --input ${cohortwideFusionsFile} \\
         --threshold ${params.recurrenceThreshold} \\
         --output Cohortwide_recurrent_fusions.tsv \\

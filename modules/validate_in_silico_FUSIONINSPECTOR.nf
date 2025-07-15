@@ -7,7 +7,7 @@ process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__starfusion}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FUSION_INSPECTOR_VALIDATION -v \$(pwd):/home/app/nf_work -v ${params.ctatDB}:/home/refs/ctat-db -v ${params.binDir}:/home/app/scripts"
+    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FUSION_INSPECTOR_VALIDATION -v ${params.ctatDB}:/home/refs/ctat-db"
     
     input:
         tuple val(sampleName), path(filtered_agfusion_outdir), path(uniqueFiltFusionPairsForFusIns), path(trimmedReads)
@@ -29,10 +29,10 @@ process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
 
     
     echo "Running preprocessing script to filter for agfusion-compatible gene pairs..."
-    if bash /home/app/scripts/fusins-preproc--nf.sh ${uniqueFiltFusionPairsForFusIns} ${filtered_agfusion_outdir} ${sampleName}-genePairs-for-FusIns-filtered.txt; then
+    if fusins-preproc--nf.sh ${uniqueFiltFusionPairsForFusIns} ${filtered_agfusion_outdir} ${sampleName}-genePairs-for-FusIns-filtered.txt; then
         echo "Preprocessing script has finished running."
         echo "Starting FusionInspector run with filtered gene pairs..."
-        if bash /home/app/scripts/fusins--nf.sh ${sampleName}-genePairs-for-FusIns-filtered.txt /home/refs/ctat-db \$READ1 \$READ2 ${sampleName}; then
+        if fusins--nf.sh ${sampleName}-genePairs-for-FusIns-filtered.txt /home/refs/ctat-db \$READ1 \$READ2 ${sampleName}; then
             echo "FusionInspector has finished running."
         else
             echo "FusionInspector run failed. Please check the logs for details."

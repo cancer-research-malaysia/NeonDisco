@@ -5,7 +5,7 @@ process COLLATE_CUSTOM_PONS_PYENV {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__pyenv}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name COLLATE-FUSION-PONS -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name COLLATE-FUSION-PONS -v \$(pwd):/home/app/nf_work"
     
     input:
         tuple val(sampleName), path(arFile), path(fcFile), path(sfFile)
@@ -25,7 +25,7 @@ process COLLATE_CUSTOM_PONS_PYENV {
     echo "Generated output filename using sample name: \${OUTPUT_NAME}"
 
     echo "Running Python script to collate FT files..."
-    if python /home/app/scripts/collate-FTs--nf.py -s ${sampleName} -o \${OUTPUT_NAME} --arriba ${arFile} --fusioncatcher ${fcFile} --starfusion ${sfFile}; then
+    if collate-FTs--nf.py -s ${sampleName} -o \${OUTPUT_NAME} --arriba ${arFile} --fusioncatcher ${fcFile} --starfusion ${sfFile}; then
         echo "Collation completed successfully."
     else
         echo "Collation failed. Please check the logs for errors."

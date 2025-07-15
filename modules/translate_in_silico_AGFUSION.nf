@@ -5,7 +5,7 @@ process TRANSLATE_IN_SILICO_AGFUSION {
     //    saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__agfusion}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name TRANSLATE-IN-SILICO -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name TRANSLATE-IN-SILICO"
     
     input:
         tuple val(sampleName), path(filteredFusions)
@@ -17,7 +17,8 @@ process TRANSLATE_IN_SILICO_AGFUSION {
     """
     echo "Path to filtered fusion transcripts: ${filteredFusions}"
     echo "Running parser to extract fusion transcripts from the filtered lists of fusion transcripts from the fusion calling tools..."
-    if python /home/app/scripts/generate-agfusion-cmd--nf.py -i ${filteredFusions} -c; then
+    
+    if generate-agfusion-cmd--nf.py -i ${filteredFusions} -c; then
         echo "Parser has finished running the output of the selected FT calling tool of ${sampleName}."
     fi
 

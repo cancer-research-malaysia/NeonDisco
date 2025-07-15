@@ -6,7 +6,7 @@ process CALL_FUSIONS_STARFUSION {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__starfusion}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FT-CALLING-STARFUSION -v ${params.ctatDB}:/home/app/libs -v \$(pwd):/home/app/nf_work -v ${params.binDir}:/home/app/scripts"
+    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FT-CALLING-STARFUSION -v ${params.ctatDB}:/home/app/libs -v \$(pwd):/home/app/nf_work"
     
     input:
         tuple val(sampleName), path(filtFastqs)
@@ -18,7 +18,7 @@ process CALL_FUSIONS_STARFUSION {
     """
     echo "Path to input read file 1: ${filtFastqs[0]}"
     echo "Path to input read file 2: ${filtFastqs[1]}"
-    if bash /home/app/scripts/starfusion--nf.sh ${filtFastqs[0]} ${filtFastqs[1]} ${sampleName} ${params.numCores} /home/app/libs; then
+    if starfusion--nf.sh ${filtFastqs[0]} ${filtFastqs[1]} ${sampleName} ${params.numCores} /home/app/libs; then
         echo "STARFusion has finished running on ${sampleName}. Copying main output file..."
         cp ${sampleName}-STARFusion-out/star-fusion.fusion_predictions.abridged.tsv ${sampleName}_sf.tsv
     fi
