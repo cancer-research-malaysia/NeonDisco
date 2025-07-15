@@ -3,8 +3,7 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
     
     label 'keepValidatedFusions'
     
-    publishDir "${params.outputDir}/${sampleName}/POST-IN-SILICO-VALIDATION-TSV-out", mode: 'copy',
-        saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
+    publishDir "${params.outputDir}/${sampleName}/POST-IN-SILICO-VALIDATION-TSV-out", mode: 'copy'
     
     container "${params.container__pyenv}"
     
