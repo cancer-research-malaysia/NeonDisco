@@ -3,7 +3,7 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
     
     label 'keepValidatedFusions'
     
-    publishDir "${params.outputDir}/${sampleName}/POST-IN-SILICO-VALIDATION-TSV-out", mode: 'copy'
+    publishDir "${params.outputDir}/${sampleName}/POST-IN-SILICO-VALIDATION-TSV-out", mode: 'copy', pattern: "*-collated-FT-normFiltered-FI-validated.tsv"
     
     container "${params.container__pyenv}"
     
