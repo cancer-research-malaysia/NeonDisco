@@ -1,6 +1,8 @@
 // 
 process FILTER_FUSIONS_PYENV {
     
+    label 'filterFusions'
+
     publishDir "${params.outputDir}/${sampleName}/AGGREGATE-FUSION-CALLING-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     

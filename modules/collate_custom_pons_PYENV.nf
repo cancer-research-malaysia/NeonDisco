@@ -1,6 +1,8 @@
 // 
 process COLLATE_CUSTOM_PONS_PYENV {
+
     label 'collateCustomPons'
+    
     publishDir "${params.outputDir}/${sampleName}/CUSTOM-FUSION-PONS-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     

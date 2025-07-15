@@ -1,6 +1,8 @@
 // 
 process FILTER_HLA_ALLOTYPES_FREQ_PYENV {
     
+    label 'filterHLAByFreq'
+
     publishDir "${params.outputDir}/5-PERCENT-TOP-COHORTWIDE-HLAS-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     

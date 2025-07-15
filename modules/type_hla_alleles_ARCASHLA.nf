@@ -1,5 +1,8 @@
 // type HLA allotypes using arcasHLA
 process TYPE_HLA_ALLELES_ARCASHLA {
+    
+    label 'typeHLAs'
+
     publishDir "${params.outputDir}/${sampleName}/HLA-TYPING-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
 

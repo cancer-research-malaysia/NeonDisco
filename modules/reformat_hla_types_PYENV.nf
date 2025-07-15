@@ -1,6 +1,8 @@
 // 
 process REFORMAT_HLA_TYPES_PYENV {
 
+    label 'reformatHLAs'
+
     container "${params.container__pyenv}"
     containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name REFORMAT-HLAS"
     

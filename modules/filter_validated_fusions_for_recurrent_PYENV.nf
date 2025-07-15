@@ -1,6 +1,8 @@
 // Alternative approach: Create a separate recurrent-aware filtering step
 process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
     
+    label 'getRecurrentFusions'
+
     publishDir "${params.outputDir}/${sampleName}/RECURRENT-VALIDATED-FUSIONS-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     

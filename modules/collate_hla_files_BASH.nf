@@ -1,6 +1,8 @@
 // 
 process COLLATE_HLA_FILES_BASH {
     
+    label 'collateHLAFiles'
+    
     publishDir "${params.outputDir}", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
 

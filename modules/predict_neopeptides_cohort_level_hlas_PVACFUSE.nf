@@ -1,6 +1,8 @@
 // 
 process PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE {
     
+    label 'predictCohortNeopeptides'
+    
     publishDir "${params.outputDir}/${sampleName}/PVACFUSE-COHORT-LEVEL-HLAS-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     

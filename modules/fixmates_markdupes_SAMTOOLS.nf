@@ -1,6 +1,8 @@
 // 
 process FIXMATES_MARKDUPES_SAMTOOLS {
+    
     maxForks 2
+    label 'fixmatesMarkdupes'
     
     publishDir "${params.outputDir}/${sampleName}/2PASS-ALIGNMENT-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename },

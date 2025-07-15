@@ -1,6 +1,8 @@
 // Process to collect all TSV files and concatenate them
 process CONCAT_NORMFILTERED_FUSION_FILES_PYENV {
     
+    label 'concatNormFilteredFusions'
+
     publishDir "${params.outputDir}/Cohortwide-Total-Fusions", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
@@ -28,6 +30,8 @@ process CONCAT_NORMFILTERED_FUSION_FILES_PYENV {
 
 // Process to filter for recurrent fusions
 process GET_COHORT_RECURRENT_FUSIONS_PYENV {
+    
+    label 'getCohortRecurrentFusions'
     
     publishDir "${params.outputDir}/Cohortwide-Recurrent-Fusions", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }

@@ -1,6 +1,10 @@
 // 
 process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
+    
     memory '100 GB'
+
+    label 'validateInSilico'
+
     afterScript params.deleteIntMedFiles ? "find ./ -name \"${sampleName}*_trimmed.R?.f*q.*\" -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping intermediate file cleanup...'"
     
     publishDir "${params.outputDir}/${sampleName}/IN-SILICO-VALIDATION-FUSINS-out", mode: 'copy',
