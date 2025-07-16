@@ -47,7 +47,7 @@ def helpMessage() {
     log.info"""
 Usage:
 
-nextflow run main.nf -profile <EXECUTOR,MODE[,RESOURCE]> <--OPTION NAME> <ARGUMENT>
+nextflow run neondisco-main.nf -profile <EXECUTOR,MODE[,RESOURCE]> <--OPTION NAME> <ARGUMENT>
 
 Profile Examples:
 ----------------
