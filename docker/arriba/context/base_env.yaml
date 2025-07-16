@@ -4,7 +4,8 @@ channels:
   - bioconda
 dependencies:
   - python
-  - star=2.7.10a
-  - arriba=2.3.0
+  - star
+  - arriba
   - samtools
+  - awscli
   - pip

@@ -2,13 +2,13 @@
 process CALL_FUSIONS_ARRIBA {
     maxForks 1
     label 'callFusionsArriba'
-
-    publishDir "${params.outputDir}/${sampleName}/AGGREGATE-FUSION-CALLING-out/ARRIBA-out", mode: 'copy',
-        saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     container "${params.container__arriba}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FT-CALLING-ARRIBA -v ${params.arribaDB}:/home/app/arriba-db -v ${params.starIndex}:/home/app/starIdx"
     
+    publishDir "${params.outputDir}/${sampleName}/AGGREGATE-FUSION-CALLING-out/ARRIBA-out", mode: 'copy',
+        saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
+
+
     input:
         tuple val(sampleName), path(bamFile)
 

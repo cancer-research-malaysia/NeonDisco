@@ -3,11 +3,11 @@ process AGGREGATE_CUSTOM_PONS_PYENV {
     
     label 'aggregateCustomPons'
     
-    publishDir "${params.outputDir}", mode: 'copy',
-        saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
-    
     container "${params.container__pyenv}"
     
+    publishDir "${params.outputDir}", mode: 'copy',
+        saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
+        
 
     input:
     path(ponFiles)

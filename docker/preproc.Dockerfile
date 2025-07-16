@@ -1,5 +1,5 @@
 FROM mambaorg/micromamba:git-911a014-bookworm-slim
-USER root
+
 LABEL maintainer="Suffian Azizan"
 LABEL version="3.0"
 LABEL description="container image of tools for NGS reads preprocessing (SAMTools, Picard, Bedtools, fastp, STAR) - revision removed MatchHostFsOwner"
@@ -52,22 +52,6 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 
 # add conda bins to PATH
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
-
-# change user to root
-# USER root
-
-# Docker suffers from absolutely atrocious way of consolidating the paradigm of restricting privileges when running containers (rootless mode) with writing outputs to bound host volumes without using Docker volumes or other convoluted workarounds.
-
-# Fortunately there is this tool that removes this altogether and helps matches the UID and GID of whoever is running the container image on a host machine
-
-# Install MatchHostFsOwner. Using version 1.0.1
-# See https://github.com/FooBarWidget/matchhostfsowner/releases
-# ADD https://github.com/FooBarWidget/matchhostfsowner/releases/download/v1.0.1/matchhostfsowner-1.0.1-x86_64-linux.gz /sbin/matchhostfsowner.gz
-# RUN gunzip /sbin/matchhostfsowner.gz && \
-#   chown root: /sbin/matchhostfsowner && \
-#   chmod +x /sbin/matchhostfsowner
-# RUN addgroup --gid 1000 app && \
-# adduser --uid 1000 --gid 1000 --disabled-password --gecos App app
 
 # set workdir
 WORKDIR /home/ec2-user
