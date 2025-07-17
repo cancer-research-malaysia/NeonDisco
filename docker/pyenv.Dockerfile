@@ -11,7 +11,6 @@ USER root
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential procps curl wget tar pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed nano less \
 && rm -rf /var/lib/apt/lists/*
 
-
 ARG NEW_MAMBA_USER=ec2-user
 ARG NEW_MAMBA_USER_ID=1000
 ARG NEW_MAMBA_USER_GID=1000

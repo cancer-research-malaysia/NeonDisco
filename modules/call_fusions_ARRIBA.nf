@@ -1,7 +1,7 @@
 // Run FT calling module
 process CALL_FUSIONS_ARRIBA {
     maxForks 1
-    label 'callFusionsArriba'
+    label 'callFusionsAR'
     
     container "${params.container__arriba}"
     

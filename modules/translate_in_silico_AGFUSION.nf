@@ -4,7 +4,6 @@ process TRANSLATE_IN_SILICO_AGFUSION {
     label 'translateInSilico'
     
     container "${params.container__agfusion}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name TRANSLATE-IN-SILICO"
     
     input:
         tuple val(sampleName), path(filteredFusions)

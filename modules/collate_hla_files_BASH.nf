@@ -3,10 +3,11 @@ process COLLATE_HLA_FILES_BASH {
     
     label 'collateHLAFiles'
     
+    container "${params.container__pyenv}"
+    
     publishDir "${params.outputDir}", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
 
-    container "${params.container__pyenv}"
     
     input:
     val hlaData

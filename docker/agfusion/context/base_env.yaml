@@ -10,4 +10,5 @@ dependencies:
   - biopython>=1.79
   - future>=0.16.0
   - pyensembl>=1.1.0
+  - awscli
   - pip

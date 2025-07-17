@@ -3,11 +3,11 @@ process CALL_FUSIONS_STARFUSION {
     maxForks 1
     label 'callFusionsSF'
     
+    container "${params.container__starfusion}"
+
     publishDir "${params.outputDir}/${sampleName}/AGGREGATE-FUSION-CALLING-out/STARFUSION-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
-    container "${params.container__starfusion}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FT-CALLING-STARFUSION -v ${params.ctatDB}:/home/app/libs -v \$(pwd):/home/app/nf_work"
     
     input:
         tuple val(sampleName), path(filtFastqs)
@@ -19,7 +19,7 @@ process CALL_FUSIONS_STARFUSION {
     """
     echo "Path to input read file 1: ${filtFastqs[0]}"
     echo "Path to input read file 2: ${filtFastqs[1]}"
-    if starfusion--nf.sh ${filtFastqs[0]} ${filtFastqs[1]} ${sampleName} ${params.numCores} /home/app/libs; then
+    if starfusion--nf.sh ${filtFastqs[0]} ${filtFastqs[1]} ${sampleName} ${params.numCores} /tmp/ctat-db; then
         echo "STARFusion has finished running on ${sampleName}. Copying main output file..."
         cp ${sampleName}-STARFusion-out/star-fusion.fusion_predictions.abridged.tsv ${sampleName}_sf.tsv
     fi

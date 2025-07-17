@@ -3,10 +3,11 @@ process FILTER_FUSIONS_PYENV {
     
     label 'filterFusions'
 
+    container "${params.container__pyenv}"
+    
     publishDir "${params.outputDir}/${sampleName}/AGGREGATE-FUSION-CALLING-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
-    container "${params.container__pyenv}"
     
     input:
         tuple val(sampleName), path(collatedFTParquet)

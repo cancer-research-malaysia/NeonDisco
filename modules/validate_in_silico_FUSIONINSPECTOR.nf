@@ -5,13 +5,13 @@ process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
 
     label 'validateInSilico'
 
+    container "${params.container__starfusion}"
+    
     afterScript params.deleteIntMedFiles ? "find ./ -name \"${sampleName}*_trimmed.R?.f*q.*\" -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping intermediate file cleanup...'"
     
     publishDir "${params.outputDir}/${sampleName}/IN-SILICO-VALIDATION-FUSINS-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
-    container "${params.container__starfusion}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FUSION_INSPECTOR_VALIDATION -v ${params.ctatDB}:/home/refs/ctat-db"
     
     input:
         tuple val(sampleName), path(filtered_agfusion_outdir), path(uniqueFiltFusionPairsForFusIns), path(trimmedReads)
@@ -36,7 +36,7 @@ process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
     if fusins-preproc--nf.sh ${uniqueFiltFusionPairsForFusIns} ${filtered_agfusion_outdir} ${sampleName}-genePairs-for-FusIns-filtered.txt; then
         echo "Preprocessing script has finished running."
         echo "Starting FusionInspector run with filtered gene pairs..."
-        if fusins--nf.sh ${sampleName}-genePairs-for-FusIns-filtered.txt /home/refs/ctat-db \$READ1 \$READ2 ${sampleName}; then
+        if fusins--nf.sh ${sampleName}-genePairs-for-FusIns-filtered.txt /tmp/ctat-db \$READ1 \$READ2 ${sampleName}; then
             echo "FusionInspector has finished running."
         else
             echo "FusionInspector run failed. Please check the logs for details."

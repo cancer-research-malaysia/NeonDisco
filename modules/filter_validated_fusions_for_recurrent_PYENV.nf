@@ -3,10 +3,11 @@ process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
     
     label 'getRecurrentFusions'
 
+    container "${params.container__pyenv}"
+    
     publishDir "${params.outputDir}/${sampleName}/RECURRENT-VALIDATED-FUSIONS-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
-    container "${params.container__pyenv}"
     
     input:
     tuple val(sampleName), path(validatedFusions), path(validatedAgfusionDir)

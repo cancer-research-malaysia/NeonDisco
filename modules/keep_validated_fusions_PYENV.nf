@@ -3,9 +3,11 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
     
     label 'keepValidatedFusions'
     
-    publishDir "${params.outputDir}/${sampleName}/POST-IN-SILICO-VALIDATION-TSV-out", mode: 'copy', pattern: "*-collated-FT-normFiltered-FI-validated.tsv"
-    
     container "${params.container__pyenv}"
+    
+    publishDir "${params.outputDir}/${sampleName}/POST-IN-SILICO-VALIDATION-TSV-out", mode: 'copy', pattern: "*-collated-FT-normFiltered-FI-validated.tsv",
+        saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
+    
     
     input:
         tuple val(sampleName), path(fusInspectorTsv), path(filtered_agfusion_outdir), path(filteredFusions)

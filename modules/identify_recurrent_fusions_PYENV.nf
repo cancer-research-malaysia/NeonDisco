@@ -3,10 +3,11 @@ process CONCAT_NORMFILTERED_FUSION_FILES_PYENV {
     
     label 'concatNormFilteredFusions'
 
+    container "${params.container__pyenv}"
+    
     publishDir "${params.outputDir}/Cohortwide-Total-Fusions", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
-    container "${params.container__pyenv}"
     
     input:
     path validatedFusionsTsvs
@@ -32,10 +33,11 @@ process GET_COHORT_RECURRENT_FUSIONS_PYENV {
     
     label 'getCohortRecurrentFusions'
     
+    container "${params.container__pyenv}"
+    
     publishDir "${params.outputDir}/Cohortwide-Recurrent-Fusions", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
 
-    container "${params.container__pyenv}"
     
     input:
     path cohortwideFusionsFile

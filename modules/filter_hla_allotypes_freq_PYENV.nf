@@ -3,10 +3,11 @@ process FILTER_HLA_ALLOTYPES_FREQ_PYENV {
     
     label 'filterHLAByFreq'
 
+    container "${params.container__pyenv}"
+    
     publishDir "${params.outputDir}/5-PERCENT-TOP-COHORTWIDE-HLAS-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
-    container "${params.container__pyenv}"
     
     input:
         path(cohortWideHLAList)

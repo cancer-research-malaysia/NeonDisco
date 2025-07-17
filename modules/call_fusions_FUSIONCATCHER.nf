@@ -3,11 +3,12 @@ process CALL_FUSIONS_FUSIONCATCHER {
     maxForks 4
     label 'callFusionsFC'
     
+    container "${params.container__fuscat}"
+
     publishDir "${params.outputDir}/${sampleName}/AGGREGATE-FUSION-CALLING-out/FUSIONCATCHER-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
-    container "${params.container__fuscat}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name FT-CALLING-FUSCAT -v ${params.fuscatDB}:/home/app/libs -v \$(pwd):/home/app/nf_work"
+    
     
     input:
         tuple val(sampleName), path(filtFastqs)
@@ -19,7 +20,7 @@ process CALL_FUSIONS_FUSIONCATCHER {
     """
     echo "Path to input read file 1: ${filtFastqs[0]}"
     echo "Path to input read file 2: ${filtFastqs[1]}"
-    if fuscat--nf.sh ${filtFastqs[0]} ${filtFastqs[1]} ${params.numCores}; then
+    if fuscat--nf.sh ${filtFastqs[0]} ${filtFastqs[1]} /tmp/fuscat-db ${params.numCores}; then
         echo "FusionCatcher has finished running on ${sampleName}. Copying main output file..."
         cp final-list_candidate-fusion-genes.txt ${sampleName}_fc.tsv
     fi

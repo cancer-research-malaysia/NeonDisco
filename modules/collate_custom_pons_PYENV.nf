@@ -3,11 +3,11 @@ process COLLATE_CUSTOM_PONS_PYENV {
 
     label 'collateCustomPons'
     
+    container "${params.container__pyenv}"
+    
     publishDir "${params.outputDir}/${sampleName}/CUSTOM-FUSION-PONS-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
-    
-    container "${params.container__pyenv}"
     
     input:
         tuple val(sampleName), path(arFile), path(fcFile), path(sfFile)

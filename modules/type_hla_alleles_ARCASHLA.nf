@@ -3,11 +3,11 @@ process TYPE_HLA_ALLELES_ARCASHLA {
     
     label 'typeHLAs'
 
+    container "${params.container__arcashla}"
+    
     publishDir "${params.outputDir}/${sampleName}/HLA-TYPING-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
 
-    container "${params.container__arcashla}"
-    containerOptions "--rm -e \"MHF_HOST_UID=\$(id -u)\" -e \"MHF_HOST_GID=\$(id -g)\" --name TYPE-HLAS"
     
     input:
         tuple val(sampleName), path(bam), path(bamIdx)

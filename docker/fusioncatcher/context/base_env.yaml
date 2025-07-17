@@ -5,5 +5,7 @@ channels:
 dependencies:
   - python=2.7
   - numpy
+  - biopython
   - fusioncatcher
+  - awscli
   - pip
