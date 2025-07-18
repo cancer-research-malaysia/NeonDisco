@@ -1,88 +1,336 @@
-# Omni-Sourced NeoantigeN DISCOvery (NeonDisco) at CRMY
+# Nextflow-Based NeoantigeN DISCOvery Pipeline: NeonDisco
 ![NeoNDisco-logo-v2](docs/assets/NeoNDisco-logo-v2.png)
+
+A highly modular Nextflow-based discovery bioinformatics pipeline for prediction of potentially immunogenic recurrent neoantigens from expanded sources of aberrant processes in tumors using RNA-seq data.
+
+## Table of Contents
+
+- [Background](#background)
+- [Features](#features)
+- [Installation Notes](#installation-notes)
+- [Quick Start](#quick-start)
+- [Usage](#usage)
+- [Pipeline Modes](#pipeline-modes)
+- [Input Requirements](#input-requirements)
+- [Output Structure](#output-structure)
+- [Configuration](#configuration)
+- [Advanced Usage](#advanced-usage)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Background
 
 Cancer vaccines are an emerging therapeutic option for tumor diseases with a potential to convert *immune-cold* tumours to *immune-hot* tumours in combination with immune checkpoint inhibitor immunotherapy. They are also of particular interest in the quest for the generation of universal cancer vaccines that can be used  “off-the-shelf", in contrast to other highly personalized approaches such as adoptive cell therapies that are likely to be too resource-intensive and expensive to be scaled up outside first-world countries.
 
-[Nextflow](https://www.nextflow.io/) is a free and open source software project which makes it easier to run a computational workflow consisting of a series of interconnected steps.
+[Nextflow](https://www.nextflow.io/) is a free and open sourced dataflow programming platform that enables designing computational workflows to process and analyze bioinformatics datasets in a massively parallel architecture.
 
-This repository documents the design of an integrated cancer neoantigen discovery pipeline with a focus on **alternative neoantigen search space**. This pipeline takes some inspiration from the Snakemake-based pipeline that focuses on cancer neoantigen discovery previously published in 2023 (Schäfer et al). The main Nextflow script is written in the [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) syntax. The file structure of this repository was soft-cloned from [here](https://github.com/FredHutch/workflow-template-nextflow) but the current file content and scripts have been completely customized and rewritten to fit the goal of this pipeline.
+This repository documents the design of an integrated cancer neoantigen discovery pipeline with a focus on **alternative sources of neoantigens beyond SNV/indels**. This pipeline takes some inspiration from the Snakemake-based pipeline that focuses on cancer neoantigen discovery previously published in 2023 (Schäfer et al). The main Nextflow script is written in the [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) syntax. The file structure of this repository was soft-cloned from [here](https://github.com/FredHutch/workflow-template-nextflow) but the current file content and scripts have been completely customized and rewritten to fit the goal of this pipeline.
 
---------------------
+## Features
 
-## Overview of the Neoantigen Discovery Workflow
+### Core Capabilities
+- **Multi-tool fusion detection**: Integrates Arriba, FusionCatcher, and STAR-Fusion for comprehensive fusion gene identification
+- **Dual execution modes**: Supports both personalized and cohort-based neoantigen prediction
+- **HLA typing integration**: Automated HLA allotype determination using ARCAS-HLA
+- **In silico validation**: Transcript validation using FusionInspector and AGFusion
+- **Scalable deployment**: Runs locally or on AWS Batch with automatic resource management
+- **Flexible input handling**: Supports both local files and S3-based data processing
 
-The flowchart belows describes the workflow underlying the Nextflow pipeline. Each step has been individually tested with local myBRCA cohort data.
+### Analysis Workflows
+1. **Quality Control & Preprocessing**
+   - Read trimming with fastp
+   - Two-pass STAR alignment with duplicate marking
 
-![pipeline-structure](docs/assets/fig2-nontransparent-pipeline-flow.png)
+2. **Fusion Gene Detection**
+   - Multi-algorithm fusion calling
+   - Consensus filtering and annotation
+   - Recurrent fusion identification across cohorts
 
-## Repository Structure
+3. **Neoantigen Prediction**
+   - Sample-level HLA-specific predictions
+   - Cohort-level HLA frequency analysis
+   - pVACfuse-powered neoepitope prediction
 
-The essential components of the workflow repository are as follows:
-- `main.nf`: Contains the primary workflow code that orchestrates the entire pipeline execution
-- `manifests/`: Contains all the metadata files that should be provided during command execution
-- `modules/`: Contains all of the subprocess definitions that are imported into the primary workflow script
-- `bin/`: Contains all of the standalone scripts which are executed in each individual processes (modules)
-- `docker/`: Contains the Dockerfiles and the associated test scripts used to build Dockerized versions of the tool stack required by the pipeline
-- `nextflow.config`: Contains the default, basic configuration parameters for running the pipeline on the command line
-- `conf/`: Contains fine-tuned configuration files for different runtime profiles (e.g., local, awsbatch)
-- `docs/`: Contains all the extra documentation and figures for this repository
+4. **HLA Typing**
+   - Standalone HLA typing workflow
+   - Integration with neoantigen prediction
 
-### User Input of Parameters
+## Installation Notes
 
-There are three ways by which users can easily provide their own inputs to a workflow; (1) with command-line flags, (2) with a config file containing the extra parameters to run the pipeline and (3) by changing default values directly in `nextflow.config`.
+TO BE WRITTEN
 
-On the command line, parameters are provided using two dashes before the parameter name, e.g. `--param_name value`. One limitation of this approach is that the provided value will be interpreted as a string. The best example of this is the edge case of the the negative boolean (`false`), which will be interpreted by Nextflow as a string (`'false'`). The second limitation is that the command line string starts to become rather long. Another consideration when providing parameters on the command line is that they may be interpreted by the shell before execution. For example, in the context of a BASH script `--param_name *.fastq.gz` will first be expanded into a list of files which match that pattern (e.g., `--param_name 1.fastq.gz 2.fastq.gz 3.fastq.gz`), which may not be the intention. This behavior can be prevented explicitly with single-quotes in BASH, with `--param_name '*.fastq.gz'` being unaltered by the shell before execution.
+## Quick Start
 
-Secondly, instead of specifying running parameters on the fly at execution time, users can instead provide a YAML or JSON file to specify run parameters, with the example below shown in JSON.
+```bash
+# Basic local execution with personalized neoantigen prediction
+nextflow run neondisco-main.nf \
+  -profile local,personalizedNeo \
+  -c config/local.config \
+  --inputDir /path/to/fastq/files \
+  --inputSource local \
+  --outputDir ./results
+
+# AWS Batch execution with shared neoantigen prediction
+nextflow run neondisco-main.nf \
+  -profile awsbatch,sharedNeo \
+  -c config/aws.config \
+  --manifestPath manifest.tsv \
+  --inputSource s3 \
+  --outputDir s3://my-bucket/results
+```
+
+## Usage
+
+### Command Syntax
+```bash
+nextflow run neondisco-main.nf -profile <EXECUTOR,MODE[,RESOURCE]> <--OPTION NAME> <ARGUMENT>
+```
+
+### Required Arguments
+
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `-c` | Path to configuration file | `-c config/local.config` |
+| `-profile` | Execution and analysis mode | `-profile local,personalizedNeo` |
+| `--inputDir` | Local directory with BAM/FASTQ files | `--inputDir /data/samples` |
+| `--manifestPath` | Tab-delimited manifest file | `--manifestPath samples.tsv` |
+| `--inputSource` | Input source type: `local` or `s3` | `--inputSource local` |
+
+### Optional Arguments
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `--outputDir` | `./outputs` | Output directory (supports S3 URIs) |
+| `--trimReads` | `true` | Enable read trimming on FASTQ input |
+| `--hlaTypingOnly` | `false` | Run only HLA typing subworkflow |
+| `--includeNeoPepPred` | `true` | Include neopeptide prediction |
+| `--deleteIntMedFiles` | `false` | Delete intermediate files after use |
+| `--deleteStagedFiles` | `true` (if S3) | Delete staged files after processing |
+| `--sampleLevelHLANeoPred` | varies | Sample-level HLA neopeptide prediction |
+| `--cohortLevelHLANeoPred` | varies | Cohort-level HLA neopeptide prediction |
+| `--recurrentFusionsOnly` | varies | Process only recurrent fusions |
+| `--recurrenceThreshold` | `0.005` | Recurrence threshold (0.5%) |
+
+## Pipeline Modes
+
+### Execution Profiles
+
+#### Executors
+- **`local`**: Run on local machine or HPC cluster
+- **`awsbatch`**: Execute on AWS Batch infrastructure
+
+#### Analysis Modes
+- **`personalizedNeo`**: Individual sample-based neoantigen prediction
+- **`sharedNeo`**: Cohort-wide shared neoantigen analysis
+
+### Profile Examples
+```bash
+# Local execution, personalized analysis
+-profile local,personalizedNeo
+
+# AWS Batch execution, shared analysis
+-profile awsbatch,sharedNeo
+```
+
+## Input Requirements
+
+### Input File Types
+- **FASTQ files**: Paired-end reads (`*R1*.fastq.gz`, `*R2*.fastq.gz`)
+- **BAM files**: Aligned reads with corresponding index files
+
+### Manifest File Format
+Required columns for `--manifestPath`:
+```
+sampleName	read1Path	read2Path	sampleType
+Sample001	/path/to/sample001_R1.fastq.gz	/path/to/sample001_R2.fastq.gz	Tumor
+Sample002	/path/to/sample002_R1.fastq.gz	/path/to/sample002_R2.fastq.gz	Normal
+```
+
+### Input Source Compatibility
+
+| Input Source | Executor | Input Method | Supported |
+|--------------|----------|--------------|-----------|
+| `local` | `local` | `--inputDir` | ✅ |
+| `local` | `local` | `--manifestPath` | ✅ |
+| `s3` | `awsbatch` | `--manifestPath` | ✅ |
+| `s3` | `local` | `--manifestPath` | ❌ |
+
+## Output Structure
 
 ```
-{
-    "param_name": "*.fastq.gz",
-    "second_param": false,
-    "third_param": 5
+outputs/
+├── preprocessing/
+│   ├── trimmed_reads/
+│   └── aligned_bams/
+├── fusion_calling/
+│   ├── arriba/
+│   ├── fusioncatcher/
+│   ├── starfusion/
+│   └── filtered_fusions/
+├── hla_typing/
+│   ├── sample_hla_types/
+│   └── cohort_hla_summary/
+├── neoantigen_prediction/
+│   ├── sample_level/
+│   ├── cohort_level/
+│   └── validated_fusions/
+└── reports/
+    ├── pipeline_info/
+    └── execution_reports/
+```
+
+## Configuration
+
+### Local Configuration Example
+```nextflow
+// config/local.config
+process {
+    executor = 'local'
+    cpus = 8
+    memory = '32 GB'
+}
+
+params {
+    max_cpus = 16
+    max_memory = '64 GB'
+    max_time = '24.h'
 }
 ```
 
-The params file can be specified at execution time with the `-params-file` flag. While this approach requires the user to create an additional file, it also provides a method for defining variables without worrying about the nuances of the shell interpreter. If both methods are used for providing parameters, the command line flags will take precedence over the params file ([docs](https://www.nextflow.io/docs/latest/config.html)).
+### AWS Configuration Example
+```nextflow
+// config/aws.config
+process {
+    executor = 'awsbatch'
+    queue = 'my-batch-queue'
+    container = 'my-ecr-repo/neondisco:latest'
+}
 
-The third way to pass parameters to the pipeline at execution time is to set up the default values in `nextflow.config` in the `params` scope (e.g. `params{param_name = 'default_value'}`). If a user passes in a value on the command line, then the configured default `params.param_name` will be overridden. The really useful thing about `params` is that they are inherited by every sub-workflow and process that is invoked. In other words, without having to do _anything_ else, you can use `${params.param_name}` in one of the script files in `bin/`, and you know that it will contain the value that was initially set.
+aws {
+    region = 'us-east-1'
+    batch {
+        cliPath = '/usr/local/bin/aws'
+    }
+}
+```
 
-### Software Containers
+## Advanced Usage
 
-Each individual step in a workflow should be run inside a container (using either Docker or Singularity) which has the required dependencies. For this project, I have manually custom-built Docker container images of the complete software stack needed to run the prediction pipeline. This adds modularity to the stack so users can choose to run only the necessary tools in the stack if needs be. 
+### HLA Typing Only
+```bash
+nextflow run neondisco-main.nf \
+  -profile local,personalizedNeo \
+  -c config/local.config \
+  --inputDir /path/to/bam/files \
+  --inputSource local \
+  --hlaTypingOnly true
+```
 
-Software containers should be defined as parameters in `main.nf`, which allows the value to propagate automatically to all imported sub-workflows, while also being able to be overridden easily by the user if necessary. Practically speaking, this means that every process should have a `container` declared which follows the pattern `container "${params.container__toolname}"`, and which was set in `nextflow.config` with `params{container__toolname = "quay.io/org/image:tag"}`. It is crucial that the parameter be set _before_ the subworkflows are imported, as shown in this example workflow.
+### Recurrent Fusion Analysis
+```bash
+nextflow run neondisco-main.nf \
+  -profile local,sharedNeo \
+  -c config/local.config \
+  --manifestPath cohort.tsv \
+  --inputSource local \
+  --recurrentFusionsOnly true \
+  --recurrenceThreshold 0.01
+```
 
-------
+### S3 Integration
+```bash
+nextflow run neondisco-main.nf \
+  -profile awsbatch,personalizedNeo \
+  -c config/aws.config \
+  --manifestPath s3://my-bucket/manifest.tsv \
+  --inputSource s3 \
+  --outputDir s3://my-bucket/results \
+  --deleteStagedFiles true
+```
 
-## Running the Pipeline Minimally
-A `nextflow.config` file is already created containing the default values of many parameters so this pipeline can be minimally run using this command:
+## Troubleshooting
 
-> nextflow run main.nf 
+### Common Issues
 
-## Minimal Pipeline Hardware Requirement
+#### Profile Validation Errors
+```
+ERROR: Only one executor profile allowed
+```
+**Solution**: Ensure only one executor (`local` or `awsbatch`) is specified:
+```bash
+-profile local,personalizedNeo  # ✅ Correct
+-profile local,awsbatch,personalizedNeo  # ❌ Invalid
+```
 
-At the time of testing, an average size of raw fastq files from our MyBrCa transcriptomic dataset (~approximately 800MB per read file on average) require at minimum an 8-core CPU and 128GB of RAM (when running the pipeline using default parameters).
+#### Input Source Compatibility
+```
+ERROR: AWS Batch executor is not compatible with local input source
+```
+**Solution**: Match executor with appropriate input source:
+```bash
+# Local files with local executor
+-profile local,personalizedNeo --inputSource local
 
-### Resuming and Caching
-Nextflow can resume interrupted processes so specify `-resume` flag to restart runs.
+# S3 files with AWS Batch executor
+-profile awsbatch,personalizedNeo --inputSource s3
+```
 
-> nextflow run -resume main.nf
+#### Missing Input Files
+```
+ERROR: No BAM or FASTQ files found
+```
+**Solution**: Verify file naming conventions:
+- FASTQ: `*R1*.fastq.gz`, `*R2*.fastq.gz`
+- BAM: `*.bam` with corresponding `*.bai` files
 
-### Running with Profiles
-This pipeline defined two run profiles that users can specify to run the pipeline with different configurations. The `local` profile is for running the pipeline on a local machine, mainly for local testing, while the `awsbatch` profile is for running the pipeline on AWS Batch following setup. To run the pipeline with a profile, use the `-profile` flag. The default is `local`.
+### Resource Requirements
 
-> nextflow run -profile local main.nf
+#### Minimum Requirements
+- **CPU**: 8 cores
+- **Memory**: 32 GB RAM
+- **Storage**: 100 GB temporary space per sample
 
-### Stub Commands (dry run)
-This pipeline also comes with _dry run_ capability; it makes use of `stub` processes that would generate dummy outputs. This is useful to test the pipeline without generating real output files that can be massive in size. Specify `-stub` at runtime to invoke this. Note that `-stub` runs separately from normal runs, so if you specify `-stub -resume` it resumes whatever interrupted previous stub runs (or validate previous stub run cached outputs). This combination does not put stub output files in previously run work directory with real output files. 
+#### Recommended Requirements
+- **CPU**: 16+ cores
+- **Memory**: 64+ GB RAM
+- **Storage**: 500 GB+ temporary space
 
+### Performance Optimization
 
-Example command for testing:
+#### Local Execution
+```nextflow
+process {
+    withName: 'ALIGN_READS_TWOPASS_STARSAM' {
+        cpus = 16
+        memory = '64 GB'
+    }
+    withName: 'CALL_FUSIONS_*' {
+        cpus = 8
+        memory = '32 GB'
+    }
+}
+```
 
-> nextflow run main.nf -c conf/nextflow.config -profile local --inputSource s3 --manifestPath /home/ec2-user/repos/NeonDisco/manifests/hla-retyping/test-run.manifest.tsv --deleteIntMedFiles false --hlaTypingOnly false -resume
+#### AWS Batch Optimization
+```nextflow
+process {
+    withName: 'ALIGN_READS_TWOPASS_STARSAM' {
+        queue = 'high-memory-queue'
+        cpus = 16
+        memory = '64 GB'
+    }
+}
+```
 
+## Contributing
 
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on:
+- Code style and standards
+- Testing procedures
+- Pull request process
+- Issue reporting
 
+## License
+
+TO BE ADDED LATER

@@ -4,5 +4,6 @@ channels:
   - bioconda
 dependencies:
   - python
+  - pysam
   - awscli
   - pip

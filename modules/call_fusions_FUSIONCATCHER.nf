@@ -22,7 +22,7 @@ process CALL_FUSIONS_FUSIONCATCHER {
     echo "Path to input read file 2: ${filtFastqs[1]}"
     if fuscat--nf.sh ${filtFastqs[0]} ${filtFastqs[1]} /tmp/fuscat-db ${params.numCores} ${sampleName}; then
         echo "FusionCatcher has finished running on ${sampleName}. Copying main output file..."
-        cp final-list_candidate-fusion-genes.txt ${sampleName}_fc.tsv
+        cp ${sampleName}/final-list_candidate-fusion-genes.txt ${sampleName}_fc.tsv
     fi
     """
     stub:

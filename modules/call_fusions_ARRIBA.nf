@@ -18,7 +18,7 @@ process CALL_FUSIONS_ARRIBA {
     script:
     """
     echo "Path to input bam for Arriba: ${bamFile}"
-    if arriba-v2--nf.sh ${bamFile} ${sampleName} "/home/app/arriba-db" ${params.numCores}; then
+    if arriba-v2--nf.sh ${bamFile} ${sampleName} /tmp/arriba-db ${params.numCores}; then
         echo "Arriba has finished running on ${sampleName}. Copying main output file..."
         mv ${sampleName}-arriba-fusions.tsv ${sampleName}_arr.tsv
     fi

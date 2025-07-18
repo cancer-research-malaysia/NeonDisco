@@ -31,10 +31,10 @@ run_arriba() {
       -O "${SAMPLE_ID}-fusions.discarded.tsv" \
       -a "${ARRIBA_ASSEMBLY}" \
       -g "${ARRIBA_ANNOT}" \
-      -b "${ARRIBA_PKG}/blacklist_hg38_GRCh38_v2.3.0.tsv.gz" \
-      -k "${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz" \
-      -t "${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.3.0.tsv.gz" \
-      -p "${ARRIBA_PKG}/protein_domains_hg38_GRCh38_v2.3.0.gff3" 2>&1 | tee "arriba-run-nf.log-$(date +%Y%m%d_%H-%M-%S).txt"
+      -b "${ARRIBA_PKG}/blacklist_hg38_GRCh38_v2.5.0.tsv.gz" \
+      -k "${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.5.0.tsv.gz" \
+      -t "${ARRIBA_PKG}/known_fusions_hg38_GRCh38_v2.5.0.tsv.gz" \
+      -p "${ARRIBA_PKG}/protein_domains_hg38_GRCh38_v2.5.0.gff3" 2>&1 | tee "arriba-run-nf.log-$(date +%Y%m%d_%H-%M-%S).txt"
 }
 
 echo "Starting Arriba..."

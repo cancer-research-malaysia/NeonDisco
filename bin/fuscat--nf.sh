@@ -14,7 +14,7 @@ run_fuscat() {
   local CORES=$4
   local SAMPLE=$5
 
-  fusioncatcher -d ${DB} --input ${FASTQ_R1_FILE},${FASTQ_R2_FILE} --output ${SAMPLE} -p ${CORES} 2>&1 | tee "${SAMPLE}/fuscat-run.log-$(date +%Y%m%d_%H-%M-%S).txt"
+  fusioncatcher -d ${DB} --input ${FASTQ_R1_FILE},${FASTQ_R2_FILE} --output ${SAMPLE} -p ${CORES} 2>&1 | tee "${SAMPLE}-fuscat-run.log-$(date +%Y%m%d_%H-%M-%S).txt"
 }
 
 # measure execution time

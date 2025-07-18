@@ -63,7 +63,7 @@ RUN mv /tmp/cli-v2.py /tmp/cli.py && rm -rf /opt/conda/lib/python3.12/site-packa
 COPY agfusion/src/Pfam-A.clans.tsv /tmp/Pfam-A.clans.tsv
 
 # manually move pyensembl database into the image
-COPY --chown=$MAMBA_USER:$MAMBA_USER agfusion/src/cache_pyensembl_GRCh38_ENSEMBL111 /home/app/.cache/pyensembl
+COPY --chown=$MAMBA_USER:$MAMBA_USER agfusion/src/cache_pyensembl_GRCh38_ENSEMBL111 /home/ec2-user/.cache/pyensembl
 
 # download agfusion db to /tmp
 RUN agfusion download -g hg38
