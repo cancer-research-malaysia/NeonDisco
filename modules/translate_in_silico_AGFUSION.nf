@@ -4,6 +4,8 @@ process TRANSLATE_IN_SILICO_AGFUSION {
     label 'translateInSilico'
     
     container "${params.container__agfusion}"
+
+    publishDir "${params.outputDir}/${sampleName}/AGFUSION-out", mode: 'copy'
     
     input:
         tuple val(sampleName), path(filteredFusions)

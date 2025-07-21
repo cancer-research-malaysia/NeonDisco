@@ -78,7 +78,7 @@ def parse_fusion_transcripts(fusion_dict):
     return parsed_commands
 
 
-def generate_agfusion_commands_for_sample(parsed_commands, sample_id, db_path='/tmp/agfusion.homo_sapiens.111.db', output_dir="./agfusion-dirs"):
+def generate_agfusion_commands_for_sample(parsed_commands, sample_id, db_path='/tmp/agfusion.homo_sapiens.111.db', output_dir="./agfusion-dirs", noncanonical=False):
     """
     Generate all AGFusion bash commands for a specific sample ID
     
@@ -87,6 +87,7 @@ def generate_agfusion_commands_for_sample(parsed_commands, sample_id, db_path='/
     sample_id: ID of the sample to generate commands for
     db_path (str): Path to the AGFusion database
     output_dir (str, optional): Base directory for output files
+    noncanonical (bool, optional): Whether to include --noncanonical flag (default: False)
     
     Returns:
     list: List of bash commands for the specified sample
@@ -105,19 +106,22 @@ def generate_agfusion_commands_for_sample(parsed_commands, sample_id, db_path='/
                  f"  -j3 {cmd_dict['junction3']} \\\n" \
                  f"  -db {db_path} \\\n" \
                  f"  -o {output_path} \\\n" \
-                 f" --middlestar \\\n" \
-                 f"  --noncanonical"
+                 f" --middlestar \\\n"
+        
+        # Add --noncanonical flag conditionally
+        if noncanonical:
+            command += " \\\n  --noncanonical"
         commands.append(command)
     
     return commands
 
 
-def generate_all_commands(parsed_results, db_path='/tmp/agfusion.homo_sapiens.111.db', output_dir="./agfusion-dirs"):
+def generate_all_commands(parsed_results, db_path='/tmp/agfusion.homo_sapiens.111.db', output_dir="./agfusion-dirs", noncanonical=False):
     """Generate commands for all samples"""
     all_commands = {}
     for sample_id in parsed_results:
         commands = generate_agfusion_commands_for_sample(
-            parsed_results, sample_id, db_path, output_dir)
+            parsed_results, sample_id, db_path, output_dir, noncanonical)
         all_commands[sample_id] = commands
     
     return all_commands
@@ -237,8 +241,13 @@ def main():
                         help='Write commands to bash script file')
     parser.add_argument('--log-dir', '-l', default='agfusion-logs',
                         help='Directory to store command logs (default: agfusion-logs)')
+    parser.add_argument('--noncanonical', action='store_true',
+                        help='Include --noncanonical flag in AGFusion commands (default: not included)')
     
     args = parser.parse_args()
+
+    # use --noncanonical flag if specified
+    noncanonical = args.noncanonical
     
     try:
         # Read input file
@@ -263,7 +272,7 @@ def main():
                 sys.exit(1)
                 
             commands = generate_agfusion_commands_for_sample(
-                parsed_results, args.sample, args.db_path, args.output_dir)
+                parsed_results, args.sample, args.db_path, args.output_dir, noncanonical)
             
             sample_commands = {args.sample: commands}
             
@@ -280,7 +289,7 @@ def main():
         else:
             # For all samples
             all_commands = generate_all_commands(
-                parsed_results, args.db_path, args.output_dir)
+                parsed_results, args.db_path, args.output_dir, noncanonical)
             
             # Output commands
             if args.output_script:

@@ -28,6 +28,7 @@ include { CONCAT_NORMFILTERED_FUSION_FILES_PYENV } from './modules/identify_recu
 include { GET_COHORT_RECURRENT_FUSIONS_PYENV } from './modules/identify_recurrent_fusions_PYENV.nf'
 include { TRANSLATE_IN_SILICO_AGFUSION } from './modules/translate_in_silico_AGFUSION.nf'
 include { VALIDATE_IN_SILICO_FUSIONINSPECTOR } from './modules/validate_in_silico_FUSIONINSPECTOR.nf'
+include { COLLECT_COHORTWIDE_VALIDATED_FUSIONS_PYENV } from './modules/collect_cohortwide_validated_fusions_PYENV.nf'
 
 ////// FUSION NEOEPITOPE PREDICTION MODULES //////////
 include { KEEP_VALIDATED_FUSIONS_PYENV } from './modules/keep_validated_fusions_PYENV.nf'
@@ -293,16 +294,6 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         
 }
 
-workflow RECURRENT_FUSION_FILTERING_WF {
-    take:
-        normFilteredFusionsCh
-    main:
-        // Get cohort recurrent fusions
-        GET_COHORT_RECURRENT_FUSIONS_PYENV(CONCAT_NORMFILTERED_FUSION_FILES_PYENV(normFilteredFusionsCh).cohortwideFusionsFile)
-    emit:
-        cohortRecurrentFusionsCh = GET_COHORT_RECURRENT_FUSIONS_PYENV.out.cohortRecurrentFusionTsv
-}
-
 workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
     take:
         normFilteredFusionsCh
@@ -325,6 +316,27 @@ workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
         fusInspectorTsv = VALIDATE_IN_SILICO_FUSIONINSPECTOR.out.fusInspectorTsv
         filteredAgfusionOutdir = TRANSLATE_IN_SILICO_AGFUSION.out.filtered_agfusion_outdir 
         
+}
+
+workflow RECURRENT_FUSION_FILTERING_WF {
+    take:
+        normFilteredFusionsCh
+    main:
+        // Get cohort recurrent fusions
+        GET_COHORT_RECURRENT_FUSIONS_PYENV(CONCAT_NORMFILTERED_FUSION_FILES_PYENV(normFilteredFusionsCh).cohortwideFusionsFile)
+    emit:
+        cohortRecurrentFusionsCh = GET_COHORT_RECURRENT_FUSIONS_PYENV.out.cohortRecurrentFusionTsv
+}
+
+workflow COLLECT_COHORTWIDE_FI_VALIDATED_FUSIONS {
+    take:
+        validatedFusionsTsvs
+    main:
+        // get cohort-wide validated fusions
+        COLLECT_COHORTWIDE_VALIDATED_FUSIONS_PYENV(validatedFusionsTsvs)
+    emit:
+        cohortValidatedFusions = COLLECT_COHORTWIDE_VALIDATED_FUSIONS_PYENV.out.cohortwideValidatedFusionsFile
+
 }
 
 workflow SAMPLE_LEVEL_HLA_NEOANTIGENS {
@@ -399,6 +411,11 @@ workflow NEOANTIGEN_PREDICTION_WF {
         // Preprocess agfusion output for neoepitope prediction
         KEEP_VALIDATED_FUSIONS_PYENV(joinedInputs)
 
+        // Collect cohort-wide validated fusions
+        COLLECT_COHORTWIDE_FI_VALIDATED_FUSIONS(KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions
+                            .collect { _meta, filepath -> filepath }
+                        )
+
         validatedAgfusionDir = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir
         validatedFusions = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions
 
@@ -435,14 +452,20 @@ workflow NEOANTIGEN_PREDICTION_WF {
             log.info "Processing all validated fusions [--recurrentFusionsOnly false]..."
         }
         
-        // Run sample-specific if enabled
-        if (params.sampleLevelHLANeoPred) {
-            SAMPLE_LEVEL_HLA_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv)
-        }
+        // Run neoepitope prediction subworkflow
+        if (params.includeNeoPepPred) {
+            log.info "Running neoepitope prediction subworkflow..."
+            // Run sample-specific if enabled
+            if (params.sampleLevelHLANeoPred) {
+                SAMPLE_LEVEL_HLA_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv)
+            }
 
-        // Run cohort-wide if enabled
-        if (params.cohortLevelHLANeoPred) {
-            COHORT_LEVEL_HLA_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv)
+            // Run cohort-wide if enabled
+            if (params.cohortLevelHLANeoPred) {
+                COHORT_LEVEL_HLA_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv)
+            }
+        } else {
+            log.info "Skipping neoepitope prediction subworkflow."
         }
 }
 
@@ -604,26 +627,20 @@ workflow {
                 qcProcInputCh
             )
 
+        
         // recurrent fusion filtering
         RECURRENT_FUSION_FILTERING_WF(AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh
                 .collect { _meta, filepath -> filepath }  // This collects just the filepaths
             )
         
-        // Run neoepitope prediction subworkflow
-        if (params.includeNeoPepPred) {
-            log.info "Running neoepitope prediction subworkflow..."
-            // Run neoepitope prediction
-            NEOANTIGEN_PREDICTION_WF(
-                IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.fusInspectorTsv,
-                IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.filteredAgfusionOutdir,
-                AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh,
-                RECURRENT_FUSION_FILTERING_WF.out.cohortRecurrentFusionsCh,
-                HLA_TYPING_WF.out.sampleSpecificHLAsTsv
-            )
-
-        } else {
-            log.info "Skipping neoepitope prediction subworkflow."
-        }
+        // Run neoepitope prediction
+        NEOANTIGEN_PREDICTION_WF(
+            IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.fusInspectorTsv,
+            IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.filteredAgfusionOutdir,
+            AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh,
+            RECURRENT_FUSION_FILTERING_WF.out.cohortRecurrentFusionsCh,
+            HLA_TYPING_WF.out.sampleSpecificHLAsTsv
+        )
     }
 
     // Completion handler
