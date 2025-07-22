@@ -1,6 +1,6 @@
 // 
 process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
-    
+    maxForks 1
     memory '100 GB'
 
     label 'validateInSilico'
