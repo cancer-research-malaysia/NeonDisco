@@ -30,7 +30,7 @@ process PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE {
     echo "Running PVACFUSE to predict neoepitopes from validated AGFusion results..."
     echo "Path to cohort-wide 5% frequency HLAs: ${cohortFivePercentFreqHLAs}"
     echo "Prediction mode: Cohort-level --> ${params.cohortLevelHLANeoPred}"
-    echo "Number of cores to use: ${params.numCores * 3}"
+    echo "Number of cores to use: ${params.numCores * 2}"
 
 
     # Run pVacFuse with cohort-level HLA types
@@ -40,7 +40,7 @@ process PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE {
 
 
     echo "Running pVacfuse for cohort-wide HLA binding and immunogenicity prediction..."
-    if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${COHORT_HLAS} BigMHC_EL BigMHC_IM DeepImmuno MHCflurry MHCflurryEL NetMHCpanEL NetMHCcons SMMPMBEC "${sampleName}_cohort-level-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores * 3} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /tmp/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz --netmhc-stab -a sample_name; then
+    if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${COHORT_HLAS} BigMHC_EL BigMHC_IM DeepImmuno MHCflurry MHCflurryEL NetMHCpanEL NetMHCcons SMMPMBEC "${sampleName}_cohort-level-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores * 2} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /tmp/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz --netmhc-stab -a sample_name; then
         echo "pVacFuse run finished!"
     else
         echo "Something went wrong."
