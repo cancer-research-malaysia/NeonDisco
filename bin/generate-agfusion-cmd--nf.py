@@ -98,19 +98,25 @@ def generate_agfusion_commands_for_sample(parsed_commands, sample_id, db_path='/
     commands = []
     for cmd_dict in parsed_commands[sample_id]:
         output_path = f"{output_dir}/{cmd_dict['output']}"
-            
-        command = f"agfusion annotate \\\n" \
-                 f"  -g5 {cmd_dict['gene5']} \\\n" \
-                 f"  -g3 {cmd_dict['gene3']} \\\n" \
-                 f"  -j5 {cmd_dict['junction5']} \\\n" \
-                 f"  -j3 {cmd_dict['junction3']} \\\n" \
-                 f"  -db {db_path} \\\n" \
-                 f"  -o {output_path} \\\n" \
-                 f" --middlestar \\\n"
         
-        # Add --noncanonical flag conditionally
+        # Build command parts
+        command_parts = [
+            "agfusion annotate \\",
+            f"-g5 {cmd_dict['gene5']} \\",
+            f"-g3 {cmd_dict['gene3']} \\",
+            f"-j5 {cmd_dict['junction5']} \\",
+            f"-j3 {cmd_dict['junction3']} \\",
+            f"-db {db_path} \\",
+            f"-o {output_path} \\",
+            f"--middlestar"
+        ]
+        
+        # Add --noncanonical flag if needed
         if noncanonical:
-            command += " \\\n  --noncanonical"
+            command_parts[-1] += " \\"  # Add continuation to last line
+            command_parts.append("--noncanonical")
+        
+        command = "\n".join(command_parts)
         commands.append(command)
     
     return commands
