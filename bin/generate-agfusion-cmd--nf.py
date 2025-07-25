@@ -1,9 +1,23 @@
 #!/usr/bin/env python3
 
 import os
+import re
 import sys
 import argparse
 import pandas as pd
+
+def clean_gene_name(gene_name):
+    """
+    Clean gene name by removing @ symbols and everything after them,
+    including any trailing - or -- before the @
+    
+    Args:
+    gene_name (str): Original gene name
+    
+    Returns:
+    str: Cleaned gene name
+    """
+    return re.sub(r'(?:--?)?@.*$', '', gene_name)
 
 def parse_fusion_transcripts(fusion_dict):
     """
@@ -42,6 +56,16 @@ def parse_fusion_transcripts(fusion_dict):
                     
                 gene1, gene2 = gene_parts
                 
+                # Clean gene names to remove @ symbols and related suffixes
+                gene1_clean = clean_gene_name(gene1)
+                gene2_clean = clean_gene_name(gene2)
+                
+                # Print warning if gene names were modified
+                if gene1 != gene1_clean:
+                    print(f"Info: Cleaned gene name '{gene1}' -> '{gene1_clean}'")
+                if gene2 != gene2_clean:
+                    print(f"Info: Cleaned gene name '{gene2}' -> '{gene2_clean}'")
+
                 # Split genomic locations
                 location_parts = genomic_locations.split('-')
                 if len(location_parts) != 2:
@@ -64,11 +88,11 @@ def parse_fusion_transcripts(fusion_dict):
                 # Construct command dictionary with sampleID included
                 command_dict = {
                     'sampleID': sample_id,
-                    'gene5': gene1,
-                    'gene3': gene2,
+                    'gene5': gene1_clean,
+                    'gene3': gene2_clean,
                     'junction5': pos1,
                     'junction3': pos2,
-                    'output': f"{sample_id}_{gene1}--{gene2}__{chrom1}-{pos1}--{chrom2}-{pos2}"  # Include sampleID in output name
+                    'output': f"{sample_id}_{gene1_clean}--{gene2_clean}__{chrom1}-{pos1}--{chrom2}-{pos2}"  # Include sampleID in output name
                 }
                 
                 parsed_commands[sample_id].append(command_dict)
