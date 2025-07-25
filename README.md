@@ -1,4 +1,4 @@
-# Nextflow-Based NeoantigeN DISCOvery Pipeline: NeonDisco
+# Nextflow-Based Neoantigen Discovery Pipeline (NeonDisco) at CRMY
 ![NeoNDisco-logo-v2](docs/assets/NeoNDisco-logo-v2.png)
 
 A highly modular Nextflow-based discovery bioinformatics pipeline for prediction of potentially immunogenic recurrent neoantigens from expanded sources of aberrant processes in tumors using RNA-seq data.
@@ -58,7 +58,12 @@ This repository documents the design of an integrated cancer neoantigen discover
 
 ## Installation Notes
 
-TO BE WRITTEN
+### 1. Donwloading Reference Files 
+This pipeline depends on several reference files for several programs implemented inside the pipeline. These are large database/reference genome files so they should ideally only be downloaded if you plan to run the pipeline locally (i.e. using `local` profile).
+
+The AWS bucket where the reference files can be downloaded is described below.
+
+`aws s3 path`
 
 ## Quick Start
 
