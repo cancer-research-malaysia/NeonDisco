@@ -18,7 +18,7 @@ process TRANSLATE_IN_SILICO_AGFUSION {
     echo "Path to filtered fusion transcripts: ${filteredFusions}"
     echo "Running parser to extract fusion transcripts from the filtered lists of fusion transcripts from the fusion calling tools..."
     
-    if generate-agfusion-cmd--nf.py -i ${filteredFusions} -c --noncanonical; then
+    if generate-agfusion-cmd--nf.py -i ${filteredFusions} -c; then
         echo "Parser has finished running the output of the selected FT calling tool of ${sampleName}."
     fi
 
