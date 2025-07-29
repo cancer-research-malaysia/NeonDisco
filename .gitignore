@@ -106,3 +106,5 @@ outputs/*
 docker/agfusion/src/cache_pyensembl_GRCh38_ENSEMBL111/**
 .DS_Store
 
+refs/*
+

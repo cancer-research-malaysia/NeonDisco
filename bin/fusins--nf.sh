@@ -6,12 +6,14 @@ CTATDB=$2
 READ1=$3
 READ2=$4
 SAMPLEID=$5
+CORES=$6
+
 # Example usage:
-# ./fusins--nf.sh input_genepair.txt /path/to/ctat_genome_lib/ rnaseq_1.fq rnaseq_2.fq 124T
+# ./fusins--nf.sh input_genepair.txt /path/to/ctat_genome_lib/ rnaseq_1.fq rnaseq_2.fq 124T CPU-number
 
 # check arguments
 if [ $# -ne 5 ]; then
-	echo "Usage: $0 <input_genepair.txt> <ctat_genome_lib_path> <read1.fq> <read2.fq> <sample_id>"
+	echo "Usage: $0 <input_genepair.txt> <ctat_genome_lib_path> <read1.fq> <read2.fq> <sample_id> <number_of_cores>"
 	exit 1
 fi
 
@@ -21,7 +23,8 @@ output=$(FusionInspector --fusions "$FUSIONLIST" \
                 --left_fq "${READ1}" --right_fq "${READ2}" \
                 --out_prefix "${SAMPLEID}" \
                 --predict_cosmic_like \
-                --cleanup 2>&1)
+                --cleanup
+                --CPU $CORES 2>&1)
 
 exit_code=$?
 
