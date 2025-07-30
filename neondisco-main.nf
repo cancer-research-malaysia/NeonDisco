@@ -259,8 +259,9 @@ workflow TRIMMING_WF {
 workflow TWOPASS_ALIGNMENT_WF {
     take:
         trimmedCh
+        starIndex
     main:
-        FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_TWOPASS_STARSAM(trimmedCh).aligned_bam)
+        FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_TWOPASS_STARSAM(trimmedCh, starIndex).aligned_bam)
     emit:
         alignedBamCh = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bam
 }
@@ -603,7 +604,8 @@ workflow {
     def qcProcInputCh = params.trimReads ? TRIMMING_WF(tumorCh).trimmedCh : tumorCh
 
     ///////// Two-pass STAR alignment workflow ////////////
-    def alignedBamsCh = TWOPASS_ALIGNMENT_WF(qcProcInputCh)
+    starIndex = Channel.fromPath(params.starIndex)
+    def alignedBamsCh = TWOPASS_ALIGNMENT_WF(qcProcInputCh, starIndex)
     ////////////////////////////////////////////////////////
 
     // Execute workflow branching based on hlaTypingOnly parameter
