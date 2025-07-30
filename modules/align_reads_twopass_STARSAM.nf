@@ -25,17 +25,14 @@ process ALIGN_READS_TWOPASS_STARSAM {
     echo "Number of cores to use: ${params.numCores}"
     echo "The index path: \${STAR_INDEX}"
     ls -lah \${STAR_INDEX}
-    touch ${sampleName}-STAR-GEN_Aligned.out.bam
-    touch ${sampleName}-STAR-GEN_Log.final.out
-    touch ${sampleName}-STAR-GEN_Chimeric.out.junction
 
     # STAR 2-pass alignment
-    #if star-2pass--nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" ${params.numCores} "\${STAR_INDEX}"; then
-    #   echo "STAR sample-level 2-pass alignment is complete!"
-    #else
-    #   echo "STAR alignment failed. Check logs. Exiting..."
-    #   exit 1
-    #fi
+    if star-2pass--nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" ${params.numCores} "\${STAR_INDEX}"; then
+       echo "STAR sample-level 2-pass alignment is complete!"
+    else
+       echo "STAR alignment failed. Check logs. Exiting..."
+       exit 1
+    fi
 
     """
     stub:
