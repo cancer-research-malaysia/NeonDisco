@@ -12,7 +12,7 @@ CORES=$6
 # ./fusins--nf.sh input_genepair.txt /path/to/ctat_genome_lib/ rnaseq_1.fq rnaseq_2.fq 124T CPU-number
 
 # check arguments
-if [ $# -ne 5 ]; then
+if [ $# -ne 6 ]; then
 	echo "Usage: $0 <input_genepair.txt> <ctat_genome_lib_path> <read1.fq> <read2.fq> <sample_id> <number_of_cores>"
 	exit 1
 fi
