@@ -11,6 +11,7 @@ process FILTER_FUSIONS_PYENV {
     
     input:
         tuple val(sampleName), path(collatedFTParquet)
+        path metaDataDir
 
     output:
         tuple val(sampleName), path("${sampleName}-collated-FT-normFiltered.tsv"), emit: filteredFusions
@@ -24,7 +25,15 @@ process FILTER_FUSIONS_PYENV {
     OUTPUT_NAME="${sampleName}-collated-FT-normFiltered"
 
     echo "Running filtering script to filter for tumor-specific FTs..."
-    if wrangle-and-filter-FTs--nf.py ${sampleName} ${collatedFTParquet} /tmp/metadata/${params.panelOfNormalsPq} /tmp/metadata/${params.babiNormalsPq} /tmp/metadata/${params.panelOfCCLEInternalsPq} /tmp/metadata/${params.gaoFusionsPq} /tmp/metadata/${params.mitelmanFusionsPq} /tmp/metadata/${params.klijnFusionsPq} \${OUTPUT_NAME}; then
+    if wrangle-and-filter-FTs--nf.py ${sampleName} \
+    ${collatedFTParquet} \
+    ${metaDataDir}/${params.panelOfNormalsPq} \
+    ${metaDataDir}/${params.babiNormalsPq} \
+    ${metaDataDir}/${params.panelOfCCLEInternalsPq} \
+    ${metaDataDir}/${params.gaoFusionsPq} \
+    ${metaDataDir}/${params.mitelmanFusionsPq} \
+    ${metaDataDir}/${params.klijnFusionsPq} \
+    \${OUTPUT_NAME}; then
         echo "Filtering completed."
     fi
     """

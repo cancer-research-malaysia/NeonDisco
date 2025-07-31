@@ -7,6 +7,7 @@ process ALIGN_READS_STAR_GENERAL {
 
     input:
         tuple val(sampleName), path(trimmedReads)
+        path starIndex
 
     output:
         tuple val(sampleName), path("*-STAR-GEN_Aligned.out.bam", arity: '1'), emit: aligned_bam
@@ -18,7 +19,7 @@ process ALIGN_READS_STAR_GENERAL {
     # variables
     SAMPLE_ID=${sampleName}
     CORES=${params.numCores}
-    STAR_INDEX="/tmp/starIdx"
+    STAR_INDEX=${starIndex}
     READ1=${trimmedReads[0]}  # First file in the nested list will be read 1 file
     READ2=${trimmedReads[1]}
 

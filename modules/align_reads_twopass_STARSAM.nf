@@ -24,7 +24,6 @@ process ALIGN_READS_TWOPASS_STARSAM {
     echo "Processing files of sample \${SAMPLE_ID}"
     echo "Number of cores to use: ${params.numCores}"
     echo "The index path: \${STAR_INDEX}"
-    ls -lah \${STAR_INDEX}
 
     # STAR 2-pass alignment
     if star-2pass--nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" ${params.numCores} "\${STAR_INDEX}"; then

@@ -12,6 +12,7 @@ process PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE {
     input:
         tuple val(sampleName), path(validatedAgfusionDir)
         path(cohortWideHLAList)
+        path(metaDataDir) // Directory containing metadata files, including the reference proteome FASTA
 
     output:
         path("${sampleName}_sample-level-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"), emit: predictedSampleSpecificNeopeptides, optional: true
@@ -46,7 +47,16 @@ process PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE {
 
     # Run pVacFuse with sample-specific HLA types
     echo "Running pVacfuse for sample-specific prediction..."
-    if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${SSHLA} BigMHC_EL BigMHC_IM DeepImmuno MHCflurry MHCflurryEL NetMHCpanEL NetMHCcons SMMPMBEC "${sampleName}_sample-level-HLA-pred" --iedb-install-directory /opt/iedb -t ${params.numCores * 2} --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta /tmp/metadata/Homo_sapiens.GRCh38.pep.all.fa.gz --netmhc-stab -a sample_name; then
+    if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${SSHLA} \
+    BigMHC_EL BigMHC_IM DeepImmuno MHCflurry MHCflurryEL NetMHCpanEL NetMHCcons SMMPMBEC \
+    "${sampleName}_sample-level-HLA-pred" \
+    --iedb-install-directory /opt/iedb \
+    --allele-specific-binding-thresholds \
+    --run-reference-proteome-similarity \
+    --peptide-fasta ${metaDataDir}/Homo_sapiens.GRCh38.pep.all.fa.gz \
+    --netmhc-stab \
+    -t ${params.numCores * 2} \
+    -a sample_name; then
         echo "pVacFuse run finished!"
     else
         echo "Something went wrong."

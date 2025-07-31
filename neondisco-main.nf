@@ -269,16 +269,21 @@ workflow TWOPASS_ALIGNMENT_WF {
 workflow AGGREGATE_FUSION_CALLING_WF {
     take:
         trimmedCh
+        starIndex
+        arribaDB
+        fuscatDB
+        ctatDB
+        metaDataDir
     main:
         // Preprocess reads for aggregate fusion calling
-        FILTER_ALIGNED_READS_EASYFUSE(ALIGN_READS_STAR_GENERAL(trimmedCh).aligned_bam)
+        FILTER_ALIGNED_READS_EASYFUSE(ALIGN_READS_STAR_GENERAL(trimmedCh, starIndex).aligned_bam)
         CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE(FILTER_ALIGNED_READS_EASYFUSE.out.filtered_bam)
         filtFastqsCh = CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE.out.filtered_fastqs
 
         // gene fusion identification submodule
-        CALL_FUSIONS_ARRIBA(ALIGN_READS_STAR_ARRIBA(filtFastqsCh).aligned_bam)
-        CALL_FUSIONS_FUSIONCATCHER(filtFastqsCh)
-        CALL_FUSIONS_STARFUSION(filtFastqsCh)
+        CALL_FUSIONS_ARRIBA(ALIGN_READS_STAR_ARRIBA(filtFastqsCh, starIndex).aligned_bam, arribaDB)
+        CALL_FUSIONS_FUSIONCATCHER(filtFastqsCh, fuscatDB)
+        CALL_FUSIONS_STARFUSION(filtFastqsCh, ctatDB)
 
         // Join the outputs based on sample name
         CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
@@ -287,7 +292,7 @@ workflow AGGREGATE_FUSION_CALLING_WF {
             .set { combinedFTFilesCh }
 
         // Run the combining process with the joined output then channel into filtering process
-        FILTER_FUSIONS_PYENV(COLLATE_FUSIONS_PYENV(combinedFTFilesCh).collatedFTParquet)
+        FILTER_FUSIONS_PYENV(COLLATE_FUSIONS_PYENV(combinedFTFilesCh).collatedFTParquet, metaDataDir)
 
     emit:
         normFilteredFusionsCh = FILTER_FUSIONS_PYENV.out.filteredFusions
@@ -300,6 +305,7 @@ workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
         normFilteredFusionsCh
         uniqueFiltFusionPairsForFusInsCh
         trimmedCh
+        ctatDB
     main:
         agfusionOutput = TRANSLATE_IN_SILICO_AGFUSION(normFilteredFusionsCh)
 
@@ -311,7 +317,7 @@ workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
                 tuple(sampleName, agfusionDir, uniqueFiltPairs, trimmedReads)
             }
         
-        VALIDATE_IN_SILICO_FUSIONINSPECTOR(joinedInputs)
+        VALIDATE_IN_SILICO_FUSIONINSPECTOR(joinedInputs, ctatDB)
 
     emit:
         fusInspectorTsv = VALIDATE_IN_SILICO_FUSIONINSPECTOR.out.fusInspectorTsv
@@ -344,11 +350,12 @@ workflow SAMPLE_LEVEL_HLA_NEOANTIGENS {
     take:
         agfusionFinalDir
         sampleSpecificHLAsTsv
-    
+        metaDataDir
     main:
         PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE(
             agfusionFinalDir, 
-            sampleSpecificHLAsTsv
+            sampleSpecificHLAsTsv,
+            metaDataDir
         )
 }
 
@@ -356,7 +363,7 @@ workflow COHORT_LEVEL_HLA_NEOANTIGENS {
     take:
         agfusionFinalDir
         sampleSpecificHLAsTsv
-    
+        metaDataDir
     main:
         // Filter HLA file based on sample count
         validHLAForCohort = sampleSpecificHLAsTsv
@@ -385,7 +392,8 @@ workflow COHORT_LEVEL_HLA_NEOANTIGENS {
             },
             cohortInputs.map { _sampleName, _agfusionDir, cohortHLA -> 
                 cohortHLA 
-            }.first()
+            }.first(),
+            metaDataDir
         )
     
 }
@@ -398,6 +406,7 @@ workflow NEOANTIGEN_PREDICTION_WF {
         normFilteredFusionsCh
         cohortRecurrentFusionsCh
         sampleSpecificHLAsTsv
+        metaDataDir
     
     main:
 
@@ -458,12 +467,12 @@ workflow NEOANTIGEN_PREDICTION_WF {
             log.info "Running neoepitope prediction subworkflow..."
             // Run sample-specific if enabled
             if (params.sampleLevelHLANeoPred) {
-                SAMPLE_LEVEL_HLA_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv)
+                SAMPLE_LEVEL_HLA_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv, metaDataDir)
             }
 
             // Run cohort-wide if enabled
             if (params.cohortLevelHLANeoPred) {
-                COHORT_LEVEL_HLA_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv)
+                COHORT_LEVEL_HLA_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv, metaDataDir)
             }
         } else {
             log.info "Skipping neoepitope prediction subworkflow."
@@ -604,8 +613,7 @@ workflow {
     def qcProcInputCh = params.trimReads ? TRIMMING_WF(tumorCh).trimmedCh : tumorCh
 
     ///////// Two-pass STAR alignment workflow ////////////
-    starIndex = Channel.fromPath(params.starIndex)
-    def alignedBamsCh = TWOPASS_ALIGNMENT_WF(qcProcInputCh, starIndex)
+    def alignedBamsCh = TWOPASS_ALIGNMENT_WF(qcProcInputCh, params.starIndex)
     ////////////////////////////////////////////////////////
 
     // Execute workflow branching based on hlaTypingOnly parameter
@@ -620,16 +628,17 @@ workflow {
         HLA_TYPING_WF(alignedBamsCh)
         
         // Fusion calling
-        AGGREGATE_FUSION_CALLING_WF(qcProcInputCh)
+        AGGREGATE_FUSION_CALLING_WF(qcProcInputCh, params.starIndex, 
+            params.arribaDB, params.fuscatDB, params.ctatDB, params.metaDataDir)
 
         // run AGFUSION coding sequence prediction
         IN_SILICO_TRANSCRIPT_VALIDATION_WF(
                 AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh,
                 AGGREGATE_FUSION_CALLING_WF.out.uniqueFiltFusionPairsForFusInsCh,
-                qcProcInputCh
+                qcProcInputCh,
+                params.ctatDB
             )
 
-        
         // recurrent fusion filtering
         RECURRENT_FUSION_FILTERING_WF(AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh
                 .collect { _meta, filepath -> filepath }  // This collects just the filepaths
@@ -641,7 +650,8 @@ workflow {
             IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.filteredAgfusionOutdir,
             AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh,
             RECURRENT_FUSION_FILTERING_WF.out.cohortRecurrentFusionsCh,
-            HLA_TYPING_WF.out.sampleSpecificHLAsTsv
+            HLA_TYPING_WF.out.sampleSpecificHLAsTsv,
+            params.metaDataDir
         )
     }
 
