@@ -171,16 +171,21 @@ workflow TRIMMING_WF {
 workflow PON_FUSION_CALLING_WF {
     take:
         trimmedCh
+        starIndex
+        arribaDB
+        fuscatDB
+        ctatDB
+
     main:
         // Preprocess reads for fusion calling (same as your aggregate workflow)
-        FILTER_ALIGNED_READS_EASYFUSE(ALIGN_READS_STAR_GENERAL(trimmedCh).aligned_bam)
+        FILTER_ALIGNED_READS_EASYFUSE(ALIGN_READS_STAR_GENERAL(trimmedCh, starIndex).aligned_bam)
         CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE(FILTER_ALIGNED_READS_EASYFUSE.out.filtered_bam)
         filtFastqsCh = CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE.out.filtered_fastqs
 
         // Gene fusion identification submodule
-        CALL_FUSIONS_ARRIBA(ALIGN_READS_STAR_ARRIBA(filtFastqsCh).aligned_bam)
-        CALL_FUSIONS_FUSIONCATCHER(filtFastqsCh)
-        CALL_FUSIONS_STARFUSION(filtFastqsCh)
+        CALL_FUSIONS_ARRIBA(ALIGN_READS_STAR_ARRIBA(filtFastqsCh, starIndex).aligned_bam, arribaDB)
+        CALL_FUSIONS_FUSIONCATCHER(filtFastqsCh, fuscatDB)
+        CALL_FUSIONS_STARFUSION(filtFastqsCh, ctatDB)
 
         // Join the outputs based on sample name
         CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
@@ -308,10 +313,14 @@ workflow {
     log.info "PoN output file: ${params.ponsOutputName}"
     
     // Process input based on trimReads parameter
-    def _qcProcInputCh = params.trimReads ? TRIMMING_WF(normalCh).trimmedCh : normalCh
+    def qcProcInputCh = params.trimReads ? TRIMMING_WF(normalCh).trimmedCh : normalCh
 
     // Run PoN fusion calling workflow
-    //PON_FUSION_CALLING_WF(qcProcInputCh)
+    PON_FUSION_CALLING_WF(qcProcInputCh, 
+        params.starIndex, 
+        params.arribaDB, 
+        params.fuscatDB, 
+        params.ctatDB)
 
     // Completion handler
     workflow.onComplete = {
