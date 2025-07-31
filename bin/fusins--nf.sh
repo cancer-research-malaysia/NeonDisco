@@ -23,8 +23,7 @@ output=$(FusionInspector --fusions "$FUSIONLIST" \
                 --left_fq "${READ1}" --right_fq "${READ2}" \
                 --out_prefix "${SAMPLEID}" \
                 --predict_cosmic_like \
-                --cleanup
-                --CPU $CORES 2>&1)
+                --cleanup --CPU $CORES 2>&1)
 
 exit_code=$?
 
