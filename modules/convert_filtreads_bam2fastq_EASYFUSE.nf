@@ -20,9 +20,8 @@ process CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE {
     echo "Processing files of sample \${SAMPLE_ID}"
     echo "The filtered bam file: \${BAM}"
     
-    samtools fastq \
-    -0  "\${SAMPLE_ID}-filtered.other.fastq.gz" \
-    -1  "\${SAMPLE_ID}-filtered.read1.fastq.gz" \
+    samtools fastq -0 "\${SAMPLE_ID}-filtered.other.fastq.gz" \
+    -1 "\${SAMPLE_ID}-filtered.read1.fastq.gz" \
     -2 "\${SAMPLE_ID}-filtered.read2.fastq.gz" \
     --threads ${params.numCores} \
     \${BAM}
