@@ -22,8 +22,11 @@ process PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE {
     echo "Path to validated AGFusion directories: ${validatedAgfusionDir}"
     echo "Sample name: ${sampleName}"
 
-    # Check if the validated AGFusion directory is not empty; if empty, exit this process gracefully
-    if [ -z "\$(ls -A ${validatedAgfusionDir})" ]; then
+    # Check if directory contains actual AGFusion results (ignore .empty files)
+    agfusion_dirs=\$(find ${validatedAgfusionDir} -maxdepth 1 -type d ! -name "." ! -name ".." | wc -l)
+    empty_marker=\$(find ${validatedAgfusionDir} -name ".empty" -type f | wc -l)
+    
+    if [ \$agfusion_dirs -eq 0 ] || [ \$empty_marker -gt 0 ]; then
         echo "No validated AGFusion directories found for ${sampleName}. Skipping neopeptide prediction process gracefully."
         exit 0
     fi

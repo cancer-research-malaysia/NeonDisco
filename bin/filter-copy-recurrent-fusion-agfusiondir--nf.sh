@@ -27,7 +27,7 @@ if [ $(tail -n +2 ${FI_VALIDATED_TSV} | wc -l) -eq 0 ]; then
     echo "No validated fusions for this sample."
     echo "STATUS: No validated fusions!" >> ${REPORT}
     head -1 ${FI_VALIDATED_TSV} > "${OUTPUT_FILE}"
-    mkdir -p validated-recurrent-agfusion-outdir
+    mkdir -p validated-recurrent-agfusion-outdir && touch validated-recurrent-agfusion-outdir/.empty
     exit 0
 fi
 
@@ -35,7 +35,7 @@ if [ $(tail -n +2 "${RECURRENT_FUSIONS_TSV}" | wc -l) -eq 0 ]; then
     echo "No recurrent fusions found in this cohort."
     echo "STATUS: No recurrent fusions in this cohort!" >> ${REPORT}
     head -1 ${FI_VALIDATED_TSV} > "${OUTPUT_FILE}"
-    mkdir -p validated-recurrent-agfusion-outdir
+    mkdir -p validated-recurrent-agfusion-outdir && touch validated-recurrent-agfusion-outdir/.empty
     exit 0
 fi
 
@@ -66,13 +66,22 @@ fi
 final_count=$(tail -n +2 "${OUTPUT_FILE}" | wc -l)
 echo "Final recurrent FusionInspector-validated fusions for this sample ${SAMPLENAME}: $final_count" >> ${REPORT}
 
-# Filter AGFusion directories
+# create output directory for recurrent AGFusion results
 mkdir -p validated-recurrent-agfusion-outdir
 
+# Filter AGFusion directories
 if [ $final_count -gt 0 ]; then
-    # Ensure destination directory exists
-    mkdir -p validated-recurrent-agfusion-outdir
+    echo "Filtering AGFusion directories for recurrent fusions..." >> ${REPORT}
+
+    # Check if directory contains actual AGFusion results (ignore .empty files)
+    agfusion_dirs=$(find "validated-agfusion-outdir" -maxdepth 1 -type d ! -name "." ! -name ".." | wc -l)
+    empty_marker=$(find "validated-agfusion-outdir" -name ".empty" -type f | wc -l)
     
+    if [ $agfusion_dirs -eq 0 ] || [ $empty_marker -gt 0 ]; then
+        echo "No validated AGFusion directories found for ${SAMPLENAME}." >> ${REPORT}
+    fi
+
+
     while IFS= read -r recurrent_gene_pair; do
         # Transform the gene pair format to match directory naming
         # PARG::BMS1__10:49885203-10:42791627 -> 26T_PARG--BMS1__10-49885203--10-42791627
@@ -97,11 +106,6 @@ if [ $final_count -gt 0 ]; then
             fi
         done
     done < <(tail -n +2 "${OUTPUT_FILE}" | cut -f1)
-
-    # Handle case where no directories exist
-    if [ ! -d "validated-agfusion-outdir" ] || [ -z "$(ls -A validated-agfusion-outdir 2>/dev/null)" ]; then
-      echo "WARNING: Input AGFusion directories are empty or do not exist." >> ${REPORT}
-    fi
 fi
 
 # Final report

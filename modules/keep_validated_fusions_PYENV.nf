@@ -29,7 +29,7 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
 
     # check if the output file is empty 
     if [ ! -s ${sampleName}-collated-FT-normFiltered-FI-validated.tsv ]; then
-        echo "Output file empty. No validated fusions found in Fusion Inspector output. Aborting this sample run."
+        echo "Output file empty. No validated fusions found in Fusion Inspector output. Aborting this sample run." | tee validated-agfusion-outdir/.empty 
         exit 0
     fi
     
@@ -72,6 +72,11 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
         echo "Successfully copied \$((copied_dirs - 1)) AGFusion directories"
     fi
     
+    # Ensure directory is never empty for S3 compatibility
+    if [ ! "\$(find validated-agfusion-outdir -maxdepth 1 -type d ! -name "." ! -name ".." | head -1)" ]; then
+        echo "No AGFusion directories copied for ${sampleName}" > validated-agfusion-outdir/.empty
+    fi
+
     # Clean up temporary file
     rm -f validated_gene_pairs.txt
     """
