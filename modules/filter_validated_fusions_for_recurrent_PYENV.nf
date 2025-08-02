@@ -15,7 +15,7 @@ process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
 
     output:
     tuple val(sampleName), path("${sampleName}-validated-recurrent-fusions-only.tsv"), emit: validatedRecurrentFusions
-    tuple val(sampleName), path("validated-recurrent-agfusion-outdir"), emit: validatedRecurrentAgfusionDir
+    tuple val(sampleName), path("validated-recurrent-agfusion-outdir"), optional: true, emit: validatedRecurrentAgfusionDir
     path("${sampleName}_recurrent_filter_report.txt"), emit: recurrentFilterReport
 
     script:
