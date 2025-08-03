@@ -39,6 +39,7 @@ process COLLATE_HLA_FILES_BASH {
             echo -e "\$hla_content" >> Cohort-wide_HLA_types.tsv
         else
             echo "Warning: File not found: \$file_path"
+            exit 1
         fi
     done
     """
