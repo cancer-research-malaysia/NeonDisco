@@ -115,6 +115,11 @@ echo "Final recurrent validated fusions file: ${OUTPUT_FILE}" >> ${REPORT}
 if [ $validated_count -gt 0 ]; then
     reduction_pct=$(( (validated_count - final_count) * 100 / validated_count ))
     echo "Reduction: ${reduction_pct}% filtered out" >> ${REPORT}
+    # check reduction percentage, if 100% then create empty file flag
+    if [ $reduction_pct -eq 100 ]; then
+        echo "No recurrent fusions in the validated fusion list, creating empty flag file." >> ${REPORT}
+        touch validated-recurrent-agfusion-outdir/.empty
+    fi
 else
     echo "Reduction: N/A (no input fusions)" >> ${REPORT}
 fi
