@@ -62,7 +62,17 @@ COPY hla-hd/src/hlahd.1.7.1.tar.gz /tmp/hlahd.1.7.1.tar.gz
 RUN tar -zvxf /tmp/hlahd.1.7.1.tar.gz && rm /tmp/hlahd.1.7.1.tar.gz && cd /tmp/hlahd.1.7.1 && sh install.sh
 
 # also copy the specific dat file of HLA dictionary for this version and a custom update.dict.sh
-COPY hla-hd/src/IMGTHLA-3.58.0/hla.dat.zip /tmp/hlahd.1.7.1/hla.dat.zip
+# download the IMGTHLA reference file you want to use
+RUN cd /tmp && \
+  wget -O IMGTHLA-3.61.0-alpha.tar.gz https://github.com/ANHIG/IMGTHLA/archive/refs/tags/v3.61.0-alpha.tar.gz && \
+  tar -xzf IMGTHLA-3.61.0-alpha.tar.gz && \
+  rm IMGTHLA-3.61.0-alpha.tar.gz && \
+  cd IMGTHLA-3.61.0-alpha && \
+  mv hla.dat.zip /tmp/hlahd.1.7.1/ && \
+  cd /tmp && \
+  rm -rf IMGTHLA-3.61.0-alpha
+
+# copy the custom update dictionary script
 COPY hla-hd/src/scripts/update.dictionary.custom.sh /tmp/hlahd.1.7.1/update.dictionary.custom.sh
 # now remove the original update.dictionary.sh script
 RUN rm /tmp/hlahd.1.7.1/update.dictionary.sh && mv /tmp/hlahd.1.7.1/update.dictionary.custom.sh /tmp/hlahd.1.7.1/update.dictionary.sh
@@ -82,23 +92,13 @@ RUN mkdir -p /tmp/bt2_refs && curl -o /tmp/bt2_refs/hla_ref_DNA.fa ftp://ftp.ebi
 # create HLA reference index for bowtie2
 RUN bowtie2-build /tmp/bt2_refs/hla_ref_DNA.fa hla_genome && bowtie2-build /tmp/bt2_refs/hla_ref_RNA.fa hla_transcriptome
 
-# Docker suffers from absolutely atrocious way of consolidating the paradigm of restricting privileges when running containers (rootless mode) with writing outputs to bound host volumes without using Docker volumes or other convoluted workarounds.
-
-# Fortunately there is this tool that removes this altogether and helps matches the UID and GID of whoever is running the container image on a host machine
-
-# Install MatchHostFsOwner. Using version 1.0.1
-# See https://github.com/FooBarWidget/matchhostfsowner/releases
-ADD https://github.com/FooBarWidget/matchhostfsowner/releases/download/v1.0.1/matchhostfsowner-1.0.1-x86_64-linux.gz /sbin/matchhostfsowner.gz
-RUN gunzip /sbin/matchhostfsowner.gz && \
-  chown root: /sbin/matchhostfsowner && \
-  chmod +x /sbin/matchhostfsowner
-RUN addgroup --gid 9999 app && \
-  adduser --uid 9999 --gid 9999 --disabled-password --gecos App app
-
-# set workdir
-WORKDIR /home/app
-
 # set open file limit
 RUN ulimit -n 1024
 
-ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "/sbin/matchhostfsowner"]
+# change user
+USER $MAMBA_USER
+
+# set workdir
+WORKDIR /home/ec2-user
+
+ENTRYPOINT ["/usr/local/bin/_entrypoint.sh"]
