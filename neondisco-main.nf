@@ -256,7 +256,7 @@ workflow TRIMMING_WF {
         trimmedCh = TRIM_READS_FASTP.out.trimmed_reads
 }
 
-workflow TWOPASS_ALIGNMENT_WF {
+workflow TWOPASS_READS_ALIGNMENT_WF {
     take:
         trimmedCh
         starIndex
@@ -266,9 +266,43 @@ workflow TWOPASS_ALIGNMENT_WF {
         alignedBamCh = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bam
 }
 
-workflow AGGREGATE_FUSION_CALLING_WF {
+workflow GENERAL_READS_ALIGNMENT_WF {
     take:
         trimmedCh
+        starIndex
+    main:
+        ALIGN_READS_STAR_GENERAL(trimmedCh, starIndex)
+    emit:
+        alignedBamCh = ALIGN_READS_STAR_GENERAL.out.aligned_bam
+}
+
+workflow HLA_TYPING_WF {
+    take:
+        alignedBamCh
+    main:
+        REFORMAT_HLA_TYPES_PYENV(TYPE_HLA_ALLELES_ARCASHLA(alignedBamCh).allotype_json)
+        hlaFilesCh = REFORMAT_HLA_TYPES_PYENV.out.hlaTypingTsv
+        
+        // Create a mapping file that explicitly associates sample names with staged filenames
+        // This preserves the explicit association safely
+        hlaWithMapping = hlaFilesCh
+            .collectFile(name: 'sample_file_mapping.tsv', newLine: true) { sampleName, hlaFile ->
+                "${sampleName}\t${hlaFile.name}"
+            }
+        
+        COLLATE_HLA_FILES_BASH(
+            hlaFilesCh.collect { _sampleName, hlaFile -> hlaFile },  // Files for staging
+            hlaWithMapping  // Mapping file
+        )
+        
+    emit:
+        sampleSpecificHLAsTsv = COLLATE_HLA_FILES_BASH.out.cohortWideHLAList
+
+}
+
+workflow AGGREGATE_FUSION_CALLING_WF {
+    take:
+        alignedBamCh
         starIndex
         arribaDB
         fuscatDB
@@ -276,7 +310,7 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         metaDataDir
     main:
         // Preprocess reads for aggregate fusion calling
-        FILTER_ALIGNED_READS_EASYFUSE(ALIGN_READS_STAR_GENERAL(trimmedCh, starIndex).aligned_bam)
+        FILTER_ALIGNED_READS_EASYFUSE(alignedBamCh)
         CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE(FILTER_ALIGNED_READS_EASYFUSE.out.filtered_bam)
         filtFastqsCh = CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE.out.filtered_fastqs
 
@@ -479,30 +513,6 @@ workflow NEOANTIGEN_PREDICTION_WF {
         }
 }
 
-workflow HLA_TYPING_WF {
-    take:
-        alignedBamCh
-    main:
-        REFORMAT_HLA_TYPES_PYENV(TYPE_HLA_ALLELES_ARCASHLA(alignedBamCh).allotype_json)
-        hlaFilesCh = REFORMAT_HLA_TYPES_PYENV.out.hlaTypingTsv
-        
-        // Create a mapping file that explicitly associates sample names with staged filenames
-        // This preserves the explicit association safely
-        hlaWithMapping = hlaFilesCh
-            .collectFile(name: 'sample_file_mapping.tsv', newLine: true) { sampleName, hlaFile ->
-                "${sampleName}\t${hlaFile.name}"
-            }
-        
-        COLLATE_HLA_FILES_BASH(
-            hlaFilesCh.collect { _sampleName, hlaFile -> hlaFile },  // Files for staging
-            hlaWithMapping  // Mapping file
-        )
-        
-    emit:
-        sampleSpecificHLAsTsv = COLLATE_HLA_FILES_BASH.out.cohortWideHLAList
-
-}
-
 // Main workflow
 workflow {
     // Show help message if requested
@@ -624,13 +634,13 @@ workflow {
     // Process tumor samples only (normal channel remains unused but available)
     def qcProcInputCh = params.trimReads ? TRIMMING_WF(tumorCh).trimmedCh : tumorCh
 
-    ///////// Two-pass STAR alignment workflow ////////////
-    def alignedBamsCh = TWOPASS_ALIGNMENT_WF(qcProcInputCh, params.starIndex)
+    ///////// STAR alignment workflow ////////////
+    def alignedBamsCh = GENERAL_READS_ALIGNMENT_WF(qcProcInputCh, params.starIndex)
     ////////////////////////////////////////////////////////
 
     // Execute workflow branching based on hlaTypingOnly parameter
     if (params.hlaTypingOnly) {
-        
+        log.info "Running HLA typing only subworkflow..."
         // Run only HLA typing
         HLA_TYPING_WF(alignedBamsCh)
 
@@ -638,11 +648,14 @@ workflow {
         
         // HLA typing
         HLA_TYPING_WF(alignedBamsCh)
-        
-        // Fusion calling
+
+        // Fusion calling module
         AGGREGATE_FUSION_CALLING_WF(qcProcInputCh, params.starIndex, 
             params.arribaDB, params.fuscatDB, params.ctatDB, params.metaDataDir)
 
+        // RNA-editing calling module
+        def _alignedBams2passCh = TWOPASS_READS_ALIGNMENT_WF(qcProcInputCh, params.starIndex)
+        
         // run AGFUSION coding sequence prediction
         IN_SILICO_TRANSCRIPT_VALIDATION_WF(
                 AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh,
