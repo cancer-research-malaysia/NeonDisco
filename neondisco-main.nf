@@ -263,7 +263,7 @@ workflow TWOPASS_READS_ALIGNMENT_WF {
     main:
         FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_TWOPASS_STARSAM(trimmedCh, starIndex).aligned_bam)
     emit:
-        alignedBamCh = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bam
+        alignedBam2PassCh = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bam
 }
 
 workflow GENERAL_READS_ALIGNMENT_WF {
@@ -273,7 +273,7 @@ workflow GENERAL_READS_ALIGNMENT_WF {
     main:
         ALIGN_READS_STAR_GENERAL(trimmedCh, starIndex)
     emit:
-        alignedBamCh = ALIGN_READS_STAR_GENERAL.out.aligned_bam
+        alignedBamCh = ALIGN_READS_STAR_GENERAL.out.final_bam
 }
 
 workflow HLA_TYPING_WF {
@@ -655,7 +655,7 @@ workflow {
 
         // RNA-editing calling module
         def _alignedBams2passCh = TWOPASS_READS_ALIGNMENT_WF(qcProcInputCh, params.starIndex)
-        
+
         // run AGFUSION coding sequence prediction
         IN_SILICO_TRANSCRIPT_VALIDATION_WF(
                 AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh,

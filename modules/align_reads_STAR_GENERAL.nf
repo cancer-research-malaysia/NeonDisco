@@ -10,9 +10,7 @@ process ALIGN_READS_STAR_GENERAL {
         path starIndex
 
     output:
-        tuple val(sampleName), path("*-STAR-GEN_Aligned.out.bam", arity: '1'), emit: aligned_bam
-        //tuple val(sampleName), path("*-STAR-GEN_Chimeric.out.junction"), emit: chimeric_reads
-        //tuple val(sampleName), path("*-STAR-GEN_Log.final.out"), emit: read_stats
+        tuple val(sampleName), path("*-STAR-GEN_Aligned.out.bam"), path("*-STAR-GEN_Aligned.out.bam.bai"), emit: final_bam
 
     script:
     """
@@ -30,6 +28,8 @@ process ALIGN_READS_STAR_GENERAL {
     # STAR normal alignment for general tools
     if star-general--nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" ${params.numCores} "\${STAR_INDEX}"; then
         echo "STAR general alignment is complete!"
+        # sort and index
+        samtools sort -@ ${params.numCores} -m 4G -O bam \${SAMPLE_ID}-STAR-GEN_Aligned.out.bam | samtools index -@ ${params.numCores} - && echo "Indexing complete!"
     else
         echo "STAR alignment failed. Check logs. Exiting..."
         exit 1
