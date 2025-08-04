@@ -38,7 +38,11 @@ process COLLATE_HLA_FILES_BASH {
             exit 1
         fi
     done < ${mappingFile}
-    echo "Cohort-wide HLA types file created successfully."
+
+    # Sort numerically by sample name
+    { head -n1 Cohort-wide_HLA_types.tsv; tail -n+2 Cohort-wide_HLA_types.tsv | sort -V; } > Cohort-wide_HLA_types_sorted.tsv
+    mv Cohort-wide_HLA_types_sorted.tsv Cohort-wide_HLA_types.tsv && echo "Cohort-wide HLA types file created successfully."
+    
     """
 
     stub:

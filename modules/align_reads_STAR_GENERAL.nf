@@ -10,7 +10,7 @@ process ALIGN_READS_STAR_GENERAL {
         path starIndex
 
     output:
-        tuple val(sampleName), path("*-STAR-GEN_Aligned.out.bam"), path("*-STAR-GEN_Aligned.out.bam.bai"), emit: final_bam
+        tuple val(sampleName), path("${sampleName}-STAR-GEN_Aligned.out.sorted.bam"), path("${sampleName}-STAR-GEN_Aligned.out.sorted.bam.bai"), emit: final_bam
 
     script:
     """
@@ -28,8 +28,9 @@ process ALIGN_READS_STAR_GENERAL {
     # STAR normal alignment for general tools
     if star-general--nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" ${params.numCores} "\${STAR_INDEX}"; then
         echo "STAR general alignment is complete!"
-        # sort and index
-        samtools sort -@ ${params.numCores} -m 4G -O bam \${SAMPLE_ID}-STAR-GEN_Aligned.out.bam | samtools index -@ ${params.numCores} - && echo "Indexing complete!"
+        # sort and index - create files with the names Nextflow expects
+        samtools sort -@ ${params.numCores} -m 4G -O bam -o \${SAMPLE_ID}-STAR-GEN_Aligned.out.sorted.bam \${SAMPLE_ID}-STAR-GEN_Aligned.out.bam
+        samtools index -@ ${params.numCores} \${SAMPLE_ID}-STAR-GEN_Aligned.out.sorted.bam
     else
         echo "STAR alignment failed. Check logs. Exiting..."
         exit 1
