@@ -485,7 +485,19 @@ workflow HLA_TYPING_WF {
     main:
         REFORMAT_HLA_TYPES_PYENV(TYPE_HLA_ALLELES_ARCASHLA(alignedBamCh).allotype_json)
         hlaFilesCh = REFORMAT_HLA_TYPES_PYENV.out.hlaTypingTsv
-        COLLATE_HLA_FILES_BASH(hlaFilesCh.collect(flat: false))
+        
+        // Create a mapping file that explicitly associates sample names with staged filenames
+        // This preserves the explicit association safely
+        hlaWithMapping = hlaFilesCh
+            .collectFile(name: 'sample_file_mapping.tsv', newLine: true) { sampleName, hlaFile ->
+                "${sampleName}\t${hlaFile.name}"
+            }
+        
+        COLLATE_HLA_FILES_BASH(
+            hlaFilesCh.collect { _sampleName, hlaFile -> hlaFile },  // Files for staging
+            hlaWithMapping  // Mapping file
+        )
+        
     emit:
         sampleSpecificHLAsTsv = COLLATE_HLA_FILES_BASH.out.cohortWideHLAList
 
