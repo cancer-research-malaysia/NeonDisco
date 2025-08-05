@@ -6,6 +6,10 @@ dependencies:
   - python
   - bowtie2
   - picard
+  - arcas-hla=0.6.0
+  - samtools
+  - bedtools=2.26.0
+  - kallisto=0.44.0
   - awscli
   - pip
   
