@@ -15,7 +15,8 @@ echo "Number of cores for HLA-HD specified: ${CORES}"
 STARTTIME=$(date +%s)
 
 # run HLA-HD (discard reads <30bp)
-if hlahd.sh -t ${CORES} -m 30 -f ${HLAHD_DIR}/freq_data/ "${READ1}" "${READ2}" "${HLAHD_DIR}/HLA_gene.split.3.50.0.txt" "${HLAHD_DIR}/dictionary/" "${SAMPLE_ID}_HLAHD" "${SAMPLE_ID}-hlahd-out"; then
+mkdir -p HLAHD-out/
+if hlahd.sh -t ${CORES} -m 30 -f ${HLAHD_DIR}/freq_data/ "${READ1}" "${READ2}" "${HLAHD_DIR}/HLA_gene.split.3.50.0.txt" "${HLAHD_DIR}/dictionary/" "${SAMPLE_ID}" "HLAHD-out"; then
     echo "HLA-HD run successfully for sample ${SAMPLE_ID}."
     ENDTIME=$(date +%s)
     ELAP=$(( ENDTIME - STARTTIME ))

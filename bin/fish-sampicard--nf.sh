@@ -11,13 +11,11 @@ echo "${SAMPLE_ID}"
 echo "${BAM_INPUT}"
 
 # run samtools filtering
-mkdir -p "samtools-o"
 samtools view -b -h "${BAM_INPUT}" "6:28,510,020-33,480,577" > "MHC-${SAMPLE_ID}.bam"
 samtools view -b -f 4 "${BAM_INPUT}" > "unmapped-${SAMPLE_ID}.bam"
 samtools merge -o "merged-${SAMPLE_ID}.bam" "MHC-${SAMPLE_ID}.bam" "unmapped-${SAMPLE_ID}.bam"
 
 # run Picard conversion
-mkdir -p "picard-o"
 if picard SamToFastq -I "merged-${SAMPLE_ID}.bam" -F "${SAMPLE_ID}_UNMAP_MERGED_R1.fastq" -F2 "${SAMPLE_ID}_UNMAP_MERGED_R2.fastq" -VALIDATION_STRINGENCY SILENT -QUIET TRUE; then
     echo "Picard conversion successful for sample ${SAMPLE_ID}."
     # relabel records with awk

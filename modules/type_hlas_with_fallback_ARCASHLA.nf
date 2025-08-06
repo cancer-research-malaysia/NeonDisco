@@ -45,7 +45,7 @@
 
 // Single process approach - arcasHLA with HLA-HD fallback in one instance
 
-process TYPE_HLA_WITH_FALLBACK {
+process TYPE_HLAS_WITH_FALLBACK_ARCASHLA {
     
     label 'typeHLAs'
     
@@ -59,7 +59,7 @@ process TYPE_HLA_WITH_FALLBACK {
 
     output:
     tuple val(sampleName), path("${sampleName}.genotype.json"), emit: hla_json
-    path "${sampleName}_hla_typing.log", emit: logs
+    path "${sampleName}_hla_typing.log"
     
     script:
     """
@@ -89,81 +89,78 @@ process TYPE_HLA_WITH_FALLBACK {
             allele_count=\$(grep -o '"[ABC][*][0-9]' "\${SAMPLE_ID}.genotype.json" | wc -l || echo "0")
             
             if [[ \$allele_count -gt 0 ]]; then
-                echo "SUCCESS: arcasHLA found \${allele_count} HLA alleles for \${SAMPLE_ID}" >> \$LOG_FILE
-                echo "Method used: arcasHLA" >> \$LOG_FILE
-                echo "=== WORKFLOW COMPLETE ===" >> \$LOG_FILE
+                echo "SUCCESS: arcasHLA found \${allele_count} HLA alleles for \${SAMPLE_ID}" | tee -a \$LOG_FILE
+                echo "Method used: arcasHLA" | tee -a \$LOG_FILE
+                echo "=== WORKFLOW COMPLETE ===" | tee -a \$LOG_FILE
                 exit 0  # Success - exit early
             else
-                echo "WARNING: arcasHLA completed but found no HLA alleles" >> \$LOG_FILE
-                echo "JSON content preview:" >> \$LOG_FILE
-                head -5 "\${SAMPLE_ID}.genotype.json" >> \$LOG_FILE || echo "Could not read JSON" >> \$LOG_FILE
+                echo "WARNING: arcasHLA completed but found no HLA alleles" | tee -a \$LOG_FILE
+                echo "JSON content preview:" | tee -a \$LOG_FILE
+                head -5 "\${SAMPLE_ID}.genotype.json" | tee -a \$LOG_FILE || echo "Could not read JSON" | tee -a \$LOG_FILE
             fi
         else
             echo "WARNING: arcasHLA did not produce expected JSON output" >> \$LOG_FILE
+            exit 1
         fi
     else
         echo "WARNING: arcasHLA command failed" >> \$LOG_FILE
+        exit 1
     fi
     
-    echo "" >> \$LOG_FILE
-    echo "=== FALLING BACK TO HLA-HD ===" >> \$LOG_FILE
-    echo "arcasHLA was unsuccessful, trying HLA-HD..." >> \$LOG_FILE
+    echo "" | tee -a \$LOG_FILE
+    echo "=== FALLING BACK TO HLA-HD ===" | tee -a \$LOG_FILE
+    echo "arcasHLA was unsuccessful, trying HLA-HD..." | tee -a \$LOG_FILE
     
     # Convert BAM to FASTQ for HLA-HD
-    echo "Converting BAM to FASTQ..." >> \$LOG_FILE
-    samtools fastq -1 \${SAMPLE_ID}_R1.fastq -2 \${SAMPLE_ID}_R2.fastq \${BAM} 2>&1 | tee -a \$LOG_FILE
-    
-    if [[ ! -f "\${SAMPLE_ID}_R1.fastq" || ! -f "\${SAMPLE_ID}_R2.fastq" ]]; then
-        echo "ERROR: Failed to convert BAM to FASTQ" >> \$LOG_FILE
-        echo "Creating empty JSON output..." >> \$LOG_FILE
-        echo '{"A": {}, "B": {}, "C": {}, "method": "failed", "sample": "'"\${SAMPLE_ID}"'"}' > \${SAMPLE_ID}.genotype.json
-        exit 0
+    echo "Converting BAM to FASTQ..." | tee -a \$LOG_FILE
+    if fish-sampicard--nf.sh \${SAMPLE_ID} \${BAM} 2>&1 | tee -a \$LOG_FILE; then
+        echo "BAM to FASTQ conversion completed successfully" | tee -a \$LOG_FILE
+        # Run HLA-HD with the generated FASTQ files
+        echo "Starting HLA-HD typing..." | tee -a \$LOG_FILE
+        if [[ -f "\${SAMPLE_ID}_Bam2Fq_R1.fastq" && -f "\${SAMPLE_ID}_Bam2Fq_R2.fastq" ]]; then
+            echo "FASTQ files generated: \${SAMPLE_ID}_Bam2Fq_R1.fastq and \${SAMPLE_ID}_Bam2Fq_R2.fastq" >> \$LOG_FILE
+            if hlahd--nf.sh \${SAMPLE_ID} \${SAMPLE_ID}_Bam2Fq_R1.fastq \${SAMPLE_ID}_Bam2Fq_R2.fastq ${params.numCores} 2>&1 | tee -a \$LOG_FILE; then
+                echo "HLA-HD command completed successfully" | tee -a \$LOG_FILE
+            else
+                echo "ERROR: HLA-HD command failed" | tee -a \$LOG_FILE
+                exit 1
+            fi
+        else
+            echo "ERROR: FASTQ files not found after conversion" | tee -a \$LOG_FILE
+            exit 1
+        fi
+    else
+        echo "ERROR: BAM to FASTQ conversion failed" | tee -a \$LOG_FILE
+        exit 1
     fi
     
-    # Run HLA-HD
-    echo "Starting HLA-HD typing..." >> \$LOG_FILE
-    if hlahd.sh -t \${task.cpus} -m 100 -f \${PWD}/freq_data \\
-        \${SAMPLE_ID}_R1.fastq \${SAMPLE_ID}_R2.fastq \\
-        gene_split_filt \${PWD}/HLA_gene.split.txt \${SAMPLE_ID} \\
-        \${PWD}/result/\${SAMPLE_ID} 2>&1 | tee -a \$LOG_FILE; then
         
-        echo "HLA-HD command completed" >> \$LOG_FILE
-        
-        # Convert HLA-HD output to arcasHLA-compatible JSON
-        if [[ -f "\${PWD}/result/\${SAMPLE_ID}/\${SAMPLE_ID}_final.result.txt" ]]; then
-            echo "Converting HLA-HD output to JSON format..." >> \$LOG_FILE
+    # Convert HLA-HD output to arcasHLA-compatible JSON
+    if [[ -f "HLAHD/\${SAMPLE_ID}/result/\${SAMPLE_ID}_final.result.txt" ]]; then
+            echo "Converting HLA-HD output to JSON format..." | tee -a \$LOG_FILE
             
             # Convert HLA-HD TSV format to arcasHLA-compatible JSON
-            convert_hlahd_to_json.py "\${PWD}/result/\${SAMPLE_ID}/\${SAMPLE_ID}_final.result.txt" "\${SAMPLE_ID}" > \${SAMPLE_ID}.genotype.json
+            convert-hlahd-to-json--nf.py "HLAHD/\${SAMPLE_ID}/result/\${SAMPLE_ID}_final.result.txt" "\${SAMPLE_ID}" > \${SAMPLE_ID}.genotype.json
             
             # Check if we got results from HLA-HD
             hd_allele_count=\$(grep -o '"[ABC][*][0-9]' "\${SAMPLE_ID}.genotype.json" | wc -l || echo "0")
             
             if [[ \$hd_allele_count -gt 0 ]]; then
-                echo "SUCCESS: HLA-HD found \${hd_allele_count} HLA alleles for \${SAMPLE_ID}" >> \$LOG_FILE
-                echo "Method used: HLA-HD (fallback)" >> \$LOG_FILE
+                echo "SUCCESS: HLA-HD found \${hd_allele_count} HLA alleles for \${SAMPLE_ID}" | tee -a \$LOG_FILE
+                echo "Method used: HLA-HD (fallback)" | tee -a \$LOG_FILE
             else
-                echo "WARNING: HLA-HD completed but found no HLA alleles" >> \$LOG_FILE
-                echo "Method used: HLA-HD (no results)" >> \$LOG_FILE
+                echo "WARNING: HLA-HD completed but found no HLA alleles" | tee -a \$LOG_FILE
+                echo "Method used: HLA-HD (no results)" | tee -a \$LOG_FILE
             fi
-        else
-            echo "ERROR: HLA-HD did not produce expected output file" >> \$LOG_FILE
-            echo "Creating empty JSON output..." >> \$LOG_FILE
-            echo '{"A": {}, "B": {}, "C": {}, "method": "HLA-HD_failed", "sample": "'"\${SAMPLE_ID}"'"}' > \${SAMPLE_ID}.genotype.json
-        fi
     else
-        echo "ERROR: HLA-HD command failed" >> \$LOG_FILE
-        echo "Creating empty JSON output..." >> \$LOG_FILE
-        echo '{"A": {}, "B": {}, "C": {}, "method": "both_failed", "sample": "'"\${SAMPLE_ID}"'"}' > \${SAMPLE_ID}.genotype.json
+        echo "ERROR: HLA-HD did not produce expected output file" | tee -a \$LOG_FILE
+        echo "Creating empty JSON output..." | tee -a \$LOG_FILE
+        echo '{}' > \${SAMPLE_ID}.genotype.json
     fi
-    
-    # Cleanup temporary files to save space
-    rm -f \${SAMPLE_ID}_R1.fastq \${SAMPLE_ID}_R2.fastq
-    rm -rf result/
-    
-    echo "=== WORKFLOW COMPLETE ===" >> \$LOG_FILE
-    echo "Final JSON preview:" >> \$LOG_FILE
-    head -10 "\${SAMPLE_ID}.genotype.json" >> \$LOG_FILE || echo "Could not read final JSON" >> \$LOG_FILE
+
+    echo "=== WORKFLOW COMPLETE ===" | tee -a \$LOG_FILE
+    echo "Final JSON preview:" | tee -a \$LOG_FILE
+    head "\${SAMPLE_ID}.genotype.json" >> \$LOG_FILE || echo "Could not read final JSON" | tee -a \$LOG_FILE
     """
     
     stub:

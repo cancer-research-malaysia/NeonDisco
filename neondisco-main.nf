@@ -37,9 +37,8 @@ include { PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE } from './modules/predi
 include { PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE } from './modules/predict_neopeptides_cohort_level_hlas_PVACFUSE.nf'
 
 ////// HLA TYPING MODULES //////////
-include { TYPE_HLA_ALLELES_ARCASHLA } from './modules/type_hla_alleles_ARCASHLA.nf'
-include { REFORMAT_HLA_TYPES_PYENV } from './modules/reformat_hla_types_PYENV.nf'
-include { COLLATE_HLA_FILES_BASH } from './modules/collate_hla_files_BASH.nf'
+include { TYPE_HLAS_WITH_FALLBACK_ARCASHLA } from './modules/type_hlas_with_fallback_ARCASHLA.nf'
+include { REFORMAT_AND_COLLATE_HLA_RESULTS_PYENV } from './modules/reformat_and_collate_hla_results_PYENV.nf'
 include { FILTER_HLA_ALLOTYPES_FREQ_PYENV } from './modules/filter_hla_allotypes_freq_PYENV.nf'
 
 
@@ -276,28 +275,50 @@ workflow GENERAL_READS_ALIGNMENT_WF {
         alignedBamCh = ALIGN_READS_STAR_GENERAL.out.final_bam
 }
 
-workflow HLA_TYPING_WF {
-    take:
-        alignedBamCh
-    main:
-        REFORMAT_HLA_TYPES_PYENV(TYPE_HLA_ALLELES_ARCASHLA(alignedBamCh).allotype_json)
-        hlaFilesCh = REFORMAT_HLA_TYPES_PYENV.out.hlaTypingTsv
+// workflow HLA_TYPING_WF {
+//     take:
+//         alignedBamCh
+//     main:
+//         REFORMAT_HLA_TYPES_PYENV(TYPE_HLA_ALLELES_ARCASHLA(alignedBamCh).allotype_json)
+//         hlaFilesCh = REFORMAT_HLA_TYPES_PYENV.out.hlaTypingTsv
         
-        // Create a mapping file that explicitly associates sample names with staged filenames
-        // This preserves the explicit association safely
-        hlaWithMapping = hlaFilesCh
-            .collectFile(name: 'sample_file_mapping.tsv', newLine: true) { sampleName, hlaFile ->
-                "${sampleName}\t${hlaFile.name}"
-            }
+//         // Create a mapping file that explicitly associates sample names with staged filenames
+//         // This preserves the explicit association safely
+//         hlaWithMapping = hlaFilesCh
+//             .collectFile(name: 'sample_file_mapping.tsv', newLine: true) { sampleName, hlaFile ->
+//                 "${sampleName}\t${hlaFile.name}"
+//             }
         
-        COLLATE_HLA_FILES_BASH(
-            hlaFilesCh.collect { _sampleName, hlaFile -> hlaFile },  // Files for staging
-            hlaWithMapping  // Mapping file
-        )
+//         COLLATE_HLA_FILES_BASH(
+//             hlaFilesCh.collect { _sampleName, hlaFile -> hlaFile },  // Files for staging
+//             hlaWithMapping  // Mapping file
+//         )
         
-    emit:
-        sampleSpecificHLAsTsv = COLLATE_HLA_FILES_BASH.out.cohortWideHLAList
+//     emit:
+//         sampleSpecificHLAsTsv = COLLATE_HLA_FILES_BASH.out.cohortWideHLAList
 
+// }
+
+// simplified with single HLA typing process with HLA-HD fallback
+workflow HLA_TYPING_WITH_FALLBACK_WF {
+    take:
+        alignedBamCh  // [sampleName, bam, bamIdx]
+    
+    main:
+        // Single process handles both arcasHLA and HLA-HD fallback
+        TYPE_HLAS_WITH_FALLBACK_ARCASHLA(alignedBamCh)
+    
+        // Collect all JSON files
+        all_json_files = TYPE_HLAS_WITH_FALLBACK_ARCASHLA.out.hla_json
+            .map { _sampleName, json -> json }
+            .collect()
+    
+        // Single process to reformat and collate everything
+        REFORMAT_AND_COLLATE_HLA_RESULTS_PYENV(all_json_files)
+    
+    emit:
+        sampleSpecificHLAsTsv = REFORMAT_AND_COLLATE_HLA_RESULTS_PYENV.out.cohortWideHLAList
+        individualResultDir = REFORMAT_AND_COLLATE_HLA_RESULTS_PYENV.out.individualResults
 }
 
 workflow AGGREGATE_FUSION_CALLING_WF {
@@ -642,12 +663,12 @@ workflow {
     if (params.hlaTypingOnly) {
         log.info "Running HLA typing only subworkflow..."
         // Run only HLA typing
-        HLA_TYPING_WF(alignedBamsCh)
+        HLA_TYPING_WITH_FALLBACK_WF(alignedBamsCh)
 
     } else {
         
         // HLA typing
-        HLA_TYPING_WF(alignedBamsCh)
+        HLA_TYPING_WITH_FALLBACK_WF(alignedBamsCh)
 
         // Fusion calling module
         AGGREGATE_FUSION_CALLING_WF(qcProcInputCh, params.starIndex, 
@@ -675,7 +696,7 @@ workflow {
             IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.filteredAgfusionOutdir,
             AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh,
             RECURRENT_FUSION_FILTERING_WF.out.cohortRecurrentFusionsCh,
-            HLA_TYPING_WF.out.sampleSpecificHLAsTsv,
+            HLA_TYPING_WITH_FALLBACK_WF.out.sampleSpecificHLAsTsv,
             params.metaDataDir
         )
     }
