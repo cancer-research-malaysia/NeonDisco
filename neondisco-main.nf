@@ -671,7 +671,7 @@ workflow {
         HLA_TYPING_WITH_FALLBACK_WF(alignedBamsCh)
 
         // Fusion calling module
-        AGGREGATE_FUSION_CALLING_WF(qcProcInputCh, params.starIndex, 
+        AGGREGATE_FUSION_CALLING_WF(alignedBamsCh, params.starIndex, 
             params.arribaDB, params.fuscatDB, params.ctatDB, params.metaDataDir)
 
         // RNA-editing calling module
