@@ -44,8 +44,8 @@ process PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE {
 
     # check if SSHLA is empty
     if [ -z "\${SSHLA}" ]; then
-        echo "No sample-specific HLA types found for ${sampleName}. Exiting."
-        exit 0
+        echo "No sample-specific HLA types found for ${sampleName}. Assigning SEAsian-prevalent HLA types..."
+        SSHLA="HLA-A*11:01 HLA-A*24:02 HLA-A*02:07 HLA-A*33:03 HLA-B*46:02 HLA-B*44:03 HLA-B*40:01 HLA-C*03:04 HLA-C*01:02"
     fi
 
     # Run pVacFuse with sample-specific HLA types
