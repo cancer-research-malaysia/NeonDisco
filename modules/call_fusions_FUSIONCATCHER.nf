@@ -1,6 +1,6 @@
 // Run FT calling module
 process CALL_FUSIONS_FUSIONCATCHER {
-    maxForks 4
+    maxForks 3
     label 'callFusionsFC'
     
     container "${params.container__fuscat}"

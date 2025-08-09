@@ -1,6 +1,6 @@
 // Run FT calling module
 process CALL_FUSIONS_STARFUSION {
-    maxForks 1
+    maxForks 2
     label 'callFusionsSF'
     
     container "${params.container__starfusion}"

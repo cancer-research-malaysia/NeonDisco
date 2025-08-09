@@ -275,30 +275,6 @@ workflow GENERAL_READS_ALIGNMENT_WF {
         alignedBamCh = ALIGN_READS_STAR_GENERAL.out.final_bam
 }
 
-// workflow HLA_TYPING_WF {
-//     take:
-//         alignedBamCh
-//     main:
-//         REFORMAT_HLA_TYPES_PYENV(TYPE_HLA_ALLELES_ARCASHLA(alignedBamCh).allotype_json)
-//         hlaFilesCh = REFORMAT_HLA_TYPES_PYENV.out.hlaTypingTsv
-        
-//         // Create a mapping file that explicitly associates sample names with staged filenames
-//         // This preserves the explicit association safely
-//         hlaWithMapping = hlaFilesCh
-//             .collectFile(name: 'sample_file_mapping.tsv', newLine: true) { sampleName, hlaFile ->
-//                 "${sampleName}\t${hlaFile.name}"
-//             }
-        
-//         COLLATE_HLA_FILES_BASH(
-//             hlaFilesCh.collect { _sampleName, hlaFile -> hlaFile },  // Files for staging
-//             hlaWithMapping  // Mapping file
-//         )
-        
-//     emit:
-//         sampleSpecificHLAsTsv = COLLATE_HLA_FILES_BASH.out.cohortWideHLAList
-
-// }
-
 // simplified with single HLA typing process with HLA-HD fallback
 workflow HLA_TYPING_WITH_FALLBACK_WF {
     take:
