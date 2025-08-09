@@ -13,7 +13,7 @@ process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
     
     
     input:
-        tuple val(sampleName), path(filtered_agfusion_outdir), path(uniqueFiltFusionPairsForFusIns), path(trimmedReads)
+        tuple val(sampleName), path(filteredAgfusionOutdir), path(uniqueFiltFusionPairsForFusIns), path(trimmedReads)
         path ctatDB
     
     output:
@@ -22,7 +22,7 @@ process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
     script:
     """
     echo "Path to input file for FusionInspector gene pair input: ${uniqueFiltFusionPairsForFusIns}"
-    echo "Path to filtered AGFusion output directory: ${filtered_agfusion_outdir}"
+    echo "Path to filtered AGFusion output directory: ${filteredAgfusionOutdir}"
     echo "Sample name: ${sampleName}"
     echo "Trimmed reads: ${trimmedReads}"
     # extract reads from the tuple
@@ -33,7 +33,7 @@ process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
 
     
     echo "Running preprocessing script to filter for agfusion-compatible gene pairs..."
-    if fusins-preproc--nf.sh ${uniqueFiltFusionPairsForFusIns} ${filtered_agfusion_outdir} ${sampleName}-genePairs-for-FusIns-filtered.txt; then
+    if fusins-preproc--nf.sh ${uniqueFiltFusionPairsForFusIns} ${filteredAgfusionOutdir} ${sampleName}-genePairs-for-FusIns-filtered.txt; then
         echo "Preprocessing script has finished running."
         echo "Starting FusionInspector run with filtered gene pairs..."
         if fusins--nf.sh ${sampleName}-genePairs-for-FusIns-filtered.txt ${ctatDB} \$READ1 \$READ2 ${sampleName} ${params.numCores}; then

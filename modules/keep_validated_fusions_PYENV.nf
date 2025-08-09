@@ -14,7 +14,7 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
 
     output:
         tuple val(sampleName), path("${sampleName}-collated-FT-normFiltered-FI-validated.tsv"), emit: validatedFusions
-        tuple val(sampleName), path("validated-agfusion-outdir"), emit: validatedAgfusionDir
+        tuple val(sampleName), path("validated-agfusion-outdir/"), emit: validatedAgfusionDir
 
     script:
     """
@@ -29,7 +29,7 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
 
     # check if the output file is empty 
     if [ ! -s ${sampleName}-collated-FT-normFiltered-FI-validated.tsv ]; then
-        echo "Output file empty. No validated fusions found in Fusion Inspector output. Aborting this sample run." | tee validated-agfusion-outdir/.empty 
+        echo "Output file empty. No validated fusions found in Fusion Inspector output. Aborting this sample run." | tee validated-agfusion-outdir/_empty.txt 
         exit 0
     fi
     
@@ -73,8 +73,11 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
     fi
     
     # Ensure directory is never empty for S3 compatibility
-    if [ ! "\$(find validated-agfusion-outdir -maxdepth 1 -type d ! -name "." ! -name ".." | head -1)" ]; then
-        echo "No AGFusion directories copied for ${sampleName}" > validated-agfusion-outdir/.empty
+    if find validated-agfusion-outdir/ -mindepth 1 -maxdepth 1 -type d -quit | grep -q .; then
+        echo "Has subdirectories. Proceeding with outputs..."
+    else
+        echo "No subdirectories found. Creating a dummy file to ensure directory is not empty."
+        echo "No AGFusion directories with protein files found for ${sampleName}" > validated-agfusion-outdir/_placeholder.txt
     fi
 
     # Clean up temporary file
