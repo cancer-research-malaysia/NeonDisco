@@ -6,9 +6,9 @@ process FIXMATES_MARKDUPES_SAMTOOLS {
     
     container "${params.container__preproc}"
     
-    publishDir "${params.outputDir}/${sampleName}/2PASS-ALIGNMENT-out", mode: 'copy',
-        saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename },
-        enabled: params.outputDir.toString().startsWith('s3://') // this evaluates to true if the outputDir is an s3 bucket, which will then activate the publishDir directive
+    // publishDir "${params.outputDir}/${sampleName}/2PASS-ALIGNMENT-out", mode: 'copy',
+    //     saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename },
+    //     enabled: params.outputDir.toString().startsWith('s3://') // this evaluates to true if the outputDir is an s3 bucket, which will then activate the publishDir directive
     
     afterScript params.deleteIntMedFiles ? "find ./ -name \"${sampleName}*STAR_2pass_Aligned.out.bam\" -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping intermediate file cleanup...'"
     

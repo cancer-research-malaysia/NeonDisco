@@ -15,7 +15,7 @@ process PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE {
         path(metaDataDir) // Directory containing metadata files, including the reference proteome FASTA
 
     output:
-        path("${sampleName}_sample-level-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"), emit: predictedSampleSpecificNeopeptides, optional: true
+        path("${sampleName}_*-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"), emit: predictedSampleSpecificNeopeptides, optional: true
 
     script:
     """
@@ -46,6 +46,25 @@ process PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE {
     if [ -z "\${SSHLA}" ]; then
         echo "No sample-specific HLA types found for ${sampleName}. Assigning SEAsian-prevalent HLA types..."
         SSHLA="HLA-A*11:01,HLA-A*24:02,HLA-A*02:07,HLA-A*33:03,HLA-B*46:02,HLA-B*44:03,HLA-B*40:01,HLA-C*03:04,HLA-C*01:02"
+
+        # Run pVacFuse with sample-specific HLA types
+        echo "Running pVacfuse for sample-specific prediction using SEAsian-prevalent HLA types..."
+        if pvacfuse run ${validatedAgfusionDir} ${sampleName} \${SSHLA} \
+            BigMHC_EL BigMHC_IM DeepImmuno MHCflurry MHCflurryEL NetMHCpanEL NetMHCcons SMMPMBEC \
+            "${sampleName}_SEA-SET-HLA-pred" \
+            --iedb-install-directory /opt/iedb \
+            --allele-specific-binding-thresholds \
+            --run-reference-proteome-similarity \
+            --peptide-fasta ${metaDataDir}/Homo_sapiens.GRCh38.pep.all.fa.gz \
+            --netmhc-stab \
+            -t ${params.numCores * 2} \
+            -a sample_name; then
+            echo "pVacFuse run finished!"
+            exit 0
+        else
+            echo "Something went wrong."
+            exit 1
+        fi
     fi
 
     # Run pVacFuse with sample-specific HLA types
@@ -61,6 +80,7 @@ process PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE {
     -t ${params.numCores * 2} \
     -a sample_name; then
         echo "pVacFuse run finished!"
+        exit 0
     else
         echo "Something went wrong."
         exit 1
