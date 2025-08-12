@@ -33,7 +33,7 @@ process PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE {
 
     echo "Running pVacfuse to predict neoepitopes from validated AGFusion results..."
     echo "Path to cohort-wide HLA allotype TSV: ${cohortWideHLAList}"
-    echo "Prediction mode: Sample-level: ${params.sampleLevelHLANeoPred}"
+    echo "Prediction mode: Sample-level --> ${params.sampleHLANeoPred}"
     echo "Number of cores to use: ${params.numCores * 2}"
 
 

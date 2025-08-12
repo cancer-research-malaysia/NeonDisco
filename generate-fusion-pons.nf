@@ -218,15 +218,6 @@ workflow {
         exit 0
     }
     
-    // Check that profile is set to one of the allowed values
-    if (!workflow.profile) {
-        log.error "No profile specified. Please specify -profile < persoMode-local | popMode-local | aws-batch >"
-        exit 1
-    } else if (!['persoMode-local', 'popMode-local', 'aws-batch'].contains(workflow.profile)) {
-        log.error "Invalid profile: ${workflow.profile}. Must be one of: {persoMode-local, popMode-local, aws-batch}"
-        exit 1
-    }
-    
     // Check that either inputDir or manifestPath is provided
     if (!params.inputDir && !params.manifestPath) {
         log.error "Either --inputDir or --manifestPath must be specified"

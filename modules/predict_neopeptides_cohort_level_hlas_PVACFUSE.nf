@@ -33,7 +33,7 @@ process PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE {
 
     echo "Running PVACFUSE to predict neoepitopes from validated AGFusion results..."
     echo "Path to cohort-wide 5% frequency HLAs: ${cohortFivePercentFreqHLAs}"
-    echo "Prediction mode: Cohort-level --> ${params.cohortLevelHLANeoPred}"
+    echo "Prediction mode: Cohort-level --> ${params.cohortHLANeoPred}"
     echo "Number of cores to use: ${params.numCores * 2}"
 
 

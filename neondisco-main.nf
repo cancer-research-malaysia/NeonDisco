@@ -51,17 +51,19 @@ nextflow run neondisco-main.nf -profile <EXECUTOR,MODE[,RESOURCE]> <--OPTION NAM
 
 Profile Examples:
 ----------------
-    -profile local,personalizedNeo              # Run locally in personalized neoantigen mode
-    -profile local,sharedNeo                    # Run locally in shared neoantigen mode
-    -profile awsbatch,personalizedNeo           # Run on AWS Batch in personalized neoantigen mode
-    -profile awsbatch,sharedNeo                 # Run on AWS Batch in shared neoantigen mode
+    -profile local,sampleNeoPredMode              # Run locally in sample-level neoantigen mode
+    -profile local,sharedNeoPredMode              # Run locally in shared neoantigen mode  
+    -profile local,dualNeoPredMode                # Run locally in both modes
+    -profile awsbatch,sampleNeoPredMode           # Run on AWS Batch in sample-level neoantigen mode
+    -profile awsbatch,sharedNeoPredMode           # Run on AWS Batch in shared neoantigen mode
+    -profile awsbatch,dualNeoPredMode             # Run on AWS Batch in both modes
 
 Required Arguments:
 ---------------
     -c <configFile>             Path to the config file. [REQUIRED]
     -profile                    Comma-separated list of profiles [REQUIRED]
                                     EXECUTOR:   local | awsbatch
-                                    MODE:       personalizedNeo | sharedNeo [can run both modes simultaneously]
+                                    MODE:       sampleNeoPredMode | sharedNeoPredMode | dualNeoPredMode
     --inputDir                  Path to local directory containing BAM/FASTQ input files [REQUIRED if manifestPath not provided]
     --manifestPath              Path to tab-delimited manifest file [REQUIRED if inputDir not provided]
                                     – must contain sample ID and read1 and read2 local filepaths or remote s3 filepaths
@@ -75,11 +77,11 @@ Optional Arguments:
     --outputDir                 Directory path for output; can be s3 URIs [DEFAULT: ./outputs]
     --trimReads                 Skip read trimming on FASTQ input [DEFAULT: true]
     --hlaTypingOnly             Exclusively run HLA typing subworkflow [DEFAULT: false]
-    --includeNeoPepPred         Run neopeptide prediction subworkflow [DEFAULT: true]
+    --includeNeoPred            Run neopeptide prediction subworkflow [DEFAULT: true]
     --deleteIntMedFiles         Delete intermediate files right after they are not needed [DEFAULT: false]
     --deleteStagedFiles         Delete staged files after processing [DEFAULT: true if inputSource is 's3']
-    --sampleLevelHLANeoPred     Run neopeptide prediction using sample-level HLAs [DEFAULT: varies by mode]
-    --cohortLevelHLANeoPred     Run neopeptide prediction using cohort-level HLAs [DEFAULT: varies by mode]
+    --sampleHLANeoPred          Run neopeptide prediction using sample-level HLAs [DEFAULT: varies by mode]
+    --cohortHLANeoPred          Run neopeptide prediction using cohort-level HLAs [DEFAULT: varies by mode]
     --recurrentFusionsOnly      Analyze recurrent fusions only [DEFAULT: varies by mode]
                                     – true: Only process cohort-wide recurrent fusions (skip if none found)
                                     – false: Process all validated fusions regardless of recurrence
@@ -93,13 +95,13 @@ Optional Arguments:
 def validateProfiles() {
     if (!workflow.profile) {
         log.error "No profile specified. Please specify -profile <EXECUTOR,MODE[,RESOURCE]>"
-        log.error "Examples: -profile local,personalizedNeo or -profile awsbatch,sharedNeo"
+        log.error "Examples: -profile local,sampleNeoPredMode or -profile awsbatch,sharedNeoPredMode"
         return false
     }
     
     def profiles = workflow.profile.split(',').collect { it.trim() }
     def executors = ['local', 'awsbatch']
-    def modes = ['personalizedNeo', 'sharedNeo']
+    def modes = ['sampleNeoPredMode', 'sharedNeoPredMode', 'dualNeoPredMode']
     
     // Check for required executor and mode
     def hasExecutor = profiles.any { executors.contains(it) }
@@ -122,32 +124,21 @@ def validateProfiles() {
         return false
     }
     
-    // Check for mode combinations
+    // Check for mode combinations - now only allow one mode since we have dualNeoPredMode
     def modeCount = profiles.count { modes.contains(it) }
-    def hasPersonalized = profiles.contains('personalizedNeo')
-    def hasShared = profiles.contains('sharedNeo')
-    
-    if (modeCount > 2) {
-        log.error "Too many discovery mode profiles specified. Found: ${profiles.findAll { modes.contains(it) }.join(', ')}"
+    if (modeCount > 1) {
+        log.error "Only one neoantigen prediction mode allowed. Found: ${profiles.findAll { modes.contains(it) }.join(', ')}"
+        log.error "Use 'dualNeoPredMode' to run both sample-level and shared predictions"
         return false
     }
     
-    // Handle valid combinations
-    if (hasPersonalized && hasShared) {
-        log.info "Running in dual mode: both personalized and shared neoantigen discovery enabled"
-        // Set parameters for dual mode
-        params.sampleLevelHLANeoPred = true
-        params.cohortLevelHLANeoPred = true
-    } else if (hasPersonalized) {
-        log.info "Running in personalized neoantigen discovery mode"
-        // Set parameters for personalized mode
-        // params.sampleLevelHLANeoPred = true
-        // params.cohortLevelHLANeoPred = false
-    } else if (hasShared) {
+    // Log which mode is being used
+    if (profiles.contains('dualNeoPredMode')) {
+        log.info "Running in dual mode: both sample-level and shared neoantigen discovery enabled"
+    } else if (profiles.contains('sampleNeoPredMode')) {
+        log.info "Running in sample-level neoantigen discovery mode"
+    } else if (profiles.contains('sharedNeoPredMode')) {
         log.info "Running in shared neoantigen discovery mode"
-        // Set parameters for shared mode
-        // params.sampleLevelHLANeoPred = false
-        // params.cohortLevelHLANeoPred = true
     }
     
     // Validate unknown profiles
@@ -515,15 +506,15 @@ workflow NEOANTIGEN_PREDICTION_WF {
         }
         
         // Run neoepitope prediction subworkflow
-        if (params.includeNeoPepPred) {
+        if (params.includeNeoPred) {
             log.info "Running neoepitope prediction subworkflow..."
             // Run sample-specific if enabled
-            if (params.sampleLevelHLANeoPred) {
+            if (params.sampleHLANeoPred) {
                 SAMPLE_LEVEL_HLA_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv, metaDataDir)
             }
 
             // Run cohort-wide if enabled
-            if (params.cohortLevelHLANeoPred) {
+            if (params.cohortHLANeoPred) {
                 COHORT_LEVEL_HLA_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv, metaDataDir)
             }
         } else {
@@ -636,7 +627,7 @@ workflow {
     log.info "Output directory: << ${params.outputDir} >>"
     log.info "Read trimming: << ${params.trimReads} >>"
     log.info "HLA typing only? : << ${params.hlaTypingOnly} >>"
-    log.info "Include neopeptide prediction? : << ${params.includeNeoPepPred} >>"
+    log.info "Include neopeptide prediction? : << ${params.includeNeoPred} >>"
     // Log the fusion filtering mode
     def mode = params.recurrentFusionsOnly ? "Recurrent-only" : "All-validated"
     log.info "Fusion-derived neoantigen prediction input set: << ${mode} fusions >>"
@@ -646,8 +637,8 @@ workflow {
     } else {
         log.info "----Recurrent fusion–only parameter is disabled; all validated fusions will be processed"
     }
-    log.info "Neopeptide prediction mode [Personalized (using sample-level HLA allotypes)]: << ${params.sampleLevelHLANeoPred} >>"
-    log.info "Neopeptide prediction mode [Cohort-based (using cohort-level HLA allotypes)]: << ${params.cohortLevelHLANeoPred} >>"
+    log.info "Neopeptide prediction mode [Personalized (using sample-level HLA allotypes)]: << ${params.sampleHLANeoPred} >>"
+    log.info "Neopeptide prediction mode [Cohort-based (using cohort-level HLA allotypes)]: << ${params.cohortHLANeoPred} >>"
     
     // Process tumor samples only (normal channel remains unused but available)
     def qcProcInputCh = params.trimReads ? TRIMMING_WF(tumorCh).trimmedCh : tumorCh
