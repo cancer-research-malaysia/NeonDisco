@@ -61,7 +61,7 @@ Required Arguments:
     -c <configFile>             Path to the config file. [REQUIRED]
     -profile                    Comma-separated list of profiles [REQUIRED]
                                     EXECUTOR:   local | awsbatch
-                                    MODE:       personalizedNeo | sharedNeo
+                                    MODE:       personalizedNeo | sharedNeo [can run both modes simultaneously]
     --inputDir                  Path to local directory containing BAM/FASTQ input files [REQUIRED if manifestPath not provided]
     --manifestPath              Path to tab-delimited manifest file [REQUIRED if inputDir not provided]
                                     – must contain sample ID and read1 and read2 local filepaths or remote s3 filepaths
@@ -93,7 +93,7 @@ Optional Arguments:
 def validateProfiles() {
     if (!workflow.profile) {
         log.error "No profile specified. Please specify -profile <EXECUTOR,MODE[,RESOURCE]>"
-        log.error "Examples: -profile local,personalized or -profile awsbatch,population"
+        log.error "Examples: -profile local,personalizedNeo or -profile awsbatch,sharedNeo"
         return false
     }
     
@@ -115,18 +115,39 @@ def validateProfiles() {
         return false
     }
     
-    // Check for multiple executors or modes
+    // Check for multiple executors (still not allowed)
     def executorCount = profiles.count { executors.contains(it) }
-    def modeCount = profiles.count { modes.contains(it) }
-    
     if (executorCount > 1) {
         log.error "Only one executor profile allowed. Found: ${profiles.findAll { executors.contains(it) }.join(', ')}"
         return false
     }
     
-    if (modeCount > 1) {
-        log.error "Only one discovery mode profile allowed. Found: ${profiles.findAll { modes.contains(it) }.join(', ')}"
+    // Check for mode combinations
+    def modeCount = profiles.count { modes.contains(it) }
+    def hasPersonalized = profiles.contains('personalizedNeo')
+    def hasShared = profiles.contains('sharedNeo')
+    
+    if (modeCount > 2) {
+        log.error "Too many discovery mode profiles specified. Found: ${profiles.findAll { modes.contains(it) }.join(', ')}"
         return false
+    }
+    
+    // Handle valid combinations
+    if (hasPersonalized && hasShared) {
+        log.info "Running in dual mode: both personalized and shared neoantigen discovery enabled"
+        // Set parameters for dual mode
+        params.sampleLevelHLANeoPred = true
+        params.cohortLevelHLANeoPred = true
+    } else if (hasPersonalized) {
+        log.info "Running in personalized neoantigen discovery mode"
+        // Set parameters for personalized mode
+        // params.sampleLevelHLANeoPred = true
+        // params.cohortLevelHLANeoPred = false
+    } else if (hasShared) {
+        log.info "Running in shared neoantigen discovery mode"
+        // Set parameters for shared mode
+        // params.sampleLevelHLANeoPred = false
+        // params.cohortLevelHLANeoPred = true
     }
     
     // Validate unknown profiles
