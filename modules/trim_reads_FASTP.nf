@@ -1,5 +1,7 @@
 // Trim raw reads
 process TRIM_READS_FASTP {
+    errorStrategy 'retry'
+    maxRetries 3
     
     label 'trimReads'
     

@@ -1,5 +1,7 @@
 // 
 process TRANSLATE_IN_SILICO_AGFUSION {
+    errorStrategy 'retry'
+    maxRetries 3
     
     label 'translateInSilico'
     

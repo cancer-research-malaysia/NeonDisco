@@ -1,6 +1,9 @@
 //
 process ALIGN_READS_TWOPASS_STARSAM {
+    errorStrategy 'retry'
+    maxRetries 3
     maxForks 1
+    
     label 'alignReads2Pass'
     
     container "${params.container__preproc}"

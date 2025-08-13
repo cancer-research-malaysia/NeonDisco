@@ -1,5 +1,7 @@
 // 
 process COLLATE_FUSIONS_PYENV {
+    errorStrategy 'retry'
+    maxRetries 3
     
     label 'collateFusions'
 

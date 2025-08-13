@@ -1,7 +1,9 @@
 // 
 process FIXMATES_MARKDUPES_SAMTOOLS {
-    
+    errorStrategy 'retry'
+    maxRetries 3
     maxForks 2
+    
     label 'fixmatesMarkdupes'
     
     container "${params.container__preproc}"

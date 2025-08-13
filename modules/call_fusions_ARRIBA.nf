@@ -1,6 +1,9 @@
 // Run FT calling module
 process CALL_FUSIONS_ARRIBA {
+    errorStrategy 'retry'
+    maxRetries 3
     maxForks 1
+    
     label 'callFusionsAR'
     
     container "${params.container__arriba}"

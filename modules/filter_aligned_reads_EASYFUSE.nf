@@ -1,5 +1,7 @@
 //
 process FILTER_ALIGNED_READS_EASYFUSE {
+    errorStrategy 'retry'
+    maxRetries 3
     
     label 'filterReads'
     

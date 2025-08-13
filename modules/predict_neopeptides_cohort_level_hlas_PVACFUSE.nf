@@ -1,5 +1,7 @@
 // 
 process PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE {
+    errorStrategy 'retry'
+    maxRetries 3
     
     label 'predictCohortNeopeptides'
     

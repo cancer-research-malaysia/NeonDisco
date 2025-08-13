@@ -1,5 +1,7 @@
 //
 process CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE {
+    errorStrategy 'retry'
+    maxRetries 3
     
     label 'convertFilteredReads'
 

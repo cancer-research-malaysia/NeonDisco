@@ -1,6 +1,9 @@
 //
 process ALIGN_READS_STAR_ARRIBA {
+    errorStrategy 'retry'
+    maxRetries 3
     maxForks 1
+    
     label 'alignReadsArriba'
 
     container "${params.container__preproc}"

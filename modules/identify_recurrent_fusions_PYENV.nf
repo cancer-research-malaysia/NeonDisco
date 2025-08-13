@@ -1,5 +1,7 @@
 // Process to collect all TSV files and concatenate them
 process CONCAT_NORMFILTERED_FUSION_FILES_PYENV {
+    errorStrategy 'retry'
+    maxRetries 3
     
     label 'concatNormFilteredFusions'
 

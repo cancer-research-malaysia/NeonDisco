@@ -1,5 +1,7 @@
 // Alternative approach: Create a separate recurrent-aware filtering step
 process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
+    errorStrategy 'retry'
+    maxRetries 3
     
     label 'getRecurrentFusions'
 

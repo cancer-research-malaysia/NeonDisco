@@ -1,6 +1,8 @@
 // 
 process COLLATE_CUSTOM_PONS_PYENV {
-
+    errorStrategy 'retry'
+    maxRetries 3
+    
     label 'collateCustomPons'
     
     container "${params.container__pyenv}"

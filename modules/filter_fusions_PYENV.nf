@@ -1,5 +1,7 @@
 // 
 process FILTER_FUSIONS_PYENV {
+    errorStrategy 'retry'
+    maxRetries 3
     
     label 'filterFusions'
 
