@@ -41,7 +41,7 @@ process PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE {
 
     # extract sample-specific HLA types from the cohort-wide HLA file
     echo "Extracting sample-specific HLA types from cohort-wide HLA file..."
-    SSHLA=\$(grep "${sampleName}" ${cohortWideHLAList} | awk '{print \$2}')
+    SSHLA=\$(awk -v sample="${sampleName}" 'NR > 1 && \$1 == sample {print \$2}' ${cohortWideHLAList})
     echo "Sample-specific HLA types: \${SSHLA}"
 
     # check if SSHLA is empty
