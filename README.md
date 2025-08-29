@@ -23,43 +23,44 @@ A highly modular Nextflow-based discovery bioinformatics pipeline for prediction
 
 Cancer vaccines are an emerging therapeutic option for tumor diseases with a potential to convert *immune-cold* tumours to *immune-hot* tumours in combination with immune checkpoint inhibitor immunotherapy. They are also of particular interest in the quest for the generation of universal cancer vaccines that can be used  “off-the-shelf", in contrast to other highly personalized approaches such as adoptive cell therapies that are likely to be too resource-intensive and expensive to be scaled up outside first-world countries.
 
-[Nextflow](https://www.nextflow.io/) is a free and open sourced dataflow programming platform that enables designing computational workflows to process and analyze bioinformatics datasets in a massively parallel architecture.
-
-This repository documents the design of an integrated cancer neoantigen discovery pipeline with a focus on **alternative sources of neoantigens beyond SNV/indels**. This pipeline takes some inspiration from the Snakemake-based pipeline that focuses on cancer neoantigen discovery previously published in 2023 (Schäfer et al). The main Nextflow script is written in the [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) syntax. The file structure of this repository was soft-cloned from [here](https://github.com/FredHutch/workflow-template-nextflow) but the current file content and scripts have been completely customized and rewritten to fit the goal of this pipeline.
+This repository documents the design of an integrated cancer neoantigen discovery pipeline with a focus on **alternative sources of neoantigens beyond SNV/indels**. This pipeline takes some inspiration from the Snakemake-based pipeline that focuses on cancer neoantigen discovery previously published in 2023 by Schäfer et al, and also incorporated small pieces of codes from a recently published Nextflow pipeline for cancer fusions, [EasyFuse](https://github.com/TRON-Bioinformatics/EasyFuse). The main script is written in [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) syntax. [Nextflow](https://www.nextflow.io/) is a free and open sourced dataflow programming platform that enables designing computational workflows to process and analyze bioinformatics datasets in a massively parallel architecture. The file structure of this repository was soft-cloned from [here](https://github.com/FredHutch/workflow-template-nextflow) but the repostructure has been heavily customized and rewritten to fit the goal of this pipeline.
 
 ## Features
 
-### Core Capabilities
+This pipeline attempts to be a multi-modular pipeline, but the current implementation focuses on the ***gene fusion neoantigen*** discovery as the first module (currently in alpha testing stage). Additional modules will slowly be rolled out in the future.
+
+### Core Capabilities (as of August 2025)
 - **Multi-tool fusion detection**: Integrates Arriba, FusionCatcher, and STAR-Fusion for comprehensive fusion gene identification
-- **Dual execution modes**: Supports both personalized and cohort-based neoantigen prediction
-- **HLA typing integration**: Automated HLA allotype determination using ARCAS-HLA
+- **HLA typing integration**: Automated HLA allotype determination using ARCAS-HLA (with HLA-HD as fallback)
+- **Dual execution modes**: Supports neoantigen prediction using both personalized/sample-specific HLA allotypes and cohort-wide common HLA allotypes 
 - **In silico validation**: Transcript validation using FusionInspector and AGFusion
 - **Scalable deployment**: Runs locally or on AWS Batch with automatic resource management
 - **Flexible input handling**: Supports both local files and S3-based data processing
 
 ### Analysis Workflows
 1. **Quality Control & Preprocessing**
-   - Read trimming with fastp
-   - Two-pass STAR alignment with duplicate marking
+   - Read trimming with `fastp`
+   - Two-pass `STAR` alignment with duplicate marking
 
 2. **Fusion Gene Detection**
-   - Multi-algorithm fusion calling
-   - Consensus filtering and annotation
-   - Recurrent fusion identification across cohorts
+   - Multi-algorithm fusion calling using `STAR-Fusion`, `Arriba`, and `FusionCatcher`
+   - Consensus filtering and annotation (default setting: keep all outputs from the 3 callers)
+   - Recurrent fusion identification across cohorts (sharedness filter on the combined output of 3 fusion callers based on a certain percentage)
+   - *in silico* validation capability using `FusionInspector`
 
 3. **Neoantigen Prediction**
    - Sample-level HLA-specific predictions
    - Cohort-level HLA frequency analysis
-   - pVACfuse-powered neoepitope prediction
+   - pVACfuse-powered neoepitope prediction on either all *in-silico* validated fusions found or on recurrent/shared fusions
 
 4. **HLA Typing**
-   - Standalone HLA typing workflow
+   - Standalone HLA typing workflow using `arcasHLA` (with fallback using `HLA-HD` if `arcasHLA` algorithm fails to type)
    - Integration with neoantigen prediction
 
 ## Installation Notes
 
 ### 1. Donwloading Reference Files 
-This pipeline depends on several reference files for several programs implemented inside the pipeline. These are large database/reference genome files so they should ideally only be downloaded if you plan to run the pipeline locally (i.e. using `local` profile).
+This pipeline depends on several reference files for several programs implemented inside the pipeline. These are large database/reference genome files so they are not provided in this repository. They are available for download publicly at this public AWS bucket: 
 
 The AWS bucket where the reference files can be downloaded is described below.
 
