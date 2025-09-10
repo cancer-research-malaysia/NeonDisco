@@ -54,13 +54,12 @@ process TRANSLATE_IN_SILICO_AGFUSION {
     fi
 
     # Ensure directory is never empty for S3 compatibility
-    if find filtered-agfusion-dirs/ -mindepth 1 -maxdepth 1 -type d -quit | grep -q .; then
+    if ls filtered-agfusion-dirs/*/ 1> /dev/null 2>&1; then
         echo "Has subdirectories. Proceeding with outputs..."
     else
         echo "No subdirectories found. Creating a dummy file to ensure directory is not empty."
         echo "No AGFusion directories with protein files found for ${sampleName}" > filtered-agfusion-dirs/_placeholder.txt
     fi
-    
     
     echo "AGFusion post-processing completed."
 
