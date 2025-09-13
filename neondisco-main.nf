@@ -311,6 +311,42 @@ workflow HLA_TYPING_WITH_FALLBACK_WF {
         individualResultDir = REFORMAT_AND_COLLATE_HLA_RESULTS_PYENV.out.individualResults
 }
 
+workflow COLLECT_COHORTWIDE_UNFILTERED_FUSIONS {
+    take:
+        aggregatedTuplesCh
+    main:
+
+        // Collate fusion calls from different callers
+        COLLATE_FUSIONS_PYENV(aggregatedTuplesCh)
+
+        collatedFusionsforWrangling = COLLATE_FUSIONS_PYENV.out.collatedFTParquet
+
+        // Wrangle raw fusions
+        wrangledFusionsTsv = WRANGLE_RAW_FUSIONS_PYENV(collatedFusionsforWrangling).wrangledUnfilteredFusionsTsv
+
+        // Collect cohort-wide unfiltered fusions
+        COLLECT_COHORTWIDE_UNFILTERED_FUSIONS_PYENV(wrangledFusionsTsv
+                            .collect { _meta, filepath -> filepath }
+                        )
+
+}
+
+workflow COLLATE_FILTER_FUSIONS {
+    take:
+        aggregatedTuplesCh
+        metaDataDir
+    main:
+        // Collate fusion calls from different callers
+        collatedFusionsforFiltering = COLLATE_FUSIONS_PYENV(aggregatedTuplesCh).collatedFTParquet
+
+        // Run the combining process with the joined output then channel into filtering process
+        FILTER_FUSIONS_PYENV(collatedFusionsforFiltering, metaDataDir)
+
+    emit:
+        normFilteredFusionsCh = FILTER_FUSIONS_PYENV.out.filteredFusions
+        uniqueFiltFusionPairsForFusInsCh = FILTER_FUSIONS_PYENV.out.uniqueFiltFusionPairsForFusIns
+}
+
 workflow AGGREGATE_FUSION_CALLING_WF {
     take:
         alignedBamCh
@@ -336,23 +372,16 @@ workflow AGGREGATE_FUSION_CALLING_WF {
             .join(CALL_FUSIONS_STARFUSION.out.starfus_fusion_tuple)
             .set { combinedFTFilesCh }
 
-        // Capture output
-        collatedFusionsParquet = COLLATE_FUSIONS_PYENV(combinedFTFilesCh).out.collatedFTParquet
-        // Wrangle raw fusions
-        wrangledFusionsTsv = WRANGLE_RAW_FUSIONS_PYENV(collatedFusionsParquet).out.wrangledUnfilteredFusionsTsv
+        // Collect cohort-wide unfiltered fusions
+        COLLECT_COHORTWIDE_UNFILTERED_FUSIONS(combinedFTFilesCh)
 
-        // Run the combining process with the joined output then channel into filtering process
-        FILTER_FUSIONS_PYENV(collatedFusionsParquet, metaDataDir)
+        // Collate and filter fusions
+        COLLATE_FILTER_FUSIONS(combinedFTFilesCh, metaDataDir)
 
-        // In parallel, collect cohort-wide unfiltered fusions
-        COLLECT_COHORTWIDE_UNFILTERED_FUSIONS_PYENV(wrangledFusionsTsv
-                            .collect { _meta, filepath -> filepath }
-                        )
-        
     emit:
-        normFilteredFusionsCh = FILTER_FUSIONS_PYENV.out.filteredFusions
-        uniqueFiltFusionPairsForFusInsCh = FILTER_FUSIONS_PYENV.out.uniqueFiltFusionPairsForFusIns
-        
+        normFilteredFusionsCh = COLLATE_FILTER_FUSIONS.out.normFilteredFusionsCh
+        uniqueFiltFusionPairsForFusInsCh = COLLATE_FILTER_FUSIONS.out.uniqueFiltFusionPairsForFusInsCh
+    
 }
 
 workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
