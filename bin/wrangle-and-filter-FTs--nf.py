@@ -110,6 +110,9 @@ def create_empty_output_files(output_filename):
         'spanningFragCount_SF': [],
         'largeAnchorSupport_SF': [],
         'foundInCCLE&InternalCLs': [],
+        'foundInGaoTCGARecurrent': [],
+        'foundInMitelmanCancerFusions': [],
+        'foundInKlijnCancerCellLineFusions': [],
         'GenePairforFusInspector': []
     })
     

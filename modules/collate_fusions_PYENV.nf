@@ -16,7 +16,7 @@ process COLLATE_FUSIONS_PYENV {
 
     output:
         tuple val(sampleName), path("${sampleName}-collated-FT-raw.parquet"), emit: collatedFTParquet
-        tuple val(sampleName), path("${sampleName}-collated-FT-raw.tsv")
+        tuple val(sampleName), path("${sampleName}-collated-FT-raw.tsv"), emit: collatedFTFile
 
     script:
     """

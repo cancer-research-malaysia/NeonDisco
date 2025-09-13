@@ -7,7 +7,7 @@ process COLLECT_COHORTWIDE_VALIDATED_FUSIONS_PYENV {
 
     container "${params.container__pyenv}"
     
-    publishDir "${params.outputDir}/Cohortwide-FI-Validated-Fusions", mode: 'copy',
+    publishDir "${params.outputDir}/Cohortwide-Fusions-OUT", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     

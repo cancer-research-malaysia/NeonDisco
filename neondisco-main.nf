@@ -21,10 +21,12 @@ include { CALL_FUSIONS_ARRIBA } from './modules/call_fusions_ARRIBA.nf'
 include { CALL_FUSIONS_FUSIONCATCHER } from './modules/call_fusions_FUSIONCATCHER.nf'
 include { CALL_FUSIONS_STARFUSION } from './modules/call_fusions_STARFUSION.nf'
 include { COLLATE_FUSIONS_PYENV } from './modules/collate_fusions_PYENV.nf'
+include { WRANGLE_RAW_FUSIONS_PYENV } from './modules/wrangle_raw_fusions_PYENV.nf'
 
 ////// FUSION FILTERING AND ANNOTATION MODULES //////////
 include { FILTER_FUSIONS_PYENV } from './modules/filter_fusions_PYENV.nf'
-include { CONCAT_NORMFILTERED_FUSION_FILES_PYENV } from './modules/identify_recurrent_fusions_PYENV.nf'
+include { COLLECT_COHORTWIDE_UNFILTERED_FUSIONS_PYENV } from './modules/collect_cohortwide_unfiltered_fusions_PYENV.nf'
+include { COLLECT_NORMFILTERED_FUSION_FILES_PYENV } from './modules/identify_recurrent_fusions_PYENV.nf'
 include { GET_COHORT_RECURRENT_FUSIONS_PYENV } from './modules/identify_recurrent_fusions_PYENV.nf'
 include { TRANSLATE_IN_SILICO_AGFUSION } from './modules/translate_in_silico_AGFUSION.nf'
 include { VALIDATE_IN_SILICO_FUSIONINSPECTOR } from './modules/validate_in_silico_FUSIONINSPECTOR.nf'
@@ -334,9 +336,19 @@ workflow AGGREGATE_FUSION_CALLING_WF {
             .join(CALL_FUSIONS_STARFUSION.out.starfus_fusion_tuple)
             .set { combinedFTFilesCh }
 
-        // Run the combining process with the joined output then channel into filtering process
-        FILTER_FUSIONS_PYENV(COLLATE_FUSIONS_PYENV(combinedFTFilesCh).collatedFTParquet, metaDataDir)
+        // Capture output
+        collatedFusionsParquet = COLLATE_FUSIONS_PYENV(combinedFTFilesCh).out.collatedFTParquet
+        // Wrangle raw fusions
+        wrangledFusionsTsv = WRANGLE_RAW_FUSIONS_PYENV(collatedFusionsParquet).out.wrangledUnfilteredFusionsTsv
 
+        // Run the combining process with the joined output then channel into filtering process
+        FILTER_FUSIONS_PYENV(collatedFusionsParquet, metaDataDir)
+
+        // In parallel, collect cohort-wide unfiltered fusions
+        COLLECT_COHORTWIDE_UNFILTERED_FUSIONS_PYENV(wrangledFusionsTsv
+                            .collect { _meta, filepath -> filepath }
+                        )
+        
     emit:
         normFilteredFusionsCh = FILTER_FUSIONS_PYENV.out.filteredFusions
         uniqueFiltFusionPairsForFusInsCh = FILTER_FUSIONS_PYENV.out.uniqueFiltFusionPairsForFusIns
@@ -373,7 +385,7 @@ workflow RECURRENT_FUSION_FILTERING_WF {
         normFilteredFusionsCh
     main:
         // Get cohort recurrent fusions
-        GET_COHORT_RECURRENT_FUSIONS_PYENV(CONCAT_NORMFILTERED_FUSION_FILES_PYENV(normFilteredFusionsCh).cohortwideFusionsFile)
+        GET_COHORT_RECURRENT_FUSIONS_PYENV(COLLECT_NORMFILTERED_FUSION_FILES_PYENV(normFilteredFusionsCh).cohortwideFusionsFile)
     emit:
         cohortRecurrentFusionsCh = GET_COHORT_RECURRENT_FUSIONS_PYENV.out.cohortRecurrentFusionTsv
 }
