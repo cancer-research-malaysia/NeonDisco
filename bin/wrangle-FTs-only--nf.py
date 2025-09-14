@@ -171,7 +171,7 @@ def main():
     print("Processing complete!")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 10:
+    if len(sys.argv) != 4:
         print("Usage: wrangle-FTs-only--nf.py <sample id> <parquet file of combined FTs> <output filename>")
         sys.exit(1)
     main()

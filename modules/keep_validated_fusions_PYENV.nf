@@ -16,7 +16,7 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
 
     output:
         tuple val(sampleName), path("${sampleName}-collated-FT-normFiltered-FI-validated.tsv"), emit: validatedFusions
-        tuple val(sampleName), path("validated-agfusion-outdir/"), emit: validatedAgfusionDir
+        tuple val(sampleName), path("validated-agfusion-dirs/"), emit: validatedAgfusionDir
 
     script:
     """
@@ -27,11 +27,11 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
     gawk 'NR==FNR {ref[\$1]=1; next} FNR==1 || (\$NF in ref)' ${fusInspectorTsv} ${filteredFusions} > ${sampleName}-collated-FT-normFiltered-FI-validated.tsv
     
     # Create validated agfusion output directory
-    mkdir -p validated-agfusion-outdir
+    mkdir -p validated-agfusion-dirs
 
     # check if the output file is empty 
     if [ ! -s ${sampleName}-collated-FT-normFiltered-FI-validated.tsv ]; then
-        echo "Output file empty. No validated fusions found in Fusion Inspector output. Aborting this sample run." | tee validated-agfusion-outdir/_empty.txt 
+        echo "Output file empty. No validated fusions found in Fusion Inspector output. Aborting this sample run." | tee validated-agfusion-dirs/_empty.txt 
         exit 0
     fi
     
@@ -56,8 +56,8 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
                 # Check if the gene pair is contained in the directory name
                 if [[ "\$dir_basename" == *"\$gene_pair"* ]]; then
                     echo "Found matching directory: \$dir_basename"
-                    echo "Copying \$agf_dir to validated-agfusion-outdir/\$dir_basename"
-                    cp -r "\$agf_dir" validated-agfusion-outdir/
+                    echo "Copying \$agf_dir to validated-agfusion-dirs/\$dir_basename"
+                    cp -r "\$agf_dir" validated-agfusion-dirs/
                 else
                     echo "No match for \$gene_pair in \$dir_basename"
                 fi
@@ -67,7 +67,7 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
     done < validated_gene_pairs.txt
     
     # Check if we copied any directories
-    copied_dirs=\$(find validated-agfusion-outdir -maxdepth 1 -type d | wc -l)
+    copied_dirs=\$(find validated-agfusion-dirs -maxdepth 1 -type d | wc -l)
     if [ \$copied_dirs -le 1 ]; then
         echo "Warning: No matching AGFusion directories found for validated fusions"
     else
@@ -75,11 +75,11 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
     fi
     
     # Ensure directory is never empty for S3 compatibility
-    if find validated-agfusion-outdir/ -mindepth 1 -maxdepth 1 -type d -quit | grep -q .; then
+    if ls validated-agfusion-dirs/*/ 1> /dev/null 2>&1; then
         echo "Has subdirectories. Proceeding with outputs..."
     else
         echo "No subdirectories found. Creating a dummy file to ensure directory is not empty."
-        echo "No AGFusion directories with protein files found for ${sampleName}" > validated-agfusion-outdir/_placeholder.txt
+        echo "No AGFusion directories with protein files found for ${sampleName}" > validated-agfusion-dirs/_placeholder.txt
     fi
 
     # Clean up temporary file
@@ -88,7 +88,7 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
     
     stub:
     """
-    mkdir -p validated-agfusion-outdir
+    mkdir -p validated-agfusion-dirs
     touch ${sampleName}-collated-FT-normFiltered-FI-validated.tsv
     echo "stub run finished!"
     """

@@ -14,7 +14,7 @@ process REFORMAT_AND_COLLATE_HLA_RESULTS_PYENV {
     path jsonFiles  // All JSON files collected
     
     output:
-    path "Cohort-wide_HLA_types.tsv", emit: cohortWideHLAList
+    path "Cohortwide_HLA_types.tsv", emit: cohortWideHLAList
     path "Sample-specific_HLA_results/*", emit: individualResults
     
     script:
@@ -22,7 +22,7 @@ process REFORMAT_AND_COLLATE_HLA_RESULTS_PYENV {
     mkdir -p Sample-specific_HLA_results
     
     # Initialize output files
-    echo -e "sampleName\thlaAllotypes" > Cohort-wide_HLA_types.tsv
+    echo -e "sampleName\thlaAllotypes" > Cohortwide_HLA_types.tsv
     
     # Process each JSON file from the collected input
     for json_file in ${jsonFiles}; do
@@ -33,7 +33,7 @@ process REFORMAT_AND_COLLATE_HLA_RESULTS_PYENV {
             reformat-hlas--nf.py "\$sample_name" "\$json_file" > "Sample-specific_HLA_results/\${sample_name}-HLA-types-reformatted.tsv"
             
             # Extract HLA content for cohort file
-            hla_content=\$(tail -n1 "individual_hla_results/\${sample_name}-HLA-types-reformatted.tsv" | cut -f2-)
+            hla_content=\$(tail -n1 "Sample-specific_HLA_results/\${sample_name}-HLA-types-reformatted.tsv" | cut -f2-)
             
             # Add to cohort file
             echo -e "\$sample_name\t\$hla_content" >> Cohortwide_HLA_types.tsv

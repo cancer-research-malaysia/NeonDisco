@@ -25,9 +25,7 @@ process WRANGLE_RAW_FUSIONS_PYENV {
     OUTPUT_NAME="${sampleName}-wrangled-unfiltered-fusions"
 
     echo "Running wrangling script to process raw FTs..."
-    if wrangle-FTs-only--nf.py ${sampleName} \
-    ${collatedFTParquet} \
-    \${OUTPUT_NAME}; then
+    if wrangle-FTs-only--nf.py ${sampleName} ${collatedFTParquet} \${OUTPUT_NAME}; then
         echo "Wrangling completed."
     fi
     """

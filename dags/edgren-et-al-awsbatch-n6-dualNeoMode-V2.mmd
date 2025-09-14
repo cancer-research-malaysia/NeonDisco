@@ -1,0 +1,167 @@
+flowchart TB
+    subgraph " "
+    v4["Channel.fromPath"]
+    v16["starIndex"]
+    v26["starIndex"]
+    v28["arribaDB"]
+    v30["fuscatDB"]
+    v32["ctatDB"]
+    v44["metaDataDir"]
+    v46["starIndex"]
+    v54["ctatDB"]
+    v75["metaDataDir"]
+    v86["metaDataDir"]
+    end
+    subgraph "TRIMMING_WF [TRIMMING_WF]"
+    v15(["TRIM_READS_FASTP"])
+    end
+    subgraph "GENERAL_READS_ALIGNMENT_WF [GENERAL_READS_ALIGNMENT_WF]"
+    v17(["ALIGN_READS_STAR_GENERAL"])
+    end
+    subgraph "HLA_TYPING_WITH_FALLBACK_WF [HLA_TYPING_WITH_FALLBACK_WF]"
+    v18(["TYPE_HLAS_WITH_FALLBACK_ARCASHLA"])
+    v22(["REFORMAT_AND_COLLATE_HLA_RESULTS_PYENV"])
+    v20(( ))
+    end
+    subgraph " "
+    v19[" "]
+    v23["individualResultDir"]
+    v37[" "]
+    v41[" "]
+    v43[" "]
+    v49["alignedBam2PassCh"]
+    v59[" "]
+    v66["cohortValidatedFusions"]
+    v70[" "]
+    v71["recurrentValidatedDir"]
+    v72[" "]
+    v77[" "]
+    v80[" "]
+    v81[" "]
+    v88[" "]
+    end
+    subgraph "AGGREGATE_FUSION_CALLING_WF [AGGREGATE_FUSION_CALLING_WF]"
+    v24(["FILTER_ALIGNED_READS_EASYFUSE"])
+    v25(["CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE"])
+    v27(["ALIGN_READS_STAR_ARRIBA"])
+    v29(["CALL_FUSIONS_ARRIBA"])
+    v31(["CALL_FUSIONS_FUSIONCATCHER"])
+    v33(["CALL_FUSIONS_STARFUSION"])
+    subgraph "AGGREGATE_FUSION_CALLING_WF:COLLECT_COHORTWIDE_UNFILTERED_FUSIONS [COLLECT_COHORTWIDE_UNFILTERED_FUSIONS]"
+    v36(["COLLATE_FUSIONS_PYENV"])
+    v38(["WRANGLE_RAW_FUSIONS_PYENV"])
+    v40(["COLLECT_COHORTWIDE_UNFILTERED_FUSIONS_PYENV"])
+    v39(( ))
+    end
+    subgraph "AGGREGATE_FUSION_CALLING_WF:COLLATE_FILTER_FUSIONS [COLLATE_FILTER_FUSIONS]"
+    v42(["COLLATE_FUSIONS_PYENV"])
+    v45(["FILTER_FUSIONS_PYENV"])
+    end
+    v34(( ))
+    end
+    subgraph "TWOPASS_READS_ALIGNMENT_WF [TWOPASS_READS_ALIGNMENT_WF]"
+    v47(["ALIGN_READS_TWOPASS_STARSAM"])
+    v48(["FIXMATES_MARKDUPES_SAMTOOLS"])
+    end
+    subgraph "IN_SILICO_TRANSCRIPT_VALIDATION_WF [IN_SILICO_TRANSCRIPT_VALIDATION_WF]"
+    v50(["TRANSLATE_IN_SILICO_AGFUSION"])
+    v55(["VALIDATE_IN_SILICO_FUSIONINSPECTOR"])
+    v51(( ))
+    end
+    subgraph "RECURRENT_FUSION_FILTERING_WF [RECURRENT_FUSION_FILTERING_WF]"
+    v57(["COLLECT_NORMFILTERED_FUSION_FILES_PYENV"])
+    v58(["GET_COHORT_RECURRENT_FUSIONS_PYENV"])
+    end
+    subgraph "NEOANTIGEN_PREDICTION_WF [NEOANTIGEN_PREDICTION_WF]"
+    v63(["KEEP_VALIDATED_FUSIONS_PYENV"])
+    subgraph "NEOANTIGEN_PREDICTION_WF:COLLECT_COHORTWIDE_FI_VALIDATED_FUSIONS [COLLECT_COHORTWIDE_FI_VALIDATED_FUSIONS]"
+    v65(["COLLECT_COHORTWIDE_VALIDATED_FUSIONS_PYENV"])
+    end
+    v69(["FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV"])
+    subgraph "NEOANTIGEN_PREDICTION_WF:SAMPLE_LEVEL_HLA_NEOANTIGENS [SAMPLE_LEVEL_HLA_NEOANTIGENS]"
+    v76(["PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE"])
+    end
+    subgraph "NEOANTIGEN_PREDICTION_WF:COHORT_LEVEL_HLA_NEOANTIGENS [COHORT_LEVEL_HLA_NEOANTIGENS]"
+    v79(["FILTER_HLA_ALLOTYPES_FREQ_PYENV"])
+    v87(["PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE"])
+    v78(( ))
+    v82(( ))
+    end
+    v60(( ))
+    v64(( ))
+    v67(( ))
+    end
+    v5(( ))
+    v56(( ))
+    v4 --> v5
+    v5 --> v15
+    v15 --> v17
+    v15 --> v47
+    v15 --> v51
+    v16 --> v17
+    v17 --> v18
+    v17 --> v24
+    v18 --> v19
+    v18 --> v20
+    v20 --> v22
+    v22 --> v76
+    v22 --> v23
+    v22 --> v78
+    v24 --> v25
+    v25 --> v27
+    v25 --> v31
+    v25 --> v33
+    v26 --> v27
+    v27 --> v29
+    v28 --> v29
+    v29 --> v34
+    v30 --> v31
+    v31 --> v34
+    v32 --> v33
+    v33 --> v34
+    v34 --> v36
+    v36 --> v38
+    v36 --> v37
+    v38 --> v39
+    v39 --> v40
+    v40 --> v41
+    v34 --> v42
+    v42 --> v45
+    v42 --> v43
+    v44 --> v45
+    v45 --> v50
+    v45 --> v51
+    v45 --> v56
+    v45 --> v60
+    v46 --> v47
+    v47 --> v48
+    v48 --> v49
+    v50 --> v51
+    v50 --> v60
+    v54 --> v55
+    v51 --> v55
+    v55 --> v60
+    v56 --> v57
+    v57 --> v58
+    v58 --> v69
+    v58 --> v59
+    v60 --> v63
+    v63 --> v76
+    v63 --> v64
+    v63 --> v67
+    v63 --> v82
+    v64 --> v65
+    v65 --> v66
+    v67 --> v69
+    v69 --> v72
+    v69 --> v71
+    v69 --> v70
+    v75 --> v76
+    v76 --> v77
+    v78 --> v79
+    v79 --> v81
+    v79 --> v80
+    v79 --> v82
+    v86 --> v87
+    v82 --> v87
+    v87 --> v88

@@ -1,0 +1,140 @@
+flowchart TB
+    subgraph " "
+    v4["Channel.fromPath"]
+    v18["starIndex"]
+    v29["starIndex"]
+    v31["arribaDB"]
+    v33["fuscatDB"]
+    v35["ctatDB"]
+    v47["metaDataDir"]
+    v53["ctatDB"]
+    v74["metaDataDir"]
+    end
+    subgraph "TRIMMING_WF [TRIMMING_WF]"
+    v17(["TRIM_READS_FASTP"])
+    end
+    subgraph "GENERAL_READS_ALIGNMENT_WF [GENERAL_READS_ALIGNMENT_WF]"
+    v19(["ALIGN_READS_STAR_GENERAL"])
+    end
+    subgraph "HLA_TYPING_WITH_FALLBACK_WF [HLA_TYPING_WITH_FALLBACK_WF]"
+    v20(["TYPE_HLAS_WITH_FALLBACK_ARCASHLA"])
+    v24(["REFORMAT_AND_COLLATE_HLA_RESULTS_PYENV"])
+    v22(( ))
+    end
+    subgraph " "
+    v21[" "]
+    v25["individualResultDir"]
+    v40[" "]
+    v44[" "]
+    v46[" "]
+    v58[" "]
+    v65["cohortValidatedFusions"]
+    v69[" "]
+    v70["recurrentValidatedDir"]
+    v71[" "]
+    v76[" "]
+    end
+    subgraph "AGGREGATE_FUSION_CALLING_WF [AGGREGATE_FUSION_CALLING_WF]"
+    v26(["FILTER_ALIGNED_READS_EASYFUSE"])
+    v27(["CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE"])
+    v30(["ALIGN_READS_STAR_ARRIBA"])
+    v32(["CALL_FUSIONS_ARRIBA"])
+    v34(["CALL_FUSIONS_FUSIONCATCHER"])
+    v36(["CALL_FUSIONS_STARFUSION"])
+    subgraph "AGGREGATE_FUSION_CALLING_WF:COLLECT_COHORTWIDE_UNFILTERED_FUSIONS [COLLECT_COHORTWIDE_UNFILTERED_FUSIONS]"
+    v39(["COLLATE_FUSIONS_PYENV"])
+    v41(["WRANGLE_RAW_FUSIONS_PYENV"])
+    v43(["COLLECT_COHORTWIDE_UNFILTERED_FUSIONS_PYENV"])
+    v42(( ))
+    end
+    subgraph "AGGREGATE_FUSION_CALLING_WF:COLLATE_FILTER_FUSIONS [COLLATE_FILTER_FUSIONS]"
+    v45(["COLLATE_FUSIONS_PYENV"])
+    v48(["FILTER_FUSIONS_PYENV"])
+    end
+    v28(( ))
+    v37(( ))
+    end
+    subgraph "IN_SILICO_TRANSCRIPT_VALIDATION_WF [IN_SILICO_TRANSCRIPT_VALIDATION_WF]"
+    v49(["TRANSLATE_IN_SILICO_AGFUSION"])
+    v54(["VALIDATE_IN_SILICO_FUSIONINSPECTOR"])
+    v50(( ))
+    end
+    subgraph "RECURRENT_FUSION_FILTERING_WF [RECURRENT_FUSION_FILTERING_WF]"
+    v56(["COLLECT_NORMFILTERED_FUSION_FILES_PYENV"])
+    v57(["GET_COHORT_RECURRENT_FUSIONS_PYENV"])
+    end
+    subgraph "NEOANTIGEN_PREDICTION_WF [NEOANTIGEN_PREDICTION_WF]"
+    v62(["KEEP_VALIDATED_FUSIONS_PYENV"])
+    subgraph "NEOANTIGEN_PREDICTION_WF:COLLECT_COHORTWIDE_FI_VALIDATED_FUSIONS [COLLECT_COHORTWIDE_FI_VALIDATED_FUSIONS]"
+    v64(["COLLECT_COHORTWIDE_VALIDATED_FUSIONS_PYENV"])
+    end
+    v68(["FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV"])
+    subgraph "NEOANTIGEN_PREDICTION_WF:SAMPLE_LEVEL_HLA_NEOANTIGENS [SAMPLE_LEVEL_HLA_NEOANTIGENS]"
+    v75(["PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE"])
+    end
+    v59(( ))
+    v63(( ))
+    v66(( ))
+    end
+    v5(( ))
+    v55(( ))
+    v4 --> v5
+    v5 --> v17
+    v17 --> v19
+    v17 --> v50
+    v18 --> v19
+    v19 --> v20
+    v19 --> v26
+    v20 --> v21
+    v20 --> v22
+    v22 --> v24
+    v24 --> v75
+    v24 --> v25
+    v26 --> v27
+    v27 --> v28
+    v29 --> v30
+    v28 --> v30
+    v30 --> v32
+    v31 --> v32
+    v32 --> v37
+    v33 --> v34
+    v28 --> v34
+    v34 --> v37
+    v35 --> v36
+    v28 --> v36
+    v36 --> v37
+    v37 --> v39
+    v39 --> v41
+    v39 --> v40
+    v41 --> v42
+    v42 --> v43
+    v43 --> v44
+    v37 --> v45
+    v45 --> v48
+    v45 --> v46
+    v47 --> v48
+    v48 --> v49
+    v48 --> v50
+    v48 --> v55
+    v48 --> v59
+    v49 --> v50
+    v49 --> v59
+    v53 --> v54
+    v50 --> v54
+    v54 --> v59
+    v55 --> v56
+    v56 --> v57
+    v57 --> v68
+    v57 --> v58
+    v59 --> v62
+    v62 --> v75
+    v62 --> v63
+    v62 --> v66
+    v63 --> v64
+    v64 --> v65
+    v66 --> v68
+    v68 --> v71
+    v68 --> v70
+    v68 --> v69
+    v74 --> v75
+    v75 --> v76
