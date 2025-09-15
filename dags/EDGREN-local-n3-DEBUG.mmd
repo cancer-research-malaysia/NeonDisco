@@ -1,0 +1,30 @@
+flowchart TB
+    subgraph " "
+    v4["Channel.fromPath"]
+    v18["starIndex"]
+    v20["arribaDB"]
+    v23["fuscatDB"]
+    end
+    subgraph "TRIMMING_WF [TRIMMING_WF]"
+    v17(["TRIM_READS_FASTP"])
+    end
+    subgraph "AGGREGATE_FUSION_CALLING_WF [AGGREGATE_FUSION_CALLING_WF]"
+    v19(["ALIGN_READS_STAR_ARRIBA"])
+    v21(["CALL_FUSIONS_ARRIBA"])
+    v24(["CALL_FUSIONS_FUSIONCATCHER"])
+    end
+    subgraph " "
+    v22[" "]
+    v25[" "]
+    end
+    v5(( ))
+    v4 --> v5
+    v5 --> v17
+    v17 --> v19
+    v17 --> v24
+    v18 --> v19
+    v19 --> v21
+    v20 --> v21
+    v21 --> v22
+    v23 --> v24
+    v24 --> v25

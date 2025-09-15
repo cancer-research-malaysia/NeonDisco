@@ -13,7 +13,7 @@ process ALIGN_READS_STAR_GENERAL {
         path starIndex
 
     output:
-        tuple val(sampleName), path("${sampleName}-STAR-GEN_Aligned.out.sorted.bam"), path("${sampleName}-STAR-GEN_Aligned.out.sorted.bam.bai"), emit: final_bam
+        tuple val(sampleName), path("${sampleName}-STAR-GEN_Aligned.out.sorted.bam"), path("${sampleName}-STAR-GEN_Aligned.out.sorted.bam.bai"), path("${sampleName}-STAR-GEN_Aligned.out.sorted.byqueryname.bam"), emit: final_bam
 
     script:
     """
@@ -34,6 +34,9 @@ process ALIGN_READS_STAR_GENERAL {
         # sort and index - create files with the names Nextflow expects
         samtools sort -@ ${params.numCores} -m 4G -O bam -o \${SAMPLE_ID}-STAR-GEN_Aligned.out.sorted.bam \${SAMPLE_ID}-STAR-GEN_Aligned.out.bam
         samtools index -@ ${params.numCores} \${SAMPLE_ID}-STAR-GEN_Aligned.out.sorted.bam
+
+        # now sort by queryname for fusion detection
+        samtools sort -n -@ ${params.numCores} -o \${SAMPLE_ID}-STAR-GEN_Aligned.out.sorted.byqueryname.bam \${SAMPLE_ID}-STAR-GEN_Aligned.out.sorted.bam
     else
         echo "STAR alignment failed. Check logs. Exiting..."
         exit 1
@@ -43,6 +46,9 @@ process ALIGN_READS_STAR_GENERAL {
     stub:
     """
     touch ${sampleName}-STAR-GEN_Aligned.out.bam
+    touch ${sampleName}-STAR-GEN_Aligned.out.sorted.bam
+    touch ${sampleName}-STAR-GEN_Aligned.out.sorted.bam.bai
+    touch ${sampleName}-STAR-GEN_Aligned.out.sorted.byqueryname.bam
     touch ${sampleName}-STAR-GEN_Log.final.out
     touch ${sampleName}-STAR-GEN_Chimeric.out.junction
     echo "Stub run finished!" > test_stub_STAR-Arriba-align.log

@@ -286,7 +286,7 @@ workflow GENERAL_READS_ALIGNMENT_WF {
     main:
         ALIGN_READS_STAR_GENERAL(trimmedCh, starIndex)
     emit:
-        alignedBamCh = ALIGN_READS_STAR_GENERAL.out.final_bam
+        alignedBamCh = ALIGN_READS_STAR_GENERAL.out.final_bam.view()
 }
 
 // simplified with single HLA typing process with HLA-HD fallback
@@ -311,41 +311,41 @@ workflow GENERAL_READS_ALIGNMENT_WF {
 //         individualResultDir = REFORMAT_AND_COLLATE_HLA_RESULTS_PYENV.out.individualResults
 // }
 
-// workflow COLLECT_COHORTWIDE_UNFILTERED_FUSIONS {
-//     take:
-//         aggregatedTuplesCh
-//     main:
+workflow COLLECT_COHORTWIDE_UNFILTERED_FUSIONS {
+    take:
+        aggregatedTuplesCh
+    main:
 
-//         // Collate fusion calls from different callers
-//         COLLATE_FUSIONS_PYENV(aggregatedTuplesCh)
+        // Collate fusion calls from different callers
+        COLLATE_FUSIONS_PYENV(aggregatedTuplesCh)
 
-//         collatedFusionsforWrangling = COLLATE_FUSIONS_PYENV.out.collatedFTParquet
+        collatedFusionsforWrangling = COLLATE_FUSIONS_PYENV.out.collatedFTParquet
 
-//         // Wrangle raw fusions
-//         wrangledFusionsTsv = WRANGLE_RAW_FUSIONS_PYENV(collatedFusionsforWrangling).wrangledUnfilteredFusionsTsv
+        // Wrangle raw fusions
+        wrangledFusionsTsv = WRANGLE_RAW_FUSIONS_PYENV(collatedFusionsforWrangling).wrangledUnfilteredFusionsTsv
 
-//         // Collect cohort-wide unfiltered fusions
-//         COLLECT_COHORTWIDE_UNFILTERED_FUSIONS_PYENV(wrangledFusionsTsv
-//                             .collect { _meta, filepath -> filepath }
-//                         )
+        // Collect cohort-wide unfiltered fusions
+        COLLECT_COHORTWIDE_UNFILTERED_FUSIONS_PYENV(wrangledFusionsTsv
+                            .collect { _meta, filepath -> filepath }
+                        )
 
-// }
+}
 
-// workflow COLLATE_FILTER_FUSIONS {
-//     take:
-//         aggregatedTuplesCh
-//         metaDataDir
-//     main:
-//         // Collate fusion calls from different callers
-//         collatedFusionsforFiltering = COLLATE_FUSIONS_PYENV(aggregatedTuplesCh).collatedFTParquet
+workflow COLLATE_FILTER_FUSIONS {
+    take:
+        aggregatedTuplesCh
+        metaDataDir
+    main:
+        // Collate fusion calls from different callers
+        collatedFusionsforFiltering = COLLATE_FUSIONS_PYENV(aggregatedTuplesCh).collatedFTParquet
 
-//         // Run the combining process with the joined output then channel into filtering process
-//         FILTER_FUSIONS_PYENV(collatedFusionsforFiltering, metaDataDir)
+        // Run the combining process with the joined output then channel into filtering process
+        FILTER_FUSIONS_PYENV(collatedFusionsforFiltering, metaDataDir)
 
-//     emit:
-//         normFilteredFusionsCh = FILTER_FUSIONS_PYENV.out.filteredFusions
-//         uniqueFiltFusionPairsForFusInsCh = FILTER_FUSIONS_PYENV.out.uniqueFiltFusionPairsForFusIns
-// }
+    emit:
+        normFilteredFusionsCh = FILTER_FUSIONS_PYENV.out.filteredFusions
+        uniqueFiltFusionPairsForFusInsCh = FILTER_FUSIONS_PYENV.out.uniqueFiltFusionPairsForFusIns
+}
 
 workflow AGGREGATE_FUSION_CALLING_WF {
     take:
@@ -355,34 +355,41 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         fuscatDB
         ctatDB
         metaDataDir
-        trimmedFqs
     main:
         // Preprocess reads for aggregate fusion calling
         FILTER_ALIGNED_READS_EASYFUSE(alignedBamCh)
         CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE(FILTER_ALIGNED_READS_EASYFUSE.out.filtered_bam)
-        //CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE(alignedBamCh)
-        filtFastqsCh = CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE.out.filtered_fastqs.view()
+        filtFastqsCh = CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE.out.filtered_fastqs
 
-        // gene fusion identification submodule
+        // Run gene fusion identification submodules
         CALL_FUSIONS_ARRIBA(ALIGN_READS_STAR_ARRIBA(filtFastqsCh, starIndex).aligned_bam, arribaDB)
-        //CALL_FUSIONS_FUSIONCATCHER(trimmedFqs, fuscatDB)
-        //CALL_FUSIONS_STARFUSION(filtFastqsCh, ctatDB)
+        CALL_FUSIONS_FUSIONCATCHER(filtFastqsCh, fuscatDB)
+        CALL_FUSIONS_STARFUSION(filtFastqsCh, ctatDB)
+
+        //////////////////////////////////////////////////////////////
+        /////////////// no EasyFuse filtering variant ////////////////
+        // gene fusion identification submodule
+        // CALL_FUSIONS_ARRIBA(ALIGN_READS_STAR_ARRIBA(trimmedFqs, starIndex).aligned_bam, arribaDB)
+        // CALL_FUSIONS_FUSIONCATCHER(trimmedFqs, fuscatDB)
+        // CALL_FUSIONS_STARFUSION(trimmedFqs, ctatDB)
+        //////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////
 
         // Join the outputs based on sample name
-        //CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
-        //    .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
-        //    .join(CALL_FUSIONS_STARFUSION.out.starfus_fusion_tuple)
-        //    .set { combinedFTFilesCh }
+        CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
+           .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
+           .join(CALL_FUSIONS_STARFUSION.out.starfus_fusion_tuple)
+           .set { combinedFTFilesCh }
 
         // Collect cohort-wide unfiltered fusions
-        //COLLECT_COHORTWIDE_UNFILTERED_FUSIONS(combinedFTFilesCh)
+        COLLECT_COHORTWIDE_UNFILTERED_FUSIONS(combinedFTFilesCh)
 
         // Collate and filter fusions
-        //COLLATE_FILTER_FUSIONS(combinedFTFilesCh, metaDataDir)
+        COLLATE_FILTER_FUSIONS(combinedFTFilesCh, metaDataDir)
 
-    // emit:
-    //     normFilteredFusionsCh = COLLATE_FILTER_FUSIONS.out.normFilteredFusionsCh
-    //     uniqueFiltFusionPairsForFusInsCh = COLLATE_FILTER_FUSIONS.out.uniqueFiltFusionPairsForFusInsCh
+    emit:
+        normFilteredFusionsCh = COLLATE_FILTER_FUSIONS.out.normFilteredFusionsCh
+        uniqueFiltFusionPairsForFusInsCh = COLLATE_FILTER_FUSIONS.out.uniqueFiltFusionPairsForFusInsCh
     
 }
 
@@ -687,7 +694,7 @@ workflow {
     def qcProcInputCh = params.trimReads ? TRIMMING_WF(tumorCh).trimmedCh : tumorCh
 
     ///////// STAR alignment workflow ////////////
-    def alignedBamsCh = GENERAL_READS_ALIGNMENT_WF(qcProcInputCh, params.starIndex)
+    //def alignedBamsCh = GENERAL_READS_ALIGNMENT_WF(qcProcInputCh, params.starIndex)
     ////////////////////////////////////////////////////////
 
     // Execute workflow branching based on hlaTypingOnly parameter
@@ -702,9 +709,12 @@ workflow {
         //HLA_TYPING_WITH_FALLBACK_WF(alignedBamsCh)
 
         // Fusion calling module
-        AGGREGATE_FUSION_CALLING_WF(alignedBamsCh, params.starIndex, 
-            params.arribaDB, params.fuscatDB, params.ctatDB, params.metaDataDir, qcProcInputCh)
+        // AGGREGATE_FUSION_CALLING_WF(alignedBamsCh, params.starIndex, 
+        //     params.arribaDB, params.fuscatDB, params.ctatDB, params.metaDataDir, qcProcInputCh)
 
+        // ALTERNATIVE: run fusion calling directly on trimmed reads without alignment
+        AGGREGATE_FUSION_CALLING_WF(params.starIndex, 
+            params.arribaDB, params.fuscatDB, params.ctatDB, params.metaDataDir, qcProcInputCh)
         // RNA-editing calling module
         //def _alignedBams2passCh = TWOPASS_READS_ALIGNMENT_WF(qcProcInputCh, params.starIndex)
 
