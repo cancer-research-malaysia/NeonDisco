@@ -9,7 +9,7 @@ process ALIGN_READS_STAR_ARRIBA {
     container "${params.container__preproc}"
 
     input:
-        tuple val(sampleName), path(trimmedReads)
+        tuple val(sampleName), path(filtFastqs)
         path starIndex
     output:
         tuple val(sampleName), path("*-STAR-ARR_Aligned.out.bam", arity: '1'), emit: aligned_bam
@@ -20,8 +20,8 @@ process ALIGN_READS_STAR_ARRIBA {
     SAMPLE_ID=${sampleName}
     CORES=${params.numCores}
     STAR_INDEX=${starIndex}
-    READ1=${trimmedReads[0]}  # First file in the nested list will be read 1 file
-    READ2=${trimmedReads[1]}
+    READ1=${filtFastqs[0]}  # First file in the nested list will be read 1 file
+    READ2=${filtFastqs[1]}
 
     echo "Processing files of sample \${SAMPLE_ID}"
     echo "Number of cores to use: ${params.numCores}"
