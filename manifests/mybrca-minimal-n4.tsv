@@ -2,4 +2,5 @@ sampleName	read1Path	read2Path	sampleType
 1T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/1T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/1T_r2.fq.gz	Tumor
 2T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/2T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/2T_r2.fq.gz	Tumor
 3T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/3T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/3T_r2.fq.gz	Tumor
+4T	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/4T_r1.fq.gz	s3://crm.tumorstudy.analysis/mybrca-sequencing-data/RNAseq/4T_r2.fq.gz	Tumor
 1N	s3://crmy-gb-main/neondisco/datasets-external/Edgren-et-al-BC/fq-files/1N_r1.fastq	s3://crmy-gb-main/neondisco/datasets-external/Edgren-et-al-BC/fq-files/1N_r2.fastq	Normal

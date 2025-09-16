@@ -46,8 +46,19 @@ def merge_by_tool_suffixes(df, groupby_cols):
         # For each column, get data from appropriate tool
         for col in df.columns:
             if col not in groupby_cols and col != "originalTool":
+                # Skip sampleNum and sampleNum_padded columns
+                if col in ["sampleNum", "sampleNum_Padded"]:
+                    continue
+                    
+                # Special handling for sampleID - consolidate with comma separation
+                elif col == "sampleID":
+                    values = fusion_data.select(col).to_series().to_list()
+                    # Get unique non-null values
+                    unique_values = list(set([v for v in values if v is not None and v != "NA"]))
+                    merged_row[col] = ",".join(unique_values) if unique_values else "NA"
+                    
                 # Check if this is a tool-specific column
-                if col.endswith("_ARR") and "Arriba" in tools:
+                elif col.endswith("_ARR") and "Arriba" in tools:
                     # Get Arriba data
                     arriba_data = fusion_data.filter(pl.col("originalTool") == "Arriba")
                     if len(arriba_data) > 0:
@@ -96,9 +107,7 @@ def create_empty_output_files(output_filename):
         '3pStrand': [],
         'detectedBy': [],
         'toolOverlapCount': [],
-        'sampleID': [],
-        'sampleNum': [],
-        'sampleNum_Padded': [],
+        'sampleIDs': [],
         '5pSite_ARR': [],
         '3pSite_ARR': [],
         'mutationType_ARR': [],
@@ -115,7 +124,6 @@ def create_empty_output_files(output_filename):
     empty_df.write_csv(f"{output_filename}.tsv", separator='\t')
     print(f"Empty results file saved to {output_filename}.tsv")
     
-
 def main():
     """
     Process fusion transcript data based on:
@@ -158,9 +166,13 @@ def main():
     if not consolidated_df.is_empty():
         print(f"Consolidation complete: {len(collated_df)} -> {len(consolidated_df)} rows")
 
-    # now sort the consolidated DataFrame by 'fusionTranscriptID'
-    consolidated_df = consolidated_df.sort('fusionTranscriptID')
+    # sort by toolOverlapCount and fusionGenePair
+    consolidated_df = consolidated_df.sort(['toolOverlapCount', 'fusionGenePair'])
+    
+    # Rename sampleID to sampleIDs since it now contains multiple IDs
+    consolidated_df = consolidated_df.rename({"sampleID": "sampleIDs"})
 
+    
 ###########
 
     # Step 6: Save results
@@ -175,3 +187,4 @@ if __name__ == "__main__":
         print("Usage: wrangle-FTs-only--nf.py <sample id> <parquet file of combined FTs> <output filename>")
         sys.exit(1)
     main()
+

@@ -1,0 +1,74 @@
+flowchart TB
+    subgraph " "
+    v4["Channel.fromPath"]
+    v18["starIndex"]
+    v23["starIndex"]
+    v25["arribaDB"]
+    v27["fuscatDB"]
+    v29["ctatDB"]
+    v41["metaDataDir"]
+    end
+    subgraph "TRIMMING_WF [TRIMMING_WF]"
+    v17(["TRIM_READS_FASTP"])
+    end
+    subgraph "GENERAL_READS_ALIGNMENT_WF [GENERAL_READS_ALIGNMENT_WF]"
+    v19(["ALIGN_READS_STAR_GENERAL"])
+    v20(( ))
+    end
+    subgraph "AGGREGATE_FUSION_CALLING_WF [AGGREGATE_FUSION_CALLING_WF]"
+    v21(["FILTER_ALIGNED_READS_EASYFUSE"])
+    v22(["CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE"])
+    v24(["ALIGN_READS_STAR_ARRIBA"])
+    v26(["CALL_FUSIONS_ARRIBA"])
+    v28(["CALL_FUSIONS_FUSIONCATCHER"])
+    v30(["CALL_FUSIONS_STARFUSION"])
+    subgraph "AGGREGATE_FUSION_CALLING_WF:COLLECT_COHORTWIDE_UNFILTERED_FUSIONS [COLLECT_COHORTWIDE_UNFILTERED_FUSIONS]"
+    v33(["COLLATE_FUSIONS_PYENV"])
+    v35(["WRANGLE_RAW_FUSIONS_PYENV"])
+    v37(["COLLECT_COHORTWIDE_UNFILTERED_FUSIONS_PYENV"])
+    v36(( ))
+    end
+    subgraph "AGGREGATE_FUSION_CALLING_WF:COLLATE_FILTER_FUSIONS [COLLATE_FILTER_FUSIONS]"
+    v39(["COLLATE_FUSIONS_PYENV"])
+    v42(["FILTER_FUSIONS_PYENV"])
+    end
+    v31(( ))
+    end
+    subgraph " "
+    v34[" "]
+    v38[" "]
+    v40[" "]
+    v43["uniqueFiltFusionPairsForFusInsCh"]
+    v44["normFilteredFusionsCh"]
+    end
+    v5(( ))
+    v4 --> v5
+    v5 --> v17
+    v17 --> v19
+    v18 --> v19
+    v19 --> v20
+    v20 --> v21
+    v21 --> v22
+    v22 --> v24
+    v22 --> v28
+    v22 --> v30
+    v23 --> v24
+    v24 --> v26
+    v25 --> v26
+    v26 --> v31
+    v27 --> v28
+    v28 --> v31
+    v29 --> v30
+    v30 --> v31
+    v31 --> v33
+    v33 --> v35
+    v33 --> v34
+    v35 --> v36
+    v36 --> v37
+    v37 --> v38
+    v31 --> v39
+    v39 --> v42
+    v39 --> v40
+    v41 --> v42
+    v42 --> v44
+    v42 --> v43
