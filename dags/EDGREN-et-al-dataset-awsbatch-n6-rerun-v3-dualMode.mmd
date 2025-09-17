@@ -9,7 +9,7 @@ flowchart TB
     v47["metaDataDir"]
     v55["ctatDB"]
     v74["metaDataDir"]
-    v85["metaDataDir"]
+    v86["metaDataDir"]
     end
     subgraph "TRIMMING_WF [TRIMMING_WF]"
     v17(["TRIM_READS_FASTP"])
@@ -35,9 +35,11 @@ flowchart TB
     v70["recurrentValidatedDir"]
     v71[" "]
     v76[" "]
-    v79[" "]
+    v77[" "]
     v80[" "]
-    v87[" "]
+    v81[" "]
+    v88[" "]
+    v89[" "]
     end
     subgraph "AGGREGATE_FUSION_CALLING_WF [AGGREGATE_FUSION_CALLING_WF]"
     v27(["FILTER_ALIGNED_READS_EASYFUSE"])
@@ -80,10 +82,10 @@ flowchart TB
     v75(["PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE"])
     end
     subgraph "NEOANTIGEN_PREDICTION_WF:COHORT_LEVEL_HLA_NEOANTIGENS [COHORT_LEVEL_HLA_NEOANTIGENS]"
-    v78(["FILTER_HLA_ALLOTYPES_FREQ_PYENV"])
-    v86(["PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE"])
-    v77(( ))
-    v81(( ))
+    v79(["FILTER_HLA_ALLOTYPES_FREQ_PYENV"])
+    v87(["PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE"])
+    v78(( ))
+    v82(( ))
     end
     v59(( ))
     v63(( ))
@@ -102,7 +104,7 @@ flowchart TB
     v23 --> v25
     v25 --> v75
     v25 --> v26
-    v25 --> v77
+    v25 --> v78
     v20 --> v27
     v27 --> v28
     v28 --> v30
@@ -143,7 +145,7 @@ flowchart TB
     v62 --> v75
     v62 --> v63
     v62 --> v66
-    v62 --> v81
+    v62 --> v82
     v63 --> v64
     v64 --> v65
     v66 --> v68
@@ -151,11 +153,13 @@ flowchart TB
     v68 --> v70
     v68 --> v69
     v74 --> v75
+    v75 --> v77
     v75 --> v76
-    v77 --> v78
-    v78 --> v80
     v78 --> v79
-    v78 --> v81
-    v85 --> v86
-    v81 --> v86
+    v79 --> v81
+    v79 --> v80
+    v79 --> v82
     v86 --> v87
+    v82 --> v87
+    v87 --> v89
+    v87 --> v88

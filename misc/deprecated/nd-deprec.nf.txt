@@ -26,8 +26,8 @@ include { WRANGLE_RAW_FUSIONS_PYENV } from './modules/wrangle_raw_fusions_PYENV.
 ////// FUSION FILTERING AND ANNOTATION MODULES //////////
 include { FILTER_FUSIONS_PYENV } from './modules/filter_fusions_PYENV.nf'
 include { COLLECT_COHORTWIDE_UNFILTERED_FUSIONS_PYENV } from './modules/collect_cohortwide_unfiltered_fusions_PYENV.nf'
-include { COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV } from './modules/collect_cohortwide_normfiltered_fusions_PYENV.nf'
-include { GET_COHORT_RECURRENT_FUSIONS_PYENV } from './modules/get_cohort_recurrent_fusions_PYENV.nf'
+include { COLLECT_NORMFILTERED_FUSION_FILES_PYENV } from './modules/identify_recurrent_fusions_PYENV.nf'
+include { GET_COHORT_RECURRENT_FUSIONS_PYENV } from './modules/identify_recurrent_fusions_PYENV.nf'
 include { TRANSLATE_IN_SILICO_AGFUSION } from './modules/translate_in_silico_AGFUSION.nf'
 include { VALIDATE_IN_SILICO_FUSIONINSPECTOR } from './modules/validate_in_silico_FUSIONINSPECTOR.nf'
 include { COLLECT_COHORTWIDE_VALIDATED_FUSIONS_PYENV } from './modules/collect_cohortwide_validated_fusions_PYENV.nf'
@@ -269,17 +269,15 @@ workflow TRIMMING_WF {
         trimmedCh = TRIM_READS_FASTP.out.trimmed_reads
 }
 
-
-//////////////// Workflow for other discovery modules ////////////////
-// workflow TWOPASS_READS_ALIGNMENT_WF {
-//     take:
-//         trimmedCh
-//         starIndex
-//     main:
-//         FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_TWOPASS_STARSAM(trimmedCh, starIndex).aligned_bam)
-//     emit:
-//         alignedBam2PassCh = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bam
-// }
+workflow TWOPASS_READS_ALIGNMENT_WF {
+    take:
+        trimmedCh
+        starIndex
+    main:
+        FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_TWOPASS_STARSAM(trimmedCh, starIndex).aligned_bam)
+    emit:
+        alignedBam2PassCh = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bam
+}
 
 workflow GENERAL_READS_ALIGNMENT_WF {
     take:
@@ -288,10 +286,10 @@ workflow GENERAL_READS_ALIGNMENT_WF {
     main:
         ALIGN_READS_STAR_GENERAL(trimmedCh, starIndex)
     emit:
-        alignedBamCh = ALIGN_READS_STAR_GENERAL.out.final_bam.view()
+        alignedBamCh = ALIGN_READS_STAR_GENERAL.out.final_bam
 }
 
-/////////simplified with single HLA typing process with HLA-HD fallback
+// simplified with single HLA typing process with HLA-HD fallback
 workflow HLA_TYPING_WITH_FALLBACK_WF {
     take:
         alignedBamCh  // [sampleName, bam, bamIdx]
@@ -313,7 +311,6 @@ workflow HLA_TYPING_WITH_FALLBACK_WF {
         individualResultDir = REFORMAT_AND_COLLATE_HLA_RESULTS_PYENV.out.individualResults
 }
 
-//////////////////////////////////////////////////////////////////////////
 workflow COLLECT_COHORTWIDE_UNFILTERED_FUSIONS {
     take:
         aggregatedTuplesCh
@@ -331,6 +328,7 @@ workflow COLLECT_COHORTWIDE_UNFILTERED_FUSIONS {
         COLLECT_COHORTWIDE_UNFILTERED_FUSIONS_PYENV(wrangledFusionsTsv
                             .collect { _meta, filepath -> filepath }
                         )
+
 }
 
 workflow COLLATE_FILTER_FUSIONS {
@@ -349,18 +347,6 @@ workflow COLLATE_FILTER_FUSIONS {
         uniqueFiltFusionPairsForFusInsCh = FILTER_FUSIONS_PYENV.out.uniqueFiltFusionPairsForFusIns
 }
 
-workflow COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS {
-    take:
-        normFilteredFusionsCh
-    main:
-        // Collect cohort-wide normfiltered fusions
-        COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV(normFilteredFusionsCh
-                                    .collect { _meta, filepath -> filepath }
-                                )
-    emit:
-        cohortwideFusionsFile = COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV.out.cohortwideFusionsFile
-}
-
 workflow AGGREGATE_FUSION_CALLING_WF {
     take:
         alignedBamCh
@@ -370,30 +356,21 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         ctatDB
         metaDataDir
     main:
-        ////// Preprocess reads for aggregate fusion calling
+        // Preprocess reads for aggregate fusion calling
         FILTER_ALIGNED_READS_EASYFUSE(alignedBamCh)
         CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE(FILTER_ALIGNED_READS_EASYFUSE.out.filtered_bam)
         filtFastqsCh = CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE.out.filtered_fastqs
 
-        ////// Run gene fusion identification submodules
+        // gene fusion identification submodule
         CALL_FUSIONS_ARRIBA(ALIGN_READS_STAR_ARRIBA(filtFastqsCh, starIndex).aligned_bam, arribaDB)
         CALL_FUSIONS_FUSIONCATCHER(filtFastqsCh, fuscatDB)
         CALL_FUSIONS_STARFUSION(filtFastqsCh, ctatDB)
 
-        //////////////////////////////////////////////////////////////
-        /////////////// no EasyFuse filtering variant ////////////////
-        ////// gene fusion identification submodule
-        // CALL_FUSIONS_ARRIBA(ALIGN_READS_STAR_ARRIBA(trimmedFqs, starIndex).aligned_bam, arribaDB)
-        // CALL_FUSIONS_FUSIONCATCHER(trimmedFqs, fuscatDB)
-        // CALL_FUSIONS_STARFUSION(trimmedFqs, ctatDB)
-        //////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////
-
         // Join the outputs based on sample name
         CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
-           .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
-           .join(CALL_FUSIONS_STARFUSION.out.starfus_fusion_tuple)
-           .set { combinedFTFilesCh }
+            .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
+            .join(CALL_FUSIONS_STARFUSION.out.starfus_fusion_tuple)
+            .set { combinedFTFilesCh }
 
         // Collect cohort-wide unfiltered fusions
         COLLECT_COHORTWIDE_UNFILTERED_FUSIONS(combinedFTFilesCh)
@@ -401,17 +378,12 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         // Collate and filter fusions
         COLLATE_FILTER_FUSIONS(combinedFTFilesCh, metaDataDir)
 
-        //// Collect cohort-wide normfiltered fusions
-        COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS(COLLATE_FILTER_FUSIONS.out.normFilteredFusionsCh)
-
     emit:
         normFilteredFusionsCh = COLLATE_FILTER_FUSIONS.out.normFilteredFusionsCh
         uniqueFiltFusionPairsForFusInsCh = COLLATE_FILTER_FUSIONS.out.uniqueFiltFusionPairsForFusInsCh
-        cohortwideFusionsFile = COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS.out.cohortwideFusionsFile
     
 }
 
-////////////////////////////////////////////////////////////////////////////////////
 workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
     take:
         normFilteredFusionsCh
@@ -439,16 +411,14 @@ workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
 
 workflow RECURRENT_FUSION_FILTERING_WF {
     take:
-        cohortwideFusionsFile
+        normFilteredFusionsCh
     main:
         // Get cohort recurrent fusions
-        GET_COHORT_RECURRENT_FUSIONS_PYENV(cohortwideFusionsFile)
+        GET_COHORT_RECURRENT_FUSIONS_PYENV(COLLECT_NORMFILTERED_FUSION_FILES_PYENV(normFilteredFusionsCh).cohortwideFusionsFile)
     emit:
         cohortRecurrentFusionsCh = GET_COHORT_RECURRENT_FUSIONS_PYENV.out.cohortRecurrentFusionTsv
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
 workflow COLLECT_COHORTWIDE_FI_VALIDATED_FUSIONS {
     take:
         validatedFusionsTsvs
@@ -632,7 +602,7 @@ workflow {
     if (isLocal && isAwsBatch) {
         log.error "AWS Batch executor is not compatible with local input source."
         log.error "Please use either:"
-        log.error "  - Local executor with local or S3 input: -profile local,<MODE> --inputSource local/s3"
+        log.error "  - Local executor with local input: -profile local,<MODE> --inputSource local"
         log.error "  - AWS Batch executor with S3 input: -profile awsbatch,<MODE> --inputSource s3"
         exit 1
     }
@@ -673,8 +643,8 @@ workflow {
         
         // Branch the input channel by sample type
         def (branchedTumorCh, branchedNormalCh) = branchInputChannelBySampleType(inputCh)
-        tumorCh = branchedTumorCh.view()
-        normalCh = branchedNormalCh.view()
+        tumorCh = branchedTumorCh
+        normalCh = branchedNormalCh
         
         // Log sample counts
         normalCh.count().subscribe { count ->
@@ -720,33 +690,23 @@ workflow {
 
     // Execute workflow branching based on hlaTypingOnly parameter
     if (params.hlaTypingOnly) {
-        
         log.info "Running HLA typing only subworkflow..."
         // Run only HLA typing
         HLA_TYPING_WITH_FALLBACK_WF(alignedBamsCh)
 
     } else {
         
-        //// HLA typing
+        // HLA typing
         HLA_TYPING_WITH_FALLBACK_WF(alignedBamsCh)
 
-        //// Fusion calling module
+        // Fusion calling module
         AGGREGATE_FUSION_CALLING_WF(alignedBamsCh, params.starIndex, 
-                params.arribaDB, params.fuscatDB, params.ctatDB, params.metaDataDir)
+            params.arribaDB, params.fuscatDB, params.ctatDB, params.metaDataDir)
 
-        /////////////////////////////////////////////////////////
-        //// ALTERNATIVE MODE WITHOUT EASYFUSE PRE-FILTERING ////
-        // AGGREGATE_FUSION_CALLING_WF(params.starIndex, 
-        //         params.arribaDB, params.fuscatDB, params.ctatDB, params.metaDataDir, qcProcInputCh)
-        ////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////
         // RNA-editing calling module
-        //def _alignedBams2passCh = TWOPASS_READS_ALIGNMENT_WF(qcProcInputCh, params.starIndex)
-        ////////////////////////////////////////////////////////
+        def _alignedBams2passCh = TWOPASS_READS_ALIGNMENT_WF(qcProcInputCh, params.starIndex)
 
-
-        //// AGFUSION coding sequence prediction
+        // run AGFUSION coding sequence prediction
         IN_SILICO_TRANSCRIPT_VALIDATION_WF(
                 AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh,
                 AGGREGATE_FUSION_CALLING_WF.out.uniqueFiltFusionPairsForFusInsCh,
@@ -754,10 +714,12 @@ workflow {
                 params.ctatDB
             )
 
-        //// recurrent fusion filtering
-        RECURRENT_FUSION_FILTERING_WF(AGGREGATE_FUSION_CALLING_WF.out.cohortwideFusionsFile)
+        // recurrent fusion filtering
+        RECURRENT_FUSION_FILTERING_WF(AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh
+                .collect { _meta, filepath -> filepath }  // This collects just the filepaths
+            )
         
-        //// Neoepitope prediction
+        // Run neoepitope prediction
         NEOANTIGEN_PREDICTION_WF(
             IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.fusInspectorTsv,
             IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.filteredAgfusionOutdir,

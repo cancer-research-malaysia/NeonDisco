@@ -26,8 +26,8 @@ include { WRANGLE_RAW_FUSIONS_PYENV } from './modules/wrangle_raw_fusions_PYENV.
 ////// FUSION FILTERING AND ANNOTATION MODULES //////////
 include { FILTER_FUSIONS_PYENV } from './modules/filter_fusions_PYENV.nf'
 include { COLLECT_COHORTWIDE_UNFILTERED_FUSIONS_PYENV } from './modules/collect_cohortwide_unfiltered_fusions_PYENV.nf'
-include { COLLECT_NORMFILTERED_FUSION_FILES_PYENV } from './modules/identify_recurrent_fusions_PYENV.nf'
-include { GET_COHORT_RECURRENT_FUSIONS_PYENV } from './modules/identify_recurrent_fusions_PYENV.nf'
+include { COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV } from './modules/collect_cohortwide_normfiltered_fusions_PYENV.nf'
+include { GET_COHORT_RECURRENT_FUSIONS_PYENV } from './modules/get_cohort_recurrent_fusions_PYENV.nf'
 include { TRANSLATE_IN_SILICO_AGFUSION } from './modules/translate_in_silico_AGFUSION.nf'
 include { VALIDATE_IN_SILICO_FUSIONINSPECTOR } from './modules/validate_in_silico_FUSIONINSPECTOR.nf'
 include { COLLECT_COHORTWIDE_VALIDATED_FUSIONS_PYENV } from './modules/collect_cohortwide_validated_fusions_PYENV.nf'
@@ -53,43 +53,43 @@ nextflow run neondisco-main.nf -profile <EXECUTOR,MODE[,RESOURCE]> <--OPTION NAM
 
 Profile Examples:
 ----------------
-    -profile local,sampleNeoPredMode              # Run locally in sample-level neoantigen mode
-    -profile local,sharedNeoPredMode              # Run locally in shared neoantigen mode  
-    -profile local,dualNeoPredMode                # Run locally in both modes
-    -profile awsbatch,sampleNeoPredMode           # Run on AWS Batch in sample-level neoantigen mode
-    -profile awsbatch,sharedNeoPredMode           # Run on AWS Batch in shared neoantigen mode
-    -profile awsbatch,dualNeoPredMode             # Run on AWS Batch in both modes
+    -profile local,sampleHLANeoPredMode              # Run locally and run sample-level HLA neoantigen prediction
+    -profile local,sharedHLANeoPredMode              # Run locally and run shared, cohort-level HLA neoantigen prediction
+    -profile local,dualNeoPredMode                   # Run locally in both modes
+    -profile awsbatch,sampleHLANeoPredMode           # Run on AWS Batch in sample-level neoantigen mode
+    -profile awsbatch,sharedHLANeoPredMode              # Run on AWS Batch in shared neoantigen mode
+    -profile awsbatch,dualNeoPredMode                # Run on AWS Batch in both modes
 
 Required Arguments:
 ---------------
-    -c <configFile>             Path to the config file. [REQUIRED]
-    -profile                    Comma-separated list of profiles [REQUIRED]
-                                    EXECUTOR:   local | awsbatch
-                                    MODE:       sampleNeoPredMode | sharedNeoPredMode | dualNeoPredMode
-    --inputDir                  Path to local directory containing BAM/FASTQ input files [REQUIRED if manifestPath not provided]
-    --manifestPath              Path to tab-delimited manifest file [REQUIRED if inputDir not provided]
-                                    – must contain sample ID and read1 and read2 local filepaths or remote s3 filepaths
-                                    – must also contain sampleType column with values 'Tumor' or 'Normal'
-    --inputSource               Input source type: <local> for local files, <s3> for S3 files [REQUIRED]
-                                    – if inputSource is set to <s3>, --inputDir cannot be used and --manifestPath must be provided
-                                    -if inputSource is set to <local> -profile 'awsbatch' is disallowed
+    -c <configFile>                 Path to the config file. [REQUIRED]
+    -profile                        Comma-separated list of profiles [REQUIRED]
+                                        EXECUTOR:   local | awsbatch
+                                        MODE:       sampleHLANeoPredMode | sharedHLANeoPredMode | dualNeoPredMode
+    --inputDir                      Path to local directory containing BAM/FASTQ input files [REQUIRED if manifestPath not provided]
+    --manifestPath                  Path to tab-delimited manifest file [REQUIRED if inputDir not provided]
+                                        – must contain sample ID and read1 and read2 local filepaths or remote s3 filepaths
+                                        – must also contain sampleType column with values 'Tumor' or 'Normal'
+    --inputSource                   Input source type: <local> for local files, <s3> for S3 files [REQUIRED]
+                                        – if inputSource is set to <s3>, --inputDir cannot be used and --manifestPath must be provided
+                                        - if inputSource is set to <local> -profile 'awsbatch' is disallowed
 
 Optional Arguments:
 ---------------
-    --outputDir                 Directory path for output; can be s3 URIs [DEFAULT: ./outputs]
-    --trimReads                 Skip read trimming on FASTQ input [DEFAULT: true]
-    --hlaTypingOnly             Exclusively run HLA typing subworkflow [DEFAULT: false]
-    --includeNeoPred            Run neopeptide prediction subworkflow [DEFAULT: true]
-    --deleteIntMedFiles         Delete intermediate files right after they are not needed [DEFAULT: false]
-    --deleteStagedFiles         Delete staged files after processing [DEFAULT: true if inputSource is 's3']
-    --sampleHLANeoPred          Run neopeptide prediction using sample-level HLAs [DEFAULT: varies by mode]
-    --cohortHLANeoPred          Run neopeptide prediction using cohort-level HLAs [DEFAULT: varies by mode]
-    --recurrentFusionsOnly      Analyze recurrent fusions only [DEFAULT: varies by mode]
-                                    – true: Only process cohort-wide recurrent fusions (skip if none found)
-                                    – false: Process all validated fusions regardless of recurrence
-    --recurrenceThreshold       Threshold for recurrent fusions; only applies if recurrentFusionsOnly is set to true
-                                [DEFAULT: 0.005] (0.5% recurrence)
-    --help                      Print this help message and exit
+    --outputDir                     Directory path for output; can be s3 URIs [DEFAULT: ./outputs]
+    --trimReads                     Skip read trimming on FASTQ input [DEFAULT: true]
+    --hlaTypingOnly                 Exclusively run HLA typing subworkflow [DEFAULT: false]
+    --includeNeoPred                Run neopeptide prediction subworkflow [DEFAULT: true]
+    --deleteIntMedFiles             Delete intermediate files right after they are not needed [DEFAULT: false]
+    --deleteStagedFiles             Delete staged files after processing [DEFAULT: true if inputSource is 's3']
+    --sampleHLANeoPred              Run neopeptide prediction using sample-level HLAs [DEFAULT: varies by mode]
+    --sharedHLANeoPred              Run neopeptide prediction using cohort-level HLAs [DEFAULT: varies by mode]
+    --recurrentFusionsNeoPredOnly   Predict neopeptides for recurrent fusions only [DEFAULT: varies by mode]
+                                        – true:  Only predict neopeptides for shared recurrent fusions
+                                        – false: Predict neopeptides for all validated fusions regardless of recurrence
+    --recurrenceThreshold           Threshold for recurrent fusions; only applies if --recurrentFusionsNeoPredOnly is set to true
+                                        - [DEFAULT: 0.005] (0.5% recurrence)
+    --help                          Print this help message and exit
     """.stripIndent()
 }
 
@@ -97,13 +97,13 @@ Optional Arguments:
 def validateProfiles() {
     if (!workflow.profile) {
         log.error "No profile specified. Please specify -profile <EXECUTOR,MODE[,RESOURCE]>"
-        log.error "Examples: -profile local,sampleNeoPredMode or -profile awsbatch,sharedNeoPredMode"
+        log.error "Examples: -profile local,sampleHLANeoPredMode or -profile awsbatch,sharedHLANeoPredMode"
         return false
     }
     
     def profiles = workflow.profile.split(',').collect { it.trim() }
     def executors = ['local', 'awsbatch']
-    def modes = ['sampleNeoPredMode', 'sharedNeoPredMode', 'dualNeoPredMode']
+    def modes = ['sampleHLANeoPredMode', 'sharedHLANeoPredMode', 'dualNeoPredMode']
     
     // Check for required executor and mode
     def hasExecutor = profiles.any { executors.contains(it) }
@@ -115,8 +115,13 @@ def validateProfiles() {
     }
     
     if (!hasMode) {
-        log.error "You must specify a discovery mode profile: ${modes.join(', ')}"
-        return false
+        if (params.includeNeoPred) {
+            log.error "You must specify a neoantigen prediction mode profile: ${modes.join(', ')}, as --includeNeoPred is set to True"
+            return false
+        } else {
+            log.warn "No neoantigen prediction mode profile specified, AND includeNeoPred is set to false. Proceeding without neoantigen prediction."
+            return true
+        }
     }
     
     // Check for multiple executors (still not allowed)
@@ -130,17 +135,23 @@ def validateProfiles() {
     def modeCount = profiles.count { modes.contains(it) }
     if (modeCount > 1) {
         log.error "Only one neoantigen prediction mode allowed. Found: ${profiles.findAll { modes.contains(it) }.join(', ')}"
-        log.error "Use 'dualNeoPredMode' to run both sample-level and shared predictions"
+        log.error "Use 'dualNeoPredMode' to run both sample-level and shared HLA neoantigen predictions"
         return false
+    } else if (modeCount == 0 && params.includeNeoPred) {
+        log.error "You must specify a neoantigen prediction mode profile: ${modes.join(', ')}, as --includeNeoPred is set to True"
+        return false
+    } else if (modeCount == 0 && !params.includeNeoPred) {
+        log.warn "No neoantigen prediction mode profile specified, AND includeNeoPred is set to false. Proceeding without neoantigen prediction."
+        return true
     }
     
     // Log which mode is being used
     if (profiles.contains('dualNeoPredMode')) {
         log.info "Running in dual mode: both sample-level and shared neoantigen discovery enabled"
-    } else if (profiles.contains('sampleNeoPredMode')) {
-        log.info "Running in sample-level neoantigen discovery mode"
-    } else if (profiles.contains('sharedNeoPredMode')) {
-        log.info "Running in shared neoantigen discovery mode"
+    } else if (profiles.contains('sampleHLANeoPredMode')) {
+        log.info "Running in sample-level HLA neoantigen prediction mode"
+    } else if (profiles.contains('sharedHLANeoPredMode')) {
+        log.info "Running in shared HLA neoantigen prediction mode"
     }
     
     // Validate unknown profiles
@@ -269,15 +280,17 @@ workflow TRIMMING_WF {
         trimmedCh = TRIM_READS_FASTP.out.trimmed_reads
 }
 
-workflow TWOPASS_READS_ALIGNMENT_WF {
-    take:
-        trimmedCh
-        starIndex
-    main:
-        FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_TWOPASS_STARSAM(trimmedCh, starIndex).aligned_bam)
-    emit:
-        alignedBam2PassCh = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bam
-}
+
+//////////////// Workflow for other discovery modules ////////////////
+// workflow TWOPASS_READS_ALIGNMENT_WF {
+//     take:
+//         trimmedCh
+//         starIndex
+//     main:
+//         FIXMATES_MARKDUPES_SAMTOOLS(ALIGN_READS_TWOPASS_STARSAM(trimmedCh, starIndex).aligned_bam)
+//     emit:
+//         alignedBam2PassCh = FIXMATES_MARKDUPES_SAMTOOLS.out.final_bam
+// }
 
 workflow GENERAL_READS_ALIGNMENT_WF {
     take:
@@ -286,10 +299,10 @@ workflow GENERAL_READS_ALIGNMENT_WF {
     main:
         ALIGN_READS_STAR_GENERAL(trimmedCh, starIndex)
     emit:
-        alignedBamCh = ALIGN_READS_STAR_GENERAL.out.final_bam
+        alignedBamCh = ALIGN_READS_STAR_GENERAL.out.final_bam.view()
 }
 
-// simplified with single HLA typing process with HLA-HD fallback
+/////////simplified with single HLA typing process with HLA-HD fallback
 workflow HLA_TYPING_WITH_FALLBACK_WF {
     take:
         alignedBamCh  // [sampleName, bam, bamIdx]
@@ -311,6 +324,7 @@ workflow HLA_TYPING_WITH_FALLBACK_WF {
         individualResultDir = REFORMAT_AND_COLLATE_HLA_RESULTS_PYENV.out.individualResults
 }
 
+//////////////////////////////////////////////////////////////////////////
 workflow COLLECT_COHORTWIDE_UNFILTERED_FUSIONS {
     take:
         aggregatedTuplesCh
@@ -328,7 +342,6 @@ workflow COLLECT_COHORTWIDE_UNFILTERED_FUSIONS {
         COLLECT_COHORTWIDE_UNFILTERED_FUSIONS_PYENV(wrangledFusionsTsv
                             .collect { _meta, filepath -> filepath }
                         )
-
 }
 
 workflow COLLATE_FILTER_FUSIONS {
@@ -347,6 +360,18 @@ workflow COLLATE_FILTER_FUSIONS {
         uniqueFiltFusionPairsForFusInsCh = FILTER_FUSIONS_PYENV.out.uniqueFiltFusionPairsForFusIns
 }
 
+workflow COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS {
+    take:
+        normFilteredFusionsCh
+    main:
+        // Collect cohort-wide normfiltered fusions
+        COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV(normFilteredFusionsCh
+                                    .collect { _meta, filepath -> filepath }
+                                )
+    emit:
+        cohortwideFusionsFile = COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV.out.cohortwideFusionsFile
+}
+
 workflow AGGREGATE_FUSION_CALLING_WF {
     take:
         alignedBamCh
@@ -356,21 +381,30 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         ctatDB
         metaDataDir
     main:
-        // Preprocess reads for aggregate fusion calling
+        ////// Preprocess reads for aggregate fusion calling
         FILTER_ALIGNED_READS_EASYFUSE(alignedBamCh)
         CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE(FILTER_ALIGNED_READS_EASYFUSE.out.filtered_bam)
         filtFastqsCh = CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE.out.filtered_fastqs
 
-        // gene fusion identification submodule
+        ////// Run gene fusion identification submodules
         CALL_FUSIONS_ARRIBA(ALIGN_READS_STAR_ARRIBA(filtFastqsCh, starIndex).aligned_bam, arribaDB)
         CALL_FUSIONS_FUSIONCATCHER(filtFastqsCh, fuscatDB)
         CALL_FUSIONS_STARFUSION(filtFastqsCh, ctatDB)
 
+        //////////////////////////////////////////////////////////////
+        /////////////// no EasyFuse filtering variant ////////////////
+        ////// gene fusion identification submodule
+        // CALL_FUSIONS_ARRIBA(ALIGN_READS_STAR_ARRIBA(trimmedFqs, starIndex).aligned_bam, arribaDB)
+        // CALL_FUSIONS_FUSIONCATCHER(trimmedFqs, fuscatDB)
+        // CALL_FUSIONS_STARFUSION(trimmedFqs, ctatDB)
+        //////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////
+
         // Join the outputs based on sample name
         CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
-            .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
-            .join(CALL_FUSIONS_STARFUSION.out.starfus_fusion_tuple)
-            .set { combinedFTFilesCh }
+           .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
+           .join(CALL_FUSIONS_STARFUSION.out.starfus_fusion_tuple)
+           .set { combinedFTFilesCh }
 
         // Collect cohort-wide unfiltered fusions
         COLLECT_COHORTWIDE_UNFILTERED_FUSIONS(combinedFTFilesCh)
@@ -378,12 +412,17 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         // Collate and filter fusions
         COLLATE_FILTER_FUSIONS(combinedFTFilesCh, metaDataDir)
 
+        //// Collect cohort-wide normfiltered fusions
+        COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS(COLLATE_FILTER_FUSIONS.out.normFilteredFusionsCh)
+
     emit:
         normFilteredFusionsCh = COLLATE_FILTER_FUSIONS.out.normFilteredFusionsCh
         uniqueFiltFusionPairsForFusInsCh = COLLATE_FILTER_FUSIONS.out.uniqueFiltFusionPairsForFusInsCh
+        cohortwideFusionsFile = COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS.out.cohortwideFusionsFile
     
 }
 
+////////////////////////////////////////////////////////////////////////////////////
 workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
     take:
         normFilteredFusionsCh
@@ -411,14 +450,16 @@ workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
 
 workflow RECURRENT_FUSION_FILTERING_WF {
     take:
-        normFilteredFusionsCh
+        cohortwideFusionsFile
     main:
         // Get cohort recurrent fusions
-        GET_COHORT_RECURRENT_FUSIONS_PYENV(COLLECT_NORMFILTERED_FUSION_FILES_PYENV(normFilteredFusionsCh).cohortwideFusionsFile)
+        GET_COHORT_RECURRENT_FUSIONS_PYENV(cohortwideFusionsFile)
     emit:
         cohortRecurrentFusionsCh = GET_COHORT_RECURRENT_FUSIONS_PYENV.out.cohortRecurrentFusionTsv
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 workflow COLLECT_COHORTWIDE_FI_VALIDATED_FUSIONS {
     take:
         validatedFusionsTsvs
@@ -529,21 +570,21 @@ workflow NEOANTIGEN_PREDICTION_WF {
         // Get the full validated fusions directory
         recurrentValidatedDir = FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV.out.validatedRecurrentAgfusionDir
         
-        // Logic based on recurrentFusionsOnly parameter
+        // Logic based on recurrentFusionsNeoPredOnly parameter
         def finalAgfusionDir = Channel.empty()
 
-        if (params.recurrentFusionsOnly) {
+        if (params.recurrentFusionsNeoPredOnly) {
             // Default mode: Only process recurrent fusions
             finalAgfusionDir = recurrentValidatedDir
                 .ifEmpty { 
                     log.warn "No recurrent fusions found in this input cohort. Neoantigen prediction will be skipped."
-                    log.info "Consider using [--recurrentFusionsOnly false] flag to process all validated fusions instead."
+                    log.info "Consider using [--recurrentFusionsNeoPredOnly false] flag to process all validated fusions instead."
                     Channel.empty()
                 }   
         } else {
             // Alternative mode: Process all validated fusions
             finalAgfusionDir = validatedAgfusionDir
-            log.info "Processing all validated fusions [--recurrentFusionsOnly false]..."
+            log.info "Processing all validated fusions [--recurrentFusionsNeoPredOnly false]..."
         }
         
         // Run neoepitope prediction subworkflow
@@ -555,7 +596,7 @@ workflow NEOANTIGEN_PREDICTION_WF {
             }
 
             // Run cohort-wide if enabled
-            if (params.cohortHLANeoPred) {
+            if (params.sharedHLANeoPred) {
                 COHORT_LEVEL_HLA_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv, metaDataDir)
             }
         } else {
@@ -602,7 +643,7 @@ workflow {
     if (isLocal && isAwsBatch) {
         log.error "AWS Batch executor is not compatible with local input source."
         log.error "Please use either:"
-        log.error "  - Local executor with local input: -profile local,<MODE> --inputSource local"
+        log.error "  - Local executor with local or S3 input: -profile local,<MODE> --inputSource local/s3"
         log.error "  - AWS Batch executor with S3 input: -profile awsbatch,<MODE> --inputSource s3"
         exit 1
     }
@@ -643,8 +684,8 @@ workflow {
         
         // Branch the input channel by sample type
         def (branchedTumorCh, branchedNormalCh) = branchInputChannelBySampleType(inputCh)
-        tumorCh = branchedTumorCh
-        normalCh = branchedNormalCh
+        tumorCh = branchedTumorCh.view()
+        normalCh = branchedNormalCh.view()
         
         // Log sample counts
         normalCh.count().subscribe { count ->
@@ -669,17 +710,17 @@ workflow {
     log.info "Read trimming: << ${params.trimReads} >>"
     log.info "HLA typing only? : << ${params.hlaTypingOnly} >>"
     log.info "Include neopeptide prediction? : << ${params.includeNeoPred} >>"
-    // Log the fusion filtering mode
-    def mode = params.recurrentFusionsOnly ? "Recurrent-only" : "All-validated"
+    // Log the fusion prediction mode
+    def mode = params.recurrentFusionsNeoPredOnly ? "Recurrent-only" : "All-validated"
     log.info "Fusion-derived neoantigen prediction input set: << ${mode} fusions >>"
     
-    if (params.recurrentFusionsOnly) {
+    if (params.recurrentFusionsNeoPredOnly) {
         log.info "----Recurrence threshold: << ${params.recurrenceThreshold * 100}% >>"
     } else {
-        log.info "----Recurrent fusion–only parameter is disabled; all validated fusions will be processed"
+        log.info "----Recurrent fusion–only parameter is disabled; all validated fusions will be predicted for neopeptides."
     }
     log.info "Neopeptide prediction mode [Personalized (using sample-level HLA allotypes)]: << ${params.sampleHLANeoPred} >>"
-    log.info "Neopeptide prediction mode [Cohort-based (using cohort-level HLA allotypes)]: << ${params.cohortHLANeoPred} >>"
+    log.info "Neopeptide prediction mode [Cohort-based (using cohort-level HLA allotypes)]: << ${params.sharedHLANeoPred} >>"
     
     // Process tumor samples only (normal channel remains unused but available)
     def qcProcInputCh = params.trimReads ? TRIMMING_WF(tumorCh).trimmedCh : tumorCh
@@ -690,23 +731,33 @@ workflow {
 
     // Execute workflow branching based on hlaTypingOnly parameter
     if (params.hlaTypingOnly) {
+        
         log.info "Running HLA typing only subworkflow..."
         // Run only HLA typing
         HLA_TYPING_WITH_FALLBACK_WF(alignedBamsCh)
 
     } else {
         
-        // HLA typing
+        //// HLA typing
         HLA_TYPING_WITH_FALLBACK_WF(alignedBamsCh)
 
-        // Fusion calling module
+        //// Fusion calling module
         AGGREGATE_FUSION_CALLING_WF(alignedBamsCh, params.starIndex, 
-            params.arribaDB, params.fuscatDB, params.ctatDB, params.metaDataDir)
+                params.arribaDB, params.fuscatDB, params.ctatDB, params.metaDataDir)
 
+        /////////////////////////////////////////////////////////
+        //// ALTERNATIVE MODE WITHOUT EASYFUSE PRE-FILTERING ////
+        // AGGREGATE_FUSION_CALLING_WF(params.starIndex, 
+        //         params.arribaDB, params.fuscatDB, params.ctatDB, params.metaDataDir, qcProcInputCh)
+        ////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////
         // RNA-editing calling module
-        def _alignedBams2passCh = TWOPASS_READS_ALIGNMENT_WF(qcProcInputCh, params.starIndex)
+        //def _alignedBams2passCh = TWOPASS_READS_ALIGNMENT_WF(qcProcInputCh, params.starIndex)
+        ////////////////////////////////////////////////////////
 
-        // run AGFUSION coding sequence prediction
+
+        //// AGFUSION coding sequence prediction
         IN_SILICO_TRANSCRIPT_VALIDATION_WF(
                 AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh,
                 AGGREGATE_FUSION_CALLING_WF.out.uniqueFiltFusionPairsForFusInsCh,
@@ -714,12 +765,10 @@ workflow {
                 params.ctatDB
             )
 
-        // recurrent fusion filtering
-        RECURRENT_FUSION_FILTERING_WF(AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh
-                .collect { _meta, filepath -> filepath }  // This collects just the filepaths
-            )
+        //// recurrent fusion filtering
+        RECURRENT_FUSION_FILTERING_WF(AGGREGATE_FUSION_CALLING_WF.out.cohortwideFusionsFile)
         
-        // Run neoepitope prediction
+        //// Neoepitope prediction
         NEOANTIGEN_PREDICTION_WF(
             IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.fusInspectorTsv,
             IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.filteredAgfusionOutdir,

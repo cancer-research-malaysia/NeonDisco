@@ -61,7 +61,7 @@ process PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE {
     
     log_message "CONFIGURATION:"
     log_message "Path to cohort-wide 5% frequency HLAs: ${cohortFivePercentFreqHLAs}"
-    log_message "Prediction mode: Cohort-level --> ${params.cohortHLANeoPred}"
+    log_message "Prediction mode: Cohort-level --> ${params.sharedHLANeoPred}"
     log_message "Number of cores to use: ${params.numCores * 2}"
     log_message "Reference proteome: ${metaDataDir}/Homo_sapiens.GRCh38.pep.all.fa.gz"
     log_message ""
