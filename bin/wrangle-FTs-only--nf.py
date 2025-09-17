@@ -46,17 +46,9 @@ def merge_by_tool_suffixes(df, groupby_cols):
         # For each column, get data from appropriate tool
         for col in df.columns:
             if col not in groupby_cols and col != "originalTool":
-                # Skip sampleNum and sampleNum_padded columns
-                if col in ["sampleNum", "sampleNum_Padded"]:
+                # Skip sampleNum_padded column
+                if col in ["sampleNum_Padded"]:
                     continue
-                    
-                # Special handling for sampleID - consolidate with comma separation
-                elif col == "sampleID":
-                    values = fusion_data.select(col).to_series().to_list()
-                    # Get unique non-null values
-                    unique_values = list(set([v for v in values if v is not None and v != "NA"]))
-                    merged_row[col] = ",".join(unique_values) if unique_values else "NA"
-                    
                 # Check if this is a tool-specific column
                 elif col.endswith("_ARR") and "Arriba" in tools:
                     # Get Arriba data
@@ -107,7 +99,8 @@ def create_empty_output_files(output_filename):
         '3pStrand': [],
         'detectedBy': [],
         'toolOverlapCount': [],
-        'sampleIDs': [],
+        'sampleID': [],
+        'sampleNum': [],
         '5pSite_ARR': [],
         '3pSite_ARR': [],
         'mutationType_ARR': [],
@@ -167,7 +160,7 @@ def main():
         print(f"Consolidation complete: {len(collated_df)} -> {len(consolidated_df)} rows")
 
     # sort by toolOverlapCount and fusionGenePair
-    consolidated_df = consolidated_df.sort(['toolOverlapCount', 'fusionGenePair'])
+    consolidated_df = consolidated_df.sort(['toolOverlapCount', 'fusionGenePair'], descending=[True, False])
     
     # Rename sampleID to sampleIDs since it now contains multiple IDs
     consolidated_df = consolidated_df.rename({"sampleID": "sampleIDs"})
