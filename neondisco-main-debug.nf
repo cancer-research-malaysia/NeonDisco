@@ -354,7 +354,9 @@ workflow COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS {
         normFilteredFusionsCh
     main:
         // Collect cohort-wide normfiltered fusions
-        COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV(normFilteredFusionsCh)
+        COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV(normFilteredFusionsCh
+                                    .collect { _meta, filepath -> filepath }
+                                )
     emit:
         cohortwideFusionsFile = COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV.out.cohortwideFusionsFile
 }
@@ -630,7 +632,7 @@ workflow {
     if (isLocal && isAwsBatch) {
         log.error "AWS Batch executor is not compatible with local input source."
         log.error "Please use either:"
-        log.error "  - Local executor with local input: -profile local,<MODE> --inputSource local"
+        log.error "  - Local executor with local or S3 input: -profile local,<MODE> --inputSource local/s3"
         log.error "  - AWS Batch executor with S3 input: -profile awsbatch,<MODE> --inputSource s3"
         exit 1
     }

@@ -3,11 +3,13 @@
 # get script arguments
 SAMPLENAME=$1
 FI_VALIDATED_TSV=$2
-RECURRENT_FUSIONS_TSV=$3
+FI_VALIDATED_AGFUSION_DIR=$3
+RECURRENT_FUSIONS_TSV=$4
 
 echo "Filtering validated fusions for recurrent ones only..."
 echo "Sample: ${SAMPLENAME}"
 echo "Validated fusions: ${FI_VALIDATED_TSV}"
+echo "Validated AGFusion dir: ${FI_VALIDATED_AGFUSION_DIR}"
 echo "Recurrent fusions TSV: ${RECURRENT_FUSIONS_TSV}"
 
 # Initialize report
@@ -18,7 +20,7 @@ echo "Date: $(date)" >> ${REPORT}
 echo "" >> ${REPORT}
 
 # output file for recurrent validated fusions
-OUTPUT_FILE="${SAMPLENAME}-validated-recurrent-fusions-only.tsv"
+OUTPUT_FILE="${SAMPLENAME}-FI-validated-recurrent-fusions-only.tsv"
 echo "Output file for recurrent validated fusions: ${OUTPUT_FILE}" >> ${REPORT}
 
 
@@ -27,7 +29,7 @@ if [ $(tail -n +2 ${FI_VALIDATED_TSV} | wc -l) -eq 0 ]; then
     echo "No validated fusions for this sample."
     echo "STATUS: No validated fusions!" >> ${REPORT}
     head -1 ${FI_VALIDATED_TSV} > "${OUTPUT_FILE}"
-    mkdir -p validated-recurrent-agfusion-outdir && touch validated-recurrent-agfusion-outdir/.empty
+    mkdir -p FI-validated-recurrent-agfusion-dirs && touch FI-validated-recurrent-agfusion-dirs/.empty
     exit 0
 fi
 
@@ -35,7 +37,7 @@ if [ $(tail -n +2 "${RECURRENT_FUSIONS_TSV}" | wc -l) -eq 0 ]; then
     echo "No recurrent fusions found in this cohort."
     echo "STATUS: No recurrent fusions in this cohort!" >> ${REPORT}
     head -1 ${FI_VALIDATED_TSV} > "${OUTPUT_FILE}"
-    mkdir -p validated-recurrent-agfusion-outdir && touch validated-recurrent-agfusion-outdir/.empty
+    mkdir -p FI-validated-recurrent-agfusion-dirs && touch FI-validated-recurrent-agfusion-dirs/.empty
     exit 0
 fi
 
@@ -67,15 +69,15 @@ final_count=$(tail -n +2 "${OUTPUT_FILE}" | wc -l)
 echo "Final recurrent FusionInspector-validated fusions for this sample ${SAMPLENAME}: $final_count" >> ${REPORT}
 
 # create output directory for recurrent AGFusion results
-mkdir -p validated-recurrent-agfusion-outdir
+mkdir -p FI-validated-recurrent-agfusion-dirs
 
 # Filter AGFusion directories
 if [ $final_count -gt 0 ]; then
     echo "Filtering AGFusion directories for recurrent fusions..." >> ${REPORT}
 
     # Check if directory contains actual AGFusion results (ignore .empty files)
-    agfusion_dirs=$(find "validated-agfusion-outdir" -maxdepth 1 -type d ! -name "." ! -name ".." | wc -l)
-    empty_marker=$(find "validated-agfusion-outdir" -name ".empty" -type f | wc -l)
+    agfusion_dirs=$(find "${FI_VALIDATED_AGFUSION_DIR}" -maxdepth 1 -type d ! -name "." ! -name ".." | wc -l)
+    empty_marker=$(find "${FI_VALIDATED_AGFUSION_DIR}" -name ".empty" -type f | wc -l)
     
     if [ $agfusion_dirs -eq 0 ] || [ $empty_marker -gt 0 ]; then
         echo "No validated AGFusion directories found for ${SAMPLENAME}." >> ${REPORT}
@@ -90,13 +92,13 @@ if [ $final_count -gt 0 ]; then
         echo "Transformed recurrent gene pair: $transformed_pair"
         expected_dir_pattern="${SAMPLENAME}_${transformed_pair}"
         
-        for agf_dir in validated-agfusion-outdir/*; do
+        for agf_dir in "${FI_VALIDATED_AGFUSION_DIR}"/*; do
             if [ -d "$agf_dir" ]; then
                 dir_basename=$(basename "$agf_dir")
                 echo "Checking directory: $dir_basename"
                 # Match the transformed pattern
                 if [[ "$dir_basename" == "$expected_dir_pattern" ]]; then
-                    cp -r "$agf_dir" validated-recurrent-agfusion-outdir/
+                    cp -r "$agf_dir" FI-validated-recurrent-agfusion-dirs/
                     echo "COPIED: $dir_basename" >> ${REPORT}
                     echo "COPIED: $dir_basename"
                 else
@@ -118,7 +120,7 @@ if [ $validated_count -gt 0 ]; then
     # check reduction percentage, if 100% then create empty file flag
     if [ $reduction_pct -eq 100 ]; then
         echo "No recurrent fusions in the validated fusion list, creating empty flag file." >> ${REPORT}
-        touch validated-recurrent-agfusion-outdir/.empty
+        touch FI-validated-recurrent-agfusion-dirs/.empty
     fi
 else
     echo "Reduction: N/A (no input fusions)" >> ${REPORT}

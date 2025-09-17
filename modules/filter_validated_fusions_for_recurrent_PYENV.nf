@@ -16,19 +16,19 @@ process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
     tuple val(cohortLabel), path(recurrentFusionsTsv)
 
     output:
-    tuple val(sampleName), path("${sampleName}-validated-recurrent-fusions-only.tsv"), emit: validatedRecurrentFusions
-    tuple val(sampleName), path("validated-recurrent-agfusion-outdir"), emit: validatedRecurrentAgfusionDir
+    tuple val(sampleName), path("${sampleName}-FI-validated-recurrent-fusions-only.tsv"), emit: validatedRecurrentFusions
+    tuple val(sampleName), path("FI-validated-recurrent-agfusion-dirs"), emit: validatedRecurrentAgfusionDir
     path("${sampleName}_recurrent_filter_report.txt"), emit: recurrentFilterReport
 
     script:
     """
-    filter-copy-recurrent-fusion-agfusiondir--nf.sh ${sampleName} ${validatedFusions} ${recurrentFusionsTsv} || echo "ERROR: Cannot run filtering for recurrent script for ${sampleName}. Check logs."
+    filter-copy-recurrent-fusion-agfusiondir--nf.sh ${sampleName} ${validatedFusions} ${validatedAgfusionDir} ${recurrentFusionsTsv} || echo "ERROR: Cannot run filtering for recurrent script for ${sampleName}. Check logs."
 
     """
     
     stub:
     """
-    mkdir -p validated-recurrent-agfusion-outdir
+    mkdir -p FI-validated-recurrent-agfusion-dirs
     echo -e "sample_name\\tgene_pair\\tfusion_name\\tgene1\\tgene2" > ${sampleName}-validated-recurrent-fusions-only.tsv
     echo "FILTER_VALIDATED_FOR_RECURRENT_PYENV: Stub run finished!" > ${sampleName}_recurrent_filter_report.txt
     echo "STATUS: Stub run" >> ${sampleName}_recurrent_filter_report.txt
