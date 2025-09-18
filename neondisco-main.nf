@@ -299,7 +299,7 @@ workflow GENERAL_READS_ALIGNMENT_WF {
     main:
         ALIGN_READS_STAR_GENERAL(trimmedCh, starIndex)
     emit:
-        alignedBamCh = ALIGN_READS_STAR_GENERAL.out.final_bam.view()
+        alignedBamCh = ALIGN_READS_STAR_GENERAL.out.final_bam
 }
 
 /////////simplified with single HLA typing process with HLA-HD fallback

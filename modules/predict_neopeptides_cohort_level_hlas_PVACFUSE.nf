@@ -72,7 +72,7 @@ process PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE {
     log_message "Cohort-wide HLA types: \${COHORT_HLAS}"
     
     # Count HLA alleles
-    HLA_COUNT=\$(echo "\${COHORT_HLAS}" | wc -w)
+    HLA_COUNT=\$(echo "\${COHORT_HLAS}" | tr ',' '\n' | wc -l)
     log_message "Total number of HLA alleles: \${HLA_COUNT}"
     log_message ""
     

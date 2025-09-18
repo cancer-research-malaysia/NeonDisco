@@ -11,7 +11,7 @@ process TYPE_HLAS_WITH_FALLBACK_ARCASHLA {
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     input:
-    tuple val(sampleName), path(bam), path(bamIdx)
+    tuple val(sampleName), path(bam), path(bamIdx), path(querynameBam)
 
     output:
     tuple val(sampleName), path("${sampleName}.genotype.json"), emit: hla_json

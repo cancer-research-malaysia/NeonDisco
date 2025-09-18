@@ -14,7 +14,7 @@ process GET_COHORT_RECURRENT_FUSIONS_PYENV {
     
     output:
     tuple val("Cohortwide-Recurrent-Fusions"), path("Cohortwide_normfiltered_fusions_RECURRENT.tsv"), emit: cohortRecurrentFusionTsv
-    tuple val("Cohort-Recurrent-Fusions"), path("Recurrent_normfiltered_fusion_frequency_report.txt"), emit: fusionFrequencyReport
+    tuple val("Cohort-Recurrent-Fusions"), path("Recurrent_normfiltered_fusion_frequency_report.*"), emit: fusionFrequencyReport
     
     script:
     """
@@ -28,6 +28,8 @@ process GET_COHORT_RECURRENT_FUSIONS_PYENV {
     """
     touch Cohortwide_normfiltered_fusions_RECURRENT.tsv
     touch Recurrent_normfiltered_fusion_frequency_report.txt
+    touch Recurrent_normfiltered_fusion_frequency_report.tsv
+
     echo "[GET_COHORT_RECURRENT_FUSIONS_PYENV]: Stub run finished!"
     """
 
