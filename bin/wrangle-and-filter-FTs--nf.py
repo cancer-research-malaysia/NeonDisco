@@ -46,11 +46,8 @@ def merge_by_tool_suffixes(df, groupby_cols):
         # For each column, get data from appropriate tool
         for col in df.columns:
             if col not in groupby_cols and col != "originalTool":
-                # Skip sampleNum_padded column
-                if col in ["sampleNum_Padded"]:
-                    continue
                 # Check if this is a tool-specific column
-                elif col.endswith("_ARR") and "Arriba" in tools:
+                if col.endswith("_ARR") and "Arriba" in tools:
                     # Get Arriba data
                     arriba_data = fusion_data.filter(pl.col("originalTool") == "Arriba")
                     if len(arriba_data) > 0:
@@ -101,6 +98,7 @@ def create_empty_output_files(output_filename):
         'toolOverlapCount': [],
         'sampleID': [],
         'sampleNum': [],
+        'sampleNum_Padded': [],
         '5pSite_ARR': [],
         '3pSite_ARR': [],
         'mutationType_ARR': [],

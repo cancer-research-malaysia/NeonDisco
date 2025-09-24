@@ -100,13 +100,10 @@ def concatenate_cohortwide_fusions(input_files, output_file):
         # Concatenate all dataframes
         print("Concatenating all dataframes...")
         cohort_df = pl.concat(dfs, how='vertical')
-        
-        # Sort by sampleNum_Padded if available, otherwise by sampleID
 
         # Define the boolean columns to sort descending
         bool_cols_desc = ['foundInCCLE&InternalCLs', 'foundInGaoTCGARecurrent', 'foundInMitelmanCancerFusions', 'foundInKlijnCancerCellLineFusions']
 
-        # Sort by sampleNum_Padded if available, otherwise by sampleID
         # Sort by sampleNum_Padded if available, otherwise by sampleID
         if 'sampleNum_Padded' in cohort_df.columns:
             cohort_df = cohort_df.sort([
