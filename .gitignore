@@ -108,6 +108,10 @@ docker/agfusion/src/cache_pyensembl_GRCh38_ENSEMBL111/**
 
 refs/*
 
+# ignore dags and reports for main branch
+dags/*
+reports/*
+
 # pixi environments
 .pixi/*
 !.pixi/config.toml
