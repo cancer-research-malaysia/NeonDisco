@@ -14,6 +14,7 @@ process TRANSLATE_IN_SILICO_AGFUSION {
 
     output:
         tuple val(sampleName), path("filtered-agfusion-dirs/"), emit: filtered_agfusion_outdir
+        tuple val(sampleName), path("agfusion-dirs/"), emit: raw_agfusion_outdir
 
     script:
     """
@@ -54,6 +55,13 @@ process TRANSLATE_IN_SILICO_AGFUSION {
     fi
 
     # Ensure directory is never empty for S3 compatibility
+    if ls agfusion-dirs/*/ 1> /dev/null 2>&1; then
+        echo "Has subdirectories. Proceeding with outputs..."
+    else
+        echo "No subdirectories found. Creating a dummy file to ensure directory is not empty."
+        echo "No AGFusion directories (raw outputs) found for ${sampleName}" > agfusion-dirs/_placeholder.txt
+    fi
+
     if ls filtered-agfusion-dirs/*/ 1> /dev/null 2>&1; then
         echo "Has subdirectories. Proceeding with outputs..."
     else
@@ -67,6 +75,7 @@ process TRANSLATE_IN_SILICO_AGFUSION {
     stub:
     """
     mkdir -p filtered-agfusion-dirs
+    mkdir -p agfusion-dirs
     echo "stub run finished!" > filtered-agfusion-dirs/stub.out
     """
 }
