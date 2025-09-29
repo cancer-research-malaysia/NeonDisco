@@ -1,9 +1,9 @@
 // Alternative approach: Create a separate recurrent-aware filtering step
-process FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
+process FILTER_SAMPLE_LEVEL_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
     errorStrategy 'retry'
     maxRetries 3
     
-    label 'getRecurrentFusions'
+    label 'getSampleRecurrentFusions'
 
     container "${params.container__pyenv}"
     

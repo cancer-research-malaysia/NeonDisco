@@ -27,14 +27,15 @@ include { WRANGLE_RAW_FUSIONS_PYENV } from './modules/wrangle_raw_fusions_PYENV.
 include { FILTER_FUSIONS_PYENV } from './modules/filter_fusions_PYENV.nf'
 include { COLLECT_COHORTWIDE_UNFILTERED_FUSIONS_PYENV } from './modules/collect_cohortwide_unfiltered_fusions_PYENV.nf'
 include { COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV } from './modules/collect_cohortwide_normfiltered_fusions_PYENV.nf'
-include { GET_COHORT_RECURRENT_FUSIONS_PYENV } from './modules/get_cohort_recurrent_fusions_PYENV.nf'
 include { TRANSLATE_IN_SILICO_AGFUSION } from './modules/translate_in_silico_AGFUSION.nf'
+include { COLLECT_COHORTWIDE_PROTEIN_CODING_FUSIONS_PYENV } from './modules/collect_cohortwide_protein_coding_fusions_PYENV.nf'
 include { VALIDATE_IN_SILICO_FUSIONINSPECTOR } from './modules/validate_in_silico_FUSIONINSPECTOR.nf'
 include { COLLECT_COHORTWIDE_VALIDATED_FUSIONS_PYENV } from './modules/collect_cohortwide_validated_fusions_PYENV.nf'
+include { GET_COHORTWIDE_RECURRENT_VALIDATED_FUSIONS_PYENV } from './modules/get_cohortwide_recurrent_validated_fusions_PYENV.nf'
 
 ////// FUSION NEOEPITOPE PREDICTION MODULES //////////
 include { KEEP_VALIDATED_FUSIONS_PYENV } from './modules/keep_validated_fusions_PYENV.nf'
-include { FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV } from './modules/filter_validated_fusions_for_recurrent_PYENV.nf'
+include { FILTER_SAMPLE_LEVEL_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV } from './modules/filter_sample_level_validated_fusions_for_recurrent_PYENV.nf'
 include { PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE } from './modules/predict_neopeptides_sample_level_hlas_PVACFUSE.nf'
 include { PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE } from './modules/predict_neopeptides_cohort_level_hlas_PVACFUSE.nf'
 
@@ -418,24 +419,40 @@ workflow AGGREGATE_FUSION_CALLING_WF {
     emit:
         normFilteredFusionsCh = COLLATE_FILTER_FUSIONS.out.normFilteredFusionsCh
         uniqueFiltFusionPairsForFusInsCh = COLLATE_FILTER_FUSIONS.out.uniqueFiltFusionPairsForFusInsCh
-        cohortwideFusionsFile = COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS.out.cohortwideFusionsFile
+        cohortwideNormfilteredFusionsFile = COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS.out.cohortwideFusionsFile
     
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
-workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
+////////////////////////////////////////////////////////////////////////////////////
+///////////////// IN-SILICO TRANSCRIPT VALIDATION WORKFLOW /////////////////////////
+workflow PROTEIN_CODING_PREDICTION {
     take:
         normFilteredFusionsCh
+        cohortwideNormfilteredFusionsFile
+    main:
+        // Translate filtered fusions in silico with AGFusion   
+        TRANSLATE_IN_SILICO_AGFUSION(normFilteredFusionsCh)
+        // Collect protein-coding fusion output manifests and concat into cohortwide file
+        COLLECT_COHORTWIDE_PROTEIN_CODING_FUSIONS_PYENV(TRANSLATE_IN_SILICO_AGFUSION.out.protein_coding_fusions_manifest
+                            .collect { _meta, filepath -> filepath },
+                            cohortwideNormfilteredFusionsFile
+                        )
+    emit:
+        filteredAgfusionOutdir = TRANSLATE_IN_SILICO_AGFUSION.out.filtered_agfusion_outdir
+}
+
+workflow FUSION_INSPECTOR_VALIDATION {
+    take:
+        filteredAgfusionOutdir
         uniqueFiltFusionPairsForFusInsCh
         trimmedCh
         ctatDB
     main:
-        agfusionOutput = TRANSLATE_IN_SILICO_AGFUSION(normFilteredFusionsCh)
-
         // Join channels and fix the tuple structure
         joinedInputs = uniqueFiltFusionPairsForFusInsCh
             .join(trimmedCh, by: 0)
-            .join(agfusionOutput.filtered_agfusion_outdir, by: 0)
+            .join(filteredAgfusionOutdir, by: 0)
             .map { sampleName, uniqueFiltPairs, trimmedReads, agfusionDir -> 
                 tuple(sampleName, agfusionDir, uniqueFiltPairs, trimmedReads)
             }
@@ -444,23 +461,67 @@ workflow IN_SILICO_TRANSCRIPT_VALIDATION_WF {
 
     emit:
         fusInspectorTsv = VALIDATE_IN_SILICO_FUSIONINSPECTOR.out.fusInspectorTsv
-        filteredAgfusionOutdir = TRANSLATE_IN_SILICO_AGFUSION.out.filtered_agfusion_outdir 
-        
 }
-
-workflow RECURRENT_FUSION_FILTERING_WF {
+workflow IN_SILICO_FUSION_VALIDATION_WF {
     take:
-        cohortwideFusionsFile
+        normFilteredFusionsCh
+        cohortwideNormfilteredFusionsFile
+        uniqueFiltFusionPairsForFusInsCh
+        trimmedCh
+        ctatDB
     main:
-        // Get cohort recurrent fusions
-        GET_COHORT_RECURRENT_FUSIONS_PYENV(cohortwideFusionsFile)
+        FUSION_INSPECTOR_VALIDATION(
+            PROTEIN_CODING_PREDICTION(normFilteredFusionsCh, cohortwideNormfilteredFusionsFile).filteredAgfusionOutdir,
+            uniqueFiltFusionPairsForFusInsCh,
+            trimmedCh,
+            ctatDB
+        )
+
     emit:
-        cohortRecurrentFusionsCh = GET_COHORT_RECURRENT_FUSIONS_PYENV.out.cohortRecurrentFusionTsv
+        fusInspectorTsv = FUSION_INSPECTOR_VALIDATION.out.fusInspectorTsv
+        filteredAgfusionOutdir = PROTEIN_CODING_PREDICTION.out.filteredAgfusionOutdir      
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-workflow COLLECT_COHORTWIDE_FI_VALIDATED_FUSIONS {
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+// Filter validated fusions
+workflow VALIDATED_FUSION_FILTERING_WF {
+    take:
+        fusInspectorTsv
+        filteredAgfusionOutdir
+        normFilteredFusionsCh
+    main:
+        // join the fusInspectorTsv, filteredAgfusionOutdir, and normFilteredFusionsCh channel by sampleName
+        joinedInputs = fusInspectorTsv
+            .join(filteredAgfusionOutdir, by: 0)
+            .join(normFilteredFusionsCh, by: 0)
+            .map { sampleName, fusInspectorFile, agfusionDir, filteredFusions -> 
+                tuple(sampleName, fusInspectorFile, agfusionDir, filteredFusions) 
+            }
+        
+        // Preprocess agfusion output for neoepitope prediction
+        KEEP_VALIDATED_FUSIONS_PYENV(joinedInputs)
+
+        validatedAgfusionDir = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir
+        validatedFusions = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions
+
+        // join the validatedFusions and validatedAgfusionDir channels by sampleName
+        joinedValidatedFusionsDat = validatedFusions
+            .join(validatedAgfusionDir, by: 0)
+            .map { sampleName, validatedFusionsFile, validatedDir -> 
+                tuple(sampleName, validatedFusionsFile, validatedDir) 
+            }
+    emit:
+        validatedFusSampleData = joinedValidatedFusionsDat
+        validatedFusionsData = validatedFusions
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+///////////////////////VALIDATED FUSION RECURRENCE WORKFLOW///////////////////////
+
+workflow GET_COHORTWIDE_FI_VALIDATED_FUSIONS {
     take:
         validatedFusionsTsvs
     main:
@@ -471,6 +532,36 @@ workflow COLLECT_COHORTWIDE_FI_VALIDATED_FUSIONS {
 
 }
 
+workflow FILTER_COHORT_VALIDATED_FUSIONS_FOR_RECURRENCE {
+    take:
+        cohortValidatedFusions
+    main:
+        // Get cohort recurrent fusions
+        GET_COHORTWIDE_RECURRENT_VALIDATED_FUSIONS_PYENV(cohortValidatedFusions)
+    emit:
+        cohortRecurrentFusionsCh = GET_COHORTWIDE_RECURRENT_VALIDATED_FUSIONS_PYENV.out.cohortRecurrentFusionTsv
+}
+
+workflow VALIDATED_FUSION_RECURRENCE_WF {
+    take:
+        validatedFusionsData
+    main:
+        // Collect cohort-wide validated fusions
+        GET_COHORTWIDE_FI_VALIDATED_FUSIONS(validatedFusionsData
+                            .collect { _meta, filepath -> filepath }
+                        )
+
+        cohortValidatedFusions = GET_COHORTWIDE_FI_VALIDATED_FUSIONS.out.cohortValidatedFusions
+
+        // Get cohort recurrent fusions
+        FILTER_COHORT_VALIDATED_FUSIONS_FOR_RECURRENCE(cohortValidatedFusions)
+    emit:
+        cohortRecurrentFusionsCh = FILTER_COHORT_VALIDATED_FUSIONS_FOR_RECURRENCE.out.cohortRecurrentFusionsCh
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+///////////////////// NEOANTIGEN PREDICTION SUBWORKFLOWS ///////////////////////
 workflow SAMPLE_LEVEL_HLA_NEOANTIGENS {
     take:
         agfusionFinalDir
@@ -526,49 +617,20 @@ workflow COHORT_LEVEL_HLA_NEOANTIGENS {
 // Updated main neopeptide workflow - now just orchestrates the sub-workflows
 workflow NEOANTIGEN_PREDICTION_WF {
     take:
-        fusInspectorTsv
-        filteredAgfusionOutdir
-        normFilteredFusionsCh
+        validatedFusSampleData
         cohortRecurrentFusionsCh
         sampleSpecificHLAsTsv
         metaDataDir
-    
     main:
 
-        // join the fusInspectorTsv, filteredAgfusionOutdir, and normFilteredFusionsCh channel by sampleName
-        joinedInputs = fusInspectorTsv
-            .join(filteredAgfusionOutdir, by: 0)
-            .join(normFilteredFusionsCh, by: 0)
-            .map { sampleName, fusInspectorFile, agfusionDir, filteredFusions -> 
-                tuple(sampleName, fusInspectorFile, agfusionDir, filteredFusions) 
-            }
-        
-        // Preprocess agfusion output for neoepitope prediction
-        KEEP_VALIDATED_FUSIONS_PYENV(joinedInputs)
-
-        // Collect cohort-wide validated fusions
-        COLLECT_COHORTWIDE_FI_VALIDATED_FUSIONS(KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions
-                            .collect { _meta, filepath -> filepath }
-                        )
-
-        validatedAgfusionDir = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir
-        validatedFusions = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions
-
-        // join the validatedFusions and validatedAgfusionDir channels by sampleName
-        joinedValidatedFusionsDat = validatedFusions
-            .join(validatedAgfusionDir, by: 0)
-            .map { sampleName, validatedFusionsFile, validatedDir -> 
-                tuple(sampleName, validatedFusionsFile, validatedDir) 
-            }
-
-        // Filter validated fusions for recurrent ones
-        FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV(
-            joinedValidatedFusionsDat,
+        // Filter sample-specific validated fusions for recurrent ones
+        FILTER_SAMPLE_LEVEL_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV(
+            validatedFusSampleData,
             cohortRecurrentFusionsCh
         )
         
-        // Get the full validated fusions directory
-        recurrentValidatedDir = FILTER_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV.out.validatedRecurrentAgfusionDir
+        // Get the full validated fusions directory of a sample
+        recurrentValidatedDir = FILTER_SAMPLE_LEVEL_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV.out.validatedRecurrentAgfusionDir
         
         // Logic based on recurrentFusionsNeoPredOnly parameter
         def finalAgfusionDir = Channel.empty()
@@ -583,7 +645,10 @@ workflow NEOANTIGEN_PREDICTION_WF {
                 }   
         } else {
             // Alternative mode: Process all validated fusions
-            finalAgfusionDir = validatedAgfusionDir
+            finalAgfusionDir = validatedFusSampleData
+                .map { sampleName, _validatedFusionsFile, validatedDir -> 
+                    tuple(sampleName, validatedDir) 
+                }
             log.info "Processing all validated fusions [--recurrentFusionsNeoPredOnly false]..."
         }
         
@@ -758,22 +823,28 @@ workflow {
 
 
         //// AGFUSION coding sequence prediction
-        IN_SILICO_TRANSCRIPT_VALIDATION_WF(
-                AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh,
-                AGGREGATE_FUSION_CALLING_WF.out.uniqueFiltFusionPairsForFusInsCh,
-                qcProcInputCh,
-                params.ctatDB
-            )
-
-        //// recurrent fusion filtering
-        RECURRENT_FUSION_FILTERING_WF(AGGREGATE_FUSION_CALLING_WF.out.cohortwideFusionsFile)
+        IN_SILICO_FUSION_VALIDATION_WF(
+            AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh,
+            AGGREGATE_FUSION_CALLING_WF.out.cohortwideNormfilteredFusionsFile,
+            AGGREGATE_FUSION_CALLING_WF.out.uniqueFiltFusionPairsForFusInsCh,
+            qcProcInputCh,
+            params.ctatDB
+        )
         
+        //// Validated fusion filtering
+        VALIDATED_FUSION_FILTERING_WF(
+            IN_SILICO_FUSION_VALIDATION_WF.out.fusInspectorTsv,
+            IN_SILICO_FUSION_VALIDATION_WF.out.filteredAgfusionOutdir,
+            AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh
+        )
+
+        //// Validated fusion recurrence
+        VALIDATED_FUSION_RECURRENCE_WF(VALIDATED_FUSION_FILTERING_WF.out.validatedFusionsData)
+
         //// Neoepitope prediction
         NEOANTIGEN_PREDICTION_WF(
-            IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.fusInspectorTsv,
-            IN_SILICO_TRANSCRIPT_VALIDATION_WF.out.filteredAgfusionOutdir,
-            AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh,
-            RECURRENT_FUSION_FILTERING_WF.out.cohortRecurrentFusionsCh,
+            VALIDATED_FUSION_FILTERING_WF.out.validatedFusSampleData,
+            VALIDATED_FUSION_RECURRENCE_WF.out.cohortRecurrentFusionsCh,
             HLA_TYPING_WITH_FALLBACK_WF.out.sampleSpecificHLAsTsv,
             params.metaDataDir
         )
