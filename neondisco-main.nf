@@ -392,15 +392,6 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         CALL_FUSIONS_FUSIONCATCHER(filtFastqsCh, fuscatDB)
         CALL_FUSIONS_STARFUSION(filtFastqsCh, ctatDB)
 
-        //////////////////////////////////////////////////////////////
-        /////////////// no EasyFuse filtering variant ////////////////
-        ////// gene fusion identification submodule
-        // CALL_FUSIONS_ARRIBA(ALIGN_READS_STAR_ARRIBA(trimmedFqs, starIndex).aligned_bam, arribaDB)
-        // CALL_FUSIONS_FUSIONCATCHER(trimmedFqs, fuscatDB)
-        // CALL_FUSIONS_STARFUSION(trimmedFqs, ctatDB)
-        //////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////
-
         // Join the outputs based on sample name
         CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
            .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
@@ -809,17 +800,6 @@ workflow {
         //// Fusion calling module
         AGGREGATE_FUSION_CALLING_WF(alignedBamsCh, params.starIndex, 
                 params.arribaDB, params.fuscatDB, params.ctatDB, params.metaDataDir)
-
-        /////////////////////////////////////////////////////////
-        //// ALTERNATIVE MODE WITHOUT EASYFUSE PRE-FILTERING ////
-        // AGGREGATE_FUSION_CALLING_WF(params.starIndex, 
-        //         params.arribaDB, params.fuscatDB, params.ctatDB, params.metaDataDir, qcProcInputCh)
-        ////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////
-        // RNA-editing calling module
-        //def _alignedBams2passCh = TWOPASS_READS_ALIGNMENT_WF(qcProcInputCh, params.starIndex)
-        ////////////////////////////////////////////////////////
 
 
         //// AGFUSION coding sequence prediction
