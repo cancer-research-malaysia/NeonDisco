@@ -24,9 +24,6 @@ process COLLECT_COHORTWIDE_PROTEIN_CODING_FUSIONS_PYENV {
     cat ${proteinCodingFusionsTxts} | sort -u > Cohortwide_protein-coding_fusions_manifest.txt
 
     # Filter using awk (faster for many patterns)
-    awk 'NR==FNR {ids[\$1]=1; next} 
-     FNR==1 {print; next}
-     \$1 in ids' \\
     awk 'NR==FNR {ids[\$1]=1; next} FNR==1 {print; next} \$1 in ids' Cohortwide_protein-coding_fusions_manifest.txt ${cohortwideNormFilteredFusionsFile} > Cohortwide_normfiltered_protein-coding-only.tsv
 
     """
