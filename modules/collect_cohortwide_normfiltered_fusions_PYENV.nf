@@ -16,6 +16,7 @@ process COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV {
     
     output:
     path "Cohortwide_normfiltered_fusions.tsv", emit: cohortwideFusionsFile
+    path "Cohortwide_normfiltered_fusions-UNIQUE.manifest.txt"
     
     script:
     """
@@ -26,6 +27,7 @@ process COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV {
     stub:
     """
     touch Cohortwide_normfiltered_fusions.tsv
+    touch Cohortwide_normfiltered_fusions-UNIQUE.manifest.txt
     echo "[CONCAT_NORMFILTERED_FUSION_FILES_PYENV]: Stub run finished!"
     """
 }

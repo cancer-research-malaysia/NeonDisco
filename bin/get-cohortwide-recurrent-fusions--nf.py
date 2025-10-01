@@ -125,8 +125,8 @@ def filter_recurrent_fusions(input_file, threshold, output_file, report_file):
         tsv_data = recurrent_fusions.with_columns([
             pl.col('samples_with_fusion').list.join(',').alias('samples_list')
         ]).select([
-            'breakpointID',
-            'fusionGenePair', 
+            'fusionGenePair',
+            'breakpointID', 
             'sample_count',
             'frequency_percent',
             'total_occurrences',
@@ -136,7 +136,7 @@ def filter_recurrent_fusions(input_file, threshold, output_file, report_file):
             'frequency_percent': 'FrequencyPercent',
             'total_occurrences': 'TotalOccurrences',
             'samples_list': 'SamplesWithFusion'
-        })
+        }).sort(['fusionGenePair', 'breakpointID'])
         
         if len(recurrent_fusions) > 0:
             tsv_data.write_csv(tsv_report_file, separator='\t')
@@ -144,15 +144,15 @@ def filter_recurrent_fusions(input_file, threshold, output_file, report_file):
         else:
             # Create empty TSV with headers
             empty_tsv = pl.DataFrame({
-                'breakpointID': [],
                 'fusionGenePair': [],
+                'breakpointID': [],
                 'SampleCount': [],
                 'FrequencyPercent': [],
                 'TotalOccurrences': [],
                 'SamplesWithFusion': []
             }, schema={
-                'breakpointID': pl.Utf8,
                 'fusionGenePair': pl.Utf8,
+                'breakpointID': pl.Utf8,
                 'SampleCount': pl.Int64,
                 'FrequencyPercent': pl.Float64,
                 'TotalOccurrences': pl.Int64,

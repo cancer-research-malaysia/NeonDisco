@@ -13,7 +13,7 @@ process GET_COHORTWIDE_RECURRENT_VALIDATED_FUSIONS_PYENV {
     path cohortwideFusionsFile
     
     output:
-    tuple val("Cohortwide-Recurrent-Validated-Fusions"), path("Cohortwide_normfiltered_FI_validated_fusions_RECURRENT.tsv"), emit: cohortRecurrentFusionTsv
+    tuple val("Cohortwide-Recurrent-Validated-Fusions"), path("Cohortwide_normfiltered_FI_validated_fusions_recurrent.tsv"), emit: cohortRecurrentFusionTsv
     tuple val("Cohort-Recurrent-Validated-Fusions"), path("Recurrent_normfiltered_FI_validated_fusion_frequency_report.*"), emit: fusionFrequencyReport
     
     script:
@@ -21,12 +21,12 @@ process GET_COHORTWIDE_RECURRENT_VALIDATED_FUSIONS_PYENV {
     get-cohortwide-recurrent-fusions--nf.py \\
         --input ${cohortwideFusionsFile} \\
         --threshold ${params.recurrenceThreshold} \\
-        --output Cohortwide_normfiltered_FI_validated_fusions_RECURRENT.tsv \\
+        --output Cohortwide_normfiltered_FI_validated_fusions_recurrent.tsv \\
         --report Recurrent_normfiltered_FI_validated_fusion_frequency_report.txt
     """
     stub:
     """
-    touch Cohortwide_normfiltered_FI_validated_fusions_RECURRENT.tsv
+    touch Cohortwide_normfiltered_FI_validated_fusions_recurrent.tsv
     touch Recurrent_normfiltered_FI_validated_fusion_frequency_report.txt
     touch Recurrent_normfiltered_FI_validated_fusion_frequency_report.tsv
 

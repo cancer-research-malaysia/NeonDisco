@@ -15,20 +15,20 @@ process COLLECT_COHORTWIDE_UNFILTERED_FUSIONS_PYENV {
     path wrangledFusionsTsvs
     
     output:
-    path "Cohortwide_raw_unfiltered_fusions.tsv", emit: cohortwideUnfilteredFusionsFile
+    path "Cohortwide_all_unfiltered_fusions.tsv", emit: cohortwideUnfilteredFusionsFile
 
 
     script:
     """
     echo "Running Python script to collect unfiltered cohort-wide FT files..."
-    concatenate-cohortwide-fusions-RAW--nf.py \\
+    concatenate-cohortwide-fusions-unfilt--nf.py \\
         --input_files ${wrangledFusionsTsvs} \\
-        --output Cohortwide_raw_unfiltered_fusions.tsv
+        --output Cohortwide_all_unfiltered_fusions.tsv
     """
 
     stub:
     """
-    touch Cohortwide_raw_unfiltered_fusions.tsv
-    echo "stub run finished!\thello my world!" > Cohortwide_raw_unfiltered_fusions.tsv
+    touch Cohortwide_all_unfiltered_fusions.tsv
+    echo "stub run finished!\thello my world!" > Cohortwide_all_unfiltered_fusions.tsv
     """
 }

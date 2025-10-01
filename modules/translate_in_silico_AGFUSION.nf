@@ -65,10 +65,21 @@ process TRANSLATE_IN_SILICO_AGFUSION {
                     log_msg "Copying \$dir to output directory..."
                     cp -r "\$dir" "filtered-agfusion-dirs/"
                     FTID=\$(basename "\$dir")
-                    # wrangle the FTID to a specific format
-                    FTID="\${FTID#*_}" && FTID="\${FTID/--/::}"
-                    FTID="\${FTID/--/^}" && FTID="\${FTID//-/:}"
-                    FTID="\${FTID//^/-}"
+                    # wrangle the FTID to a specific format using awk and gsub
+                    # first remove the sample prefix up to the first underscore
+                    FTID="\${FTID#*_}"
+                    # Use awk to handle each part separately
+                    FTID=\$(echo "\$FTID" | awk -F'__' '{
+                        # Part 1: Gene pair - replace -- with ::
+                        gene_pair = \$1
+                        gsub(/--/, "::", gene_pair)
+    
+                        # Part 2: Coordinates
+                        coords = \$2
+                        gsub(/-/, ":", coords)      # Replace ALL - with :
+                        gsub(/::/, "-", coords)     # Replace :: back to -
+                        print gene_pair "__" coords
+                    }') && log_msg "Reformatted FT ID: \$FTID"
                     # Record the FTID in manifest
                     echo "\$FTID" >> ${sampleName}_agfusion_filtered_manifest.txt
                 else

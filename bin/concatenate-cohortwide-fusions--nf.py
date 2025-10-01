@@ -125,6 +125,29 @@ def concatenate_cohortwide_fusions(input_files, output_file):
                 'foundInKlijnCancerCellLineFusions', 
                 'fusionTranscriptID'
             ], descending=[False, True, True, True, True, True, False])
+
+        # creating a manifest file with unique fusion IDs
+        if 'fusionTranscriptID' in cohort_df.columns:
+            print("Generating manifest.txt...")
+            
+            # 1. Select the column, 2. Get unique values, 3. Convert to a single list
+            fusion_ids = cohort_df['fusionTranscriptID'].unique().to_list()
+            
+            # Determine the output filename for the manifest
+            output_path = Path(output_file)
+            base_name = output_path.stem
+            manifest_filename = f"{base_name}-UNIQUE.manifest.txt"
+            manifest_file = output_path.with_name(manifest_filename)
+            
+            # Write the list of unique IDs to the file, one per row
+            with open(manifest_file, 'w') as f:
+                for id_val in fusion_ids:
+                    f.write(f"{id_val}\n")
+            
+            print(f"Manifest written to: {manifest_file}")
+            print(f"Total unique fusion IDs: {len(fusion_ids)}")
+        else:
+            print("Warning: 'fusionTranscriptID' column not found, skipping manifest generation.")
         
         # Write the concatenated file
         cohort_df.write_csv(output_file, separator='\t')
@@ -136,9 +159,9 @@ def concatenate_cohortwide_fusions(input_files, output_file):
             total_samples = cohort_df['sampleID'].n_unique()
             total_fusions = len(cohort_df)
             print(f"Summary: {total_samples} samples, {total_fusions} total fusions")
-        
+
         return True
-        
+
     except Exception as e:
         print(f"Error processing files: {e}")
         import traceback

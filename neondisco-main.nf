@@ -475,6 +475,16 @@ workflow IN_SILICO_FUSION_VALIDATION_WF {
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+workflow GET_COHORTWIDE_FI_VALIDATED_FUSIONS {
+    take:
+        validatedFusionsTsvs
+    main:
+        // get cohort-wide validated fusions
+        COLLECT_COHORTWIDE_VALIDATED_FUSIONS_PYENV(validatedFusionsTsvs)
+    emit:
+        cohortValidatedFusions = COLLECT_COHORTWIDE_VALIDATED_FUSIONS_PYENV.out.cohortwideValidatedFusionsFile
+
+}
 
 // Filter validated fusions
 workflow VALIDATED_FUSION_FILTERING_WF {
@@ -503,27 +513,22 @@ workflow VALIDATED_FUSION_FILTERING_WF {
             .map { sampleName, validatedFusionsFile, validatedDir -> 
                 tuple(sampleName, validatedFusionsFile, validatedDir) 
             }
+        
+        // Collect cohort-wide validated fusions
+        GET_COHORTWIDE_FI_VALIDATED_FUSIONS(validatedFusions
+                            .collect { _meta, filepath -> filepath }
+                        )
+
     emit:
         validatedFusSampleData = joinedValidatedFusionsDat
-        validatedFusionsData = validatedFusions
+        cohortValidatedFusions = GET_COHORTWIDE_FI_VALIDATED_FUSIONS.out.cohortValidatedFusions
 }
 
 /////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-///////////////////////VALIDATED FUSION RECURRENCE WORKFLOW///////////////////////
+///////////////COHORTWIDE VALIDATED FUSION RECURRENCE WORKFLOW//////////////////
 
-workflow GET_COHORTWIDE_FI_VALIDATED_FUSIONS {
-    take:
-        validatedFusionsTsvs
-    main:
-        // get cohort-wide validated fusions
-        COLLECT_COHORTWIDE_VALIDATED_FUSIONS_PYENV(validatedFusionsTsvs)
-    emit:
-        cohortValidatedFusions = COLLECT_COHORTWIDE_VALIDATED_FUSIONS_PYENV.out.cohortwideValidatedFusionsFile
-
-}
-
-workflow FILTER_COHORT_VALIDATED_FUSIONS_FOR_RECURRENCE {
+workflow COHORT_VALIDATED_FUSION_RECURRENCE_COMPILATION_WF {
     take:
         cohortValidatedFusions
     main:
@@ -531,23 +536,6 @@ workflow FILTER_COHORT_VALIDATED_FUSIONS_FOR_RECURRENCE {
         GET_COHORTWIDE_RECURRENT_VALIDATED_FUSIONS_PYENV(cohortValidatedFusions)
     emit:
         cohortRecurrentFusionsCh = GET_COHORTWIDE_RECURRENT_VALIDATED_FUSIONS_PYENV.out.cohortRecurrentFusionTsv
-}
-
-workflow VALIDATED_FUSION_RECURRENCE_WF {
-    take:
-        validatedFusionsData
-    main:
-        // Collect cohort-wide validated fusions
-        GET_COHORTWIDE_FI_VALIDATED_FUSIONS(validatedFusionsData
-                            .collect { _meta, filepath -> filepath }
-                        )
-
-        cohortValidatedFusions = GET_COHORTWIDE_FI_VALIDATED_FUSIONS.out.cohortValidatedFusions
-
-        // Get cohort recurrent fusions
-        FILTER_COHORT_VALIDATED_FUSIONS_FOR_RECURRENCE(cohortValidatedFusions)
-    emit:
-        cohortRecurrentFusionsCh = FILTER_COHORT_VALIDATED_FUSIONS_FOR_RECURRENCE.out.cohortRecurrentFusionsCh
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -818,13 +806,13 @@ workflow {
             AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh
         )
 
-        //// Validated fusion recurrence
-        VALIDATED_FUSION_RECURRENCE_WF(VALIDATED_FUSION_FILTERING_WF.out.validatedFusionsData)
+        //// Cohortwide validated fusion recurrence
+        COHORT_VALIDATED_FUSION_RECURRENCE_COMPILATION_WF(VALIDATED_FUSION_FILTERING_WF.out.cohortValidatedFusions)
 
         //// Neoepitope prediction
         NEOANTIGEN_PREDICTION_WF(
             VALIDATED_FUSION_FILTERING_WF.out.validatedFusSampleData,
-            VALIDATED_FUSION_RECURRENCE_WF.out.cohortRecurrentFusionsCh,
+            COHORT_VALIDATED_FUSION_RECURRENCE_COMPILATION_WF.out.cohortRecurrentFusionsCh,
             HLA_TYPING_WITH_FALLBACK_WF.out.sampleSpecificHLAsTsv,
             params.metaDataDir
         )

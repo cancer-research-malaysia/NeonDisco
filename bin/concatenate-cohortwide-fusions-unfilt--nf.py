@@ -115,6 +115,31 @@ def concatenate_cohortwide_fusions(input_files, output_file):
                 'fusionTranscriptID'
             ], descending=[False, True, False])
         
+        if 'fusionTranscriptID' in cohort_df.columns:
+            print("\nGenerating manifest...")
+            
+            # Extract unique IDs from the final dataframe
+            fusion_ids = cohort_df['fusionTranscriptID'].unique().to_list()
+            
+            # Determine the output filename for the manifest
+            output_path = Path(output_file)
+            base_name = output_path.stem 
+            
+            # Construct the new manifest filename: [basename]-UNIQUE.manifest.txt
+            manifest_filename = f"{base_name}-UNIQUE.manifest.txt"
+            manifest_file = output_path.with_name(manifest_filename)
+            
+            # Write the list of unique IDs to the file, one per row
+            with open(manifest_file, 'w') as f:
+                for id_val in fusion_ids:
+                    f.write(f"{id_val}\n")
+            
+            print(f"Manifest written to: {manifest_file}")
+            print(f"Total unique fusion IDs: {len(fusion_ids)}")
+        else:
+            print("Warning: 'fusionTranscriptID' column not found, skipping manifest generation.")
+
+        print("\nWriting cohort-wide TSV...")
         # Write the concatenated file
         cohort_df.write_csv(output_file, separator='\t')
         print(f"Cohort-wide TSV written to: {output_file}")

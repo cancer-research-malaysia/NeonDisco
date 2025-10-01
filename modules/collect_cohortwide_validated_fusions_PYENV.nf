@@ -15,17 +15,17 @@ process COLLECT_COHORTWIDE_VALIDATED_FUSIONS_PYENV {
     path validatedFusionsTsvs
     
     output:
-    path "Cohortwide_FI-validated_fusions.tsv", emit: cohortwideValidatedFusionsFile
+    path "Cohortwide_normfiltered_protein-coding_FI-validated_fusions.tsv", emit: cohortwideValidatedFusionsFile
     
     script:
     """
     concatenate-cohortwide-fusions--nf.py \\
         --input_files ${validatedFusionsTsvs} \\
-        --output Cohortwide_FI-validated_fusions.tsv
+        --output Cohortwide_normfiltered_protein-coding_FI-validated_fusions.tsv
     """
     stub:
     """
-    touch Cohortwide_FI-validated_fusions.tsv
+    touch Cohortwide_normfiltered_protein-coding_FI-validated_fusions.tsv
     echo "[COLLECT_COHORTWIDE_VALIDATED_FUSION_FILES_PYENV]: Stub run finished!"
     """
 }
