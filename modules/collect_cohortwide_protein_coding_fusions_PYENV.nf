@@ -25,7 +25,7 @@ process COLLECT_COHORTWIDE_PROTEIN_CODING_FUSIONS_PYENV {
     cat ${proteinCodingFusionsTxts} | sort -u > Unique-found-fusions__OUT/Cohortwide_normfiltered_protein-coding-only_fusions-UNIQUE.manifest.txt
 
     # Filter using awk (faster for many patterns)
-    awk 'NR==FNR {ids[\$1]=1; next} FNR==1 {print; next} \$1 in ids' Cohortwide_normfiltered_protein-coding-only_fusions-UNIQUE.manifest.txt ${cohortwideNormFilteredFusionsFile} > Cohortwide_normfiltered_protein-coding-only_fusions.tsv
+    awk 'NR==FNR {ids[\$1]=1; next} FNR==1 {print; next} \$1 in ids' Unique-found-fusions__OUT/Cohortwide_normfiltered_protein-coding-only_fusions-UNIQUE.manifest.txt ${cohortwideNormFilteredFusionsFile} > Cohortwide_normfiltered_protein-coding-only_fusions.tsv
 
     """
     stub:
