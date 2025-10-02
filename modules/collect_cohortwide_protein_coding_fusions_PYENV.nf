@@ -16,12 +16,13 @@ process COLLECT_COHORTWIDE_PROTEIN_CODING_FUSIONS_PYENV {
     path cohortwideNormFilteredFusionsFile
     
     output:
-    path "Cohortwide_normfiltered_protein-coding-only_fusions-UNIQUE.manifest.txt"
     path "Cohortwide_normfiltered_protein-coding-only_fusions.tsv"
+    path "Unique-found-fusions__OUT/Cohortwide_normfiltered_protein-coding-only_fusions-UNIQUE.manifest.txt"
     
     script:
     """
-    cat ${proteinCodingFusionsTxts} | sort -u > Cohortwide_normfiltered_protein-coding-only_fusions-UNIQUE.manifest.txt
+    mkdir -p Unique-found-fusions__OUT
+    cat ${proteinCodingFusionsTxts} | sort -u > Unique-found-fusions__OUT/Cohortwide_normfiltered_protein-coding-only_fusions-UNIQUE.manifest.txt
 
     # Filter using awk (faster for many patterns)
     awk 'NR==FNR {ids[\$1]=1; next} FNR==1 {print; next} \$1 in ids' Cohortwide_normfiltered_protein-coding-only_fusions-UNIQUE.manifest.txt ${cohortwideNormFilteredFusionsFile} > Cohortwide_normfiltered_protein-coding-only_fusions.tsv
@@ -30,7 +31,8 @@ process COLLECT_COHORTWIDE_PROTEIN_CODING_FUSIONS_PYENV {
     stub:
     """
     touch Cohortwide_normfiltered_protein-coding-only_fusions.tsv
-    touch Cohortwide_normfiltered_protein-coding-only_fusions-UNIQUE.manifest.txt
+    mkdir -p Unique-found-fusions__OUT
+    touch Unique-found-fusions__OUT/Cohortwide_normfiltered_protein-coding-only_fusions-UNIQUE.manifest.txt
     echo "Stub run finished!"
     """
 }

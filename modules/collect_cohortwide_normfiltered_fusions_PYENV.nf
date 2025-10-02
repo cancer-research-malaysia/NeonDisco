@@ -16,13 +16,15 @@ process COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV {
     
     output:
     path "Cohortwide_normfiltered_fusions.tsv", emit: cohortwideFusionsFile
-    path "Cohortwide_normfiltered_fusions-UNIQUE.manifest.txt"
+    path "Unique-found-fusions__OUT/Cohortwide_normfiltered_fusions-UNIQUE.manifest.txt"
     
     script:
     """
     concatenate-cohortwide-fusions--nf.py \\
         --input_files ${normFilteredFusionsTsvs} \\
-        --output Cohortwide_normfiltered_fusions.tsv
+        --output Cohortwide_normfiltered_fusions.tsv && \\
+        mkdir -p Unique-found-fusions__OUT && \\
+        mv Cohortwide_normfiltered_fusions-UNIQUE.manifest.txt Unique-found-fusions__OUT/
     """
     stub:
     """
