@@ -431,6 +431,7 @@ workflow PROTEIN_CODING_PREDICTION {
                         )
     emit:
         filteredAgfusionOutdir = TRANSLATE_IN_SILICO_AGFUSION.out.filtered_agfusion_outdir
+        proteinCodingManifest = TRANSLATE_IN_SILICO_AGFUSION.out.protein_coding_fusions_manifest
 }
 
 workflow FUSION_INSPECTOR_VALIDATION {
@@ -470,7 +471,8 @@ workflow IN_SILICO_FUSION_VALIDATION_WF {
 
     emit:
         fusInspectorTsv = FUSION_INSPECTOR_VALIDATION.out.fusInspectorTsv
-        filteredAgfusionOutdir = PROTEIN_CODING_PREDICTION.out.filteredAgfusionOutdir      
+        filteredAgfusionOutdir = PROTEIN_CODING_PREDICTION.out.filteredAgfusionOutdir
+        proteinCodingManifest = PROTEIN_CODING_PREDICTION.out.proteinCodingManifest     
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -492,6 +494,7 @@ workflow VALIDATED_FUSION_FILTERING_WF {
         fusInspectorTsv
         filteredAgfusionOutdir
         normFilteredFusionsCh
+        proteinCodingManifest
     main:
         // join the fusInspectorTsv, filteredAgfusionOutdir, and normFilteredFusionsCh channel by sampleName
         joinedInputs = fusInspectorTsv
@@ -502,7 +505,7 @@ workflow VALIDATED_FUSION_FILTERING_WF {
             }
         
         // Preprocess agfusion output for neoepitope prediction
-        KEEP_VALIDATED_FUSIONS_PYENV(joinedInputs)
+        KEEP_VALIDATED_FUSIONS_PYENV(joinedInputs, proteinCodingManifest)
 
         validatedAgfusionDir = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir
         validatedFusions = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions
@@ -803,7 +806,8 @@ workflow {
         VALIDATED_FUSION_FILTERING_WF(
             IN_SILICO_FUSION_VALIDATION_WF.out.fusInspectorTsv,
             IN_SILICO_FUSION_VALIDATION_WF.out.filteredAgfusionOutdir,
-            AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh
+            AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh,
+            IN_SILICO_FUSION_VALIDATION_WF.out.proteinCodingManifest
         )
 
         //// Cohortwide validated fusion recurrence

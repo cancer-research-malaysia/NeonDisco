@@ -7,15 +7,16 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
     
     container "${params.container__pyenv}"
     
-    publishDir "${params.outputDir}/${sampleName}/POST-IN-SILICO-VALIDATION-TSV-out", mode: 'copy', pattern: "*-collated-FT-normFiltered-FI-validated.tsv",
+    publishDir "${params.outputDir}/${sampleName}/POST-IN-SILICO-VALIDATION-TSV-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
     
     
     input:
         tuple val(sampleName), path(fusInspectorTsv), path(filtered_agfusion_outdir), path(filteredFusions)
+        tuple val(_meta), path(proteinCodingFusManifest)
 
     output:
-        tuple val(sampleName), path("${sampleName}-collated-FT-normFiltered-FI-validated.tsv"), emit: validatedFusions
+        tuple val(sampleName), path("${sampleName}-collated-FT-normFiltered-protein-coding-only-FI-validated.tsv"), emit: validatedFusions
         tuple val(sampleName), path("validated-agfusion-dirs/"), emit: validatedAgfusionDir
 
     script:
@@ -23,14 +24,14 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
     echo "Path to Fusion Inspector validation output: ${fusInspectorTsv}"
     echo "Sample name: ${sampleName}"
 
-    echo "Now retain only validated fusions from Fusion Inspector on the normal-filtered collated FT TSV file..."
-    gawk 'NR==FNR {ref[\$1]=1; next} FNR==1 || (\$NF in ref)' ${fusInspectorTsv} ${filteredFusions} > ${sampleName}-collated-FT-normFiltered-FI-validated.tsv
+    echo "First filter the collated FT TSV file to only include NORMAL-FILTERED, PROTEIN-CODING fusions, then pipe this to retain only those fusions validated by Fusion Inspector..."
+    gawk 'NR==FNR {ref[\$1]=1; next} FNR==1 || (\$1 in ref)' ${proteinCodingFusManifest} ${filteredFusions} | gawk 'NR==FNR {ref[$1]=1; next} FNR==1 || (\$NF in ref)' ${fusInspectorTsv} - > ${sampleName}-collated-FT-normFiltered-protein-coding-only-FI-validated.tsv
     
     # Create validated agfusion output directory
     mkdir -p validated-agfusion-dirs
 
     # check if the output file is empty 
-    if [ ! -s ${sampleName}-collated-FT-normFiltered-FI-validated.tsv ]; then
+    if [ ! -s ${sampleName}-collated-FT-normFiltered-protein-coding-only-FI-validated.tsv ]; then
         echo "Output file empty. No validated fusions found in Fusion Inspector output. Aborting this sample run." | tee validated-agfusion-dirs/_empty.txt 
         exit 0
     fi
@@ -89,7 +90,7 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
     stub:
     """
     mkdir -p validated-agfusion-dirs
-    touch ${sampleName}-collated-FT-normFiltered-FI-validated.tsv
+    touch ${sampleName}-collated-FT-normFiltered-protein-coding-only-FI-validated.tsv
     echo "stub run finished!"
     """
 }
