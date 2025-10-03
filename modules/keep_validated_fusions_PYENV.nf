@@ -25,7 +25,7 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
     echo "Sample name: ${sampleName}"
 
     echo "First filter the collated FT TSV file to only include NORMAL-FILTERED, PROTEIN-CODING fusions, then pipe this to retain only those fusions validated by Fusion Inspector..."
-    gawk 'NR==FNR {ref[\$1]=1; next} FNR==1 || (\$1 in ref)' ${proteinCodingFusManifest} ${filteredFusions} | gawk 'NR==FNR {ref[$1]=1; next} FNR==1 || (\$NF in ref)' ${fusInspectorTsv} - > ${sampleName}-collated-FT-normFiltered-protein-coding-only-FI-validated.tsv
+    gawk 'NR==FNR {ref[\$1]=1; next} FNR==1 || (\$1 in ref)' ${proteinCodingFusManifest} ${filteredFusions} | gawk 'NR==FNR {ref[\$1]=1; next} FNR==1 || (\$NF in ref)' ${fusInspectorTsv} - > ${sampleName}-collated-FT-normFiltered-protein-coding-only-FI-validated.tsv
     
     # Create validated agfusion output directory
     mkdir -p validated-agfusion-dirs
