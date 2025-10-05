@@ -1,5 +1,5 @@
 #!/usr/bin/env nextflow
-
+/////// THIS IS THE  MAIN WORKFLOW SCRIPT FOR NEONDISCO WITHOUT EASYFUSE PRE-FILTERING ///////
 nextflow.enable.dsl = 2
 // Set default parameter values
 params.deleteStagedFiles = (params.inputSource == 's3')
@@ -38,8 +38,6 @@ include { KEEP_VALIDATED_FUSIONS_PYENV } from './modules/keep_validated_fusions_
 include { FILTER_SAMPLE_LEVEL_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV } from './modules/filter_sample_level_validated_fusions_for_recurrent_PYENV.nf'
 include { PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE } from './modules/predict_neopeptides_sample_level_hlas_PVACFUSE.nf'
 include { PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE } from './modules/predict_neopeptides_cohort_level_hlas_PVACFUSE.nf'
-include { COLLECT_COHORTWIDE_FUSION_NEOPEPTIDES_SAMPHLA_PYENV } from './modules/collect_cohortwide_fusion_neopeptides_sampHLA_PYENV.nf'
-include { COLLECT_COHORTWIDE_FUSION_NEOPEPTIDES_COHOHLA_PYENV } from './modules/collect_cohortwide_fusion_neopeptides_cohoHLA_PYENV.nf'
 
 ////// HLA TYPING MODULES //////////
 include { TYPE_HLAS_WITH_FALLBACK_ARCASHLA } from './modules/type_hlas_with_fallback_ARCASHLA.nf'
@@ -377,22 +375,22 @@ workflow COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS {
 
 workflow AGGREGATE_FUSION_CALLING_WF {
     take:
-        alignedBamCh
         starIndex
         arribaDB
         fuscatDB
         ctatDB
         metaDataDir
+        trimmedFqs
     main:
-        ////// Preprocess reads for aggregate fusion calling
-        FILTER_ALIGNED_READS_EASYFUSE(alignedBamCh)
-        CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE(FILTER_ALIGNED_READS_EASYFUSE.out.filtered_bam)
-        filtFastqsCh = CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE.out.filtered_fastqs
 
-        ////// Run gene fusion identification submodules
-        CALL_FUSIONS_ARRIBA(ALIGN_READS_STAR_ARRIBA(filtFastqsCh, starIndex).aligned_bam, arribaDB)
-        CALL_FUSIONS_FUSIONCATCHER(filtFastqsCh, fuscatDB)
-        CALL_FUSIONS_STARFUSION(filtFastqsCh, ctatDB)
+        //////////////////////////////////////////////////////////////
+        /////////////// no EasyFuse filtering variant ////////////////
+        ////// gene fusion identification submodule
+        CALL_FUSIONS_ARRIBA(ALIGN_READS_STAR_ARRIBA(trimmedFqs, starIndex).aligned_bam, arribaDB)
+        CALL_FUSIONS_FUSIONCATCHER(trimmedFqs, fuscatDB)
+        CALL_FUSIONS_STARFUSION(trimmedFqs, ctatDB)
+        //////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////
 
         // Join the outputs based on sample name
         CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
@@ -498,17 +496,16 @@ workflow VALIDATED_FUSION_FILTERING_WF {
         normFilteredFusionsCh
         proteinCodingManifest
     main:
-        // Join ALL inputs by sampleName, including the manifest
+        // join the fusInspectorTsv, filteredAgfusionOutdir, and normFilteredFusionsCh channel by sampleName
         joinedInputs = fusInspectorTsv
             .join(filteredAgfusionOutdir, by: 0)
             .join(normFilteredFusionsCh, by: 0)
-            .join(proteinCodingManifest, by: 0)
-            .map { sampleName, fusInspectorFile, agfusionDir, filteredFusions, proteinManifest -> 
-                tuple(sampleName, fusInspectorFile, agfusionDir, filteredFusions, proteinManifest) 
+            .map { sampleName, fusInspectorFile, agfusionDir, filteredFusions -> 
+                tuple(sampleName, fusInspectorFile, agfusionDir, filteredFusions) 
             }
         
         // Preprocess agfusion output for neoepitope prediction
-        KEEP_VALIDATED_FUSIONS_PYENV(joinedInputs)
+        KEEP_VALIDATED_FUSIONS_PYENV(joinedInputs, proteinCodingManifest)
 
         validatedAgfusionDir = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir
         validatedFusions = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions
@@ -558,18 +555,6 @@ workflow SAMPLE_LEVEL_HLA_NEOANTIGENS {
             sampleSpecificHLAsTsv,
             metaDataDir
         )
-    emit:
-        predictedSampleNeopeptides = PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE.out.predictedSampleSpecificNeopeptides
-}
-
-workflow GET_COHORTWIDE_SAMPHLA_NEOPEPTIDES {
-    take:
-        sampleLevelHlaPvacFuseOutTsvs
-    main:
-        // get cohort-wide fusion neopeptides from sample HLA pvacfuse output
-        COLLECT_COHORTWIDE_FUSION_NEOPEPTIDES_SAMPHLA_PYENV(sampleLevelHlaPvacFuseOutTsvs)
-    emit:
-        sampleLevelHlaNeopeptides = COLLECT_COHORTWIDE_FUSION_NEOPEPTIDES_SAMPHLA_PYENV.out.cohortwideSampleHLAFusNeopeptides
 }
 
 workflow COHORT_LEVEL_HLA_NEOANTIGENS {
@@ -608,17 +593,7 @@ workflow COHORT_LEVEL_HLA_NEOANTIGENS {
             }.first(),
             metaDataDir
         )
-    emit:
-        predictedCohortNeopeptides = PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE.out.predictedCohortNeopeptides
-}
-workflow GET_COHORTWIDE_COHORTHLA_NEOPEPTIDES {
-    take:
-        cohortLevelHlaPvacFuseOutTsvs
-    main:
-        // get cohort-wide fusion neopeptides from cohort HLA pvacfuse output
-        COLLECT_COHORTWIDE_FUSION_NEOPEPTIDES_COHOHLA_PYENV(cohortLevelHlaPvacFuseOutTsvs)
-    emit:
-        cohortLevelHlaNeopeptides = COLLECT_COHORTWIDE_FUSION_NEOPEPTIDES_COHOHLA_PYENV.out.cohortwideCohortHLAFusNeopeptides
+    
 }
 
 // Updated main neopeptide workflow - now just orchestrates the sub-workflows
@@ -632,9 +607,8 @@ workflow NEOANTIGEN_PREDICTION_WF {
 
         // Filter sample-specific validated fusions for recurrent ones
         FILTER_SAMPLE_LEVEL_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV(
-            validatedFusSampleData.combine(
-                cohortRecurrentFusionsCh.map { _label, file -> file }  // Drop the label
-            )
+            validatedFusSampleData,
+            cohortRecurrentFusionsCh
         )
         
         // Get the full validated fusions directory of a sample
@@ -666,19 +640,12 @@ workflow NEOANTIGEN_PREDICTION_WF {
             // Run sample-specific if enabled
             if (params.sampleHLANeoPred) {
                 SAMPLE_LEVEL_HLA_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv, metaDataDir)
-                // Collect cohort-wide sample HLA neopeptides
-                sampleLevelFusNeopeps = SAMPLE_LEVEL_HLA_NEOANTIGENS.out.predictedSampleNeopeptides
-                GET_COHORTWIDE_SAMPHLA_NEOPEPTIDES(sampleLevelFusNeopeps.collect())
             }
 
             // Run cohort-wide if enabled
             if (params.sharedHLANeoPred) {
                 COHORT_LEVEL_HLA_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv, metaDataDir)
-                // Collect cohort-wide cohort HLA neopeptides
-                cohortLevelFusNeopeps = COHORT_LEVEL_HLA_NEOANTIGENS.out.predictedCohortNeopeptides
-                GET_COHORTWIDE_COHORTHLA_NEOPEPTIDES(cohortLevelFusNeopeps.collect())
             }
-
         } else {
             log.info "Skipping neoepitope prediction subworkflow."
         }
@@ -822,8 +789,11 @@ workflow {
         HLA_TYPING_WITH_FALLBACK_WF(alignedBamsCh)
 
         //// Fusion calling module
-        AGGREGATE_FUSION_CALLING_WF(alignedBamsCh, params.starIndex, 
-                params.arribaDB, params.fuscatDB, params.ctatDB, params.metaDataDir)
+        /////////////////////////////////////////////////////////
+        //// ALTERNATIVE MODE WITHOUT EASYFUSE PRE-FILTERING ////
+        AGGREGATE_FUSION_CALLING_WF(params.starIndex, 
+                params.arribaDB, params.fuscatDB, params.ctatDB, params.metaDataDir, qcProcInputCh)
+        ////////////////////////////////////////////////////////
 
 
         //// AGFUSION coding sequence prediction

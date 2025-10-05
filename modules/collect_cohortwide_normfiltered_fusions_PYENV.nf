@@ -16,21 +16,18 @@ process COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV {
     
     output:
     path "Cohortwide_normfiltered_fusions.tsv", emit: cohortwideFusionsFile
-    path "Unique-found-fusions__OUT/Cohortwide_normfiltered_fusions-UNIQUE.manifest.txt"
+    path "Unique-fusionTranscriptID-only/Cohortwide_normfiltered_fusions-UNIQUE.manifest.txt"
     
     script:
     """
-    concatenate-cohortwide-fusions--nf.py \\
-        --input_files ${normFilteredFusionsTsvs} \\
-        --output Cohortwide_normfiltered_fusions.tsv && \\
-        mkdir -p Unique-found-fusions__OUT && \\
-        mv Cohortwide_normfiltered_fusions-UNIQUE.manifest.txt Unique-found-fusions__OUT/
+    mkdir -p Unique-fusionTranscriptID-only && concatenate-cohortwide-fusions--nf.py --input_files ${normFilteredFusionsTsvs} --output Unique-fusionTranscriptID-only/Cohortwide_normfiltered_fusions.tsv
     """
     stub:
     """
     touch Cohortwide_normfiltered_fusions.tsv
-    touch Cohortwide_normfiltered_fusions-UNIQUE.manifest.txt
-    echo "[CONCAT_NORMFILTERED_FUSION_FILES_PYENV]: Stub run finished!"
+    mkdir -p Unique-fusionTranscriptID-only
+    touch Unique-fusionTranscriptID-only/Cohortwide_normfiltered_fusions-UNIQUE.manifest.txt
+    echo "Stub run finished!"
     """
 }
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env nextflow
-/////// THIS IS THE  MAIN WORKFLOW SCRIPT FOR NEONDISCO WITHOUT EASYFUSE PRE-FILTERING ///////
+
 nextflow.enable.dsl = 2
 // Set default parameter values
 params.deleteStagedFiles = (params.inputSource == 's3')
@@ -38,6 +38,8 @@ include { KEEP_VALIDATED_FUSIONS_PYENV } from './modules/keep_validated_fusions_
 include { FILTER_SAMPLE_LEVEL_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV } from './modules/filter_sample_level_validated_fusions_for_recurrent_PYENV.nf'
 include { PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE } from './modules/predict_neopeptides_sample_level_hlas_PVACFUSE.nf'
 include { PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE } from './modules/predict_neopeptides_cohort_level_hlas_PVACFUSE.nf'
+include { COLLECT_COHORTWIDE_FUSION_NEOPEPTIDES_SAMPHLA_PYENV } from './modules/collect_cohortwide_fusion_neopeptides_sampHLA_PYENV.nf'
+include { COLLECT_COHORTWIDE_FUSION_NEOPEPTIDES_COHOHLA_PYENV } from './modules/collect_cohortwide_fusion_neopeptides_cohoHLA_PYENV.nf'
 
 ////// HLA TYPING MODULES //////////
 include { TYPE_HLAS_WITH_FALLBACK_ARCASHLA } from './modules/type_hlas_with_fallback_ARCASHLA.nf'
@@ -382,7 +384,6 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         metaDataDir
         trimmedFqs
     main:
-
         //////////////////////////////////////////////////////////////
         /////////////// no EasyFuse filtering variant ////////////////
         ////// gene fusion identification submodule
@@ -496,16 +497,17 @@ workflow VALIDATED_FUSION_FILTERING_WF {
         normFilteredFusionsCh
         proteinCodingManifest
     main:
-        // join the fusInspectorTsv, filteredAgfusionOutdir, and normFilteredFusionsCh channel by sampleName
+        // Join ALL inputs by sampleName, including the manifest
         joinedInputs = fusInspectorTsv
             .join(filteredAgfusionOutdir, by: 0)
             .join(normFilteredFusionsCh, by: 0)
-            .map { sampleName, fusInspectorFile, agfusionDir, filteredFusions -> 
-                tuple(sampleName, fusInspectorFile, agfusionDir, filteredFusions) 
+            .join(proteinCodingManifest, by: 0)
+            .map { sampleName, fusInspectorFile, agfusionDir, filteredFusions, proteinManifest -> 
+                tuple(sampleName, fusInspectorFile, agfusionDir, filteredFusions, proteinManifest) 
             }
         
         // Preprocess agfusion output for neoepitope prediction
-        KEEP_VALIDATED_FUSIONS_PYENV(joinedInputs, proteinCodingManifest)
+        KEEP_VALIDATED_FUSIONS_PYENV(joinedInputs)
 
         validatedAgfusionDir = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir
         validatedFusions = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions
@@ -555,6 +557,18 @@ workflow SAMPLE_LEVEL_HLA_NEOANTIGENS {
             sampleSpecificHLAsTsv,
             metaDataDir
         )
+    emit:
+        predictedSampleNeopeptides = PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE.out.predictedSampleSpecificNeopeptides
+}
+
+workflow GET_COHORTWIDE_SAMPHLA_NEOPEPTIDES {
+    take:
+        sampleLevelHlaPvacFuseOutTsvs
+    main:
+        // get cohort-wide fusion neopeptides from sample HLA pvacfuse output
+        COLLECT_COHORTWIDE_FUSION_NEOPEPTIDES_SAMPHLA_PYENV(sampleLevelHlaPvacFuseOutTsvs)
+    emit:
+        sampleLevelHlaNeopeptides = COLLECT_COHORTWIDE_FUSION_NEOPEPTIDES_SAMPHLA_PYENV.out.cohortwideSampleHLAFusNeopeptides
 }
 
 workflow COHORT_LEVEL_HLA_NEOANTIGENS {
@@ -593,7 +607,17 @@ workflow COHORT_LEVEL_HLA_NEOANTIGENS {
             }.first(),
             metaDataDir
         )
-    
+    emit:
+        predictedCohortNeopeptides = PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE.out.predictedCohortNeopeptides
+}
+workflow GET_COHORTWIDE_COHORTHLA_NEOPEPTIDES {
+    take:
+        cohortLevelHlaPvacFuseOutTsvs
+    main:
+        // get cohort-wide fusion neopeptides from cohort HLA pvacfuse output
+        COLLECT_COHORTWIDE_FUSION_NEOPEPTIDES_COHOHLA_PYENV(cohortLevelHlaPvacFuseOutTsvs)
+    emit:
+        cohortLevelHlaNeopeptides = COLLECT_COHORTWIDE_FUSION_NEOPEPTIDES_COHOHLA_PYENV.out.cohortwideCohortHLAFusNeopeptides
 }
 
 // Updated main neopeptide workflow - now just orchestrates the sub-workflows
@@ -607,8 +631,9 @@ workflow NEOANTIGEN_PREDICTION_WF {
 
         // Filter sample-specific validated fusions for recurrent ones
         FILTER_SAMPLE_LEVEL_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV(
-            validatedFusSampleData,
-            cohortRecurrentFusionsCh
+            validatedFusSampleData.combine(
+                cohortRecurrentFusionsCh.map { _label, file -> file }  // Drop the label
+            )
         )
         
         // Get the full validated fusions directory of a sample
@@ -640,12 +665,19 @@ workflow NEOANTIGEN_PREDICTION_WF {
             // Run sample-specific if enabled
             if (params.sampleHLANeoPred) {
                 SAMPLE_LEVEL_HLA_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv, metaDataDir)
+                // Collect cohort-wide sample HLA neopeptides
+                sampleLevelFusNeopeps = SAMPLE_LEVEL_HLA_NEOANTIGENS.out.predictedSampleNeopeptides
+                GET_COHORTWIDE_SAMPHLA_NEOPEPTIDES(sampleLevelFusNeopeps.collect())
             }
 
             // Run cohort-wide if enabled
             if (params.sharedHLANeoPred) {
                 COHORT_LEVEL_HLA_NEOANTIGENS(finalAgfusionDir, sampleSpecificHLAsTsv, metaDataDir)
+                // Collect cohort-wide cohort HLA neopeptides
+                cohortLevelFusNeopeps = COHORT_LEVEL_HLA_NEOANTIGENS.out.predictedCohortNeopeptides
+                GET_COHORTWIDE_COHORTHLA_NEOPEPTIDES(cohortLevelFusNeopeps.collect())
             }
+
         } else {
             log.info "Skipping neoepitope prediction subworkflow."
         }

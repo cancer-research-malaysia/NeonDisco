@@ -49,7 +49,6 @@ process TRANSLATE_IN_SILICO_AGFUSION {
     log_msg "Running AGFusion..."
     mkdir -p filtered-agfusion-dirs
 
-    log_msg "Running AGFusion..."
     if bash agfusion-cmd.sh; then
         log_msg "AGFusion has finished."
         log_msg "Running AGFusion post-processing..."

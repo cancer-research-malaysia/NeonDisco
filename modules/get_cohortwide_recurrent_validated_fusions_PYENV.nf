@@ -14,7 +14,7 @@ process GET_COHORTWIDE_RECURRENT_VALIDATED_FUSIONS_PYENV {
     
     output:
     tuple val("Cohortwide-Recurrent-Validated-Fusions"), path("Cohortwide_normfiltered_FI-validated_recurrent_fusions.tsv"), emit: cohortRecurrentFusionTsv
-    tuple val("Cohort-Recurrent-Validated-Fusions"), path("Cohortwide_normfiltered_FI-validated_recurrent_fusion_freq-report.*"), emit: fusionFrequencyReport
+    tuple val("Cohortwide-Recurrent-Validated-Fusions"), path("Cohortwide_normfiltered_FI-validated_recurrent_fusion_freq-report.*"), emit: fusionFrequencyReport
     
     script:
     """

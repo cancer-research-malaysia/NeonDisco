@@ -12,8 +12,7 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
     
     
     input:
-        tuple val(sampleName), path(fusInspectorTsv), path(filtered_agfusion_outdir), path(filteredFusions)
-        tuple val(_meta), path(proteinCodingFusManifest)
+        tuple val(sampleName), path(fusInspectorTsv), path(filtered_agfusion_outdir), path(filteredFusions), path(proteinCodingFusManifest)
 
     output:
         tuple val(sampleName), path("${sampleName}-collated-FT-normFiltered-protein-coding-only-FI-validated.tsv"), emit: validatedFusions

@@ -12,8 +12,7 @@ process FILTER_SAMPLE_LEVEL_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
     
     
     input:
-    tuple val(sampleName), path(validatedFusions), path(validatedAgfusionDir)
-    tuple val(cohortLabel), path(recurrentFusionsTsv)
+    tuple val(sampleName), path(validatedFusions), path(validatedAgfusionDir), path(recurrentFusionsTsv)
 
     output:
     tuple val(sampleName), path("${sampleName}-FI-validated-recurrent-fusions-only.tsv"), emit: validatedRecurrentFusions
