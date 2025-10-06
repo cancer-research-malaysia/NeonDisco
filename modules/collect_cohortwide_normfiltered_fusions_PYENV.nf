@@ -20,7 +20,7 @@ process COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV {
     
     script:
     """
-    mkdir -p Unique-fusionTranscriptID-only && concatenate-cohortwide-fusions--nf.py --input_files ${normFilteredFusionsTsvs} --output Unique-fusionTranscriptID-only/Cohortwide_normfiltered_fusions.tsv
+    concatenate-cohortwide-fusions--nf.py --input_files ${normFilteredFusionsTsvs} --output Cohortwide_normfiltered_fusions.tsv && mkdir -p Unique-fusionTranscriptID-only && mv Cohortwide_normfiltered_fusions-UNIQUE.manifest.txt Unique-fusionTranscriptID-only/
     """
     stub:
     """
