@@ -56,8 +56,8 @@ def postprocess_neopeptides(input_files, output_file):
                 )
         
         # Add DeepImmuno column if it doesn't exist
-        if "DeepImmuno" not in df.columns:
-            df = df.with_columns(pl.lit("NA").alias("DeepImmuno"))
+        if "DeepImmuno_Score" not in df.columns:
+            df = df.with_columns(pl.lit("NA").alias("DeepImmuno_Score"))
         
         dfs.append(df)
     

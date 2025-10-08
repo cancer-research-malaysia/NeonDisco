@@ -19,7 +19,7 @@ process COLLECT_COHORTWIDE_FUSION_NEOPEPTIDES_SAMPHLA_PYENV {
 
     script:
     """
-    concatenate-cohortwide-neopeptides-pvacfuse--nf.py Cohortwide_sample_level_HLA_fusion_neopeptides.tsv ${sampleLevelHlaPvacFuseOutTsvs}
+    concatenate-cohortwide-neopeptides-pvacfuse--nf.py Cohortwide_sample_level_HLA_fusion_neopeptides.tsv ${sampleLevelHlaPvacFuseOutTsvs} && echo "Cohortwide HLA Fusion Neopeptides collection finished!"
     """
     stub:
     """
