@@ -36,7 +36,7 @@ As most of the bioinformatics tools used in this neoantigen identification workf
     </tr>
     <tr>
         <td>Prediction of fusion transcript coding potential </td>
-        <td>AGFusion (v1.4.1) </td>
+        <td>AGFusion (v1.4.4*) </td>
         <td>AGFusion database </td>
         <td>Raw output file from Arriba / FusionCatcher </td>
     </tr>

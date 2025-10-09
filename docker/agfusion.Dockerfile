@@ -1,17 +1,17 @@
-FROM mambaorg/micromamba:git-911a014-bookworm-slim
-
+FROM mambaorg/micromamba
 LABEL maintainer="Suffian Azizan"
-LABEL version="3.0"
-LABEL description="container image of AGFusion program v1.4.3 - revision removed MatchHostFsOwner"
+LABEL version="4.0"
+LABEL description="container image of AGFusion program v1.4.4 (sufyazi-forked; correct 5'UTR bug) - revision removed MatchHostFsOwner"
 
 # change to root user
 USER root
 
 # update Debian OS packages and install additional Linux system utilities, then finally remove cached package lists
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-build-essential tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed less nano locales \
+build-essential tar wget curl pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed locales nano less \
 && rm -rf /var/lib/apt/lists/* \
 && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
+
 
 ARG NEW_MAMBA_USER=ec2-user
 ARG NEW_MAMBA_USER_ID=1000
@@ -58,6 +58,11 @@ RUN pip install agfusion
 COPY --chown=$MAMBA_USER:$MAMBA_USER agfusion/src/cli-v2.py /tmp/cli-v2.py
 RUN chmod +x /tmp/cli-v2.py
 RUN mv /tmp/cli-v2.py /tmp/cli.py && rm -rf /opt/conda/lib/python3.12/site-packages/agfusion/cli.py && mv /tmp/cli.py /opt/conda/lib/python3.12/site-packages/agfusion/
+
+# also replace the agfusion file that handles the 5'UTR length bug
+COPY --chown=$MAMBA_USER:$MAMBA_USER agfusion/src/model.py /tmp/model-patched.py
+RUN chmod +x /tmp/model-patched.py
+RUN mv /tmp/model-patched.py /tmp/model.py && rm -f /opt/conda/lib/python3.12/site-packages/agfusion/model.py && mv /tmp/model.py /opt/conda/lib/python3.12/site-packages/agfusion/
 
 # add pfam file
 COPY agfusion/src/Pfam-A.clans.tsv /tmp/Pfam-A.clans.tsv
