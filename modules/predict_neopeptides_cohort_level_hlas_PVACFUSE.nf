@@ -16,17 +16,21 @@ process PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE {
         path(metaDataDir) // Directory containing metadata files, including the reference proteome FASTA
 
     output:
-        path("Cohortwide-FI-validated-fusions-13aa-cohort-hlas.fasta"), emit: specializedFasta
-        path("${sampleName}_*-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"), emit: predictedCohortNeopeptides
-        path("${sampleName}_*-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.tsv")
-        path("${sampleName}_*-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.aggregated.tsv"), emit: aggregatedEpitopes
-        path("${sampleName}_*-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.aggregated.tsv.reference_matches.tsv"), emit: referenceMatches
+        path("${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.fasta")
+        path("${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"), emit: predictedCohortNeopeptides
+        path("${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.tsv")
+        path("${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.aggregated.tsv"), emit: aggregatedEpitopes
+        path("${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.aggregated.reference_matches.tsv"), emit: referenceMatches
+        path("${sampleName}-FI-validated-fusion-cohort-hla-immunogenic-peptides-13aa.fasta"), emit: specializedFasta
         path("${sampleName}_pvacfuse_execution_report.txt"), emit: executionReport
 
     script:
     """
     # Initialize the execution report
     REPORT_FILE="${sampleName}_pvacfuse_execution_report.txt"
+
+    # Initialize parameter for fasta output amino acid flanking length
+    FLANK_LENGTH=13
     
     # Function to log messages to both stdout and report file
     log_message() {
@@ -121,30 +125,33 @@ process PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE {
             log_message "Number of predicted neopeptides: \$RESULT_COUNT"
 
             # copy and rename reference matches file if it exists
-            REF_MATCHES_FILE="\${OUTPUT_DIR}/MHC_Class_I/${sampleName}.all_epitopes.aggregated.tsv.reference_matches"
+            REF_MATCHES_FILE="${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.aggregated.tsv.reference_matches"
             if [ -f "\$REF_MATCHES_FILE" ]; then
-                cp "\$REF_MATCHES_FILE" "\${OUTPUT_DIR}/MHC_Class_I/${sampleName}.all_epitopes.aggregated.tsv.reference_matches.tsv"
-                log_message "Reference matches file renamed to: ${sampleName}.all_epitopes.aggregated.tsv.reference_matches.tsv"
+                cp "\$REF_MATCHES_FILE" "${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.aggregated.reference_matches.tsv"
+                log_message "Reference matches file copied and renamed to: ${sampleName}.all_epitopes.aggregated.reference_matches.tsv"
             else
                 log_message "No reference matches file generated."
             fi
+            
+            AGGREGATED_FILE="${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.aggregated.tsv"
+            if [ -f "\$AGGREGATED_FILE" ]; then
+                AGG_COUNT=\$(tail -n +2 "\$AGGREGATED_FILE" | wc -l)
+                log_message "Aggregated epitopes file found: \$AGGREGATED_FILE"
 
-
+                # now run pvacfuse generate_protein_fasta to create a specialized FASTA file
+                log_message ""
+                log_message "Generating specialized FASTA file with pVacfuse generate_protein_fasta to get 13 aa upstream and downstream of fusion junctions..."
+                if pvacfuse generate_protein_fasta --input-tsv "\$AGGREGATED_FILE" --aggregate-report-evaluation Pending ${validatedAgfusionDir} "\$FLANK_LENGTH" ${sampleName}-FI-validated-fusion-cohort-hla-immunogenic-peptides-13aa.fasta 2>&1 | tee -a "\$REPORT_FILE"; then
+                    log_message "Cohortwide-FI-validated-fusions-13aa-cohort-hlas.fasta created"
+                else
+                    log_message "WARNING: pVacfuse generate_protein_fasta execution failed"
+                    exit 1
+            fi
         else
             log_message "WARNING: Expected output file not found: \$OUTPUT_FILE"
             exit 1
         fi
         
-        # now run pvacfuse generate_protein_fasta to create a specialized FASTA file
-        log_message ""
-        log_message "Generating specialized FASTA file with pVacfuse generate_protein_fasta to get 13 aa upstream and downstream of fusion junctions..."
-        if pvacfuse generate_protein_fasta --input-tsv "\$OUTPUT_FILE" ${validatedAgfusionDir} 13 Cohortwide-FI-validated-fusions-13aa-cohort-hlas.fasta 2>&1 | tee -a "\$REPORT_FILE"; then
-            log_message "Cohortwide-FI-validated-fusions-13aa-cohort-hlas.fasta created"
-        else
-            log_message "WARNING: pVacfuse generate_protein_fasta execution failed"
-            exit 1
-        fi
-
         log_message "Process Completed: \$(date)"
         log_message "STATUS: SUCCESS"
         
@@ -182,6 +189,11 @@ EOF
     # Create stub output file
     mkdir -p "${sampleName}_cohort-level-HLA-pred/MHC_Class_I"
     touch "${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"
+    touch "${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.tsv"
+    touch "${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.aggregated.tsv"
+    touch "${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.aggregated.reference_matches.tsv"
+    touch "${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.fasta"
+    touch "${sampleName}-FI-validated-fusion-cohort-hla-immunogenic-peptides-13aa.fasta"
     echo "Stub run finished!" | tee -a "\$REPORT_FILE"
     """
 }
