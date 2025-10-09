@@ -146,6 +146,7 @@ process PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE {
                 else
                     log_message "WARNING: pVacfuse generate_protein_fasta execution failed"
                     exit 1
+                fi
             fi
         else
             log_message "WARNING: Expected output file not found: \$OUTPUT_FILE"

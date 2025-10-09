@@ -168,6 +168,7 @@ process PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE {
                 else
                     log_message "WARNING: pVacfuse generate_protein_fasta execution failed"
                     exit 1
+                fi
             fi
 
             # Additional statistics if results exist
@@ -239,7 +240,7 @@ EOF
     touch "${sampleName}_sample-level-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"
     touch "${sampleName}_sample-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.tsv"
     touch "${sampleName}_sample-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.aggregated.tsv"
-    touch "${sampleName}_sample-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.aggregated.reference_matches.tsv
+    touch "${sampleName}_sample-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.aggregated.reference_matches.tsv"
     touch "${sampleName}_sample-level-HLA-pred/MHC_Class_I/${sampleName}.fasta"
     touch "${sampleName}-FI-validated-fusion-sample-hla-immunogenic-peptides-13aa.fasta"
     echo "Stub run finished!" | tee -a "\$REPORT_FILE"
