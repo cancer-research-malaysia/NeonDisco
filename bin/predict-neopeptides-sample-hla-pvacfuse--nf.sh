@@ -19,7 +19,7 @@ SAMPLE_NAME="$1"  # Sample name identifier
 VALIDATED_AGF_DIR="$2"  # Directory containing validated AGFusion results for the sample
 COHORT_HLA_LIST="$3"  # Path to cohort-wide HLA allotype TSV file
 METADATA_DIR="$4"  # Directory containing metadata files (e.g., reference proteome)
-PREDICTION_MODE="$5"  # Prediction mode (should be "sampleHLANeoPred" for this script)
+PREDICTION_MODE="$5"  # Prediction mode (should be params.sampleHLANeoPred for this script)
 FLANK_LENGTH="$6"  # Length of amino acid flanking region for FASTA output
 NUM_CORES="$7"  # Number of CPU cores to use for parallel processing
 
@@ -62,7 +62,7 @@ log_message ""
 
 log_message "SAMPLE-SPECIFIC HLA EXTRACTION:"
 log_message "Extracting sample-specific HLA types from cohort-wide HLA file..."
-SSHLA=$(awk -v sample="${SAMPLE_NAME}" 'NR > 1 && \$1 == sample {print \$2}' ${COHORT_HLA_LIST})
+SSHLA=$(awk -v sample="${SAMPLE_NAME}" 'NR > 1 && $1 == sample {print $2}' ${COHORT_HLA_LIST})
 
 # Initialize variables for execution tracking
 PREDICTION_TYPE=""

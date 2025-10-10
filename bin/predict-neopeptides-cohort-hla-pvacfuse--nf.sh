@@ -53,7 +53,6 @@ log_message "INPUT VALIDATION: PASSED"
 log_message ""
 
 log_message "CONFIGURATION:"
-log_message "Path to cohort-wide HLA allotype TSV: ${COHORT_HLA_LIST}"
 log_message "Prediction mode: Cohort-level --> ${PREDICTION_MODE}"
 log_message "Number of cores to use: ${NUM_CORES}"
 log_message "Reference proteome: ${METADATA_DIR}/Homo_sapiens.GRCh38.pep.all.fa.gz"
