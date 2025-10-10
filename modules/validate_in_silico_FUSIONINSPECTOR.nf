@@ -1,7 +1,7 @@
 process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
     errorStrategy 'retry'
     maxRetries 3
-    maxForks 1
+    //maxForks 1
 
     label 'validateInSilico'
 

@@ -1,4 +1,3 @@
-// 
 process FILTER_FUSIONS_PYENV {
     errorStrategy 'retry'
     maxRetries 3

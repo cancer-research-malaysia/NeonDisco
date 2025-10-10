@@ -2,7 +2,7 @@
 process CALL_FUSIONS_FUSIONCATCHER {
     errorStrategy 'retry'
     maxRetries 3
-    maxForks 3
+    //maxForks 3
     
     label 'callFusionsFC'
     

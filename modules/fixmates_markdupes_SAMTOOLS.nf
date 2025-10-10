@@ -2,7 +2,7 @@
 process FIXMATES_MARKDUPES_SAMTOOLS {
     errorStrategy 'retry'
     maxRetries 3
-    maxForks 2
+    //maxForks 2
     
     label 'fixmatesMarkdupes'
     

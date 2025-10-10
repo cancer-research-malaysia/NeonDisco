@@ -1,4 +1,3 @@
-// 
 process FILTER_HLA_ALLOTYPES_FREQ_PYENV {
     errorStrategy 'retry'
     maxRetries 3

@@ -2,7 +2,7 @@
 process CALL_FUSIONS_ARRIBA {
     errorStrategy 'retry'
     maxRetries 3
-    maxForks 1
+    //maxForks 1
     
     label 'callFusionsAR'
     
