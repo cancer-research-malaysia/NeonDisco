@@ -2,7 +2,7 @@
 process ALIGN_READS_STAR_GENERAL {
     errorStrategy 'retry'
     maxRetries 3
-    maxForks 10
+    maxForks 5
     
     label 'alignReadsGeneral'
     

@@ -806,7 +806,7 @@ workflow {
     def qcProcInputCh = params.trimReads ? TRIMMING_WF(tumorCh).trimmedCh : tumorCh
 
     ///////// STAR alignment workflow ////////////
-    def alignedBamsCh = GENERAL_READS_ALIGNMENT_WF(qcProcInputCh, params.starIndex)
+    def alignedBamsCh = GENERAL_READS_ALIGNMENT_WF(qcProcInputCh, params.starIndexS3)
     ////////////////////////////////////////////////////////
 
     // Execute workflow branching based on hlaTypingOnly parameter

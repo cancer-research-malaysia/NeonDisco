@@ -24,7 +24,7 @@ FLANK_LENGTH="$6"  # Length of amino acid flanking region for FASTA output
 NUM_CORES="$7"  # Number of CPU cores to use for parallel processing
 
 # Initialize the execution report
-REPORT_FILE="${SAMPLE_NAME}_sample_pvacfuse_execution_report.txt"
+REPORT_FILE="${SAMPLE_NAME}_sample_HLA_pvacfuse_execution_report.txt"
 
 # Start logging
 log_message "=== PVACFUSE SAMPLE-LEVEL HLA NEOPEPTIDE PREDICTION REPORT ==="
