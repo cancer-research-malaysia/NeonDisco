@@ -3,6 +3,8 @@ process FIXMATES_MARKDUPES_SAMTOOLS {
     errorStrategy 'retry'
     maxRetries 3
     //maxForks 2
+    cpus params.numCores
+    memory '32 GB'
     
     label 'fixmatesMarkdupes'
     
@@ -23,12 +25,12 @@ process FIXMATES_MARKDUPES_SAMTOOLS {
     
     script:
     """
-    samtools sort -n -@ ${params.numCores} -m 4G -O bam ${bamFile} | samtools fixmate -pcmu -O bam - ${sampleName}_fixmates.bam
+    samtools sort -n -@ ${task.cpus} -m 4G -O bam ${bamFile} | samtools fixmate -pcmu -O bam - ${sampleName}_fixmates.bam
 
     if [ -f ${sampleName}_fixmates.bam ]; then
         echo "Fixmate information for ${sampleName} is complete!"
         # mark duplicates
-        samtools sort -@ ${params.numCores} -m 4G -O bam ${sampleName}_fixmates.bam | samtools markdup -@ ${params.numCores} - ${sampleName}_fixmates_markdupes.bam
+        samtools sort -@ ${task.cpus} -m 4G -O bam ${sampleName}_fixmates.bam | samtools markdup -@ ${task.cpus} - ${sampleName}_fixmates_markdupes.bam
 
         # then index
         samtools index ${sampleName}_fixmates_markdupes.bam && echo "Indexing complete!"

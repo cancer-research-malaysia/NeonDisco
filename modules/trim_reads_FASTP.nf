@@ -2,6 +2,7 @@
 process TRIM_READS_FASTP {
     errorStrategy 'retry'
     maxRetries 3
+    cpus { params.numCores / 2 }
     
     label 'trimReads'
     
@@ -26,7 +27,7 @@ process TRIM_READS_FASTP {
     echo "Starting FASTP trimming..."
 
     # Running FASTP
-    if fastp--nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}"; then
+    if fastp--nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" ${task.cpus}; then
         echo "FASTP trimming finished successfully!"
     else
         echo "FASTP trimming failed. Check logs. Exiting..."

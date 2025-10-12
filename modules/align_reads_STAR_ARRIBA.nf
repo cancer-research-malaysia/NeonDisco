@@ -3,6 +3,7 @@ process ALIGN_READS_STAR_ARRIBA {
     errorStrategy 'retry'
     maxRetries 3
     //maxForks 1
+    cpus params.numCores
     
     label 'alignReadsArriba'
 
@@ -18,17 +19,17 @@ process ALIGN_READS_STAR_ARRIBA {
     """
     # variables
     SAMPLE_ID=${sampleName}
-    CORES=${params.numCores}
+    CORES=${task.cpus}
     STAR_INDEX=${starIndex}
     READ1=${filtFastqs[0]}  # First file in the nested list will be read 1 file
     READ2=${filtFastqs[1]}
 
     echo "Processing files of sample \${SAMPLE_ID}"
-    echo "Number of cores to use: ${params.numCores}"
+    echo "Number of cores to use: ${task.cpus}"
     echo "The index path: \${STAR_INDEX}"
     
     # STAR normal alignment (1-pass) for Arriba
-    if star-for-arriba--nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" ${params.numCores} "\${STAR_INDEX}"; then
+    if star-for-arriba--nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" ${task.cpus} "\${STAR_INDEX}"; then
         echo "STAR normal 1-pass alignment for Arriba is complete!"
     else
         echo "STAR alignment failed. Check logs. Exiting..."

@@ -1,6 +1,7 @@
 process PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE {
     errorStrategy 'retry'
     maxRetries 3
+    cpus { params.numCores * 2 }
     
     label 'predictSampleNeopeptides'
 
@@ -29,7 +30,7 @@ process PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE {
     # set flanking amino acid length for specialized FASTA generation
     FLANK_LENGTH=13
     # run pvacfuse with sample-level HLAs
-    bash predict-neopeptides-sample-hla-pvacfuse--nf.sh ${sampleName} ${validatedAgfusionDir} ${cohortWideHLAList} ${metaDataDir} ${params.sampleHLANeoPred} \${FLANK_LENGTH} ${params.numCores * 2}
+    bash predict-neopeptides-sample-hla-pvacfuse--nf.sh ${sampleName} ${validatedAgfusionDir} ${cohortWideHLAList} ${metaDataDir} ${params.sampleHLANeoPred} \${FLANK_LENGTH} ${task.cpus}
 
     """
 

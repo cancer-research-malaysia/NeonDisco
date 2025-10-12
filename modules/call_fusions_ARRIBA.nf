@@ -3,6 +3,7 @@ process CALL_FUSIONS_ARRIBA {
     errorStrategy 'retry'
     maxRetries 3
     //maxForks 1
+    cpus params.numCores
     
     label 'callFusionsAR'
     
@@ -22,7 +23,7 @@ process CALL_FUSIONS_ARRIBA {
     script:
     """
     echo "Path to input bam for Arriba: ${bamFile}"
-    if arriba-v2--nf.sh ${bamFile} ${sampleName} ${arribaDB} ${params.numCores}; then
+    if arriba-v2--nf.sh ${bamFile} ${sampleName} ${arribaDB} ${task.cpus}; then
         echo "Arriba has finished running on ${sampleName}. Copying main output file..."
         mv ${sampleName}-arriba-fusions.tsv ${sampleName}_arr.tsv
     fi

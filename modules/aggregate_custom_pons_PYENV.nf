@@ -2,6 +2,7 @@
 process AGGREGATE_CUSTOM_PONS_PYENV {
     errorStrategy 'retry'
     maxRetries 3
+    cpus 1
 
     label 'aggregateCustomPons'
     

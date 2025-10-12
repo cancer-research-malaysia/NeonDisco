@@ -2,6 +2,7 @@
 process TYPE_HLAS_WITH_FALLBACK_ARCASHLA {
     errorStrategy 'retry'
     maxRetries 3
+    cpus params.numCores
     
     label 'typeHLAs'
     
@@ -28,7 +29,7 @@ process TYPE_HLAS_WITH_FALLBACK_ARCASHLA {
     echo "=== HLA Typing for \${SAMPLE_ID} ===" > \$LOG_FILE
     echo "Processing files: \${BAM}" >> \$LOG_FILE
     echo "Index file: \${BAM_IDX}" >> \$LOG_FILE
-    echo "Number of cores: ${params.numCores}" >> \$LOG_FILE
+    echo "Number of cores: ${task.cpus}" >> \$LOG_FILE
     echo "Timestamp: \$(date)" >> \$LOG_FILE
     echo "" >> \$LOG_FILE
     
@@ -36,7 +37,7 @@ process TYPE_HLAS_WITH_FALLBACK_ARCASHLA {
     echo "=== ATTEMPTING ARCASHLA ===" >> \$LOG_FILE
     echo "Starting arcasHLA typing..." >> \$LOG_FILE
     
-    if bash arcasHLA--nf.sh "\${SAMPLE_ID}" "\${BAM}" "${params.numCores}" 2>&1 | tee -a \$LOG_FILE; then
+    if bash arcasHLA--nf.sh "\${SAMPLE_ID}" "\${BAM}" "${task.cpus}" 2>&1 | tee -a \$LOG_FILE; then
         echo "arcasHLA command completed successfully" >> \$LOG_FILE
         
         # Check if we got meaningful results
@@ -75,7 +76,7 @@ process TYPE_HLAS_WITH_FALLBACK_ARCASHLA {
         echo "Starting HLA-HD typing..." | tee -a \$LOG_FILE
         if [[ -f "\${SAMPLE_ID}_Bam2Fq_R1.fastq" && -f "\${SAMPLE_ID}_Bam2Fq_R2.fastq" ]]; then
             echo "FASTQ files generated: \${SAMPLE_ID}_Bam2Fq_R1.fastq and \${SAMPLE_ID}_Bam2Fq_R2.fastq" >> \$LOG_FILE
-            if hlahd--nf.sh \${SAMPLE_ID} \${SAMPLE_ID}_Bam2Fq_R1.fastq \${SAMPLE_ID}_Bam2Fq_R2.fastq ${params.numCores} 2>&1 | tee -a \$LOG_FILE; then
+            if hlahd--nf.sh \${SAMPLE_ID} \${SAMPLE_ID}_Bam2Fq_R1.fastq \${SAMPLE_ID}_Bam2Fq_R2.fastq ${task.cpus} 2>&1 | tee -a \$LOG_FILE; then
                 echo "HLA-HD command completed successfully" | tee -a \$LOG_FILE
             else
                 echo "ERROR: HLA-HD command failed" | tee -a \$LOG_FILE

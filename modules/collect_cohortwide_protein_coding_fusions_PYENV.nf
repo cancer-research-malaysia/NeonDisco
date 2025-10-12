@@ -2,6 +2,7 @@
 process COLLECT_COHORTWIDE_PROTEIN_CODING_FUSIONS_PYENV {
     errorStrategy 'retry'
     maxRetries 3
+    cpus 1
     
     label 'collectProteinCodingFusions'
 

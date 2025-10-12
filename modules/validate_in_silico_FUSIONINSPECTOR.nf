@@ -2,6 +2,7 @@ process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
     errorStrategy 'retry'
     maxRetries 3
     //maxForks 1
+    cpus params.numCores
 
     label 'validateInSilico'
 
@@ -37,7 +38,7 @@ process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
     if fusins-preproc--nf.sh ${uniqueFiltFusionPairsForFusIns} ${filteredAgfusionOutdir} ${sampleName}-genePairs-for-FusIns-filtered.txt; then
         echo "Preprocessing script has finished running."
         echo "Starting FusionInspector run with filtered gene pairs..."
-        if fusins--nf.sh ${sampleName}-genePairs-for-FusIns-filtered.txt ${ctatDB} \$READ1 \$READ2 ${sampleName} ${params.numCores}; then
+        if fusins--nf.sh ${sampleName}-genePairs-for-FusIns-filtered.txt ${ctatDB} \$READ1 \$READ2 ${sampleName} ${task.cpus}; then
             echo "FusionInspector has finished running."
         else
             echo "FusionInspector run failed. Please check the logs for details."

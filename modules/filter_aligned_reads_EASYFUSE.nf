@@ -2,6 +2,7 @@
 process FILTER_ALIGNED_READS_EASYFUSE {
     errorStrategy 'retry'
     maxRetries 3
+    cpus { params.numCores / 2 }
     
     label 'filterReads'
     

@@ -35,14 +35,17 @@ def postprocess_neopeptides(input_files, output_file):
     for file_path in input_files:
         print(f"Reading {file_path}...")
         
-        # Read TSV
-        df = pl.read_csv(file_path, separator='\t')
+        try:
+            df = pl.read_csv(file_path, separator='\t')
+    
+            if df.height == 0:
+                print(f"  Warning: {file_path} has no data rows, skipping...")
+                continue
         
-        # Check if dataframe is empty
-        if df.height == 0:
-            print(f"  Warning: {file_path} is empty, skipping...")
+        except Exception as e:
+            print(f"  Warning: Could not read {file_path}: {e}, skipping...")
             continue
-        
+    
         print(f"  Columns: {len(df.columns)}, Rows: {df.height}")
         
         # Replace whitespace in column names with underscores

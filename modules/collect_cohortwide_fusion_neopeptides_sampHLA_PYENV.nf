@@ -2,6 +2,7 @@
 process COLLECT_COHORTWIDE_FUSION_NEOPEPTIDES_SAMPHLA_PYENV {
     errorStrategy 'retry'
     maxRetries 3
+    cpus 1
     
     label 'collectCohortFusionNeopeptidesSampHla'
 

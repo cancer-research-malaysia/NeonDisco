@@ -2,6 +2,7 @@
 process CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE {
     errorStrategy 'retry'
     maxRetries 3
+    cpus params.numCores
     
     label 'convertFilteredReads'
 
@@ -22,7 +23,7 @@ process CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE {
     echo "Processing files of sample \${SAMPLE_ID}"
     echo "The filtered bam file: \${BAM}"
     
-    samtools fastq -1 "\${SAMPLE_ID}-filtered.read1.fastq.gz" -2 "\${SAMPLE_ID}-filtered.read2.fastq.gz" -0 /dev/null -@ ${params.numCores} \${BAM}
+    samtools fastq -1 "\${SAMPLE_ID}-filtered.read1.fastq.gz" -2 "\${SAMPLE_ID}-filtered.read2.fastq.gz" -0 /dev/null -@ ${task.cpus} \${BAM}
 
     """
     stub:

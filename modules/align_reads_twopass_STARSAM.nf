@@ -2,8 +2,9 @@
 process ALIGN_READS_TWOPASS_STARSAM {
     errorStrategy 'retry'
     maxRetries 3
-    maxForks 1
-    
+    maxForks 5
+    cpus params.numCores
+
     label 'alignReads2Pass'
     
     container "${params.container__preproc}"
@@ -19,17 +20,17 @@ process ALIGN_READS_TWOPASS_STARSAM {
     """
     # variables
     SAMPLE_ID=${sampleName}
-    CORES=${params.numCores}
+    CORES=${task.cpus}
     STAR_INDEX=${starIndex}
     READ1=${trimmedReads[0]}  # First file in the nested list will be read 1 file
     READ2=${trimmedReads[1]}
 
     echo "Processing files of sample \${SAMPLE_ID}"
-    echo "Number of cores to use: ${params.numCores}"
+    echo "Number of cores to use: ${task.cpus}"
     echo "The index path: \${STAR_INDEX}"
 
     # STAR 2-pass alignment
-    if star-2pass--nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" ${params.numCores} "\${STAR_INDEX}"; then
+    if star-2pass--nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" ${task.cpus} "\${STAR_INDEX}"; then
        echo "STAR sample-level 2-pass alignment is complete!"
     else
        echo "STAR alignment failed. Check logs. Exiting..."

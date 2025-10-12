@@ -2,6 +2,7 @@
 process REFORMAT_AND_COLLATE_HLA_RESULTS_PYENV {
     errorStrategy 'retry'
     maxRetries 3
+    cpus 1
     
     label 'reformatCollateHLAs'
 
