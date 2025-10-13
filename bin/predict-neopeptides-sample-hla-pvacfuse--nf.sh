@@ -163,10 +163,12 @@ if pvacfuse run ${VALIDATED_AGF_DIR} ${SAMPLE_NAME} ${SSHLA} BigMHC_EL BigMHC_IM
 		UNIQUE_FUSIONS=0
 		log_message "Number of predicted neopeptides: $RESULT_COUNT"
 		log_message "Creating other expected output files as empty to maintain workflow consistency."
+		touch "${OUTPUT_DIR}/MHC_Class_I/${SAMPLE_NAME}.all_epitopes.tsv"
 		touch "${OUTPUT_DIR}/MHC_Class_I/${SAMPLE_NAME}.all_epitopes.aggregated.tsv"
-		touch "${OUTPUT_DIR}/MHC_Class_I/${SAMPLE_NAME}.all_epitopes.aggregated.tsv.reference_matches"
-		touch "${OUTPUT_DIR}/MHC_Class_I/${SAMPLE_NAME}-FI-validated-fusion-sample-HLA-immunogenic-peptides-13aa.fasta"
+		touch "${OUTPUT_DIR}/MHC_Class_I/${SAMPLE_NAME}.all_epitopes.aggregated.reference_matches.tsv"
 		touch "${OUTPUT_DIR}/MHC_Class_I/${SAMPLE_NAME}.fasta"
+		touch "${SAMPLE_NAME}-FI-validated-fusion-sample-HLA-immunogenic-peptides-13aa.fasta"
+		
 		log_message "Created empty aggregated epitopes and reference matches files."
 	fi
 

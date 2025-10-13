@@ -93,14 +93,49 @@ def postprocess_neopeptides(input_files, output_file):
     except Exception as e:
         print(f"\nError during merge: {e}")
         print("Attempting alternative merge strategy...")
-        # Align all dataframes to have the same columns
+        
+        # Get all unique columns across all dataframes
         all_cols = sorted(set().union(*[set(df.columns) for df in dfs]))
+        
+        # Build a master schema by checking all dataframes
+        # If a column has different dtypes across dataframes, we'll see them
+        master_schema = {}
+        for col in all_cols:
+            dtypes_seen = set()
+            for df in dfs:
+                if col in df.columns:
+                    dtypes_seen.add(df[col].dtype)
+            
+            if len(dtypes_seen) > 1:
+                print(f"  WARNING: Column '{col}' has multiple dtypes: {dtypes_seen}")
+                print(f"    Using Utf8 (String) to accommodate all values")
+                master_schema[col] = pl.Utf8
+            elif len(dtypes_seen) == 1:
+                master_schema[col] = list(dtypes_seen)[0]
+            else:
+                master_schema[col] = pl.Utf8
+        
+        # Align all dataframes to have the same columns with consistent dtypes
         aligned_dfs = []
-        for df in dfs:
+        for i, df in enumerate(dfs):
+            cols_to_add = []
+            
             for col in all_cols:
-                if col not in df.columns:
-                    df = df.with_columns(pl.lit("NA").alias(col))
-            aligned_dfs.append(df.select(all_cols))
+                target_dtype = master_schema[col]
+                
+                if col in df.columns:
+                    # Cast to target dtype if different
+                    if df[col].dtype != target_dtype:
+                        cols_to_add.append(pl.col(col).cast(target_dtype).alias(col))
+                    else:
+                        cols_to_add.append(pl.col(col))
+                else:
+                    # Add null column with the correct dtype
+                    cols_to_add.append(pl.lit(None, dtype=target_dtype).alias(col))
+            
+            aligned_df = df.select(cols_to_add)
+            aligned_dfs.append(aligned_df)
+        
         merged_df = pl.concat(aligned_dfs, how="vertical")
     
     # Reorder columns: priority columns first, then the rest
@@ -129,7 +164,16 @@ def postprocess_neopeptides(input_files, output_file):
     
     # Write to output file
     print(f"Writing to {output_file}...")
-    merged_df.write_csv(output_file, separator='\t')
+    
+    # Convert all columns to string and replace null with "NA" for better readability
+    merged_df = merged_df.select([
+        pl.col(col).cast(pl.Utf8).fill_null("NA").alias(col) 
+        for col in merged_df.columns
+    ])
+    
+    # Write without quotes around values (quote_style="never")
+    # Since everything is now a string, no schema is preserved anyway
+    merged_df.write_csv(output_file, separator='\t', quote_style="never")
     
     print(f"Done! Merged {len(dfs)} files with {len(merged_df)} total rows.")
     print(f"Output written to: {output_file}")
@@ -150,4 +194,5 @@ if __name__ == "__main__":
             sys.exit(1)
     
     postprocess_neopeptides(input_files, output_file)
+
     
