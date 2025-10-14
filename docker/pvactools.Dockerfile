@@ -5,8 +5,8 @@ FROM mambaorg/micromamba as micromamba
 FROM griffithlab/pvactools:latest
 
 LABEL maintainer="Suffian Azizan"
-LABEL version="4.0"
-LABEL description="PVACtools 5.4.3 - revision removed MatchHostFsOwner"
+LABEL version="4.1"
+LABEL description="PVACtools 5.5.4 - revision removed MatchHostFsOwner"
 
 # Switch to root
 USER root

@@ -72,7 +72,7 @@ log_message ""
 
 log_message "PVACFUSE EXECUTION:"
 log_message "Starting pVacfuse for cohort-wide HLA binding and immunogenicity prediction..."
-log_message "Algorithms: BigMHC_EL, BigMHC_IM, DeepImmuno, MHCflurry, MHCflurryEL, NetMHCpanEL, NetMHCcons, SMMPMBEC"
+log_message "Algorithms: BigMHC_IM, DeepImmuno, MHCflurry, MHCflurryEL, NetMHCpanEL, NetMHCcons, SMMPMBEC"
 log_message "Additional options:"
 log_message "  - IEDB install directory: /opt/iedb"
 log_message "  - Allele-specific binding thresholds: enabled"
@@ -85,7 +85,7 @@ START_TIME=$(date +%s)
 
 # Run pVacFuse with the determined HLA types
 log_message "Executing pVacfuse run command..."
-if pvacfuse run ${VALIDATED_AGF_DIR} ${SAMPLE_NAME} ${COHORT_HLAS} BigMHC_EL BigMHC_IM DeepImmuno MHCflurry MHCflurryEL NetMHCpanEL NetMHCcons SMMPMBEC "${SAMPLE_NAME}_cohort-level-HLA-pred" --iedb-install-directory "/opt/iedb" --allele-specific-binding-thresholds --run-reference-proteome-similarity --peptide-fasta ${METADATA_DIR}/Homo_sapiens.GRCh38.pep.all.fa.gz --netmhc-stab -t ${NUM_CORES} -a sample_name 2>&1 | tee -a "$REPORT_FILE"; then
+if pvacfuse run ${VALIDATED_AGF_DIR} ${SAMPLE_NAME} ${COHORT_HLAS} BigMHC_IM DeepImmuno MHCflurry MHCflurryEL NetMHCpanEL NetMHCcons SMMPMBEC "${SAMPLE_NAME}_cohort-level-HLA-pred" --iedb-install-directory /opt/iedb --allele-specific-binding-thresholds --downstream-sequence-length full --run-reference-proteome-similarity --peptide-fasta ${METADATA_DIR}/Homo_sapiens.GRCh38.pep.all.fa.gz --netmhc-stab -t ${NUM_CORES} -a sample_name 2>&1 | tee -a "$REPORT_FILE"; then
 
     # Calculate execution time
 	END_TIME=$(date +%s)
