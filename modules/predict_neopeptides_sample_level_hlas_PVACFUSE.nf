@@ -1,6 +1,4 @@
 process PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE {
-    errorStrategy 'retry'
-    maxRetries 3
     cpus { params.numCores * 2 }
     
     label 'predictSampleNeopeptides'

@@ -1,7 +1,5 @@
 // Run FT calling module
 process CALL_FUSIONS_STARFUSION {
-    errorStrategy 'retry'
-    maxRetries 3
     //maxForks 2
     cpus params.numCores
     

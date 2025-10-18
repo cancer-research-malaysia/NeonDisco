@@ -1,7 +1,5 @@
 // Single process approach - arcasHLA with HLA-HD fallback in one instance
 process TYPE_HLAS_WITH_FALLBACK_ARCASHLA {
-    errorStrategy 'retry'
-    maxRetries 3
     cpus params.numCores
     
     label 'typeHLAs'

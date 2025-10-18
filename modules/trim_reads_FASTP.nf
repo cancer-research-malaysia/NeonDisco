@@ -1,7 +1,5 @@
 // Trim raw reads
 process TRIM_READS_FASTP {
-    errorStrategy 'retry'
-    maxRetries 3
     cpus { params.numCores / 2 }
     
     label 'trimReads'

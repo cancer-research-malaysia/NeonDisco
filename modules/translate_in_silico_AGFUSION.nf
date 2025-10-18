@@ -1,6 +1,4 @@
 process TRANSLATE_IN_SILICO_AGFUSION {
-    errorStrategy 'retry'
-    maxRetries 3
     cpus params.numCores
     
     label 'translateInSilico'

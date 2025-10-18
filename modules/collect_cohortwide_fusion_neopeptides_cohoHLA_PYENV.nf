@@ -1,7 +1,5 @@
 // Process to collect all TSV files and concatenate them
 process COLLECT_COHORTWIDE_FUSION_NEOPEPTIDES_COHOHLA_PYENV {
-    errorStrategy 'retry'
-    maxRetries 3
     cpus 1
     
     label 'collectCohortFusionNeopeptidesCohoHla'

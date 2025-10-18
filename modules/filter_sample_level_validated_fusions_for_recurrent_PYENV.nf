@@ -1,7 +1,5 @@
 // Alternative approach: Create a separate recurrent-aware filtering step
 process FILTER_SAMPLE_LEVEL_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
-    errorStrategy 'retry'
-    maxRetries 3
     cpus 1
     
     label 'getSampleRecurrentFusions'

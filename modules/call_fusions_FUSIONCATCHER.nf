@@ -1,7 +1,5 @@
 // Run FT calling module
 process CALL_FUSIONS_FUSIONCATCHER {
-    errorStrategy 'retry'
-    maxRetries 3
     //maxForks 3
     cpus params.numCores
     

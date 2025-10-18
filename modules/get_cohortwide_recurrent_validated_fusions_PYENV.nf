@@ -1,7 +1,5 @@
 // Process to filter for recurrent fusions
 process GET_COHORTWIDE_RECURRENT_VALIDATED_FUSIONS_PYENV {
-    errorStrategy 'retry'
-    maxRetries 1
     cpus 1
 
     label 'getCohortRecurrentFusionsFiValidated'

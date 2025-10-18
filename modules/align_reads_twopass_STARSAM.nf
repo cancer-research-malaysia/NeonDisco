@@ -1,8 +1,6 @@
 //
 process ALIGN_READS_TWOPASS_STARSAM {
-    errorStrategy 'retry'
-    maxRetries 3
-    maxForks 5
+    //maxForks 5
     cpus params.numCores
 
     label 'alignReads2Pass'

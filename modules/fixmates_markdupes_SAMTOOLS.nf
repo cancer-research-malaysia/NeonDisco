@@ -1,10 +1,7 @@
 // 
 process FIXMATES_MARKDUPES_SAMTOOLS {
-    errorStrategy 'retry'
-    maxRetries 3
     //maxForks 2
     cpus params.numCores
-    memory '32 GB'
     
     label 'fixmatesMarkdupes'
     

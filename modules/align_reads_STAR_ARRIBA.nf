@@ -1,8 +1,5 @@
 //
 process ALIGN_READS_STAR_ARRIBA {
-    errorStrategy 'retry'
-    maxRetries 3
-    //maxForks 1
     cpus params.numCores
     
     label 'alignReadsArriba'
