@@ -46,8 +46,6 @@ include { TYPE_HLAS_WITH_FALLBACK_ARCASHLA } from './modules/type_hlas_with_fall
 include { REFORMAT_AND_COLLATE_HLA_RESULTS_PYENV } from './modules/reformat_and_collate_hla_results_PYENV.nf'
 include { FILTER_HLA_ALLOTYPES_FREQ_PYENV } from './modules/filter_hla_allotypes_freq_PYENV.nf'
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Function to print help message
 def helpMessage() {
@@ -274,10 +272,7 @@ def branchInputChannelBySampleType(inputCh) {
     return [tumorCh, normalCh]
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////// MAIN WORKFLOWS ////////////////////////////////////////////
-
+// Subworkflow definitions
 workflow TRIMMING_WF {
     take:
         readsCh
@@ -319,8 +314,8 @@ workflow HLA_TYPING_WITH_FALLBACK_WF {
     
         // Collect all JSON files
         all_json_files = TYPE_HLAS_WITH_FALLBACK_ARCASHLA.out.hla_json
-                        .map { it[1] }
-                        .collect()
+            .map { _sampleName, json -> json }
+            .collect()
     
         // Single process to reformat and collate everything
         REFORMAT_AND_COLLATE_HLA_RESULTS_PYENV(all_json_files)
@@ -331,7 +326,53 @@ workflow HLA_TYPING_WITH_FALLBACK_WF {
 }
 
 //////////////////////////////////////////////////////////////////////////
-// IMPROVED: Single collation with dual output usage
+workflow COLLECT_COHORTWIDE_UNFILTERED_FUSIONS {
+    take:
+        aggregatedTuplesCh
+    main:
+
+        // Collate fusion calls from different callers
+        COLLATE_FUSIONS_PYENV(aggregatedTuplesCh)
+
+        collatedFusionsforWrangling = COLLATE_FUSIONS_PYENV.out.collatedFTParquet
+
+        // Wrangle raw fusions
+        wrangledFusionsTsv = WRANGLE_RAW_FUSIONS_PYENV(collatedFusionsforWrangling).wrangledUnfilteredFusionsTsv
+
+        // Collect cohort-wide unfiltered fusions
+        COLLECT_COHORTWIDE_UNFILTERED_FUSIONS_PYENV(wrangledFusionsTsv
+                            .collect { _meta, filepath -> filepath }
+                        )
+}
+
+workflow COLLATE_FILTER_FUSIONS {
+    take:
+        aggregatedTuplesCh
+        metaDataDir
+    main:
+        // Collate fusion calls from different callers
+        collatedFusionsforFiltering = COLLATE_FUSIONS_PYENV(aggregatedTuplesCh).collatedFTParquet
+
+        // Run the combining process with the joined output then channel into filtering process
+        FILTER_FUSIONS_PYENV(collatedFusionsforFiltering, metaDataDir)
+
+    emit:
+        normFilteredFusionsCh = FILTER_FUSIONS_PYENV.out.filteredFusions
+        uniqueFiltFusionPairsForFusInsCh = FILTER_FUSIONS_PYENV.out.uniqueFiltFusionPairsForFusIns
+}
+
+workflow COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS {
+    take:
+        normFilteredFusionsCh
+    main:
+        // Collect cohort-wide normfiltered fusions
+        COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV(normFilteredFusionsCh
+                                    .collect { _meta, filepath -> filepath }
+                                )
+    emit:
+        cohortwideFusionsFile = COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV.out.cohortwideFusionsFile
+}
+
 workflow AGGREGATE_FUSION_CALLING_WF {
     take:
         alignedBamCh
@@ -352,34 +393,25 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         CALL_FUSIONS_STARFUSION(filtFastqsCh, ctatDB)
 
         // Join the outputs based on sample name
-        combinedFTFilesCh = CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
+        CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
            .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
            .join(CALL_FUSIONS_STARFUSION.out.starfus_fusion_tuple)
+           .set { combinedFTFilesCh }
 
-        // IMPROVED: Single collation call - removes redundancy
-        COLLATE_FUSIONS_PYENV(combinedFTFilesCh)
-        collatedFusionsParquet = COLLATE_FUSIONS_PYENV.out.collatedFTParquet
+        // Collect cohort-wide unfiltered fusions
+        COLLECT_COHORTWIDE_UNFILTERED_FUSIONS(combinedFTFilesCh)
 
-        // Branch 1: Wrangle raw fusions for unfiltered collection
-        WRANGLE_RAW_FUSIONS_PYENV(collatedFusionsParquet)
-        COLLECT_COHORTWIDE_UNFILTERED_FUSIONS_PYENV(
-            WRANGLE_RAW_FUSIONS_PYENV.out.wrangledUnfilteredFusionsTsv
-                .collect { it[1] }
-        )
+        // Collate and filter fusions
+        COLLATE_FILTER_FUSIONS(combinedFTFilesCh, metaDataDir)
 
-        // Branch 2: Filter fusions for downstream processing
-        FILTER_FUSIONS_PYENV(collatedFusionsParquet, metaDataDir)
-
-        // Collect cohort-wide normfiltered fusions
-        COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV(
-            FILTER_FUSIONS_PYENV.out.filteredFusions
-                .collect { it[1] }
-        )
+        //// Collect cohort-wide normfiltered fusions
+        COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS(COLLATE_FILTER_FUSIONS.out.normFilteredFusionsCh)
 
     emit:
-        normFilteredFusionsCh = FILTER_FUSIONS_PYENV.out.filteredFusions
-        uniqueFiltFusionPairsForFusInsCh = FILTER_FUSIONS_PYENV.out.uniqueFiltFusionPairsForFusIns
-        cohortwideNormfilteredFusionsFile = COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV.out.cohortwideFusionsFile
+        normFilteredFusionsCh = COLLATE_FILTER_FUSIONS.out.normFilteredFusionsCh
+        uniqueFiltFusionPairsForFusInsCh = COLLATE_FILTER_FUSIONS.out.uniqueFiltFusionPairsForFusInsCh
+        cohortwideNormfilteredFusionsFile = COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS.out.cohortwideFusionsFile
+    
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -392,12 +424,11 @@ workflow PROTEIN_CODING_PREDICTION {
     main:
         // Translate filtered fusions in silico with AGFusion   
         TRANSLATE_IN_SILICO_AGFUSION(normFilteredFusionsCh)
-        
         // Collect protein-coding fusion output manifests and concat into cohortwide file
-        COLLECT_COHORTWIDE_PROTEIN_CODING_FUSIONS_PYENV(
-            TRANSLATE_IN_SILICO_AGFUSION.out.protein_coding_fusions_manifest.collect { it[1] },
-            cohortwideNormfilteredFusionsFile
-        )
+        COLLECT_COHORTWIDE_PROTEIN_CODING_FUSIONS_PYENV(TRANSLATE_IN_SILICO_AGFUSION.out.protein_coding_fusions_manifest
+                            .collect { _meta, filepath -> filepath },
+                            cohortwideNormfilteredFusionsFile
+                        )
     emit:
         filteredAgfusionOutdir = TRANSLATE_IN_SILICO_AGFUSION.out.filtered_agfusion_outdir
         proteinCodingManifest = TRANSLATE_IN_SILICO_AGFUSION.out.protein_coding_fusions_manifest
@@ -423,7 +454,6 @@ workflow FUSION_INSPECTOR_VALIDATION {
     emit:
         fusInspectorTsv = VALIDATE_IN_SILICO_FUSIONINSPECTOR.out.fusInspectorTsv
 }
-
 workflow IN_SILICO_FUSION_VALIDATION_WF {
     take:
         normFilteredFusionsCh
@@ -432,10 +462,8 @@ workflow IN_SILICO_FUSION_VALIDATION_WF {
         trimmedCh
         ctatDB
     main:
-        PROTEIN_CODING_PREDICTION(normFilteredFusionsCh, cohortwideNormfilteredFusionsFile)
-        
         FUSION_INSPECTOR_VALIDATION(
-            PROTEIN_CODING_PREDICTION.out.filteredAgfusionOutdir,
+            PROTEIN_CODING_PREDICTION(normFilteredFusionsCh, cohortwideNormfilteredFusionsFile).filteredAgfusionOutdir,
             uniqueFiltFusionPairsForFusInsCh,
             trimmedCh,
             ctatDB
@@ -457,6 +485,7 @@ workflow GET_COHORTWIDE_FI_VALIDATED_FUSIONS {
         COLLECT_COHORTWIDE_VALIDATED_FUSIONS_PYENV(validatedFusionsTsvs)
     emit:
         cohortValidatedFusions = COLLECT_COHORTWIDE_VALIDATED_FUSIONS_PYENV.out.cohortwideValidatedFusionsFile
+
 }
 
 // Filter validated fusions
@@ -479,17 +508,20 @@ workflow VALIDATED_FUSION_FILTERING_WF {
         // Preprocess agfusion output for neoepitope prediction
         KEEP_VALIDATED_FUSIONS_PYENV(joinedInputs)
 
-        // Join the validatedFusions and validatedAgfusionDir channels by sampleName
-        joinedValidatedFusionsDat = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions
-            .join(KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir, by: 0)
+        validatedAgfusionDir = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedAgfusionDir
+        validatedFusions = KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions
+
+        // join the validatedFusions and validatedAgfusionDir channels by sampleName
+        joinedValidatedFusionsDat = validatedFusions
+            .join(validatedAgfusionDir, by: 0)
             .map { sampleName, validatedFusionsFile, validatedDir -> 
                 tuple(sampleName, validatedFusionsFile, validatedDir) 
             }
         
         // Collect cohort-wide validated fusions
-        GET_COHORTWIDE_FI_VALIDATED_FUSIONS(
-            KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions.collect { it[1] }
-        )
+        GET_COHORTWIDE_FI_VALIDATED_FUSIONS(validatedFusions
+                            .collect { _meta, filepath -> filepath }
+                        )
 
     emit:
         validatedFusSampleData = joinedValidatedFusionsDat
@@ -649,9 +681,6 @@ workflow NEOANTIGEN_PREDICTION_WF {
             log.info "Skipping neoepitope prediction subworkflow."
         }
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////// NEONDISCO MAIN WORKFLOW ////////////////////////////////////////////
 
 // Main workflow
 workflow {
@@ -733,15 +762,15 @@ workflow {
         
         // Branch the input channel by sample type
         def (branchedTumorCh, branchedNormalCh) = branchInputChannelBySampleType(inputCh)
-        tumorCh = branchedTumorCh
-        normalCh = branchedNormalCh
+        tumorCh = branchedTumorCh.view()
+        normalCh = branchedNormalCh.view()
         
         // Log sample counts
         normalCh.count().subscribe { count ->
-            log.info "Found ${count} normal sample(s)! ----Normal samples will not be processed in the main NeonDisco pipeline."
+            log.info "Found ${count} normal samples! ----Normal samples will not be processed in the main NeonDisco pipeline."
         }
         tumorCh.count().subscribe { count ->
-            log.info "Found ${count} tumor sample(s)! ----Initializing NeonDisco pipeline..."
+            log.info "Found ${count} tumor samples! ----Initializing NeonDisco pipeline..."
             log.info ""
         }
         
@@ -759,7 +788,6 @@ workflow {
     log.info "Read trimming: << ${params.trimReads} >>"
     log.info "HLA typing only? : << ${params.hlaTypingOnly} >>"
     log.info "Include neopeptide prediction? : << ${params.includeNeoPred} >>"
-    
     // Log the fusion prediction mode
     def mode = params.recurrentFusionsNeoPredOnly ? "Recurrent-only" : "All-validated"
     log.info "Fusion-derived neoantigen prediction input set: << ${mode} fusions >>"
@@ -776,28 +804,25 @@ workflow {
     def qcProcInputCh = params.trimReads ? TRIMMING_WF(tumorCh).trimmedCh : tumorCh
 
     ///////// STAR alignment workflow ////////////
-    def alignedBamsCh = GENERAL_READS_ALIGNMENT_WF(qcProcInputCh, params.starIndex).alignedBamCh
+    def alignedBamsCh = GENERAL_READS_ALIGNMENT_WF(qcProcInputCh, params.starIndex)
     ////////////////////////////////////////////////////////
 
     // Execute workflow branching based on hlaTypingOnly parameter
     if (params.hlaTypingOnly) {
+        
         log.info "Running HLA typing only subworkflow..."
         // Run only HLA typing
         HLA_TYPING_WITH_FALLBACK_WF(alignedBamsCh)
 
     } else {
+        
         //// HLA typing
         HLA_TYPING_WITH_FALLBACK_WF(alignedBamsCh)
 
         //// Fusion calling module
-        AGGREGATE_FUSION_CALLING_WF(
-            alignedBamsCh, 
-            params.starIndex, 
-            params.arribaDB, 
-            params.fuscatDB, 
-            params.ctatDB, 
-            params.metaDataDir
-        )
+        AGGREGATE_FUSION_CALLING_WF(alignedBamsCh, params.starIndex, 
+                params.arribaDB, params.fuscatDB, params.ctatDB, params.metaDataDir)
+
 
         //// AGFUSION coding sequence prediction
         IN_SILICO_FUSION_VALIDATION_WF(
@@ -817,9 +842,7 @@ workflow {
         )
 
         //// Cohortwide validated fusion recurrence
-        COHORT_VALIDATED_FUSION_RECURRENCE_COMPILATION_WF(
-            VALIDATED_FUSION_FILTERING_WF.out.cohortValidatedFusions
-        )
+        COHORT_VALIDATED_FUSION_RECURRENCE_COMPILATION_WF(VALIDATED_FUSION_FILTERING_WF.out.cohortValidatedFusions)
 
         //// Neoepitope prediction
         NEOANTIGEN_PREDICTION_WF(
@@ -834,5 +857,6 @@ workflow {
     workflow.onComplete = {
         println "Pipeline completed at: $workflow.complete"
         println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
+        //workDir.resolve("stage-${workflow.sessionId}").deleteDir()
     }
 }
