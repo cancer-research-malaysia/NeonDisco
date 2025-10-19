@@ -4,9 +4,6 @@ import os
 import sys
 import polars as pl
 
-# Control Polars threading
-os.environ["POLARS_MAX_THREADS"] = os.getenv("POLARS_MAX_THREADS", "4")
-
 def check_file_empty(file_path, file_description):
     """
     Check if a parquet file is empty or contains no data rows.
@@ -22,89 +19,70 @@ def check_file_empty(file_path, file_description):
         print(f"ERROR: Could not read {file_description}: {e}")
         return True
 
-def get_first_valid(series):
-    """Helper to get first non-null, non-NA value from a series."""
-    valid = [v for v in series if v is not None and v != "NA"]
-    return valid[0] if valid else "NA"
-
+# Alternative approach to merge tool-specific information using explicit wrangling logic
 def merge_by_tool_suffixes(df, groupby_cols):
-    """
-    Optimized approach using separate dataframes per tool, then joining.
-    This avoids row iteration while keeping the logic clear and correct.
-    """
-    # Get tool summary
-    tool_summary = df.group_by(groupby_cols).agg([
-        pl.col("originalTool").unique().sort().str.concat(" | ").alias("detectedBy"),
-        pl.col("originalTool").n_unique().alias("toolOverlapCount")
+    # Get unique fusions with their tools
+    fusion_summary = df.group_by(groupby_cols).agg([
+        pl.col("originalTool").unique().alias("detectedBy"),
+        pl.col("originalTool").unique().count().alias("toolOverlapCount")
     ])
-    
-    # Separate by tool
-    arriba_df = df.filter(pl.col("originalTool") == "Arriba")
-    fc_df = df.filter(pl.col("originalTool") == "FusionCatcher")
-    sf_df = df.filter(pl.col("originalTool") == "STAR-Fusion")
-    
-    # Get column lists
-    value_cols = [col for col in df.columns if col not in groupby_cols and col != "originalTool"]
-    arriba_cols = [col for col in value_cols if col.endswith("_ARR")]
-    fc_cols = [col for col in value_cols if col.endswith("_FC")]
-    sf_cols = [col for col in value_cols if col.endswith("_SF")]
-    generic_cols = [col for col in value_cols if col not in arriba_cols + fc_cols + sf_cols]
-    
-    # Aggregate each tool's data separately
-    result = tool_summary
-    
-    # Add Arriba columns
-    if len(arriba_df) > 0 and len(arriba_cols) > 0:
-        arriba_agg = arriba_df.group_by(groupby_cols).agg([
-            pl.col(col).filter((pl.col(col).is_not_null()) & (pl.col(col) != "NA")).first().fill_null("NA").alias(col)
-            for col in arriba_cols
+
+    result_rows = []
+
+    for fusion_row in fusion_summary.iter_rows(named=True):
+        # Start with fusion ID columns
+        merged_row = {col: fusion_row[col] for col in groupby_cols}
+        tools = fusion_row["detectedBy"]
+        tool_count = fusion_row["toolOverlapCount"]
+        merged_row["detectedBy"] = " | ".join(tools)
+        merged_row["toolOverlapCount"] = tool_count
+
+        # Get data for this fusion
+        fusion_filter = pl.all_horizontal([
+            pl.col(col) == fusion_row[col] for col in groupby_cols
         ])
-        result = result.join(arriba_agg, on=groupby_cols, how="left")
-        # Fill nulls with "NA" for fusions not detected by Arriba
-        for col in arriba_cols:
-            result = result.with_columns(pl.col(col).fill_null("NA"))
-    else:
-        # Add empty columns if no Arriba data
-        for col in arriba_cols:
-            result = result.with_columns(pl.lit("NA").alias(col))
-    
-    # Add FusionCatcher columns
-    if len(fc_df) > 0 and len(fc_cols) > 0:
-        fc_agg = fc_df.group_by(groupby_cols).agg([
-            pl.col(col).filter((pl.col(col).is_not_null()) & (pl.col(col) != "NA")).first().fill_null("NA").alias(col)
-            for col in fc_cols
-        ])
-        result = result.join(fc_agg, on=groupby_cols, how="left")
-        for col in fc_cols:
-            result = result.with_columns(pl.col(col).fill_null("NA"))
-    else:
-        for col in fc_cols:
-            result = result.with_columns(pl.lit("NA").alias(col))
-    
-    # Add STAR-Fusion columns
-    if len(sf_df) > 0 and len(sf_cols) > 0:
-        sf_agg = sf_df.group_by(groupby_cols).agg([
-            pl.col(col).filter((pl.col(col).is_not_null()) & (pl.col(col) != "NA")).first().fill_null("NA").alias(col)
-            for col in sf_cols
-        ])
-        result = result.join(sf_agg, on=groupby_cols, how="left")
-        for col in sf_cols:
-            result = result.with_columns(pl.col(col).fill_null("NA"))
-    else:
-        for col in sf_cols:
-            result = result.with_columns(pl.lit("NA").alias(col))
-    
-    # Add generic columns (from any tool)
-    if len(generic_cols) > 0:
-        generic_agg = df.group_by(groupby_cols).agg([
-            pl.col(col).filter((pl.col(col).is_not_null()) & (pl.col(col) != "NA")).first().fill_null("NA").alias(col)
-            for col in generic_cols
-        ])
-        result = result.join(generic_agg, on=groupby_cols, how="left")
-        for col in generic_cols:
-            result = result.with_columns(pl.col(col).fill_null("NA"))
-    
-    return result
+        fusion_data = df.filter(fusion_filter)
+
+        # For each column, get data from appropriate tool
+        for col in df.columns:
+            if col not in groupby_cols and col != "originalTool":
+                # Check if this is a tool-specific column
+                if col.endswith("_ARR") and "Arriba" in tools:
+                    # Get Arriba data
+                    arriba_data = fusion_data.filter(pl.col("originalTool") == "Arriba")
+                    if len(arriba_data) > 0:
+                        values = arriba_data.select(col).to_series().to_list()
+                        non_null_values = [v for v in values if v is not None and v != "NA"]
+                        merged_row[col] = non_null_values[0] if non_null_values else "NA"
+                    else:
+                        merged_row[col] = "NA"
+                elif col.endswith("_FC") and "FusionCatcher" in tools:
+                    # Get FusionCatcher data
+                    fc_data = fusion_data.filter(pl.col("originalTool") == "FusionCatcher")
+                    if len(fc_data) > 0:
+                        values = fc_data.select(col).to_series().to_list()
+                        non_null_values = [v for v in values if v is not None and v != "NA"]
+                        merged_row[col] = non_null_values[0] if non_null_values else "NA"
+                    else:
+                        merged_row[col] = "NA"
+                elif col.endswith("_SF") and "STAR-Fusion" in tools:
+                    # Get STAR-Fusion data
+                    sf_data = fusion_data.filter(pl.col("originalTool") == "STAR-Fusion")
+                    if len(sf_data) > 0:
+                        values = sf_data.select(col).to_series().to_list()
+                        non_null_values = [v for v in values if v is not None and v != "NA"]
+                        merged_row[col] = non_null_values[0] if non_null_values else "NA"
+                    else:
+                        merged_row[col] = "NA"
+                else:
+                    # For non-tool-specific columns, take first non-null
+                    values = fusion_data.select(col).to_series().to_list()
+                    non_null_values = [v for v in values if v is not None and v != "NA"]
+                    merged_row[col] = non_null_values[0] if non_null_values else "NA"
+
+        result_rows.append(merged_row)
+
+    return pl.DataFrame(result_rows)
 
 def create_empty_output_files(output_filename):
     """
@@ -168,6 +146,8 @@ def main():
     print("Loading collated fusion transcript data...")
     collated_df = pl.scan_parquet(parquet_input_file).collect()
     
+####################
+
     # Step 1: Consolidate duplicate rows and reshape the DataFrame
     print("Consolidating duplicate rows...")
     # Define the columns to group by
@@ -180,6 +160,8 @@ def main():
     # sort by toolOverlapCount and fusionGenePair
     consolidated_df = consolidated_df.sort(['toolOverlapCount', 'fusionGenePair', 'sampleNum_Padded'], descending=[True, False, False])
     
+###########
+
     # Step 6: Save results
     print(f"Saving filtered results to {output_filename}.tsv...")
     consolidated_df.write_csv(f"{output_filename}.tsv", separator='\t')
@@ -192,3 +174,4 @@ if __name__ == "__main__":
         print("Usage: wrangle-FTs-only--nf.py <sample id> <parquet file of combined FTs> <output filename>")
         sys.exit(1)
     main()
+

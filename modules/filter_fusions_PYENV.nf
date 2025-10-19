@@ -1,5 +1,5 @@
 process FILTER_FUSIONS_PYENV {
-    cpus 1
+    cpus 4
     
     label 'filterFusions'
 

@@ -1,6 +1,6 @@
 // 
 process WRANGLE_RAW_FUSIONS_PYENV {
-    cpus 1
+    cpus 4
     
     label 'wrangleRawFusions'
 
@@ -22,6 +22,7 @@ process WRANGLE_RAW_FUSIONS_PYENV {
     echo "Sample name: ${sampleName}"
     echo "Generating output file name: ${sampleName}-wrangled-unfiltered-fusions"
     OUTPUT_NAME="${sampleName}-wrangled-unfiltered-fusions"
+    export POLARS_MAX_THREADS=${task.cpus}
 
     echo "Running wrangling script to process raw FTs..."
     if wrangle-FTs-only--nf.py ${sampleName} ${collatedFTParquet} \${OUTPUT_NAME}; then
