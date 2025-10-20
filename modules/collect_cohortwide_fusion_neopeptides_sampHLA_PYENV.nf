@@ -1,6 +1,6 @@
 // Process to collect all TSV files and concatenate them
 process COLLECT_COHORTWIDE_FUSION_NEOPEPTIDES_SAMPHLA_PYENV {
-    cpus 1
+    cpus 2
     
     label 'collectCohortFusionNeopeptidesSampHla'
 

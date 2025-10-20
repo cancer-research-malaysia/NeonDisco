@@ -22,7 +22,13 @@ def analyze_schemas(input_files):
             
         try:
             # Read just the schema without loading all data
-            df = pl.read_csv(file_path, separator='\t', n_rows=1)
+            # Use null_values to properly interpret "NA" as null
+            df = pl.read_csv(
+                file_path, 
+                separator='\t', 
+                n_rows=1,
+                null_values=["NA", ""]
+            )
             for col_name, dtype in df.schema.items():
                 column_types[col_name].add(dtype)
         except Exception as e:
@@ -32,7 +38,14 @@ def analyze_schemas(input_files):
     # Create schema overrides for problematic columns
     schema_overrides = {}
     
+    # Force sampleNum_Padded to be string to preserve zero padding
+    if 'sampleNum_Padded' in column_types:
+        schema_overrides['sampleNum_Padded'] = pl.Utf8
+    
     for col_name, types in column_types.items():
+        if col_name in schema_overrides:
+            continue  # Skip if already handled
+            
         if len(types) > 1:
             # Handle type conflicts by choosing the most compatible type
             if pl.Utf8 in types:
@@ -57,7 +70,7 @@ def concatenate_cohortwide_fusions(input_files, output_file):
         schema_overrides = analyze_schemas(input_files)
         
         if schema_overrides:
-            print("Found schema conflicts, applying overrides:")
+            print("Found schema conflicts or special columns, applying overrides:")
             for col, dtype in schema_overrides.items():
                 print(f"  {col}: {dtype}")
             print()
@@ -76,10 +89,12 @@ def concatenate_cohortwide_fusions(input_files, output_file):
             
             try:
                 # Read TSV file with schema overrides
+                # Use null_values to interpret "NA" as null for proper type inference
                 df = pl.read_csv(
                     file_path, 
                     separator='\t', 
-                    schema_overrides=schema_overrides
+                    schema_overrides=schema_overrides,
+                    null_values=["NA", ""]
                 )
                 
                 if len(df) == 0:
@@ -99,27 +114,27 @@ def concatenate_cohortwide_fusions(input_files, output_file):
         
         # Concatenate all dataframes
         print("Concatenating all dataframes...")
-        cohort_df = pl.concat(dfs, how='vertical')
+        cohort_df = pl.concat(dfs, how='vertical_relaxed')
 
         # Sort by sampleNum_Padded if available, otherwise by sampleID
+        sort_cols = []
+        sort_desc = []
+        
         if 'sampleNum_Padded' in cohort_df.columns:
-            cohort_df = cohort_df.sort([
-                'sampleNum_Padded', 
-                'toolOverlapCount',
-                'fusionTranscriptID'
-            ], descending=[False, True, False])
+            sort_cols.extend(['sampleNum_Padded', 'toolOverlapCount', 'fusionTranscriptID'])
+            sort_desc.extend([False, True, False])
         elif 'sampleID' in cohort_df.columns:
-            cohort_df = cohort_df.sort([
-                'sampleID', 
-                'toolOverlapCount',
-                'fusionTranscriptID'
-            ], descending=[False, True, False])
+            sort_cols.extend(['sampleID', 'toolOverlapCount', 'fusionTranscriptID'])
+            sort_desc.extend([False, True, False])
+        
+        if sort_cols:
+            cohort_df = cohort_df.sort(sort_cols, descending=sort_desc)
         
         if 'fusionTranscriptID' in cohort_df.columns:
             print("\nGenerating manifest...")
             
             # Extract unique IDs from the final dataframe
-            fusion_ids = cohort_df['fusionTranscriptID'].unique().to_list()
+            fusion_ids = cohort_df['fusionTranscriptID'].unique().sort().to_list()
             
             # Determine the output filename for the manifest
             output_path = Path(output_file)
@@ -140,8 +155,8 @@ def concatenate_cohortwide_fusions(input_files, output_file):
             print("Warning: 'fusionTranscriptID' column not found, skipping manifest generation.")
 
         print("\nWriting cohort-wide TSV...")
-        # Write the concatenated file
-        cohort_df.write_csv(output_file, separator='\t')
+        # Write the concatenated file with NA for null values
+        cohort_df.write_csv(output_file, separator='\t', null_value='NA')
         print(f"Cohort-wide TSV written to: {output_file}")
         print(f"Total rows in cohort file: {len(cohort_df)}")
         

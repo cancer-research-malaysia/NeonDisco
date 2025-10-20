@@ -1,6 +1,6 @@
 // 
 process COLLATE_FUSIONS_PYENV {
-    cpus 1
+    cpus 2
     
     label 'collateFusions'
 
@@ -26,6 +26,8 @@ process COLLATE_FUSIONS_PYENV {
 
     OUTPUT_NAME="${sampleName}-collated-FT-raw"
     echo "Generated output filename using sample name: \${OUTPUT_NAME}"
+    export POLARS_MAX_THREADS=${task.cpus}
+    echo "Setting POLARS_MAX_THREADS to \${POLARS_MAX_THREADS}"
 
     echo "Running Python script to collate FT files..."
     if collate-FTs--nf.py -s ${sampleName} -o \${OUTPUT_NAME} --arriba ${arFile} --fusioncatcher ${fcFile} --starfusion ${sfFile}; then

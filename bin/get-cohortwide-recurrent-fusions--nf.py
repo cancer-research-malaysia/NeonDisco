@@ -8,7 +8,7 @@ import argparse
 from pathlib import Path
 import polars as pl
 
-def filter_recurrent_fusions(input_file, threshold, output_file, report_file):
+def filter_recurrent_fusions(input_file, threshold, output_file, report_file, total_samples):
     """
     Filter fusions based on recurrence frequency across samples using breakpointID
     """
@@ -18,9 +18,10 @@ def filter_recurrent_fusions(input_file, threshold, output_file, report_file):
         df = pl.read_csv(input_file, separator='\t')
         print(f"Total rows in cohort file: {len(df)}")
         
-        # Get total number of samples directly from the data
-        total_samples = df['sampleID'].n_unique()
+        # Get samples with fusions from file
+        samples_in_file = df['sampleID'].n_unique()
         print(f"Total samples in cohort: {total_samples}")
+        print(f"Samples with fusions in file: {samples_in_file}")
         
         # Calculate minimum samples needed based on threshold
         min_samples_required = int(math.ceil(threshold * total_samples)) 
@@ -69,7 +70,7 @@ def filter_recurrent_fusions(input_file, threshold, output_file, report_file):
         )
         
         print(f"Recurrent breakpoints found: {len(recurrent_fusions)}")
-        
+
         if len(recurrent_fusions) == 0:
             print("Warning: No recurrent fusions found with current criteria!")
             # Create empty output file with headers
@@ -100,6 +101,7 @@ def filter_recurrent_fusions(input_file, threshold, output_file, report_file):
             f.write("Fusion Frequency Report\n")
             f.write("=====================\n\n")
             f.write(f"Total samples: {total_samples}\n")
+            f.write(f"Samples with fusions: {samples_in_file}\n")
             f.write(f"Total unique breakpoints: {len(fusion_freq)}\n")
             f.write(f"Recurrence threshold: {threshold_percent:.2f}%\n")
             f.write(f"Minimum samples required: {min_samples_required}\n")
@@ -171,6 +173,8 @@ def main():
     parser = argparse.ArgumentParser(description='Filter for recurrent fusions')
     parser.add_argument('--input', required=True,
                        help='Input cohort TSV file')
+    parser.add_argument('--total-samples', type=int, required=True,
+                       help='Total number of samples in cohort')
     parser.add_argument('--threshold', type=float, default=0.005,
                        help='Frequency threshold (default: 0.005 = 0.5%%)')
     parser.add_argument('--output', required=True,
@@ -179,6 +183,11 @@ def main():
                        help='Output frequency report file')
     
     args = parser.parse_args()
+    
+    # Validate total_samples
+    if args.total_samples <= 0:
+        print("Error: --total-samples must be a positive integer")
+        sys.exit(1)
     
     # Validate threshold
     if args.threshold <= 0 or args.threshold > 1:
@@ -190,12 +199,11 @@ def main():
         args.input, 
         args.threshold, 
         args.output, 
-        args.report
+        args.report,
+        args.total_samples
     )
     
     print(f"\nFiltering completed successfully!")
 
 if __name__ == "__main__":
     main()
-    
-  

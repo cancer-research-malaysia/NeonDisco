@@ -117,3 +117,4 @@ reports/*
 !.pixi/config.toml
 
 runlogs/*
+traces/*

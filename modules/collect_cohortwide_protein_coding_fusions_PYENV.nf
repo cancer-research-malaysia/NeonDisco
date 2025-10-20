@@ -20,6 +20,7 @@ process COLLECT_COHORTWIDE_PROTEIN_CODING_FUSIONS_PYENV {
     
     script:
     """
+    echo "Collecting cohort-wide protein-coding fusions from provided files..."
     mkdir -p Unique-fusionTranscriptID-only
     cat ${proteinCodingFusionsTxts} | sort -u > Unique-fusionTranscriptID-only/Cohortwide_normfiltered_protein-coding-only_fusions-UNIQUE.manifest.txt
 

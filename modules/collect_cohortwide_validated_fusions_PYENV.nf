@@ -1,6 +1,6 @@
 // Process to collect all TSV files and concatenate them
 process COLLECT_COHORTWIDE_VALIDATED_FUSIONS_PYENV {
-    cpus 1
+    cpus 2
     
     label 'collectCohortValidatedFusions'
 

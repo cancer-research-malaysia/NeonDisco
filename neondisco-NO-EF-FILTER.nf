@@ -502,9 +502,10 @@ workflow VALIDATED_FUSION_FILTERING_WF {
 workflow COHORT_VALIDATED_FUSION_RECURRENCE_COMPILATION_WF {
     take:
         cohortValidatedFusions
+        totalSampleCount
     main:
         // Get cohort recurrent fusions
-        GET_COHORTWIDE_RECURRENT_VALIDATED_FUSIONS_PYENV(cohortValidatedFusions)
+        GET_COHORTWIDE_RECURRENT_VALIDATED_FUSIONS_PYENV(cohortValidatedFusions, totalSampleCount)
     emit:
         cohortRecurrentFusionsCh = GET_COHORTWIDE_RECURRENT_VALIDATED_FUSIONS_PYENV.out.cohortRecurrentFusionTsv
 }
@@ -725,33 +726,64 @@ workflow {
     // Create input channel based on provided input method
     def tumorCh = Channel.empty()
     def normalCh = Channel.empty()
-    
+    def totalSampleCountCh = Channel.value(0)
+
     if (params.manifestPath) {
         def inputCh = createInputChannelFromManifest(params.manifestPath)
         log.info "Using manifest file: << ${params.manifestPath} >>"
         
         // Branch the input channel by sample type
         def (branchedTumorCh, branchedNormalCh) = branchInputChannelBySampleType(inputCh)
-        tumorCh = branchedTumorCh
-        normalCh = branchedNormalCh
+
+        // Create a copy of tumor channel for counting (since channels can only be consumed once)
+        def tumorChForCount = branchedTumorCh.map { it }
+        def tumorChForPipeline = branchedTumorCh.map { it }
         
-        // Log sample counts
+        tumorCh = tumorChForPipeline
+        normalCh = branchedNormalCh
+    
+        // Capture tumor count as a CHANNEL VALUE (not a variable)
+        totalSampleCountCh = tumorChForCount
+                            .toList()
+                            .map { it.size() }
+        
+        // Log sample counts by type AND capture tumor count for recurrence calculation
         normalCh.count().subscribe { count ->
             log.info "Found ${count} normal sample(s)! ----Normal samples will not be processed in the main NeonDisco pipeline."
         }
         tumorCh.count().subscribe { count ->
             log.info "Found ${count} tumor sample(s)! ----Initializing NeonDisco pipeline..."
+            log.info "Using ${count} tumor samples for recurrence frequency calculations."
             log.info ""
         }
-        
+    
     } else {
+
         if (!validateInputDir(params.inputDir)) {
             exit 1
         }
-        tumorCh = createInputChannelFromPOSIX(params.inputDir)
-        log.info "Input files are provided as local directory: << ${params.inputDir} >>"
-        log.warn "----All samples from input directory will be processed as TUMOR samples! If you have normal samples mixed in, please provide a manifest file with sampleType column at runtime instead of --inputDir."
+        
+        def inputCh = createInputChannelFromPOSIX(params.inputDir)
+
+        // Create a copy for counting
+        def tumorChForCount = inputCh.map { it }
+        def tumorChForPipeline = inputCh.map { it }
+        
+        tumorCh = tumorChForPipeline
+        
+        // Capture count as a CHANNEL VALUE
+        totalSampleCountCh = tumorChForCount
+            .toList()
+            .map { it.size() }
+        
+        totalSampleCountCh.subscribe { count ->
+            log.info "Input files are provided as local directory: << ${params.inputDir} >>"
+            log.info "Found ${count} sample(s) in directory! ----All samples will be processed as TUMOR samples!"
+            log.warn "If you have normal samples mixed in, please provide a manifest file with sampleType column at runtime instead of --inputDir."
+            log.info "Using ${count} samples for recurrence frequency calculations."
+        }
     }
+
     
     // Log the key parameters
     log.info "Output directory: << ${params.outputDir} >>"
@@ -817,7 +849,8 @@ workflow {
 
         //// Cohortwide validated fusion recurrence
         COHORT_VALIDATED_FUSION_RECURRENCE_COMPILATION_WF(
-            VALIDATED_FUSION_FILTERING_WF.out.cohortValidatedFusions
+            VALIDATED_FUSION_FILTERING_WF.out.cohortValidatedFusions,
+            totalSampleCountCh
         )
 
         //// Neoepitope prediction

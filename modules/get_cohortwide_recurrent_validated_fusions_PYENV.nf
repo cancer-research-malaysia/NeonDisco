@@ -1,6 +1,6 @@
 // Process to filter for recurrent fusions
 process GET_COHORTWIDE_RECURRENT_VALIDATED_FUSIONS_PYENV {
-    cpus 1
+    cpus 2
 
     label 'getCohortRecurrentFusionsFiValidated'
     
@@ -12,6 +12,7 @@ process GET_COHORTWIDE_RECURRENT_VALIDATED_FUSIONS_PYENV {
     
     input:
     path cohortwideFusionsFile
+    val totalSampleCount
     
     output:
     tuple val("Cohortwide-Recurrent-Validated-Fusions"), path("Cohortwide_normfiltered_FI-validated_recurrent_fusions.tsv"), emit: cohortRecurrentFusionTsv
@@ -23,7 +24,8 @@ process GET_COHORTWIDE_RECURRENT_VALIDATED_FUSIONS_PYENV {
         --input ${cohortwideFusionsFile} \\
         --threshold ${params.recurrenceThreshold} \\
         --output Cohortwide_normfiltered_FI-validated_recurrent_fusions.tsv \\
-        --report Cohortwide_normfiltered_FI-validated_recurrent_fusion_freq-report.txt
+        --report Cohortwide_normfiltered_FI-validated_recurrent_fusion_freq-report.txt \\
+        --total-samples ${totalSampleCount}
     """
     stub:
     """

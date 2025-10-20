@@ -19,6 +19,7 @@ process COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV {
     
     script:
     """
+    echo "Collecting cohort-wide normfiltered fusions from sample-specific TSVs..."
     concatenate-cohortwide-fusions--nf.py --input_files ${normFilteredFusionsTsvs} --output Cohortwide_normfiltered_fusions.tsv && mkdir -p Unique-fusionTranscriptID-only && mv Cohortwide_normfiltered_fusions-UNIQUE.manifest.txt Unique-fusionTranscriptID-only/
     """
     stub:
