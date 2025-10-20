@@ -19,70 +19,65 @@ def check_file_empty(file_path, file_description):
         print(f"ERROR: Could not read {file_description}: {e}")
         return True
 
-# Alternative approach to merge tool-specific information using explicit wrangling logic
-def merge_by_tool_suffixes(df, groupby_cols):
-    # Get unique fusions with their tools
-    fusion_summary = df.group_by(groupby_cols).agg([
-        pl.col("originalTool").unique().alias("detectedBy"),
-        pl.col("originalTool").unique().count().alias("toolOverlapCount")
+def merge_by_tool_suffixes(df, groupby_cols, original_columns):
+    """
+    Consolidate rows by fusion ID, combining tool-specific data.
+    For each fusion, take the first non-null, non-"NA" value from any tool's row.
+    """
+    # Get tool summary
+    tool_summary = df.group_by(groupby_cols).agg([
+        pl.col("originalTool").unique().sort().str.join(" | ").alias("detectedBy"),
+        pl.col("originalTool").n_unique().alias("toolOverlapCount")
     ])
-
-    result_rows = []
-
-    for fusion_row in fusion_summary.iter_rows(named=True):
-        # Start with fusion ID columns
-        merged_row = {col: fusion_row[col] for col in groupby_cols}
-        tools = fusion_row["detectedBy"]
-        tool_count = fusion_row["toolOverlapCount"]
-        merged_row["detectedBy"] = " | ".join(tools)
-        merged_row["toolOverlapCount"] = tool_count
-
-        # Get data for this fusion
-        fusion_filter = pl.all_horizontal([
-            pl.col(col) == fusion_row[col] for col in groupby_cols
-        ])
-        fusion_data = df.filter(fusion_filter)
-
-        # For each column, get data from appropriate tool
-        for col in df.columns:
-            if col not in groupby_cols and col != "originalTool":
-                # Check if this is a tool-specific column
-                if col.endswith("_ARR") and "Arriba" in tools:
-                    # Get Arriba data
-                    arriba_data = fusion_data.filter(pl.col("originalTool") == "Arriba")
-                    if len(arriba_data) > 0:
-                        values = arriba_data.select(col).to_series().to_list()
-                        non_null_values = [v for v in values if v is not None and v != "NA"]
-                        merged_row[col] = non_null_values[0] if non_null_values else "NA"
-                    else:
-                        merged_row[col] = "NA"
-                elif col.endswith("_FC") and "FusionCatcher" in tools:
-                    # Get FusionCatcher data
-                    fc_data = fusion_data.filter(pl.col("originalTool") == "FusionCatcher")
-                    if len(fc_data) > 0:
-                        values = fc_data.select(col).to_series().to_list()
-                        non_null_values = [v for v in values if v is not None and v != "NA"]
-                        merged_row[col] = non_null_values[0] if non_null_values else "NA"
-                    else:
-                        merged_row[col] = "NA"
-                elif col.endswith("_SF") and "STAR-Fusion" in tools:
-                    # Get STAR-Fusion data
-                    sf_data = fusion_data.filter(pl.col("originalTool") == "STAR-Fusion")
-                    if len(sf_data) > 0:
-                        values = sf_data.select(col).to_series().to_list()
-                        non_null_values = [v for v in values if v is not None and v != "NA"]
-                        merged_row[col] = non_null_values[0] if non_null_values else "NA"
-                    else:
-                        merged_row[col] = "NA"
-                else:
-                    # For non-tool-specific columns, take first non-null
-                    values = fusion_data.select(col).to_series().to_list()
-                    non_null_values = [v for v in values if v is not None and v != "NA"]
-                    merged_row[col] = non_null_values[0] if non_null_values else "NA"
-
-        result_rows.append(merged_row)
-
-    return pl.DataFrame(result_rows)
+    
+    # For each column (except groupby and originalTool), aggregate by taking first non-null, non-"NA" value
+    value_cols = [col for col in original_columns if col not in groupby_cols and col != "originalTool"]
+    
+    agg_exprs = []
+    for col in value_cols:
+        col_type = df.select(pl.col(col)).dtypes[0]
+        
+        if col_type in [pl.Int8, pl.Int16, pl.Int32, pl.Int64, 
+                       pl.UInt8, pl.UInt16, pl.UInt32, pl.UInt64, 
+                       pl.Float32, pl.Float64]:
+            # For numeric columns: take first non-null
+            agg_exprs.append(pl.col(col).drop_nulls().first().alias(col))
+        else:
+            # For string columns: take first that is not null and not "NA"
+            agg_exprs.append(
+                pl.col(col)
+                .filter((pl.col(col).is_not_null()) & (pl.col(col) != "NA"))
+                .first()
+                .alias(col)
+            )
+    
+    # Aggregate all value columns
+    value_agg = df.group_by(groupby_cols).agg(agg_exprs)
+    
+    # Join with tool summary
+    result = tool_summary.join(value_agg, on=groupby_cols, how="left")
+    
+    # Reorder columns: groupby cols, then detectedBy, toolOverlapCount, then value cols in original order
+    sample_cols = ['sampleID', 'sampleNum', 'sampleNum_Padded']
+    sample_cols = [col for col in sample_cols if col in value_cols]
+    
+    arriba_cols = [col for col in value_cols if col.endswith("_ARR")]
+    fc_cols = [col for col in value_cols if col.endswith("_FC")]
+    sf_cols = [col for col in value_cols if col.endswith("_SF")]
+    other_cols = [col for col in value_cols 
+                  if col not in sample_cols + arriba_cols + fc_cols + sf_cols]
+    
+    final_order = (groupby_cols + 
+                   ['detectedBy', 'toolOverlapCount'] + 
+                   sample_cols + 
+                   arriba_cols + 
+                   fc_cols + 
+                   sf_cols + 
+                   other_cols)
+    
+    result = result.select([col for col in final_order if col in result.columns])
+    
+    return result
 
 def create_empty_output_files(output_filename):
     """
@@ -180,8 +175,9 @@ def main():
     print("Consolidating duplicate rows...")
     # Define the columns to group by
     groupby_cols = ['fusionTranscriptID', 'fusionGenePair', 'breakpointID', '5pStrand', '3pStrand']
-    consolidated_df = merge_by_tool_suffixes(collated_df, groupby_cols)
-    
+    original_columns = collated_df.columns
+    consolidated_df = merge_by_tool_suffixes(collated_df, groupby_cols, original_columns)
+
     if not consolidated_df.is_empty():
         print(f"Consolidation complete: {len(collated_df)} -> {len(consolidated_df)} rows")
 
@@ -320,7 +316,7 @@ def main():
 
     # Step 6: Save results
     print(f"Saving filtered results to {output_filename}.tsv...")
-    export_consensus_df_sorted.write_csv(f"{output_filename}.tsv", separator='\t')
+    export_consensus_df_sorted.write_csv(f"{output_filename}.tsv", separator='\t', null_value='NA')
     print(f"Results saved to {output_filename}.tsv")
     
     # Write unique fusion gene pairs for FusionInspector

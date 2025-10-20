@@ -24,7 +24,7 @@ process FILTER_FUSIONS_PYENV {
     echo "Generating output file name: ${sampleName}-collated-FT-normFiltered"
     OUTPUT_NAME="${sampleName}-collated-FT-normFiltered"
     export POLARS_MAX_THREADS=${task.cpus}
-    echo "Setting POLARS_MAX_THREADS to \${POLARS_MAX_THREADS}"
+    echo "Setting POLARS_MAX_THREADS to \${POLARS_MAX_THREADS}..."
 
     echo "Running filtering script to filter for tumor-specific FTs..."
     if wrangle-and-filter-FTs--nf.py ${sampleName} \

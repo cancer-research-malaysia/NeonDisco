@@ -21,8 +21,8 @@ def check_file_empty(file_path, file_description):
 
 def merge_by_tool_suffixes(df, groupby_cols, original_columns):
     """
-    Optimized approach using separate dataframes per tool, then joining.
-    This avoids row iteration while keeping the logic clear and correct.
+    Consolidate rows by fusion ID, combining tool-specific data.
+    For each fusion, take the first non-null, non-"NA" value from any tool's row.
     """
     # Get tool summary
     tool_summary = df.group_by(groupby_cols).agg([
@@ -30,109 +30,52 @@ def merge_by_tool_suffixes(df, groupby_cols, original_columns):
         pl.col("originalTool").n_unique().alias("toolOverlapCount")
     ])
     
-    # Separate by tool
-    arriba_df = df.filter(pl.col("originalTool") == "Arriba")
-    fc_df = df.filter(pl.col("originalTool") == "FusionCatcher")
-    sf_df = df.filter(pl.col("originalTool") == "STAR-Fusion")
-    
-    # Get column lists from original column order
+    # For each column (except groupby and originalTool), aggregate by taking first non-null, non-"NA" value
     value_cols = [col for col in original_columns if col not in groupby_cols and col != "originalTool"]
+    
+    agg_exprs = []
+    for col in value_cols:
+        col_type = df.select(pl.col(col)).dtypes[0]
+        
+        if col_type in [pl.Int8, pl.Int16, pl.Int32, pl.Int64, 
+                       pl.UInt8, pl.UInt16, pl.UInt32, pl.UInt64, 
+                       pl.Float32, pl.Float64]:
+            # For numeric columns: take first non-null
+            agg_exprs.append(pl.col(col).drop_nulls().first().alias(col))
+        else:
+            # For string columns: take first that is not null and not "NA"
+            agg_exprs.append(
+                pl.col(col)
+                .filter((pl.col(col).is_not_null()) & (pl.col(col) != "NA"))
+                .first()
+                .alias(col)
+            )
+    
+    # Aggregate all value columns
+    value_agg = df.group_by(groupby_cols).agg(agg_exprs)
+    
+    # Join with tool summary
+    result = tool_summary.join(value_agg, on=groupby_cols, how="left")
+    
+    # Reorder columns: groupby cols, then detectedBy, toolOverlapCount, then value cols in original order
+    sample_cols = ['sampleID', 'sampleNum', 'sampleNum_Padded']
+    sample_cols = [col for col in sample_cols if col in value_cols]
+    
     arriba_cols = [col for col in value_cols if col.endswith("_ARR")]
     fc_cols = [col for col in value_cols if col.endswith("_FC")]
     sf_cols = [col for col in value_cols if col.endswith("_SF")]
-    generic_cols = [col for col in value_cols if col not in arriba_cols + fc_cols + sf_cols]
+    other_cols = [col for col in value_cols 
+                  if col not in sample_cols + arriba_cols + fc_cols + sf_cols]
     
-    # Helper function to create safe filter for each column
-    def safe_agg_expr(col):
-        """Create aggregation expression that handles both string and numeric types."""
-        col_type = df.select(pl.col(col)).dtypes[0]
-        
-        # For numeric columns, just take the first non-null value
-        if col_type in [pl.Int8, pl.Int16, pl.Int32, pl.Int64, pl.UInt8, pl.UInt16, pl.UInt32, pl.UInt64, pl.Float32, pl.Float64]:
-            return pl.col(col).drop_nulls().first().alias(col)
-        
-        # For string columns, filter out "NA" and nulls
-        return (
-            pl.when(pl.col(col).is_not_null())
-            .then(
-                pl.when(pl.col(col) != "NA")
-                .then(pl.col(col))
-                .otherwise(None)
-            )
-            .otherwise(None)
-            .drop_nulls()
-            .first()
-            .alias(col)
-        )
+    final_order = (groupby_cols + 
+                   ['detectedBy', 'toolOverlapCount'] + 
+                   sample_cols + 
+                   arriba_cols + 
+                   fc_cols + 
+                   sf_cols + 
+                   other_cols)
     
-    # Helper function to fill nulls appropriately based on column type
-    def fill_nulls_by_type(result_df, columns):
-        """Fill nulls with 'NA' for string columns, keep null for numeric columns."""
-        for col in columns:
-            if col in result_df.columns:
-                col_type = result_df.select(pl.col(col)).dtypes[0]
-                if col_type == pl.Utf8:
-                    result_df = result_df.with_columns(pl.col(col).fill_null("NA"))
-                # For numeric columns, leave as null (will be written as empty in TSV)
-        return result_df
-    
-    # Start with empty result containing only groupby columns
-    result = tool_summary
-    
-    # Add Arriba columns
-    if len(arriba_df) > 0 and len(arriba_cols) > 0:
-        arriba_agg = arriba_df.group_by(groupby_cols).agg([
-            safe_agg_expr(col) for col in arriba_cols
-        ])
-        result = result.join(arriba_agg, on=groupby_cols, how="left")
-        result = fill_nulls_by_type(result, arriba_cols)
-    else:
-        for col in arriba_cols:
-            result = result.with_columns(pl.lit("NA").alias(col))
-    
-    # Add FusionCatcher columns
-    if len(fc_df) > 0 and len(fc_cols) > 0:
-        fc_agg = fc_df.group_by(groupby_cols).agg([
-            safe_agg_expr(col) for col in fc_cols
-        ])
-        result = result.join(fc_agg, on=groupby_cols, how="left")
-        result = fill_nulls_by_type(result, fc_cols)
-    else:
-        for col in fc_cols:
-            result = result.with_columns(pl.lit("NA").alias(col))
-    
-    # Add STAR-Fusion columns
-    if len(sf_df) > 0 and len(sf_cols) > 0:
-        sf_agg = sf_df.group_by(groupby_cols).agg([
-            safe_agg_expr(col) for col in sf_cols
-        ])
-        result = result.join(sf_agg, on=groupby_cols, how="left")
-        result = fill_nulls_by_type(result, sf_cols)
-    else:
-        for col in sf_cols:
-            # Need to check original df to determine type
-            if col in df.columns:
-                col_type = df.select(pl.col(col)).dtypes[0]
-                if col_type == pl.Utf8:
-                    result = result.with_columns(pl.lit("NA").alias(col))
-                else:
-                    # For numeric columns, add as null
-                    result = result.with_columns(pl.lit(None).cast(col_type).alias(col))
-            else:
-                result = result.with_columns(pl.lit("NA").alias(col))
-    
-    # Add generic columns (from any tool)
-    if len(generic_cols) > 0:
-        generic_agg = df.group_by(groupby_cols).agg([
-            safe_agg_expr(col) for col in generic_cols
-        ])
-        result = result.join(generic_agg, on=groupby_cols, how="left")
-        result = fill_nulls_by_type(result, generic_cols)
-    
-    # Reorder columns to match original order
-    # Order: groupby_cols, detectedBy, toolOverlapCount, then all value_cols in original order
-    final_column_order = groupby_cols + ['detectedBy', 'toolOverlapCount'] + value_cols
-    result = result.select([col for col in final_column_order if col in result.columns])
+    result = result.select([col for col in final_order if col in result.columns])
     
     return result
 
@@ -195,7 +138,6 @@ def main():
         return
     
     # Load the collated fusion transcript data
-    # Force sampleNum_Padded to be read as string to preserve zero padding
     print("Loading collated fusion transcript data...")
     collated_df = pl.read_parquet(parquet_input_file)
     
