@@ -36,9 +36,11 @@ if [[ "$output" == "No fusions listed in input file"* ]]; then
     mkdir -p FI && touch "FI/${SAMPLEID}.FusionInspector.fusions.abridged.tsv" && printf "#FusionName\tJunctionReadCount\tSpanningFragCount\test_J\test_S\tLeftGene\tLeftLocalBreakpoint\tLeftBreakpoint\tRightGene\tRightLocalBreakpoint\tRightBreakpoint\tSpliceType\tLargeAnchorSupport\tNumCounterFusionLeft\tNumCounterFusionRight\tFAR_left\tFAR_right\tLeftBreakDinuc\tLeftBreakEntropy\tRightBreakDinuc\tRightBreakEntropy\tFFPM\tmicroh_brkpt_dist\tnum_microh_near_brkpt\tannot_splice\tconsensus_splice\tleft_counter_ffpm\tright_counter_ffpm\tpred_cluster\tfusion_cluster_att\tannots\n" > "FI/${SAMPLEID}.FusionInspector.fusions.abridged.tsv"
     exit 0
 elif [ $exit_code -eq 0 ]; then
-    echo "FusionInspector completed successfully"
+    echo "FusionInspector completed successfully."
     exit 0
 else
     echo "ERROR: FusionInspector failed with exit code: $exit_code"
+    echo "INFO: Irrecoverable error. Creating empty output file"
+    mkdir -p FI && touch "FI/${SAMPLEID}.FusionInspector.fusions.abridged.tsv" && printf "#FusionName\tJunctionReadCount\tSpanningFragCount\test_J\test_S\tLeftGene\tLeftLocalBreakpoint\tLeftBreakpoint\tRightGene\tRightLocalBreakpoint\tRightBreakpoint\tSpliceType\tLargeAnchorSupport\tNumCounterFusionLeft\tNumCounterFusionRight\tFAR_left\tFAR_right\tLeftBreakDinuc\tLeftBreakEntropy\tRightBreakDinuc\tRightBreakEntropy\tFFPM\tmicroh_brkpt_dist\tnum_microh_near_brkpt\tannot_splice\tconsensus_splice\tleft_counter_ffpm\tright_counter_ffpm\tpred_cluster\tfusion_cluster_att\tannots\n" > "FI/${SAMPLEID}.FusionInspector.fusions.abridged.tsv"
     exit $exit_code
 fi

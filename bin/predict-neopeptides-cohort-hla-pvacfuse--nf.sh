@@ -16,7 +16,7 @@ log_message() {
 # Input arguments
 SAMPLE_NAME="$1"  # Sample name identifier
 VALIDATED_AGF_DIR="$2"  # Directory containing validated AGFusion results for the sample
-COHORT_FIVE_PERCENT_FREQ_HLAS="$3"  # Path to cohort-wide 5% frequency filtered HLA allotypes TSV file
+COHORT_FIVE_PERCENT_FREQ_HLAS="$3"  # Path to cohort-wide 5% frequency filtered HLA allotypes thresholded string text file
 METADATA_DIR="$4"  # Directory containing metadata files (e.g., reference proteome)
 PREDICTION_MODE="$5"  # Prediction mode (should be "sampleHLANeoPred" for this script)
 FLANK_LENGTH="$6"  # Length of amino acid flanking region for FASTA output

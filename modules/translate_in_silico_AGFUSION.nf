@@ -11,8 +11,8 @@ process TRANSLATE_IN_SILICO_AGFUSION {
         tuple val(sampleName), path(filteredFusions)
 
     output:
-        tuple val(sampleName), path("filtered-agfusion-dirs/"), emit: filtered_agfusion_outdir
-        tuple val(sampleName), path("agfusion-dirs/"), emit: raw_agfusion_outdir
+        tuple val(sampleName), path("${sampleName}_filtered-agfusion-dirs.tar.gz"), emit: filtered_agfusion_outdir
+        tuple val(sampleName), path("${sampleName}_agfusion-dirs.tar.gz"), emit: raw_agfusion_outdir
         tuple val(sampleName), path("${sampleName}_agfusion_filtered_manifest.txt"), emit: protein_coding_fusions_manifest
         tuple val(sampleName), path("${sampleName}_translate-fusions-with-agfusion-report.log")
         tuple val(sampleName), path("agfusion-logs/")
@@ -89,25 +89,44 @@ process TRANSLATE_IN_SILICO_AGFUSION {
         exit 1
     fi
 
-    # Ensure directory is never empty for S3 compatibility
-    if ls agfusion-dirs/*/ 1> /dev/null 2>&1; then
-        log_msg "Has subdirectories. Proceeding with outputs..."
-    else
-        log_msg "No subdirectories found. Creating a dummy file to ensure directory is not empty."
+    # Ensure directory exists and is never empty for S3 compatibility
+    if [ ! -d "agfusion-dirs" ]; then
+        log_msg "agfusion-dirs does not exist. Creating it with placeholder."
+        mkdir -p agfusion-dirs
         echo "No AGFusion directories (raw outputs) found for ${sampleName}" > agfusion-dirs/_placeholder.txt
+    elif [ -z "\$(ls -A agfusion-dirs)" ]; then
+        log_msg "agfusion-dirs is empty. Creating placeholder."
+        echo "No AGFusion directories (raw outputs) found for ${sampleName}" > agfusion-dirs/_placeholder.txt
+    else
+        log_msg "agfusion-dirs has content. Proceeding with outputs..."
     fi
 
-    if ls filtered-agfusion-dirs/*/ 1> /dev/null 2>&1; then
-        log_msg "Has subdirectories. Proceeding with outputs..."
-    else
-        log_msg "No subdirectories found. Creating a dummy file to ensure directory is not empty."
+    # Ensure directory exists and is never empty for S3 compatibility
+    if [ ! -d "filtered-agfusion-dirs" ]; then
+        log_msg "filtered-agfusion-dirs does not exist. Creating it with placeholder."
+        mkdir -p filtered-agfusion-dirs
         echo "No AGFusion directories with protein files found for ${sampleName}" > filtered-agfusion-dirs/_placeholder.txt
+    elif [ -z "\$(ls -A filtered-agfusion-dirs)" ]; then
+        log_msg "filtered-agfusion-dirs is empty. Creating placeholder."
+        echo "No AGFusion directories with protein files found for ${sampleName}" > filtered-agfusion-dirs/_placeholder.txt
+    else
+        log_msg "filtered-agfusion-dirs has content. Proceeding with outputs..."
     fi
 
     log_msg ""
     log_msg "AGFusion post-processing completed."
     filtered_count=\$(cat ${sampleName}_agfusion_filtered_manifest.txt | wc -l)
     log_msg "Total filtered directories: \$filtered_count"
+    
+    # Package directories as tarballs for reliable S3 staging
+    log_msg ""
+    log_msg "Packaging directories as tarballs for S3 compatibility..."
+    tar -czf ${sampleName}_filtered-agfusion-dirs.tar.gz filtered-agfusion-dirs/
+    log_msg "Created ${sampleName}_filtered-agfusion-dirs.tar.gz"
+    
+    tar -czf ${sampleName}_agfusion-dirs.tar.gz agfusion-dirs/
+    log_msg "Created ${sampleName}_agfusion-dirs.tar.gz"
+    
     log_msg ""
     log_msg "================================================"
     log_msg "End time: \$(date)"
@@ -119,11 +138,17 @@ process TRANSLATE_IN_SILICO_AGFUSION {
     LOG_FILE="${sampleName}_translate-fusions-with-agfusion-report.log"
     mkdir -p filtered-agfusion-dirs
     mkdir -p agfusion-dirs
+    mkdir -p agfusion-logs
     echo "stub run finished!" > filtered-agfusion-dirs/stub.out
+    echo "stub run finished!" > agfusion-dirs/stub.out
+    echo "stub run finished!" > agfusion-logs/stub.out
     echo "# Stub run - no actual directories" > ${sampleName}_agfusion_filtered_manifest.txt
     echo "=== STUB RUN ===" > "\$LOG_FILE"
     echo "Sample: ${sampleName}" >> "\$LOG_FILE"
     echo "Stub execution completed at: \$(date)" >> "\$LOG_FILE"
+    
+    # Create stub tarballs
+    tar -czf ${sampleName}_filtered-agfusion-dirs.tar.gz filtered-agfusion-dirs/
+    tar -czf ${sampleName}_agfusion-dirs.tar.gz agfusion-dirs/
     """
 }
-

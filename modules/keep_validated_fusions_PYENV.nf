@@ -11,7 +11,7 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
     
     
     input:
-        tuple val(sampleName), path(fusInspectorTsv), path(filtered_agfusion_outdir), path(filteredFusions), path(proteinCodingFusManifest)
+        tuple val(sampleName), path(fusInspectorTsv), path(filteredAgfusionTarball), path(filteredFusions), path(proteinCodingFusManifest)
 
     output:
         tuple val(sampleName), path("${sampleName}-collated-FT-normFiltered-protein-coding-only-FI-validated.tsv"), emit: validatedFusions
@@ -21,6 +21,11 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
     """
     echo "Path to Fusion Inspector validation output: ${fusInspectorTsv}"
     echo "Sample name: ${sampleName}"
+    echo "Path to filtered AGFusion output tarball: ${filteredAgfusionTarball}"
+    echo "Extracting filtered AGFusion output directory..."
+    tar -xzf ${filteredAgfusionTarball}
+
+    df -h .
 
     echo "First filter the collated FT TSV file to only include NORMAL-FILTERED, PROTEIN-CODING fusions, then pipe this to retain only those fusions validated by Fusion Inspector..."
     gawk 'NR==FNR {ref[\$1]=1; next} FNR==1 || (\$1 in ref)' ${proteinCodingFusManifest} ${filteredFusions} | gawk 'NR==FNR {ref[\$1]=1; next} FNR==1 || (\$NF in ref)' ${fusInspectorTsv} - > ${sampleName}-collated-FT-normFiltered-protein-coding-only-FI-validated.tsv
@@ -47,7 +52,7 @@ process KEEP_VALIDATED_FUSIONS_PYENV {
         # Use ls instead of find to debug what's actually in the directory
         echo "Contents of AGFusion directory:"
         
-        for agf_dir in ${filtered_agfusion_outdir}/*; do
+        for agf_dir in filtered-agfusion-dirs/*; do
             if [ -d "\$agf_dir" ]; then
                 dir_basename=\$(basename "\$agf_dir")
                 echo "Checking directory: \$dir_basename"

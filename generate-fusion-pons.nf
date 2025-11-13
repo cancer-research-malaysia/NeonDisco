@@ -72,13 +72,13 @@ def createInputChannelFromPOSIX(dirPath) {
     def fastqFiles = file("${dirPath}/*{R,r}{1,2}*.{fastq,fq}{,.gz}")
     
     // Initialize empty channels
-    def bamCh = Channel.empty()
-    def fastqCh = Channel.empty()
+    def bamCh = channel.empty()
+    def fastqCh = channel.empty()
 
     // Process BAM files if they exist
     if (bamFiles) {
         log.info "[STATUS] Found BAM files in ${dirPath}"
-        bamCh = Channel.fromPath("${dirPath}/*.{bam,bai}")
+        bamCh = channel.fromPath("${dirPath}/*.{bam,bai}")
             .map { file -> 
                 def name = file.name.replaceAll(/\.(bam|bai)$/, '')
                 tuple(name, file)
@@ -95,7 +95,7 @@ def createInputChannelFromPOSIX(dirPath) {
     // Process FASTQ files if they exist
     if (fastqFiles) {
         log.info "[STATUS] Found FASTQ files in ${dirPath}"
-        fastqCh = Channel.fromFilePairs("${dirPath}/*{R,r}{1,2}*.{fastq,fq}{,.gz}", checkIfExists: true)
+        fastqCh = channel.fromFilePairs("${dirPath}/*{R,r}{1,2}*.{fastq,fq}{,.gz}", checkIfExists: true)
             .toSortedList( { a, b -> a[0] <=> b[0] } )
             .flatMap()
     }
@@ -119,7 +119,7 @@ def createInputChannelFromManifest(manifestPath) {
     }
 
     // Create channel from manifest file
-    def inputCh = Channel
+    def inputCh = channel
         .fromPath(manifestPath)
         .splitCsv(header: true, sep: '\t')
         .map { row -> 
@@ -138,16 +138,16 @@ def createInputChannelFromManifest(manifestPath) {
             // Return tuple of sample name, read file paths, and sample type
             return tuple(sampleName, [read1, read2], sampleType)
         }
-        .filter { it != null }
+        .filter { row -> row != null }
 
     return inputCh
 }
 
 // Function to branch input channel by sample type
 def branchInputChannelBySampleType(inputCh) {
-    def branchedCh = inputCh.branch {
-        tumor: it[2] == 'Tumor'
-        normal: it[2] == 'Normal'
+    def branchedCh = inputCh.branch { item ->
+        tumor: item[2] == 'Tumor'
+        normal: item[2] == 'Normal'
     }
     
     // Convert back to the original format (sampleName, [read1, read2]) for downstream compatibility
@@ -269,8 +269,8 @@ workflow {
     }
 
     // Create input channel based on provided input method
-    def tumorCh = Channel.empty()
-    def normalCh = Channel.empty()
+    def tumorCh = channel.empty()
+    def normalCh = channel.empty()
     
     if (params.manifestPath) {
         def inputCh = createInputChannelFromManifest(params.manifestPath)

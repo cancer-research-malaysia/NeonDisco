@@ -27,7 +27,15 @@ process ALIGN_READS_STAR_ARRIBA {
     
     # STAR normal alignment (1-pass) for Arriba
     if star-for-arriba--nf.sh "\${READ1}" "\${READ2}" "\${SAMPLE_ID}" ${task.cpus} "\${STAR_INDEX}"; then
-        echo "STAR normal 1-pass alignment for Arriba is complete!"
+        # Validate BAM integrity
+        OUTPUT_BAM=\${SAMPLE_ID}-STAR-ARR_Aligned.out.bam
+        if samtools quickcheck "\${OUTPUT_BAM}"; then
+            echo "BAM validation successful."
+            echo "STAR normal 1-pass alignment for Arriba is complete!"
+        else
+            echo "ERROR: BAM file \${OUTPUT_BAM} failed integrity check" >&2
+            exit 1
+        fi   
     else
         echo "STAR alignment failed. Check logs. Exiting..."
         exit 1
