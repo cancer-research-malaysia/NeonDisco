@@ -106,13 +106,13 @@ def validateProfiles() {
         return false
     }
     
-    def profiles = workflow.profile.split(',').collect { it.trim() }
+    def profiles = workflow.profile.split(',').collect { profile -> profile.trim() }
     def executors = ['local', 'awsbatch']
     def modes = ['sampleHLANeoPredMode', 'sharedHLANeoPredMode', 'dualNeoPredMode']
     
     // Check for required executor and mode
-    def hasExecutor = profiles.any { executors.contains(it) }
-    def hasMode = profiles.any { modes.contains(it) }
+    def hasExecutor = profiles.any { profile -> executors.contains(profile) }
+    def hasMode = profiles.any { profile -> modes.contains(profile) }
     
     if (!hasExecutor) {
         log.error "You must specify an executor profile: ${executors.join(', ')}"
@@ -130,16 +130,16 @@ def validateProfiles() {
     }
     
     // Check for multiple executors (still not allowed)
-    def executorCount = profiles.count { executors.contains(it) }
+    def executorCount = profiles.count { profile -> executors.contains(profile) }
     if (executorCount > 1) {
-        log.error "Only one executor profile allowed. Found: ${profiles.findAll { executors.contains(it) }.join(', ')}"
+        log.error "Only one executor profile allowed. Found: ${profiles.findAll { profile -> executors.contains(profile) }.join(', ')}"
         return false
     }
     
     // Check for mode combinations - now only allow one mode since we have dualNeoPredMode
-    def modeCount = profiles.count { modes.contains(it) }
+    def modeCount = profiles.count { profile -> modes.contains(profile) }
     if (modeCount > 1) {
-        log.error "Only one neoantigen prediction mode allowed. Found: ${profiles.findAll { modes.contains(it) }.join(', ')}"
+        log.error "Only one neoantigen prediction mode allowed. Found: ${profiles.findAll { profile -> modes.contains(profile) }.join(', ')}"
         log.error "Use dualNeoPredMode to run both sample-level and shared HLA neoantigen predictions"
         return false
     } else if (modeCount == 0 && params.includeNeoPred) {
@@ -161,7 +161,7 @@ def validateProfiles() {
     
     // Validate unknown profiles
     def validProfiles = executors + modes
-    def unknownProfiles = profiles.findAll { !validProfiles.contains(it) }
+    def unknownProfiles = profiles.findAll { profile -> !validProfiles.contains(profile) }
     if (unknownProfiles) {
         log.error "Unknown profile(s): ${unknownProfiles.join(', ')}"
         log.error "Valid profiles: ${validProfiles.join(', ')}"
@@ -189,13 +189,13 @@ def createInputChannelFromPOSIX(dirPath) {
     def fastqFiles = file("${dirPath}/*{R,r}{1,2}*.{fastq,fq}{,.gz}")
     
     // Initialize empty channels
-    def bamCh = Channel.empty()
-    def fastqCh = Channel.empty()
+    def bamCh = channel.empty()
+    def fastqCh = channel.empty()
 
     // Process BAM files if they exist
     if (bamFiles) {
         log.info "[STATUS] Found BAM files in ${dirPath}"
-        bamCh = Channel.fromPath("${dirPath}/*.{bam,bai}")
+        bamCh = channel.fromPath("${dirPath}/*.{bam,bai}")
             .map { file -> 
                 def name = file.name.replaceAll(/\.(bam|bai)$/, '')
                 tuple(name, file)
@@ -212,7 +212,7 @@ def createInputChannelFromPOSIX(dirPath) {
     // Process FASTQ files if they exist
     if (fastqFiles) {
         log.info "[STATUS] Found FASTQ files in ${dirPath}"
-        fastqCh = Channel.fromFilePairs("${dirPath}/*{R,r}{1,2}*.{fastq,fq}{,.gz}", checkIfExists: true)
+        fastqCh = channel.fromFilePairs("${dirPath}/*{R,r}{1,2}*.{fastq,fq}{,.gz}", checkIfExists: true)
             .toSortedList( { a, b -> a[0] <=> b[0] } )
             .flatMap()
     }
@@ -236,7 +236,7 @@ def createInputChannelFromManifest(manifestPath) {
     }
 
     // Create channel from manifest file
-    def inputCh = Channel
+    def inputCh = channel
         .fromPath(manifestPath)
         .splitCsv(header: true, sep: '\t')
         .map { row -> 
@@ -255,19 +255,19 @@ def createInputChannelFromManifest(manifestPath) {
             // Return tuple of sample name, read file paths, and sample type
             return tuple(sampleName, [read1, read2], sampleType)
         }
-        .filter { it != null }
+        .filter { it -> it != null }
 
     return inputCh
 }
 
 // Function to branch input channel by sample type
 def branchInputChannelBySampleType(inputCh) {
-    def branchedCh = inputCh.branch {
-        tumor: it[2] == 'Tumor'
-        normal: it[2] == 'Normal'
+    def branchedCh = inputCh.branch { sample ->
+        tumor: sample[2] == 'Tumor'
+        normal: sample[2] == 'Normal'
     }
     
-    // Convert back to the original format (sampleName, [read1, read2]) for downstream compatibility
+    // Convert back to the original format (sampleName, [read1, read2])
     def tumorCh = branchedCh.tumor.map { sampleName, reads, _sampleType -> tuple(sampleName, reads) }
     def normalCh = branchedCh.normal.map { sampleName, reads, _sampleType -> tuple(sampleName, reads) }
     
@@ -319,7 +319,7 @@ workflow HLA_TYPING_WITH_FALLBACK_WF {
     
         // Collect all JSON files
         all_json_files = TYPE_HLAS_WITH_FALLBACK_ARCASHLA.out.hla_json
-                        .map { it[1] }
+                        .map { _sampleName, json -> json }
                         .collect()
     
         // Single process to reformat and collate everything
@@ -363,7 +363,7 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         WRANGLE_RAW_FUSIONS_PYENV(collatedFusionsParquet)
         COLLECT_COHORTWIDE_UNFILTERED_FUSIONS_PYENV(
             WRANGLE_RAW_FUSIONS_PYENV.out.wrangledUnfilteredFusionsTsv
-                .collect { it[1] }
+                .collect { _sampleName, tsv -> tsv }
         )
 
         // Branch 2: Filter fusions for downstream processing
@@ -372,7 +372,7 @@ workflow AGGREGATE_FUSION_CALLING_WF {
         // Collect cohort-wide normfiltered fusions
         COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV(
             FILTER_FUSIONS_PYENV.out.filteredFusions
-                .collect { it[1] }
+                .collect { _sampleName, tsv -> tsv }
         )
 
     emit:
@@ -394,7 +394,7 @@ workflow PROTEIN_CODING_PREDICTION {
         
         // Collect protein-coding fusion output manifests and concat into cohortwide file
         COLLECT_COHORTWIDE_PROTEIN_CODING_FUSIONS_PYENV(
-            TRANSLATE_IN_SILICO_AGFUSION.out.protein_coding_fusions_manifest.collect { it[1] },
+            TRANSLATE_IN_SILICO_AGFUSION.out.protein_coding_fusions_manifest.collect { _sampleName, manifest -> manifest },
             cohortwideNormfilteredFusionsFile
         )
     emit:
@@ -487,7 +487,7 @@ workflow VALIDATED_FUSION_FILTERING_WF {
         
         // Collect cohort-wide validated fusions
         GET_COHORTWIDE_FI_VALIDATED_FUSIONS(
-            KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions.collect { it[1] }
+            KEEP_VALIDATED_FUSIONS_PYENV.out.validatedFusions.collect { _sampleName, tsv -> tsv }
         )
 
     emit:
@@ -607,7 +607,7 @@ workflow NEOANTIGEN_PREDICTION_WF {
         recurrentValidatedDir = FILTER_SAMPLE_LEVEL_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV.out.validatedRecurrentAgfusionDir
         
         // Logic based on recurrentFusionsNeoPredOnly parameter
-        def finalAgfusionDir = Channel.empty()
+        def finalAgfusionDir = channel.empty()
 
         if (params.recurrentFusionsNeoPredOnly) {
             // Default mode: Only process recurrent fusions
@@ -615,7 +615,7 @@ workflow NEOANTIGEN_PREDICTION_WF {
                 .ifEmpty { 
                     log.warn "No recurrent fusions found in this input cohort. Neoantigen prediction will be skipped."
                     log.info "Consider using [--recurrentFusionsNeoPredOnly false] flag to process all validated fusions instead."
-                    Channel.empty()
+                    channel.empty()
                 }   
         } else {
             // Alternative mode: Process all validated fusions
@@ -685,10 +685,10 @@ workflow {
     }
 
     // Validate inputSource and executor compatibility
-    def profilesList = workflow.profile.split(',').collect { it.trim() }
+    def profilesList = workflow.profile.split(',').collect { profile -> profile.trim() }
     def isAwsBatch = profilesList.contains('awsbatch')
     def isLocal = profilesList.contains('local')
-    
+
     if (isLocal && isAwsBatch) {
         log.error "AWS Batch executor is not compatible with local input source."
         log.error "Please use either:"
@@ -724,9 +724,9 @@ workflow {
     }
 
     // Create input channel based on provided input method
-    def tumorCh = Channel.empty()
-    def normalCh = Channel.empty()
-    def totalSampleCountCh = Channel.value(0)
+    def tumorCh = channel.empty()
+    def normalCh = channel.empty()
+    def totalSampleCountCh = channel.value(0)
 
     if (params.manifestPath) {
         def inputCh = createInputChannelFromManifest(params.manifestPath)
@@ -736,16 +736,16 @@ workflow {
         def (branchedTumorCh, branchedNormalCh) = branchInputChannelBySampleType(inputCh)
 
         // Create a copy of tumor channel for counting (since channels can only be consumed once)
-        def tumorChForCount = branchedTumorCh.map { it }
-        def tumorChForPipeline = branchedTumorCh.map { it }
+        def tumorChForCount = branchedTumorCh.map { sample -> sample }
+        def tumorChForPipeline = branchedTumorCh.map { sample -> sample }
         
         tumorCh = tumorChForPipeline
         normalCh = branchedNormalCh
-    
+
         // Capture tumor count as a CHANNEL VALUE (not a variable)
         totalSampleCountCh = tumorChForCount
                             .toList()
-                            .map { it.size() }
+                            .map { sampleList -> sampleList.size() }
         
         // Log sample counts by type AND capture tumor count for recurrence calculation
         normalCh.count().subscribe { count ->
@@ -756,7 +756,7 @@ workflow {
             log.info "Using ${count} tumor samples for recurrence frequency calculations."
             log.info ""
         }
-    
+
     } else {
 
         if (!validateInputDir(params.inputDir)) {
@@ -766,15 +766,15 @@ workflow {
         def inputCh = createInputChannelFromPOSIX(params.inputDir)
 
         // Create a copy for counting
-        def tumorChForCount = inputCh.map { it }
-        def tumorChForPipeline = inputCh.map { it }
+        def tumorChForCount = inputCh.map { sample -> sample }
+        def tumorChForPipeline = inputCh.map { sample -> sample }
         
         tumorCh = tumorChForPipeline
         
         // Capture count as a CHANNEL VALUE
         totalSampleCountCh = tumorChForCount
             .toList()
-            .map { it.size() }
+            .map { sampleList -> sampleList.size() }
         
         totalSampleCountCh.subscribe { count ->
             log.info "Input files are provided as local directory: << ${params.inputDir} >>"

@@ -1,6 +1,6 @@
 //
 process FILTER_ALIGNED_READS_EASYFUSE {
-    cpus { params.numCores / 2 }
+    cpus params.numCores / 2
     
     label 'filterReads'
     

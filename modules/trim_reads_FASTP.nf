@@ -1,6 +1,6 @@
 // Trim raw reads
 process TRIM_READS_FASTP {
-    cpus { params.numCores / 2 }
+    cpus params.numCores / 2 
     
     label 'trimReads'
     

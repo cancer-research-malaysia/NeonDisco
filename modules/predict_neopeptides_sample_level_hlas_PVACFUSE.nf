@@ -1,5 +1,5 @@
 process PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE {
-    cpus { params.numCores * 2 }
+    cpus params.numCores * 2
     
     label 'predictSampleNeopeptides'
 
