@@ -85,14 +85,14 @@ def create_fusion_heatmap(report_tsv, output_html, max_fusions=None, report_type
             # Only cluster fusions if there are at least two
             fusion_distances = pdist(matrix, metric='jaccard')
             fusion_linkage = linkage(fusion_distances, method='average')
-            fusion_dendrogram = dendrogram(fusion_linkage, no_plot=True)
+            fusion_dendrogram = dendrogram(fusion_linkage, no_plot=False)
             fusion_order = fusion_dendrogram['leaves']
             
             # Cluster columns (patients) - using Jaccard distance for binary data
             # Only cluster patients if there are at least two
             patient_distances = pdist(matrix.T, metric='jaccard')
             patient_linkage = linkage(patient_distances, method='average')
-            patient_dendrogram = dendrogram(patient_linkage, no_plot=True)
+            patient_dendrogram = dendrogram(patient_linkage, no_plot=False)
             patient_order = patient_dendrogram['leaves']
 
             print(f"Clustering complete: {len(df)} fusions × {len(all_patients)} patients")
