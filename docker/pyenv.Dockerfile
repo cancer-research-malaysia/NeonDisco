@@ -52,6 +52,9 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 # add conda bins to PATH
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 
+# install pip packages
+RUN pip install fastcluster && pip install PyComplexHeatmap
+
 # Docker suffers from absolutely atrocious way of consolidating the paradigm of restricting privileges when running containers (rootless mode) with writing outputs to bound host volumes without using Docker volumes or other convoluted workarounds.
 
 # Fortunately there is this tool that removes this altogether and helps matches the UID and GID of whoever is running the container image on a host machine
