@@ -373,30 +373,30 @@ workflow FUSION_DISCOVERY_MODULE {
 
         // Conditionally run each fusion caller
         if (!params.disableArriba) {
-            log.info "[FUSION DISCOVERY] Arriba enabled"
+            log.info "[FUSION DISCOVERY] Arriba fusion-calling algorithm enabled."
             CALL_FUSIONS_ARRIBA(
                 ALIGN_READS_STAR_ARRIBA(filtFastqsCh, starIndex).aligned_bam, 
                 arribaDB
             )
             arribaResults = CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
         } else {
-            log.info "[FUSION DISCOVERY] Arriba disabled"
+            log.info "[FUSION DISCOVERY] Arriba fusion-calling algorithm disabled. Skipping..."
         }
 
         if (!params.disableFusioncatcher) {
-            log.info "[FUSION DISCOVERY] FusionCatcher enabled"
+            log.info "[FUSION DISCOVERY] FusionCatcher fusion-calling algorithm enabled."
             CALL_FUSIONS_FUSIONCATCHER(filtFastqsCh, fuscatDB)
             fusioncatcherResults = CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple
         } else {
-            log.info "[FUSION DISCOVERY] FusionCatcher disabled"
+            log.info "[FUSION DISCOVERY] FusionCatcher fusion-calling algorithm disabled. Skipping..."
         }
 
         if (!params.disableStarFusion) {
-            log.info "[FUSION DISCOVERY] STAR-Fusion enabled"
+            log.info "[FUSION DISCOVERY] STAR-Fusion fusion-calling algorithm enabled."
             CALL_FUSIONS_STARFUSION(filtFastqsCh, ctatDB)
             starfusionResults = CALL_FUSIONS_STARFUSION.out.starfus_fusion_tuple
         } else {
-            log.info "[FUSION DISCOVERY] STAR-Fusion disabled"
+            log.info "[FUSION DISCOVERY] STAR-Fusion fusion-calling algorithm disabled. Skipping..."
         }
 
         // Intelligently combine results based on what's enabled

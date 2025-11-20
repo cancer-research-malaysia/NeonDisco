@@ -2,7 +2,7 @@ FROM mambaorg/micromamba
 
 LABEL maintainer="Suffian Azizan"
 LABEL version="1.0"
-LABEL description="minimal container image for Reditools3 for CRMY - revision removed MatchHostFsOwner"
+LABEL description="minimal container image for Reditools3 for CRMY"
 
 # change to root user
 USER root
@@ -54,19 +54,6 @@ ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 
 # install pip packages
 RUN pip install REDItools3
-
-# Docker suffers from absolutely atrocious way of consolidating the paradigm of restricting privileges when running containers (rootless mode) with writing outputs to bound host volumes without using Docker volumes or other convoluted workarounds.
-
-# Fortunately there is this tool that removes this altogether and helps matches the UID and GID of whoever is running the container image on a host machine
-
-# Install MatchHostFsOwner. Using version 1.0.1
-# See https://github.com/FooBarWidget/matchhostfsowner/releases
-# ADD https://github.com/FooBarWidget/matchhostfsowner/releases/download/v1.0.1/matchhostfsowner-1.0.1-x86_64-linux.gz /sbin/matchhostfsowner.gz
-# RUN gunzip /sbin/matchhostfsowner.gz && \
-#   chown root: /sbin/matchhostfsowner && \
-#   chmod +x /sbin/matchhostfsowner
-# RUN addgroup --gid 9999 app && \
-#   adduser --uid 9999 --gid 9999 --disabled-password --gecos App app
 
 # set workdir
 WORKDIR /home/ec2-user

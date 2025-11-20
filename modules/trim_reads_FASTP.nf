@@ -7,6 +7,8 @@ process TRIM_READS_FASTP {
     afterScript params.deleteStagedFiles ? "find ./ -name \"${sampleName}*_*.f*q*\" -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping staged file cleanup...'"
 
     container "${params.container__preproc}"
+
+    publishDir "${params.outputDir}/${sampleName}/FASTP-TRIMMING-out", mode: 'copy', pattern: "*.html"
     
     input:
         tuple val(sampleName), path(readFiles)

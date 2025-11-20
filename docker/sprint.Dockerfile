@@ -8,7 +8,7 @@ LABEL description="minimal container image for SPRINT RE event detection algorit
 USER root
 
 # update Debian OS packages and install additional Linux system utilities with procps; also install R, then finally remove cached package lists
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential procps curl wget tar pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed nano less \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential procps curl wget tar pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed nano less git \
 && rm -rf /var/lib/apt/lists/*
 
 ARG NEW_MAMBA_USER=ec2-user
@@ -40,7 +40,7 @@ USER $MAMBA_USER
 RUN micromamba config set extract_threads 1
 
 # copy the env file into the container 
-COPY --chown=$MAMBA_USER:$MAMBA_USER reditools1/context/base_env.yaml /tmp/base_env.yaml
+COPY --chown=$MAMBA_USER:$MAMBA_USER sprint/context/base_env.yaml /tmp/base_env.yaml
 
 # Create a new base environment based on the YAML file
 RUN micromamba install -y -f /tmp/base_env.yaml && \
@@ -55,6 +55,7 @@ ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 # install REDItools1
 RUN git clone https://github.com/jumphone/SPRINT.git && cd SPRINT && python setup.py install
 
+# new tool container
 # set workdir
 WORKDIR /home/ec2-user
 
