@@ -1,7 +1,6 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl = 2
-
 // Set default parameter values
 params.deleteStagedFiles = (params.inputSource == 's3')
 
@@ -46,11 +45,6 @@ include { COLLECT_COHORTWIDE_FUSION_NEOPEPTIDES_COHOHLA_PYENV } from './modules/
 include { TYPE_HLAS_WITH_FALLBACK_ARCASHLA } from './modules/type_hlas_with_fallback_ARCASHLA.nf'
 include { REFORMAT_AND_COLLATE_HLA_RESULTS_PYENV } from './modules/reformat_and_collate_hla_results_PYENV.nf'
 include { FILTER_HLA_ALLOTYPES_FREQ_PYENV } from './modules/filter_hla_allotypes_freq_PYENV.nf'
-
-////// RNA EDITING MODULES (NEW) //////////
-// include { CALL_RNA_EDITS_JACUSA2 } from './modules/call_rna_edits_JACUSA2.nf'
-// include { ANNOTATE_RNA_EDITS_ANNOVAR } from './modules/annotate_rna_edits_ANNOVAR.nf'
-// include { FILTER_RNA_EDITS_PYENV } from './modules/filter_rna_edits_PYENV.nf'
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,17 +94,6 @@ Optional Arguments:
                                         – false: Predict neopeptides for all validated fusions regardless of recurrence
     --recurrenceThreshold           Threshold for recurrent fusions; only applies if --recurrentFusionsNeoPredOnly is set to true
                                         - [DEFAULT: 0.005] (0.5% recurrence)
-
-Discovery Module Options (All enabled by default - use flags to disable):
---------------------------
-    --disableFusionDiscovery        Disable fusion discovery module [DEFAULT: false]
-        --disableArriba                 Disable Arriba fusion caller [DEFAULT: false]
-        --disableFusioncatcher          Disable FusionCatcher fusion caller [DEFAULT: false]
-        --disableStarFusion             Disable STAR-Fusion caller [DEFAULT: false]
-    --disableRnaEditingDiscovery    Disable RNA editing discovery module [DEFAULT: true - not yet implemented]
-        --rnaEditingMinDepth            Minimum depth for RNA editing calls [DEFAULT: 10]
-        --rnaEditingMinAltFreq          Minimum alternate allele frequency for RNA editing [DEFAULT: 0.05]
-
     --help                          Print this help message and exit
     """.stripIndent()
 }
@@ -272,7 +255,7 @@ def createInputChannelFromManifest(manifestPath) {
             // Return tuple of sample name, read file paths, and sample type
             return tuple(sampleName, [read1, read2], sampleType)
         }
-        .filter { rowData -> rowData != null }
+        .filter { it -> it != null }
 
     return inputCh
 }
@@ -347,11 +330,9 @@ workflow HLA_TYPING_WITH_FALLBACK_WF {
         individualResultDir = REFORMAT_AND_COLLATE_HLA_RESULTS_PYENV.out.individualResults
 }
 
-// ============================================================================
-// REFACTORED MODULAR FUSION DISCOVERY WORKFLOW
-// ============================================================================
-
-workflow FUSION_DISCOVERY_MODULE {
+//////////////////////////////////////////////////////////////////////////
+// IMPROVED: Single collation with dual output usage
+workflow AGGREGATE_FUSION_CALLING_WF {
     take:
         alignedBamCh
         starIndex
@@ -359,97 +340,23 @@ workflow FUSION_DISCOVERY_MODULE {
         fuscatDB
         ctatDB
         metaDataDir
-    
     main:
         ////// Preprocess reads for aggregate fusion calling
         FILTER_ALIGNED_READS_EASYFUSE(alignedBamCh)
         CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE(FILTER_ALIGNED_READS_EASYFUSE.out.filtered_bam)
         filtFastqsCh = CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE.out.filtered_fastqs
 
-        // Initialize empty channels for each caller
-        def arribaResults = channel.empty()
-        def fusioncatcherResults = channel.empty()
-        def starfusionResults = channel.empty()
+        ////// Run gene fusion identification submodules
+        CALL_FUSIONS_ARRIBA(ALIGN_READS_STAR_ARRIBA(filtFastqsCh, starIndex).aligned_bam, arribaDB)
+        CALL_FUSIONS_FUSIONCATCHER(filtFastqsCh, fuscatDB)
+        CALL_FUSIONS_STARFUSION(filtFastqsCh, ctatDB)
 
-        // Conditionally run each fusion caller
-        if (!params.disableArriba) {
-            log.info "[FUSION DISCOVERY] Arriba fusion-calling algorithm enabled."
-            CALL_FUSIONS_ARRIBA(
-                ALIGN_READS_STAR_ARRIBA(filtFastqsCh, starIndex).aligned_bam, 
-                arribaDB
-            )
-            arribaResults = CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
-        } else {
-            log.info "[FUSION DISCOVERY] Arriba fusion-calling algorithm disabled. Skipping..."
-        }
+        // Join the outputs based on sample name
+        combinedFTFilesCh = CALL_FUSIONS_ARRIBA.out.arriba_fusion_tuple
+           .join(CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple)
+           .join(CALL_FUSIONS_STARFUSION.out.starfus_fusion_tuple)
 
-        if (!params.disableFusioncatcher) {
-            log.info "[FUSION DISCOVERY] FusionCatcher fusion-calling algorithm enabled."
-            CALL_FUSIONS_FUSIONCATCHER(filtFastqsCh, fuscatDB)
-            fusioncatcherResults = CALL_FUSIONS_FUSIONCATCHER.out.fuscat_fusion_tuple
-        } else {
-            log.info "[FUSION DISCOVERY] FusionCatcher fusion-calling algorithm disabled. Skipping..."
-        }
-
-        if (!params.disableStarFusion) {
-            log.info "[FUSION DISCOVERY] STAR-Fusion fusion-calling algorithm enabled."
-            CALL_FUSIONS_STARFUSION(filtFastqsCh, ctatDB)
-            starfusionResults = CALL_FUSIONS_STARFUSION.out.starfus_fusion_tuple
-        } else {
-            log.info "[FUSION DISCOVERY] STAR-Fusion fusion-calling algorithm disabled. Skipping..."
-        }
-
-        // Intelligently combine results based on what's enabled
-        def combinedFTFilesCh = channel.empty()
-        
-        // Count enabled callers
-        def enabledCount = [!params.disableArriba, !params.disableFusioncatcher, !params.disableStarFusion].count { caller -> caller }
-        
-        if (enabledCount == 0) {
-            log.error "[FUSION DISCOVERY] All fusion callers disabled! At least one must be enabled."
-            exit 1
-        }
-        
-        if (!params.disableArriba && !params.disableFusioncatcher && !params.disableStarFusion) {
-            combinedFTFilesCh = arribaResults
-                .join(fusioncatcherResults)
-                .join(starfusionResults)
-        } else if (!params.disableArriba && !params.disableFusioncatcher) {
-            combinedFTFilesCh = arribaResults
-                .join(fusioncatcherResults)
-                .map { sampleName, arribaFile, fuscatFile -> 
-                    tuple(sampleName, arribaFile, fuscatFile, null) 
-                }
-        } else if (!params.disableArriba && !params.disableStarFusion) {
-            combinedFTFilesCh = arribaResults
-                .join(starfusionResults)
-                .map { sampleName, arribaFile, starfusFile -> 
-                    tuple(sampleName, arribaFile, null, starfusFile) 
-                }
-        } else if (!params.disableFusioncatcher && !params.disableStarFusion) {
-            combinedFTFilesCh = fusioncatcherResults
-                .join(starfusionResults)
-                .map { sampleName, fuscatFile, starfusFile -> 
-                    tuple(sampleName, null, fuscatFile, starfusFile) 
-                }
-        } else if (!params.disableArriba) {
-            combinedFTFilesCh = arribaResults
-                .map { sampleName, arribaFile -> 
-                    tuple(sampleName, arribaFile, null, null) 
-                }
-        } else if (!params.disableFusioncatcher) {
-            combinedFTFilesCh = fusioncatcherResults
-                .map { sampleName, fuscatFile -> 
-                    tuple(sampleName, null, fuscatFile, null) 
-                }
-        } else if (!params.disableStarFusion) {
-            combinedFTFilesCh = starfusionResults
-                .map { sampleName, starfusFile -> 
-                    tuple(sampleName, null, null, starfusFile) 
-                }
-        }
-
-        // Collate and filter fusions
+        // IMPROVED: Single collation call - removes redundancy
         COLLATE_FUSIONS_PYENV(combinedFTFilesCh)
         collatedFusionsParquet = COLLATE_FUSIONS_PYENV.out.collatedFTParquet
 
@@ -469,139 +376,10 @@ workflow FUSION_DISCOVERY_MODULE {
                 .collect { _sampleName, tsv -> tsv }
         )
 
-        // Format output to standardized schema for unified downstream processing
-        standardizedOutput = FILTER_FUSIONS_PYENV.out.filteredFusions
-            .map { sampleName, fusionFile -> 
-                tuple(sampleName, 'fusion', fusionFile, null)
-            }
-
     emit:
-        // Standardized output for unified discovery processing
-        discoveries = standardizedOutput
-        
-        // Module-specific outputs for fusion-specific downstream processing
         normFilteredFusionsCh = FILTER_FUSIONS_PYENV.out.filteredFusions
         uniqueFiltFusionPairsForFusInsCh = FILTER_FUSIONS_PYENV.out.uniqueFiltFusionPairsForFusIns
         cohortwideNormfilteredFusionsFile = COLLECT_COHORTWIDE_NORMFILTERED_FUSIONS_PYENV.out.cohortwideFusionsFile
-}
-
-// ============================================================================
-// RNA EDITING DISCOVERY MODULE (NEW)
-// ============================================================================
-
-// workflow RNA_EDITING_DISCOVERY_MODULE {
-//     take:
-//         alignedBamCh        // [sampleName, bam, bamIdx]
-//         referenceGenome
-//         annovarDB
-//         metaDataDir
-    
-//     main:
-//         log.info "[RNA EDITING DISCOVERY] Starting RNA editing discovery module"
-        
-//         // Call RNA editing sites
-//         CALL_RNA_EDITS_JACUSA2(alignedBamCh, referenceGenome)
-        
-//         // Annotate editing sites
-//         ANNOTATE_RNA_EDITS_ANNOVAR(
-//             CALL_RNA_EDITS_JACUSA2.out.editing_sites,
-//             annovarDB
-//         )
-        
-//         // Filter editing sites
-//         FILTER_RNA_EDITS_PYENV(
-//             ANNOTATE_RNA_EDITS_ANNOVAR.out.annotated_edits,
-//             metaDataDir
-//         )
-
-//         // Format output to standardized schema
-//         standardizedOutput = FILTER_RNA_EDITS_PYENV.out.filteredEdits
-//             .map { sampleName, editFile -> 
-//                 tuple(sampleName, 'rna_editing', editFile, null)
-//             }
-
-//     emit:
-//         discoveries = standardizedOutput
-//         filteredEdits = FILTER_RNA_EDITS_PYENV.out.filteredEdits
-// }
-
-// ============================================================================
-// UNIFIED DISCOVERY ORCHESTRATOR
-// ============================================================================
-
-workflow UNIFIED_DISCOVERY_MODULE {
-    take:
-        alignedBamCh
-        starIndex
-        _referenceGenome
-        arribaDB
-        fuscatDB
-        ctatDB
-        _annovarDB
-        metaDataDir
-    
-    main:
-        log.info "=== STARTING UNIFIED DISCOVERY MODULE ==="
-        
-        // Initialize channel for all discoveries
-        def allDiscoveries = channel.empty()
-        def fusionModuleOutputs = null
-        def _rnaEditingModuleOutputs = null
-
-        // Conditionally run fusion discovery
-        if (!params.disableFusionDiscovery) {
-            log.info "=== FUSION DISCOVERY MODULE ENABLED ==="
-            FUSION_DISCOVERY_MODULE(
-                alignedBamCh,
-                starIndex,
-                arribaDB,
-                fuscatDB,
-                ctatDB,
-                metaDataDir
-            )
-            allDiscoveries = allDiscoveries.mix(FUSION_DISCOVERY_MODULE.out.discoveries)
-            fusionModuleOutputs = FUSION_DISCOVERY_MODULE.out
-        } else {
-            log.info "=== FUSION DISCOVERY MODULE DISABLED ==="
-        }
-
-        // Conditionally run RNA editing discovery
-        // if (!params.disableRnaEditingDiscovery) {
-        //     log.info "=== RNA EDITING DISCOVERY MODULE ENABLED ==="
-        //     RNA_EDITING_DISCOVERY_MODULE(
-        //         alignedBamCh,
-        //         referenceGenome,
-        //         annovarDB,
-        //         metaDataDir
-        //     )
-        //     allDiscoveries = allDiscoveries.mix(RNA_EDITING_DISCOVERY_MODULE.out.discoveries)
-        //     rnaEditingModuleOutputs = RNA_EDITING_DISCOVERY_MODULE.out
-        // } else {
-        //     log.info "=== RNA EDITING DISCOVERY MODULE DISABLED ==="
-        // }
-
-        // Branch discoveries by type for type-specific processing
-        def branchedDiscoveries = allDiscoveries.branch { sample ->
-            fusion: sample[1] == 'fusion'
-            rna_editing: sample[1] == 'rna_editing'
-            splicing: sample[1] == 'splicing'
-        }
-
-    emit:
-        // Unified output for generic downstream processing
-        allDiscoveries = allDiscoveries
-        
-        // Type-specific outputs
-        fusionDiscoveries = branchedDiscoveries.fusion
-        rnaEditingDiscoveries = branchedDiscoveries.rna_editing
-        
-        // Module-specific outputs (for specialized downstream processing)
-        fusionNormFilteredFusions = !params.disableFusionDiscovery ? 
-            fusionModuleOutputs.normFilteredFusionsCh : channel.empty()
-        fusionUniquePairs = !params.disableFusionDiscovery ? 
-            fusionModuleOutputs.uniqueFiltFusionPairsForFusInsCh : channel.empty()
-        fusionCohortwideFile = !params.disableFusionDiscovery ?
-            fusionModuleOutputs.cohortwideNormfilteredFusionsFile : channel.empty()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -1014,20 +792,6 @@ workflow {
     log.info "HLA typing only? : << ${params.hlaTypingOnly} >>"
     log.info "Include neopeptide prediction? : << ${params.includeNeoPred} >>"
     
-    // Log discovery module settings
-    log.info "=== DISCOVERY MODULE SETTINGS ==="
-    log.info "Fusion discovery enabled: << ${!params.disableFusionDiscovery} >>"
-    if (!params.disableFusionDiscovery) {
-        log.info "  ├─ Arriba: << ${!params.disableArriba} >>"
-        log.info "  ├─ FusionCatcher: << ${!params.disableFusioncatcher} >>"
-        log.info "  └─ STAR-Fusion: << ${!params.disableStarFusion} >>"
-    }
-    log.info "RNA editing discovery enabled: << ${!params.disableRnaEditingDiscovery} >>"
-    if (!params.disableRnaEditingDiscovery) {
-        log.info "  ├─ Minimum depth: << ${params.rnaEditingMinDepth} >>"
-        log.info "  └─ Minimum alt frequency: << ${params.rnaEditingMinAltFreq} >>"
-    }
-    
     // Log the fusion prediction mode
     def mode = params.recurrentFusionsNeoPredOnly ? "Recurrent-only" : "All-validated"
     log.info "Fusion-derived neoantigen prediction input set: << ${mode} fusions >>"
@@ -1057,57 +821,46 @@ workflow {
         //// HLA typing
         HLA_TYPING_WITH_FALLBACK_WF(alignedBamsCh)
 
-        //// Unified discovery module - handles both fusion and RNA editing
-        UNIFIED_DISCOVERY_MODULE(
-            alignedBamsCh,
-            params.starIndex,
-            params.referenceGenome,
-            params.arribaDB,
-            params.fuscatDB,
-            params.ctatDB,
-            params.annovarDB,
+        //// Fusion calling module
+        AGGREGATE_FUSION_CALLING_WF(
+            alignedBamsCh, 
+            params.starIndex, 
+            params.arribaDB, 
+            params.fuscatDB, 
+            params.ctatDB, 
             params.metaDataDir
         )
 
-        // Continue with fusion-specific processing if enabled
-        if (!params.disableFusionDiscovery) {
-            //// AGFUSION coding sequence prediction
-            IN_SILICO_FUSION_VALIDATION_WF(
-                UNIFIED_DISCOVERY_MODULE.out.fusionNormFilteredFusions,
-                UNIFIED_DISCOVERY_MODULE.out.fusionCohortwideFile,
-                UNIFIED_DISCOVERY_MODULE.out.fusionUniquePairs,
-                qcProcInputCh,
-                params.ctatDB
-            )
-            
-            //// Validated fusion filtering
-            VALIDATED_FUSION_FILTERING_WF(
-                IN_SILICO_FUSION_VALIDATION_WF.out.fusInspectorTsv,
-                IN_SILICO_FUSION_VALIDATION_WF.out.filteredAgfusionOutdir,
-                UNIFIED_DISCOVERY_MODULE.out.fusionNormFilteredFusions,
-                IN_SILICO_FUSION_VALIDATION_WF.out.proteinCodingManifest
-            )
+        //// AGFUSION coding sequence prediction
+        IN_SILICO_FUSION_VALIDATION_WF(
+            AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh,
+            AGGREGATE_FUSION_CALLING_WF.out.cohortwideNormfilteredFusionsFile,
+            AGGREGATE_FUSION_CALLING_WF.out.uniqueFiltFusionPairsForFusInsCh,
+            qcProcInputCh,
+            params.ctatDB
+        )
+        
+        //// Validated fusion filtering
+        VALIDATED_FUSION_FILTERING_WF(
+            IN_SILICO_FUSION_VALIDATION_WF.out.fusInspectorTsv,
+            IN_SILICO_FUSION_VALIDATION_WF.out.filteredAgfusionOutdir,
+            AGGREGATE_FUSION_CALLING_WF.out.normFilteredFusionsCh,
+            IN_SILICO_FUSION_VALIDATION_WF.out.proteinCodingManifest
+        )
 
-            //// Cohortwide validated fusion recurrence
-            COHORT_VALIDATED_FUSION_RECURRENCE_COMPILATION_WF(
-                VALIDATED_FUSION_FILTERING_WF.out.cohortValidatedFusions,
-                totalSampleCountCh
-            )
+        //// Cohortwide validated fusion recurrence
+        COHORT_VALIDATED_FUSION_RECURRENCE_COMPILATION_WF(
+            VALIDATED_FUSION_FILTERING_WF.out.cohortValidatedFusions,
+            totalSampleCountCh
+        )
 
-            //// Neoepitope prediction
-            NEOANTIGEN_PREDICTION_WF(
-                VALIDATED_FUSION_FILTERING_WF.out.validatedFusSampleData,
-                COHORT_VALIDATED_FUSION_RECURRENCE_COMPILATION_WF.out.cohortRecurrentFusionsCh,
-                HLA_TYPING_WITH_FALLBACK_WF.out.sampleSpecificHLAsTsv,
-                params.metaDataDir
-            )
-        }
-
-        // RNA editing-specific processing would go here if enabled
-        if (!params.disableRnaEditingDiscovery) {
-            log.info "RNA editing discovery outputs available for downstream processing"
-            // Add RNA editing-specific downstream workflows here
-        }
+        //// Neoepitope prediction
+        NEOANTIGEN_PREDICTION_WF(
+            VALIDATED_FUSION_FILTERING_WF.out.validatedFusSampleData,
+            COHORT_VALIDATED_FUSION_RECURRENCE_COMPILATION_WF.out.cohortRecurrentFusionsCh,
+            HLA_TYPING_WITH_FALLBACK_WF.out.sampleSpecificHLAsTsv,
+            params.metaDataDir
+        )
     }
 
     // Completion handler
@@ -1116,4 +869,3 @@ workflow {
         println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
     }
 }
-
