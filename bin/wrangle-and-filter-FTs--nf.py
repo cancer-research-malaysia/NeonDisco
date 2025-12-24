@@ -40,7 +40,7 @@ def merge_by_tool_suffixes(df, groupby_cols, original_columns):
         if col_type in [pl.Int8, pl.Int16, pl.Int32, pl.Int64, 
                        pl.UInt8, pl.UInt16, pl.UInt32, pl.UInt64, 
                        pl.Float32, pl.Float64]:
-            # For numeric columns: take first non-null
+            # For numeric columns (including read counts): take first non-null
             agg_exprs.append(pl.col(col).drop_nulls().first().alias(col))
         else:
             # For string columns: take first that is not null and not "NA"
@@ -94,16 +94,29 @@ def create_empty_output_files(output_filename):
         'sampleID': [],
         'sampleNum': [],
         'sampleNum_Padded': [],
-        '5pSite_ARR': [],
-        '3pSite_ARR': [],
+        # Arriba columns
+        'predictedEffect_ARR': [],
         'mutationType_ARR': [],
         'confidenceLabel_ARR': [],
+        'readingFrame_ARR': [],
+        'splitReadsTotal_ARR': [],
+        'discordantReadPairs_ARR': [],
+        'filteredReads_ARR': [],
+        'peptideSequence_ARR': [],
+        # FusionCatcher columns
         'predictedEffect_FC': [],
         'fusionPairAnnotation_FC': [],
+        'splitReadsTotal_FC': [],
+        'discordantReadPairs_FC': [],
+        'longestAnchor_FC': [],
+        # STARFusion columns
+        'breakpointSpliceType_SF': [],
         'fusionPairAnnotation_SF': [],
-        'junctionReadCount_SF': [],
-        'spanningFragCount_SF': [],
+        'splitReadsTotal_SF': [],
+        'discordantReadPairs_SF': [],
         'largeAnchorSupport_SF': [],
+        'FFPM_SF': [],
+        # Annotation columns
         'foundInCCLE&InternalCLs': [],
         'foundInGaoTCGARecurrent': [],
         'foundInMitelmanCancerFusions': [],
@@ -314,7 +327,7 @@ def main():
 
 ###########
 
-    # Step 6: Save results
+    # Save results
     print(f"Saving filtered results to {output_filename}.tsv...")
     export_consensus_df_sorted.write_csv(f"{output_filename}.tsv", separator='\t', null_value='NA')
     print(f"Results saved to {output_filename}.tsv")

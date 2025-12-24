@@ -1,0 +1,23 @@
+[workspace]
+authors = ["Suffian Azizan <sufyazi@outlook.com>"]
+channels = ["bioconda", "conda-forge"]
+name = "nf"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[dependencies]
+python = ">=3.13"
+nextflow = ">24"
+awscli = "*"
+openjdk = ">=21"
+curl = "*"
+plotly = ">=6.5.0,<7"
+
+[feature.nf-testing.dependencies]
+nf-test = ">=0.9.3"
+openjdk = "17.*"   # Give nf-test the specific Java version it wants
+curl = "<8"        # Give it the older curl it wants
+
+[environments]
+# Add 'no-default-feature = true' to stop it from grabbing Java 21
+nf-testing = { features = ["nf-testing"], no-default-feature = true }
