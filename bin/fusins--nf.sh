@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Usage: ./fusins--nf.sh input_genepair.txt ctat_genome_lib_path
+# Usage: ./fusins--nf.sh input_genepair.txt ctat_genome_lib_path read1.fq read2.fq sample_id cores
 FUSIONLIST=$1
 CTATDB=$2
 READ1=$3
@@ -8,39 +8,42 @@ READ2=$4
 SAMPLEID=$5
 CORES=$6
 
-# Example usage:
-# ./fusins--nf.sh input_genepair.txt /path/to/ctat_genome_lib/ rnaseq_1.fq rnaseq_2.fq 124T CPU-number
+# Function to create empty output file with proper header
+create_empty_output() {
+    local sample_id=$1
+    local reason=$2
+    
+    echo "INFO: ${reason}...creating empty output file"
+    mkdir -p FI
+    
+    # FusionInspector abridged TSV header
+    cat > "FI/${sample_id}.FusionInspector.fusions.abridged.tsv" <<-'EOF'
+	#FusionName	JunctionReadCount	SpanningFragCount	est_J	est_S	LeftGene	LeftLocalBreakpoint	LeftBreakpoint	RightGene	RightLocalBreakpoint	RightBreakpoint	SpliceType	LargeAnchorSupport	NumCounterFusionLeft	NumCounterFusionRight	FAR_left	FAR_right	LeftBreakDinuc	LeftBreakEntropy	RightBreakDinuc	RightBreakEntropy	FFPM	microh_brkpt_dist	num_microh_near_brkpt	annot_splice	consensus_splice	left_counter_ffpm	right_counter_ffpm	pred_cluster	fusion_cluster_att	annots
+	EOF
+}
 
-# check arguments
-if [ $# -ne 6 ]; then
-	echo "Usage: $0 <input_genepair.txt> <ctat_genome_lib_path> <read1.fq> <read2.fq> <sample_id> <number_of_cores>"
-	exit 1
-fi
-
-# Capture both stdout/stderr and exit code
+# Run FusionInspector and capture output
 output=$(FusionInspector --fusions "$FUSIONLIST" \
                 --genome_lib "${CTATDB}" \
                 --left_fq "${READ1}" --right_fq "${READ2}" \
                 --out_prefix "${SAMPLEID}" \
                 --predict_cosmic_like \
-                --cleanup --CPU $CORES 2>&1)
+                --cleanup --CPU "$CORES" 2>&1)
 
 exit_code=$?
 
 # Print the output
 echo "$output"
 
-# Check for specific messages and exit codes
-if [[ "$output" == "No fusions listed in input file"* ]]; then
-    echo "INFO: No fusions found in input file...creating empty output file"
-    mkdir -p FI && touch "FI/${SAMPLEID}.FusionInspector.fusions.abridged.tsv" && printf "#FusionName\tJunctionReadCount\tSpanningFragCount\test_J\test_S\tLeftGene\tLeftLocalBreakpoint\tLeftBreakpoint\tRightGene\tRightLocalBreakpoint\tRightBreakpoint\tSpliceType\tLargeAnchorSupport\tNumCounterFusionLeft\tNumCounterFusionRight\tFAR_left\tFAR_right\tLeftBreakDinuc\tLeftBreakEntropy\tRightBreakDinuc\tRightBreakEntropy\tFFPM\tmicroh_brkpt_dist\tnum_microh_near_brkpt\tannot_splice\tconsensus_splice\tleft_counter_ffpm\tright_counter_ffpm\tpred_cluster\tfusion_cluster_att\tannots\n" > "FI/${SAMPLEID}.FusionInspector.fusions.abridged.tsv"
+# Handle different exit scenarios
+if [[ "$output" == *"No fusions listed in input file"* ]]; then
+    create_empty_output "$SAMPLEID" "No fusions found in input file"
     exit 0
 elif [ $exit_code -eq 0 ]; then
     echo "FusionInspector completed successfully."
     exit 0
 else
     echo "ERROR: FusionInspector failed with exit code: $exit_code"
-    echo "INFO: Irrecoverable error. Creating empty output file"
-    mkdir -p FI && touch "FI/${SAMPLEID}.FusionInspector.fusions.abridged.tsv" && printf "#FusionName\tJunctionReadCount\tSpanningFragCount\test_J\test_S\tLeftGene\tLeftLocalBreakpoint\tLeftBreakpoint\tRightGene\tRightLocalBreakpoint\tRightBreakpoint\tSpliceType\tLargeAnchorSupport\tNumCounterFusionLeft\tNumCounterFusionRight\tFAR_left\tFAR_right\tLeftBreakDinuc\tLeftBreakEntropy\tRightBreakDinuc\tRightBreakEntropy\tFFPM\tmicroh_brkpt_dist\tnum_microh_near_brkpt\tannot_splice\tconsensus_splice\tleft_counter_ffpm\tright_counter_ffpm\tpred_cluster\tfusion_cluster_att\tannots\n" > "FI/${SAMPLEID}.FusionInspector.fusions.abridged.tsv"
+    create_empty_output "$SAMPLEID" "Irrecoverable error"
     exit $exit_code
 fi

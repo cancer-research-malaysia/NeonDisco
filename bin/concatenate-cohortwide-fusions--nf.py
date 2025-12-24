@@ -31,6 +31,10 @@ def analyze_schemas(input_files):
     
     # Create schema overrides for problematic columns
     schema_overrides = {}
+
+    # Force sampleNum_Padded to be string to preserve zero padding
+    if 'sampleNum_Padded' in column_types:
+        schema_overrides['sampleNum_Padded'] = pl.Utf8
     
     for col_name, types in column_types.items():
         if len(types) > 1:
@@ -79,7 +83,8 @@ def concatenate_cohortwide_fusions(input_files, output_file):
                 df = pl.read_csv(
                     file_path, 
                     separator='\t', 
-                    schema_overrides=schema_overrides
+                    schema_overrides=schema_overrides,
+                    null_values=["NA", ""]
                 )
                 
                 if len(df) == 0:

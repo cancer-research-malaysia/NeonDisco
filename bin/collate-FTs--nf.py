@@ -28,18 +28,27 @@ def create_empty_output(sample_id: str, output_filename: str) -> None:
         "sampleNum": [],
         "sampleNum_Padded": [],
         # Arriba columns
-        "5pSite_ARR": [],
-        "3pSite_ARR": [],
+        "predictedEffect_ARR": [],
         "mutationType_ARR": [],
         "confidenceLabel_ARR": [],
+        "readingFrame_ARR": [],
+        "splitReadsTotal_ARR": [],
+        "discordantReadPairs_ARR": [],
+        "filteredReads_ARR": [],
+        "peptideSequence_ARR": [],
         # FusionCatcher columns
         "predictedEffect_FC": [],
         "fusionPairAnnotation_FC": [],
+        "splitReadsTotal_FC": [],
+        "discordantReadPairs_FC": [],
+        "longestAnchor_FC": [],
         # STARFusion columns
+        "breakpointSpliceType_SF": [],
         "fusionPairAnnotation_SF": [],
-        "junctionReadCount_SF": [],
-        "spanningFragCount_SF": [],
-        "largeAnchorSupport_SF": []
+        "splitReadsTotal_SF": [],
+        "discordantReadPairs_SF": [],
+        "largeAnchorSupport_SF": [],
+        "FFPM_SF": []
     }
     
     # Create empty DataFrame without type casting to avoid schema conflicts
@@ -146,23 +155,34 @@ def wrangle_df(file_path: str, sample_id: str, sample_num: str, tool_name: str) 
                 
                 # Arriba-specific columns
                 arriba_columns = [
-                    (pl.col('site1')).alias("5pSite_ARR"),
-                    (pl.col('site2')).alias("3pSite_ARR"), 
+                    # Combine site1 and site2 with '__' separator
+                    (pl.col('site1') + "__" + pl.col('site2')).alias("predictedEffect_ARR"),
                     (pl.col('type')).alias("mutationType_ARR"),
-                    (pl.col('confidence')).alias("confidenceLabel_ARR")
+                    (pl.col('confidence')).alias("confidenceLabel_ARR"),
+                    (pl.col('reading_frame')).alias("readingFrame_ARR"),
+                    # Sum split_reads1 and split_reads2
+                    (pl.col('split_reads1').cast(pl.Int64) + pl.col('split_reads2').cast(pl.Int64)).alias("splitReadsTotal_ARR"),
+                    (pl.col('discordant_mates')).alias("discordantReadPairs_ARR"),
+                    (pl.col('filters')).alias("filteredReads_ARR"),
+                    (pl.col('peptide_sequence')).alias("peptideSequence_ARR")
                 ]
                 
                 # Placeholder columns for other tools
                 fc_columns = [
                     pl.lit("NA").cast(pl.String).alias("predictedEffect_FC"),
-                    pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_FC")
+                    pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_FC"),
+                    pl.lit("NA").cast(pl.String).alias("splitReadsTotal_FC"),
+                    pl.lit("NA").cast(pl.String).alias("discordantReadPairs_FC"),
+                    pl.lit("NA").cast(pl.String).alias("longestAnchor_FC")
                 ]
                 
                 sf_columns = [
+                    pl.lit("NA").cast(pl.String).alias("breakpointSpliceType_SF"),
                     pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_SF"),
-                    pl.lit("NA").cast(pl.String).alias("junctionReadCount_SF"),
-                    pl.lit("NA").cast(pl.String).alias("spanningFragCount_SF"),
-                    pl.lit("NA").cast(pl.String).alias("largeAnchorSupport_SF")
+                    pl.lit("NA").cast(pl.String).alias("splitReadsTotal_SF"),
+                    pl.lit("NA").cast(pl.String).alias("discordantReadPairs_SF"),
+                    pl.lit("NA").cast(pl.String).alias("largeAnchorSupport_SF"),
+                    pl.lit("NA").cast(pl.String).alias("FFPM_SF")
                 ]
                 
                 return lazy_df.select(base_columns + arriba_columns + fc_columns + sf_columns)
@@ -203,21 +223,32 @@ def wrangle_df(file_path: str, sample_id: str, sample_num: str, tool_name: str) 
                 else:
                     fc_columns.append(pl.lit("NA").cast(pl.String).alias('predictedEffect_FC'))
 
-                fc_columns.append(pl.col('Fusion_description').alias("fusionPairAnnotation_FC"))
+                fc_columns.extend([
+                    pl.col('Fusion_description').alias("fusionPairAnnotation_FC"),
+                    pl.col('Spanning_unique_reads').alias("splitReadsTotal_FC"),
+                    pl.col('Spanning_pairs').alias("discordantReadPairs_FC"),
+                    pl.col('Longest_anchor_found').alias("longestAnchor_FC")
+                ])
                 
                 # Placeholder columns for other tools
                 arr_columns = [
-                    pl.lit("NA").cast(pl.String).alias("5pSite_ARR"),
-                    pl.lit("NA").cast(pl.String).alias("3pSite_ARR"),
+                    pl.lit("NA").cast(pl.String).alias("predictedEffect_ARR"),
                     pl.lit("NA").cast(pl.String).alias("mutationType_ARR"),
-                    pl.lit("NA").cast(pl.String).alias("confidenceLabel_ARR")
+                    pl.lit("NA").cast(pl.String).alias("confidenceLabel_ARR"),
+                    pl.lit("NA").cast(pl.String).alias("readingFrame_ARR"),
+                    pl.lit("NA").cast(pl.String).alias("splitReadsTotal_ARR"),
+                    pl.lit("NA").cast(pl.String).alias("discordantReadPairs_ARR"),
+                    pl.lit("NA").cast(pl.String).alias("filteredReads_ARR"),
+                    pl.lit("NA").cast(pl.String).alias("peptideSequence_ARR")
                 ]
                 
                 sf_columns = [
+                    pl.lit("NA").cast(pl.String).alias("breakpointSpliceType_SF"),
                     pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_SF"),
-                    pl.lit("NA").cast(pl.String).alias("junctionReadCount_SF"),
-                    pl.lit("NA").cast(pl.String).alias("spanningFragCount_SF"),
-                    pl.lit("NA").cast(pl.String).alias("largeAnchorSupport_SF")
+                    pl.lit("NA").cast(pl.String).alias("splitReadsTotal_SF"),
+                    pl.lit("NA").cast(pl.String).alias("discordantReadPairs_SF"),
+                    pl.lit("NA").cast(pl.String).alias("largeAnchorSupport_SF"),
+                    pl.lit("NA").cast(pl.String).alias("FFPM_SF")
                 ]
                 
                 return lazy_df.select(base_columns + arr_columns + fc_columns + sf_columns)
@@ -271,23 +302,32 @@ def wrangle_df(file_path: str, sample_id: str, sample_num: str, tool_name: str) 
                 
                 # STARFusion-specific columns
                 sf_columns = [
+                    pl.col('SpliceType').cast(pl.String).alias("breakpointSpliceType_SF"),
                     pl.col('annots').cast(pl.String).alias("fusionPairAnnotation_SF"),
-                    pl.col('JunctionReadCount').cast(pl.String).alias("junctionReadCount_SF"),
-                    pl.col('SpanningFragCount').cast(pl.String).alias("spanningFragCount_SF"),
-                    pl.col('LargeAnchorSupport').cast(pl.String).alias("largeAnchorSupport_SF")
+                    pl.col('JunctionReadCount').cast(pl.String).alias("splitReadsTotal_SF"),
+                    pl.col('SpanningFragCount').cast(pl.String).alias("discordantReadPairs_SF"),
+                    pl.col('LargeAnchorSupport').cast(pl.String).alias("largeAnchorSupport_SF"),
+                    pl.col('FFPM').cast(pl.String).alias("FFPM_SF")
                 ]
                 
                 # Placeholder columns for other tools
                 arr_columns = [
-                    pl.lit("NA").cast(pl.String).alias("5pSite_ARR"),
-                    pl.lit("NA").cast(pl.String).alias("3pSite_ARR"),
+                    pl.lit("NA").cast(pl.String).alias("predictedEffect_ARR"),
                     pl.lit("NA").cast(pl.String).alias("mutationType_ARR"),
-                    pl.lit("NA").cast(pl.String).alias("confidenceLabel_ARR")
+                    pl.lit("NA").cast(pl.String).alias("confidenceLabel_ARR"),
+                    pl.lit("NA").cast(pl.String).alias("readingFrame_ARR"),
+                    pl.lit("NA").cast(pl.String).alias("splitReadsTotal_ARR"),
+                    pl.lit("NA").cast(pl.String).alias("discordantReadPairs_ARR"),
+                    pl.lit("NA").cast(pl.String).alias("filteredReads_ARR"),
+                    pl.lit("NA").cast(pl.String).alias("peptideSequence_ARR")
                 ]
                 
                 fc_columns = [
                     pl.lit("NA").cast(pl.String).alias("predictedEffect_FC"),
-                    pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_FC")
+                    pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_FC"),
+                    pl.lit("NA").cast(pl.String).alias("splitReadsTotal_FC"),
+                    pl.lit("NA").cast(pl.String).alias("discordantReadPairs_FC"),
+                    pl.lit("NA").cast(pl.String).alias("longestAnchor_FC")
                 ]
                 
                 return lazy_df.select(base_columns + arr_columns + fc_columns + sf_columns)
@@ -410,13 +450,18 @@ def collate_fusion_data(
     # Tool-specific categorical columns
     tool_categoricals = [
         # Arriba columns
-        "5pSite_ARR",
-        "3pSite_ARR",
+        "predictedEffect_ARR",
         "mutationType_ARR",
         "confidenceLabel_ARR",
+        "readingFrame_ARR",
+        "filteredReads_ARR",
+        "peptideSequence_ARR",
         # FusionCatcher columns
         "predictedEffect_FC",
+        "fusionPairAnnotation_FC",
         # STARFusion columns
+        "breakpointSpliceType_SF",
+        "fusionPairAnnotation_SF",
         "largeAnchorSupport_SF"
     ]
     
