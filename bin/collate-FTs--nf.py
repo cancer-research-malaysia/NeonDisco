@@ -57,7 +57,7 @@ def create_empty_output(sample_id: str, output_filename: str) -> None:
     try:
         # Save as parquet and tsv
         empty_df.write_parquet(f"{output_filename}.parquet")
-        empty_df.write_csv(f"{output_filename}.tsv", separator="\t")
+        empty_df.write_csv(f"{output_filename}.tsv", separator="\t", null_value='NA')
         
         print("Empty output files created successfully:")
         print(f"  - {output_filename}.parquet")
@@ -72,6 +72,7 @@ def extract_sample_num(filename: str, tool_suffix: str) -> Optional[str]:
     pattern = rf'^(\d+)[TN]_{re.escape(tool_suffix)}\.tsv$'
     match = re.search(pattern, os.path.basename(filename))
     return match.group(1) if match else None
+
 
 def check_file_validity(file_path: str, tool_name: str) -> Tuple[bool, str]:
     """
@@ -124,9 +125,7 @@ def wrangle_df(file_path: str, sample_id: str, sample_num: str, tool_name: str) 
     Returns None if processing fails.
     """
     try:
-        # Read with null replacement
-        lazy_df = pl.scan_csv(file_path, separator="\t").fill_null("NA")
-        
+        lazy_df = pl.scan_csv(file_path, separator="\t", null_values=["NA", ".", ""]).fill_null("NA")   
         # Check if the lazy dataframe would be empty after collection
         # We do a quick shape check by collecting just the first row
         try:
@@ -138,212 +137,192 @@ def wrangle_df(file_path: str, sample_id: str, sample_num: str, tool_name: str) 
             print(f"Warning: Could not validate data in {tool_name} file {file_path}: {str(e)}")
             return None
         
+        # Shared base columns (Common to all tools)
+        base_cols = [
+            pl.lit(tool_name).alias("originalTool"),
+            pl.lit(sample_id).alias("sampleID"),
+            pl.lit(sample_num).cast(pl.Int64).alias("sampleNum"),
+            pl.lit(sample_num).cast(pl.Utf8).str.zfill(4).alias("sampleNum_Padded")
+        ]
+
         match tool_name:
             case 'Arriba':
-                # Base columns
-                base_columns = [
+                tool_specific = [
                     (pl.col('#gene1') + "::" + pl.col('gene2') + '__' + pl.col('breakpoint1').str.replace("chr", "") + "-" + pl.col('breakpoint2').str.replace("chr", "")).alias("fusionTranscriptID"),
                     (pl.col('#gene1') + "::" + pl.col('gene2')).alias("fusionGenePair"),
                     (pl.col('breakpoint1').str.replace("chr", "") + "-" + pl.col('breakpoint2').str.replace("chr", "")).alias("breakpointID"),
                     (pl.col('strand1(gene/fusion)').str.split("/").list.get(1)).alias("5pStrand"),
                     (pl.col('strand2(gene/fusion)').str.split("/").list.get(1)).alias("3pStrand"),
-                    pl.lit(tool_name).alias("originalTool"),
-                    pl.lit(sample_id).alias("sampleID"),
-                    pl.lit(sample_num).cast(pl.Int64).alias("sampleNum"),
-                    pl.lit(sample_num).cast(pl.Utf8).str.zfill(4).alias("sampleNum_Padded")
-                ]
-                
-                # Arriba-specific columns
-                arriba_columns = [
-                    # Combine site1 and site2 with '__' separator
                     (pl.col('site1') + "__" + pl.col('site2')).alias("predictedEffect_ARR"),
-                    (pl.col('type')).alias("mutationType_ARR"),
-                    (pl.col('confidence')).alias("confidenceLabel_ARR"),
-                    (pl.col('reading_frame')).alias("readingFrame_ARR"),
-                    # Sum split_reads1 and split_reads2
-                    (pl.col('split_reads1').cast(pl.Int64) + pl.col('split_reads2').cast(pl.Int64)).alias("splitReadsTotal_ARR"),
-                    (pl.col('discordant_mates')).alias("discordantReadPairs_ARR"),
-                    (pl.col('filters')).alias("filteredReads_ARR"),
-                    (pl.col('peptide_sequence')).alias("peptideSequence_ARR")
+                    pl.col('type').alias("mutationType_ARR"),
+                    pl.col('confidence').alias("confidenceLabel_ARR"),
+                    pl.col('reading_frame').alias("reading_frame_ARR").alias("readingFrame_ARR"),
+                    (pl.col('split_reads1').cast(pl.Int64) + pl.col('split_reads2').cast(pl.Int64)).cast(pl.Utf8).alias("splitReadsTotal_ARR"),
+                    pl.col('discordant_mates').cast(pl.Utf8).alias("discordantReadPairs_ARR"),
+                    pl.col('filters').alias("filteredReads_ARR"),
+                    pl.col('peptide_sequence').alias("peptideSequence_ARR"),
                 ]
-                
-                # Placeholder columns for other tools
-                fc_columns = [
-                    pl.lit("NA").cast(pl.String).alias("predictedEffect_FC"),
-                    pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_FC"),
-                    pl.lit("NA").cast(pl.String).alias("splitReadsTotal_FC"),
-                    pl.lit("NA").cast(pl.String).alias("discordantReadPairs_FC"),
-                    pl.lit("NA").cast(pl.String).alias("longestAnchor_FC")
-                ]
-                
-                sf_columns = [
-                    pl.lit("NA").cast(pl.String).alias("breakpointSpliceType_SF"),
-                    pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_SF"),
-                    pl.lit("NA").cast(pl.String).alias("splitReadsTotal_SF"),
-                    pl.lit("NA").cast(pl.String).alias("discordantReadPairs_SF"),
-                    pl.lit("NA").cast(pl.String).alias("largeAnchorSupport_SF"),
-                    pl.lit("NA").cast(pl.String).alias("FFPM_SF")
-                ]
-                
-                return lazy_df.select(base_columns + arriba_columns + fc_columns + sf_columns)
-                
-            case 'FusionCatcher':
-                # Handle NaN values in gene symbol columns by replacing with gene IDs
-                gene1_expr = (
-                    pl.when((pl.col('Gene_1_symbol(5end_fusion_partner)') == "NA"))
-                    .then(pl.col('Gene_1_id(5end_fusion_partner)'))
-                    .otherwise(pl.col('Gene_1_symbol(5end_fusion_partner)'))
-                )
-                
-                gene2_expr = (
-                    pl.when((pl.col('Gene_2_symbol(3end_fusion_partner)') == "NA"))
-                    .then(pl.col('Gene_2_id(3end_fusion_partner)'))
-                    .otherwise(pl.col('Gene_2_symbol(3end_fusion_partner)'))
-                )
-                
-                # Base columns
-                base_columns = [
-                    (gene1_expr + "::" + gene2_expr + '__' + pl.col('Fusion_point_for_gene_1(5end_fusion_partner)').str.split(':').list.slice(0, 2).list.join(':') + "-" + pl.col('Fusion_point_for_gene_2(3end_fusion_partner)').str.split(':').list.slice(0, 2).list.join(':')).alias("fusionTranscriptID"),
-                    (gene1_expr + "::" + gene2_expr).alias("fusionGenePair"),
-                    (pl.col('Fusion_point_for_gene_1(5end_fusion_partner)').str.split(':').list.slice(0, 2).list.join(':') + "-" + pl.col('Fusion_point_for_gene_2(3end_fusion_partner)').str.split(':').list.slice(0, 2).list.join(':')).alias("breakpointID"),
-                    (pl.col('Fusion_point_for_gene_1(5end_fusion_partner)').str.split(":").list.get(2)).alias("5pStrand"),
-                    (pl.col('Fusion_point_for_gene_2(3end_fusion_partner)').str.split(":").list.get(2)).alias("3pStrand"),
-                    pl.lit(tool_name).alias("originalTool"),
-                    pl.lit(sample_id).alias("sampleID"),
-                    pl.lit(sample_num).cast(pl.Int64).alias("sampleNum"),
-                    pl.lit(sample_num).cast(pl.Utf8).str.zfill(4).alias("sampleNum_Padded")
-                ]
-                
-                # FusionCatcher-specific columns
-                fc_columns = []
-                
-                # Check if 'Predicted_effect' column exists and add it
-                if 'Predicted_effect' in lazy_df.collect_schema().names():
-                    fc_columns.append(pl.col('Predicted_effect').alias('predictedEffect_FC'))
-                else:
-                    fc_columns.append(pl.lit("NA").cast(pl.String).alias('predictedEffect_FC'))
+                return lazy_df.select(base_cols + tool_specific)
 
-                fc_columns.extend([
+            case 'FusionCatcher':
+                g1 = pl.when(pl.col('Gene_1_symbol(5end_fusion_partner)') == "NA").then(pl.col('Gene_1_id(5end_fusion_partner)')).otherwise(pl.col('Gene_1_symbol(5end_fusion_partner)'))
+                g2 = pl.when(pl.col('Gene_2_symbol(3end_fusion_partner)') == "NA").then(pl.col('Gene_2_id(3end_fusion_partner)')).otherwise(pl.col('Gene_2_symbol(3end_fusion_partner)'))
+                fc_pred_effect = (pl.col('Predicted_effect').alias('predictedEffect_FC') if 'Predicted_effect' in lazy_df.collect_schema().names() else pl.lit("NA").cast(pl.Utf8).alias('predictedEffect_FC'))
+
+                tool_specific = [
+                    (g1 + "::" + g2 + '__' + pl.col('Fusion_point_for_gene_1(5end_fusion_partner)').str.split(':').list.slice(0, 2).list.join(':') + "-" + pl.col('Fusion_point_for_gene_2(3end_fusion_partner)').str.split(':').list.slice(0, 2).list.join(':')).alias("fusionTranscriptID"),
+                    (g1 + "::" + g2).alias("fusionGenePair"),
+                    (pl.col('Fusion_point_for_gene_1(5end_fusion_partner)').str.split(':').list.slice(0, 2).list.join(':') + "-" + pl.col('Fusion_point_for_gene_2(3end_fusion_partner)').str.split(':').list.slice(0, 2).list.join(':')).alias("breakpointID"),
+                    pl.col('Fusion_point_for_gene_1(5end_fusion_partner)').str.split(":").list.get(2).alias("5pStrand"),
+                    pl.col('Fusion_point_for_gene_2(3end_fusion_partner)').str.split(":").list.get(2).alias("3pStrand"),
+                    fc_pred_effect,
                     pl.col('Fusion_description').alias("fusionPairAnnotation_FC"),
-                    pl.col('Spanning_unique_reads').alias("splitReadsTotal_FC"),
-                    pl.col('Spanning_pairs').alias("discordantReadPairs_FC"),
-                    pl.col('Longest_anchor_found').alias("longestAnchor_FC")
-                ])
-                
-                # Placeholder columns for other tools
-                arr_columns = [
-                    pl.lit("NA").cast(pl.String).alias("predictedEffect_ARR"),
-                    pl.lit("NA").cast(pl.String).alias("mutationType_ARR"),
-                    pl.lit("NA").cast(pl.String).alias("confidenceLabel_ARR"),
-                    pl.lit("NA").cast(pl.String).alias("readingFrame_ARR"),
-                    pl.lit("NA").cast(pl.String).alias("splitReadsTotal_ARR"),
-                    pl.lit("NA").cast(pl.String).alias("discordantReadPairs_ARR"),
-                    pl.lit("NA").cast(pl.String).alias("filteredReads_ARR"),
-                    pl.lit("NA").cast(pl.String).alias("peptideSequence_ARR")
+                    pl.col('Spanning_unique_reads').cast(pl.Utf8).alias("splitReadsTotal_FC"),
+                    pl.col('Spanning_pairs').cast(pl.Utf8).alias("discordantReadPairs_FC"),
+                    pl.col('Longest_anchor_found').cast(pl.Utf8).alias("longestAnchor_FC"),
                 ]
-                
-                sf_columns = [
-                    pl.lit("NA").cast(pl.String).alias("breakpointSpliceType_SF"),
-                    pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_SF"),
-                    pl.lit("NA").cast(pl.String).alias("splitReadsTotal_SF"),
-                    pl.lit("NA").cast(pl.String).alias("discordantReadPairs_SF"),
-                    pl.lit("NA").cast(pl.String).alias("largeAnchorSupport_SF"),
-                    pl.lit("NA").cast(pl.String).alias("FFPM_SF")
-                ]
-                
-                return lazy_df.select(base_columns + arr_columns + fc_columns + sf_columns)
+                return lazy_df.select(base_cols + tool_specific)
             
             case 'STARFusion':
-                # Extract gene names with fallback to gene IDs
-                gene1_expr = (
-                    pl.when(pl.col('LeftGene').str.split("^").list.get(0) != "")
-                    .then(pl.col('LeftGene').str.split("^").list.get(0))
-                    .otherwise(
-                        pl.col('LeftGene').str.split("^").list.get(1).str.split(".").list.get(0)
-                    )
-                )
-                gene2_expr = (
-                    pl.when(pl.col('RightGene').str.split("^").list.get(0) != "")
-                    .then(pl.col('RightGene').str.split("^").list.get(0))
-                    .otherwise(
-                        pl.col('RightGene').str.split("^").list.get(1).str.split(".").list.get(0)
-                    )
-                )
+                g1 = pl.when(pl.col('LeftGene').str.split("^").list.get(0) != "").then(pl.col('LeftGene').str.split("^").list.get(0)).otherwise(pl.col('LeftGene').str.split("^").list.get(1).str.split(".").list.get(0))
+                g2 = pl.when(pl.col('RightGene').str.split("^").list.get(0) != "").then(pl.col('RightGene').str.split("^").list.get(0)).otherwise(pl.col('RightGene').str.split("^").list.get(1).str.split(".").list.get(0))
+                bp1 = pl.col('LeftBreakpoint').str.replace(r'^chr', '').str.split(':').list.slice(0, 2).list.join(':')
+                bp2 = pl.col('RightBreakpoint').str.replace(r'^chr', '').str.split(':').list.slice(0, 2).list.join(':')
                 
-                # Handle breakpoints: Format from chr17:38243106:+ to 17:38243106
-                left_breakpoint = (
-                    pl.col('LeftBreakpoint')
-                    .str.replace(r'^chr', '')  # Remove 'chr' prefix
-                    .str.split(':').list.slice(0, 2).list.join(':')  # Convert format
-                )
-                
-                right_breakpoint = (
-                    pl.col('RightBreakpoint')
-                    .str.replace(r'^chr', '')  # Remove 'chr' prefix
-                    .str.split(':').list.slice(0, 2).list.join(':')  # Convert format
-                )
-                
-                # Extract strands from breakpoint columns
-                left_strand = pl.col('LeftBreakpoint').str.split(':').list.get(2)
-                right_strand = pl.col('RightBreakpoint').str.split(':').list.get(2)
-                
-                # Base columns
-                base_columns = [
-                    (gene1_expr + "::" + gene2_expr + '__' + left_breakpoint + "-" + right_breakpoint).alias("fusionTranscriptID"),
-                    (gene1_expr + "::" + gene2_expr).alias("fusionGenePair"),
-                    (left_breakpoint + "-" + right_breakpoint).alias("breakpointID"),
-                    left_strand.alias("5pStrand"),
-                    right_strand.alias("3pStrand"),
-                    pl.lit(tool_name).alias("originalTool"),
-                    pl.lit(sample_id).alias("sampleID"),
-                    pl.lit(sample_num).cast(pl.Int64).alias("sampleNum"),
-                    pl.lit(sample_num).cast(pl.Utf8).str.zfill(4).alias("sampleNum_Padded")
+                tool_specific = [
+                    (g1 + "::" + g2 + '__' + bp1 + "-" + bp2).alias("fusionTranscriptID"),
+                    (g1 + "::" + g2).alias("fusionGenePair"),
+                    (bp1 + "-" + bp2).alias("breakpointID"),
+                    pl.col('LeftBreakpoint').str.split(':').list.get(2).alias("5pStrand"),
+                    pl.col('RightBreakpoint').str.split(':').list.get(2).alias("3pStrand"),
+                    pl.col('SpliceType').alias("breakpointSpliceType_SF"),
+                    pl.col('annots').alias("fusionPairAnnotation_SF"),
+                    pl.col('JunctionReadCount').cast(pl.Utf8).alias("splitReadsTotal_SF"),
+                    pl.col('SpanningFragCount').cast(pl.Utf8).alias("discordantReadPairs_SF"),
+                    pl.col('LargeAnchorSupport').alias("largeAnchorSupport_SF"),
+                    pl.col('FFPM').cast(pl.Utf8).alias("FFPM_SF"),
                 ]
-                
-                # STARFusion-specific columns
-                sf_columns = [
-                    pl.col('SpliceType').cast(pl.String).alias("breakpointSpliceType_SF"),
-                    pl.col('annots').cast(pl.String).alias("fusionPairAnnotation_SF"),
-                    pl.col('JunctionReadCount').cast(pl.String).alias("splitReadsTotal_SF"),
-                    pl.col('SpanningFragCount').cast(pl.String).alias("discordantReadPairs_SF"),
-                    pl.col('LargeAnchorSupport').cast(pl.String).alias("largeAnchorSupport_SF"),
-                    pl.col('FFPM').cast(pl.String).alias("FFPM_SF")
-                ]
-                
-                # Placeholder columns for other tools
-                arr_columns = [
-                    pl.lit("NA").cast(pl.String).alias("predictedEffect_ARR"),
-                    pl.lit("NA").cast(pl.String).alias("mutationType_ARR"),
-                    pl.lit("NA").cast(pl.String).alias("confidenceLabel_ARR"),
-                    pl.lit("NA").cast(pl.String).alias("readingFrame_ARR"),
-                    pl.lit("NA").cast(pl.String).alias("splitReadsTotal_ARR"),
-                    pl.lit("NA").cast(pl.String).alias("discordantReadPairs_ARR"),
-                    pl.lit("NA").cast(pl.String).alias("filteredReads_ARR"),
-                    pl.lit("NA").cast(pl.String).alias("peptideSequence_ARR")
-                ]
-                
-                fc_columns = [
-                    pl.lit("NA").cast(pl.String).alias("predictedEffect_FC"),
-                    pl.lit("NA").cast(pl.String).alias("fusionPairAnnotation_FC"),
-                    pl.lit("NA").cast(pl.String).alias("splitReadsTotal_FC"),
-                    pl.lit("NA").cast(pl.String).alias("discordantReadPairs_FC"),
-                    pl.lit("NA").cast(pl.String).alias("longestAnchor_FC")
-                ]
-                
-                return lazy_df.select(base_columns + arr_columns + fc_columns + sf_columns)
-                
+                return lazy_df.select(base_cols + tool_specific)
+            
             case _:
                 raise ValueError(f"Unsupported tool name: {tool_name}")
+            
+        
+        # match tool_name:
+        #     case 'Arriba':
+        #         tool_specific = [
+        #             (pl.col('#gene1') + "::" + pl.col('gene2') + '__' + pl.col('breakpoint1').str.replace("chr", "") + "-" + pl.col('breakpoint2').str.replace("chr", "")).alias("fusionTranscriptID"),
+        #             (pl.col('#gene1') + "::" + pl.col('gene2')).alias("fusionGenePair"),
+        #             (pl.col('breakpoint1').str.replace("chr", "") + "-" + pl.col('breakpoint2').str.replace("chr", "")).alias("breakpointID"),
+        #             (pl.col('strand1(gene/fusion)').str.split("/").list.get(1)).alias("5pStrand"),
+        #             (pl.col('strand2(gene/fusion)').str.split("/").list.get(1)).alias("3pStrand"),
+        #             (pl.col('site1') + "__" + pl.col('site2')).alias("predictedEffect_ARR"),
+        #             pl.col('type').alias("mutationType_ARR"),
+        #             pl.col('confidence').alias("confidenceLabel_ARR"),
+        #             pl.col('reading_frame').alias("readingFrame_ARR"),
+        #             # ALL numeric counts cast to Utf8 to match placeholders
+        #             (pl.col('split_reads1').cast(pl.Int64) + pl.col('split_reads2').cast(pl.Int64)).cast(pl.Utf8).alias("splitReadsTotal_ARR"),
+        #             pl.col('discordant_mates').cast(pl.Utf8).alias("discordantReadPairs_ARR"),
+        #             pl.col('filters').alias("filteredReads_ARR"),
+        #             pl.col('peptide_sequence').alias("peptideSequence_ARR"),
+        #             # Placeholders for other tools
+        #             pl.lit("NA").cast(pl.Utf8).alias("predictedEffect_FC"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("fusionPairAnnotation_FC"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("splitReadsTotal_FC"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("discordantReadPairs_FC"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("longestAnchor_FC"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("breakpointSpliceType_SF"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("fusionPairAnnotation_SF"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("splitReadsTotal_SF"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("discordantReadPairs_SF"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("largeAnchorSupport_SF"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("FFPM_SF")
+        #         ]
+        #         return lazy_df.select(base_cols + tool_specific)
+
+        #     case 'FusionCatcher':
+        #         g1 = pl.when(pl.col('Gene_1_symbol(5end_fusion_partner)') == "NA").then(pl.col('Gene_1_id(5end_fusion_partner)')).otherwise(pl.col('Gene_1_symbol(5end_fusion_partner)'))
+        #         g2 = pl.when(pl.col('Gene_2_symbol(3end_fusion_partner)') == "NA").then(pl.col('Gene_2_id(3end_fusion_partner)')).otherwise(pl.col('Gene_2_symbol(3end_fusion_partner)'))
                 
+        #         # Dynamic check for Predicted_effect column
+        #         fc_pred_effect = (
+        #             pl.col('Predicted_effect').alias('predictedEffect_FC') 
+        #             if 'Predicted_effect' in lazy_df.collect_schema().names() 
+        #             else pl.lit("NA").cast(pl.Utf8).alias('predictedEffect_FC')
+        #         )
+
+        #         tool_specific = [
+        #             (g1 + "::" + g2 + '__' + pl.col('Fusion_point_for_gene_1(5end_fusion_partner)').str.split(':').list.slice(0, 2).list.join(':') + "-" + pl.col('Fusion_point_for_gene_2(3end_fusion_partner)').str.split(':').list.slice(0, 2).list.join(':')).alias("fusionTranscriptID"),
+        #             (g1 + "::" + g2).alias("fusionGenePair"),
+        #             (pl.col('Fusion_point_for_gene_1(5end_fusion_partner)').str.split(':').list.slice(0, 2).list.join(':') + "-" + pl.col('Fusion_point_for_gene_2(3end_fusion_partner)').str.split(':').list.slice(0, 2).list.join(':')).alias("breakpointID"),
+        #             pl.col('Fusion_point_for_gene_1(5end_fusion_partner)').str.split(":").list.get(2).alias("5pStrand"),
+        #             pl.col('Fusion_point_for_gene_2(3end_fusion_partner)').str.split(":").list.get(2).alias("3pStrand"),
+        #             fc_pred_effect,
+        #             pl.col('Fusion_description').alias("fusionPairAnnotation_FC"),
+        #             pl.col('Spanning_unique_reads').cast(pl.Utf8).alias("splitReadsTotal_FC"),
+        #             pl.col('Spanning_pairs').cast(pl.Utf8).alias("discordantReadPairs_FC"),
+        #             pl.col('Longest_anchor_found').cast(pl.Utf8).alias("longestAnchor_FC"),
+        #             # Arriba/SF Placeholders
+        #             pl.lit("NA").cast(pl.Utf8).alias("predictedEffect_ARR"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("mutationType_ARR"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("confidenceLabel_ARR"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("readingFrame_ARR"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("splitReadsTotal_ARR"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("discordantReadPairs_ARR"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("filteredReads_ARR"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("peptideSequence_ARR"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("breakpointSpliceType_SF"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("fusionPairAnnotation_SF"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("splitReadsTotal_SF"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("discordantReadPairs_SF"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("largeAnchorSupport_SF"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("FFPM_SF")
+        #         ]
+        #         return lazy_df.select(base_cols + tool_specific)
+            
+        #     case 'STARFusion':
+        #         g1 = pl.when(pl.col('LeftGene').str.split("^").list.get(0) != "").then(pl.col('LeftGene').str.split("^").list.get(0)).otherwise(pl.col('LeftGene').str.split("^").list.get(1).str.split(".").list.get(0))
+        #         g2 = pl.when(pl.col('RightGene').str.split("^").list.get(0) != "").then(pl.col('RightGene').str.split("^").list.get(0)).otherwise(pl.col('RightGene').str.split("^").list.get(1).str.split(".").list.get(0))
+        #         bp1 = pl.col('LeftBreakpoint').str.replace(r'^chr', '').str.split(':').list.slice(0, 2).list.join(':')
+        #         bp2 = pl.col('RightBreakpoint').str.replace(r'^chr', '').str.split(':').list.slice(0, 2).list.join(':')
+                
+        #         tool_specific = [
+        #             (g1 + "::" + g2 + '__' + bp1 + "-" + bp2).alias("fusionTranscriptID"),
+        #             (g1 + "::" + g2).alias("fusionGenePair"),
+        #             (bp1 + "-" + bp2).alias("breakpointID"),
+        #             pl.col('LeftBreakpoint').str.split(':').list.get(2).alias("5pStrand"),
+        #             pl.col('RightBreakpoint').str.split(':').list.get(2).alias("3pStrand"),
+        #             pl.col('SpliceType').alias("breakpointSpliceType_SF"),
+        #             pl.col('annots').alias("fusionPairAnnotation_SF"),
+        #             pl.col('JunctionReadCount').cast(pl.Utf8).alias("splitReadsTotal_SF"),
+        #             pl.col('SpanningFragCount').cast(pl.Utf8).alias("discordantReadPairs_SF"),
+        #             pl.col('LargeAnchorSupport').alias("largeAnchorSupport_SF"),
+        #             pl.col('FFPM').cast(pl.Utf8).alias("FFPM_SF"),
+        #             # Arriba/FC Placeholders
+        #             pl.lit("NA").cast(pl.Utf8).alias("predictedEffect_ARR"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("mutationType_ARR"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("confidenceLabel_ARR"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("readingFrame_ARR"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("splitReadsTotal_ARR"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("discordantReadPairs_ARR"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("filteredReads_ARR"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("peptideSequence_ARR"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("predictedEffect_FC"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("fusionPairAnnotation_FC"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("splitReadsTotal_FC"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("discordantReadPairs_FC"),
+        #             pl.lit("NA").cast(pl.Utf8).alias("longestAnchor_FC")
+        #         ]
+        #         return lazy_df.select(base_cols + tool_specific)
+            
+        #     case _:
+        #         raise ValueError(f"Unsupported tool name: {tool_name}")
+
     except Exception as e:
-        print(f"Error processing {tool_name} file {file_path}: {str(e)}")
+        print(f"Error processing {tool_name}: {str(e)}")
         return None
 
-def collate_fusion_data(
-    sample_id: str, 
-    output_filename: str, 
-    input_files: List[Tuple[str, str]]
-) -> None:
+def collate_fusion_data(sample_id: str, output_filename: str, input_files: List[Tuple[str, str]]) -> None:
     """
     Collate fusion transcript data from multiple fusion detection tools.
     
@@ -352,6 +331,7 @@ def collate_fusion_data(
         output_filename: Output file prefix (no file extension)
         input_files: List of tuples containing (file_path, tool_suffix)
     """
+
     # Map tool suffixes to full tool names
     tool_name_map = {
         'arr': 'Arriba', 
@@ -423,88 +403,74 @@ def collate_fusion_data(
         # Create an empty DataFrame with the expected schema
         create_empty_output(sample_id, output_filename)
         return
-    
+
     print(f"\nConcatenating lazy DataFrames from {len(lazy_dfs)} valid tools...")
-        
-    # Concatenate all lazy DataFrames
-    try:
-        combined_lazy_df = pl.concat(lazy_dfs, rechunk=True)
-        print("Concatenation completed. Collecting...")
-    except Exception as e:
-        print(f"Error during concatenation: {str(e)}")
-        print("Creating empty output files with proper structure...")
-        create_empty_output(sample_id, output_filename)
-        return
 
-    # Define categorical columns for the new structure
-    base_categoricals = [
-        "fusionTranscriptID",
-        "fusionGenePair",
-        "breakpointID",
-        "5pStrand",
-        "3pStrand",
-        "originalTool",
-        "sampleID"
-    ]
-    
-    # Tool-specific categorical columns
-    tool_categoricals = [
-        # Arriba columns
-        "predictedEffect_ARR",
-        "mutationType_ARR",
-        "confidenceLabel_ARR",
-        "readingFrame_ARR",
-        "filteredReads_ARR",
-        "peptideSequence_ARR",
-        # FusionCatcher columns
-        "predictedEffect_FC",
-        "fusionPairAnnotation_FC",
-        # STARFusion columns
-        "breakpointSpliceType_SF",
-        "fusionPairAnnotation_SF",
-        "largeAnchorSupport_SF"
-    ]
-    
-    all_categoricals = base_categoricals + tool_categoricals
-    
-    # Integer columns
-    ints = [
-        "sampleNum"
-    ]
+    # try:
+    #     combined_lazy_df = pl.concat(lazy_dfs, rechunk=True)
+        
+    #     # Explicitly define these variables so the linter sees them
+    #     all_categoricals = [
+    #         "fusionTranscriptID", "fusionGenePair", "breakpointID", "5pStrand", "3pStrand",
+    #         "originalTool", "sampleID", "predictedEffect_ARR", "mutationType_ARR",
+    #         "confidenceLabel_ARR", "readingFrame_ARR", "predictedEffect_FC", 
+    #         "fusionPairAnnotation_FC", "breakpointSpliceType_SF", "fusionPairAnnotation_SF"
+    #     ]
+        
+    #     ints = ["sampleNum"]
 
-    # Cast columns to appropriate types
-    try:
-        results = combined_lazy_df.with_columns(
-            [pl.col(col).cast(pl.Categorical) for col in all_categoricals]
-        ).with_columns(
-            [pl.col(col).cast(pl.Int64) for col in ints]
-        ).collect()
-        
-        print("DataFrame collected successfully.")
-        print(f"Final DataFrame shape: {results.shape}")
-        print(f"Columns: {results.columns}")
-        
-        # Check if we actually have any data
-        if results.height == 0:
-            print("Warning: Final DataFrame is empty (no fusion events detected across all tools)")
-            # Still save the empty file with proper structure
-        
-        print(f"Saving as parquet and tsv files...")
+    #     # Final collection with explicit variables
+    #     results = combined_lazy_df.with_columns(
+    #         [pl.col(col).cast(pl.Categorical) for col in all_categoricals if col in combined_lazy_df.collect_schema().names()]
+    #     ).with_columns(
+    #         [pl.col(col).cast(pl.Int64) for col in ints if col in combined_lazy_df.collect_schema().names()]
+    #     ).collect()
             
-        # Save as parquet and tsv
-        results.write_parquet(f"{output_filename}.parquet")
-        results.write_csv(f"{output_filename}.tsv", separator="\t")
+    #     results.write_parquet(f"{output_filename}.parquet")
+    #     results.write_csv(f"{output_filename}.tsv", separator="\t")
+        
+    # except Exception as e:
+    #     print(f"Error during final processing: {str(e)}")
+    #     create_empty_output(sample_id, output_filename)
 
-        print("Done.")
-        print(f"Output files created:")
-        print(f"  - {output_filename}.parquet")
-        print(f"  - {output_filename}.tsv")
+    try:
+        # FIX: Diagonal concatenation aligns columns by name regardless of order
+        combined_lazy_df = pl.concat(lazy_dfs, how="diagonal", rechunk=True)
+        
+        all_categoricals = [
+            "fusionTranscriptID", "fusionGenePair", "breakpointID", "5pStrand", "3pStrand",
+            "originalTool", "sampleID", "predictedEffect_ARR", "mutationType_ARR",
+            "confidenceLabel_ARR", "readingFrame_ARR", "predictedEffect_FC", 
+            "fusionPairAnnotation_FC", "breakpointSpliceType_SF", "fusionPairAnnotation_SF"
+        ]
+        
+        # Enforce consistent final column schema
+        expected_cols = [
+            "fusionTranscriptID", "fusionGenePair", "breakpointID", "5pStrand", "3pStrand", "originalTool", 
+            "sampleID", "sampleNum", "sampleNum_Padded", "predictedEffect_ARR", "mutationType_ARR", 
+            "confidenceLabel_ARR", "readingFrame_ARR", "splitReadsTotal_ARR", "discordantReadPairs_ARR", 
+            "filteredReads_ARR", "peptideSequence_ARR", "predictedEffect_FC", "fusionPairAnnotation_FC", 
+            "splitReadsTotal_FC", "discordantReadPairs_FC", "longestAnchor_FC", "breakpointSpliceType_SF", 
+            "fusionPairAnnotation_SF", "splitReadsTotal_SF", "discordantReadPairs_SF", "largeAnchorSupport_SF", "FFPM_SF"
+        ]
+
+        schema_names = combined_lazy_df.collect_schema().names()
+        missing_selects = [pl.lit("NA").alias(col) for col in expected_cols if col not in schema_names]
+
+        results = (
+            combined_lazy_df
+            .with_columns(missing_selects)
+            .select(expected_cols)
+            .with_columns([pl.col(col).cast(pl.Categorical) for col in all_categoricals if col in expected_cols])
+            .collect()
+        )
+            
+        results.write_parquet(f"{output_filename}.parquet")
+        results.write_csv(f"{output_filename}.tsv", separator="\t", null_value='NA')
         
     except Exception as e:
         print(f"Error during final processing: {str(e)}")
-        print("Creating empty output files with proper structure...")
         create_empty_output(sample_id, output_filename)
-        return
 
 def parse_arguments():
     """Parse command line arguments using argparse."""
@@ -523,7 +489,6 @@ def parse_arguments():
     
     # Add a way to provide additional inputs in the original positional format
     parser.add_argument("--inputs", nargs="+", help="Additional input files in format: file1 suffix1 file2 suffix2...")
-    
     return parser.parse_args()
 
 def main():

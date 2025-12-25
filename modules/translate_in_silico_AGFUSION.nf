@@ -15,7 +15,7 @@ process TRANSLATE_IN_SILICO_AGFUSION {
         tuple val(sampleName), path("${sampleName}_agfusion-dirs.tar.gz"), emit: raw_agfusion_outdir
         tuple val(sampleName), path("${sampleName}_agfusion_filtered_manifest.txt"), emit: protein_coding_fusions_manifest
         tuple val(sampleName), path("${sampleName}_translate-fusions-with-agfusion-report.log")
-        tuple val(sampleName), path("agfusion-logs/")
+        tuple val(sampleName), path("agfusion-logs/"), optional: true
 
     script:
     """
