@@ -116,3 +116,6 @@ reports/*
 
 runlogs/*
 traces/*
+
+# nftest logs
+.*.log
