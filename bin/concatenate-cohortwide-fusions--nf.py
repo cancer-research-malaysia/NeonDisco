@@ -22,7 +22,13 @@ def analyze_schemas(input_files):
             
         try:
             # Read just the schema without loading all data
-            df = pl.read_csv(file_path, separator='\t', n_rows=1)
+            # IMPORTANT: Use null_values here too for consistent inference
+            df = pl.read_csv(
+                file_path, 
+                separator='\t', 
+                n_rows=1,
+                null_values=["NA", ""]
+            )
             for col_name, dtype in df.schema.items():
                 column_types[col_name].add(dtype)
         except Exception as e:
@@ -33,10 +39,17 @@ def analyze_schemas(input_files):
     schema_overrides = {}
 
     # Force sampleNum_Padded to be string to preserve zero padding
+    # This is necessary because TSV doesn't preserve types - Polars will
+    # infer "0001" as Int64 (losing the padding) without this override
     if 'sampleNum_Padded' in column_types:
         schema_overrides['sampleNum_Padded'] = pl.Utf8
     
+    # Handle other type conflicts
     for col_name, types in column_types.items():
+        # Skip columns we've already explicitly handled
+        if col_name in schema_overrides:
+            continue
+            
         if len(types) > 1:
             # Handle type conflicts by choosing the most compatible type
             if pl.Utf8 in types:
@@ -155,7 +168,7 @@ def concatenate_cohortwide_fusions(input_files, output_file):
             print("Warning: 'fusionTranscriptID' column not found, skipping manifest generation.")
         
         # Write the concatenated file
-        cohort_df.write_csv(output_file, separator='\t')
+        cohort_df.write_csv(output_file, separator='\t', null_value='NA')
         print(f"Cohort-wide TSV written to: {output_file}")
         print(f"Total rows in cohort file: {len(cohort_df)}")
         

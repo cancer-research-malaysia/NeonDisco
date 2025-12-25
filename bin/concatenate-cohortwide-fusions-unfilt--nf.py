@@ -22,7 +22,7 @@ def analyze_schemas(input_files):
             
         try:
             # Read just the schema without loading all data
-            # Use null_values to properly interpret "NA" as null
+            # IMPORTANT: Use null_values here too for consistent inference
             df = pl.read_csv(
                 file_path, 
                 separator='\t', 
@@ -37,14 +37,18 @@ def analyze_schemas(input_files):
     
     # Create schema overrides for problematic columns
     schema_overrides = {}
-    
+
     # Force sampleNum_Padded to be string to preserve zero padding
+    # This is necessary because TSV doesn't preserve types - Polars will
+    # infer "0001" as Int64 (losing the padding) without this override
     if 'sampleNum_Padded' in column_types:
         schema_overrides['sampleNum_Padded'] = pl.Utf8
     
+    # Handle other type conflicts
     for col_name, types in column_types.items():
+        # Skip columns we've already explicitly handled
         if col_name in schema_overrides:
-            continue  # Skip if already handled
+            continue
             
         if len(types) > 1:
             # Handle type conflicts by choosing the most compatible type
