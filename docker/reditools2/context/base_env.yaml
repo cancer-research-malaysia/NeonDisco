@@ -1,0 +1,24 @@
+name: base
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=2.7
+  - samtools
+  - bedtools
+  - pysam
+  - pblat
+  - htslib
+  - sortedcontainers
+  - psutil
+  - netifaces
+  - mpi4py
+  - numpy
+  - scipy
+  - matplotlib
+  - logzero
+  - statsmodels
+  - awscli
+  - pip
+
+    
