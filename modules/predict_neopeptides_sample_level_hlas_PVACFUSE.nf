@@ -37,8 +37,15 @@ process PREDICT_NEOPEPTIDES_SAMPLE_LEVEL_HLAS_PVACFUSE {
     # Create stub report
     REPORT_FILE="${sampleName}_sample_HLA_pvacfuse_execution_report.txt"
     echo "=== PVACFUSE SAMPLE-LEVEL HLA NEOPEPTIDE PREDICTION REPORT (STUB RUN) ===" > "\$REPORT_FILE"
+    echo "Sample Name: ${sampleName}" >> "\$REPORT_FILE"
+    echo "Process Started: \$(date)" >> "\$REPORT_FILE"
+    echo "STATUS: STUB RUN - No actual processing performed" >> "\$REPORT_FILE"
+    
+    # Create stub validation directory (mimics what the real script does)
+    mkdir -p "${sampleName}_pvacfuse_validated_agfusion"
     
     # Create stub output file - could be either sample-level or SEA-SET depending on HLA availability
+    # Default to sample-level for stub
     mkdir -p "${sampleName}_sample-level-HLA-pred/MHC_Class_I"
     touch "${sampleName}_sample-level-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"
     touch "${sampleName}_sample-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.tsv"

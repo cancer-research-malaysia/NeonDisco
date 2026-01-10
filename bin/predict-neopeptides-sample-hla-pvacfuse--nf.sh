@@ -36,7 +36,7 @@ log_message "INPUT VALIDATION:"
 log_message "Path to validated AGFusion directories: ${VALIDATED_AGF_DIR}"
 
 # Check if directory contains actual AGFusion results (ignore .empty files)
-agfusion_dirs=$(find ${VALIDATED_AGF_DIR} -maxdepth 1 -type d ! -name "." ! -name ".." | wc -l)
+agfusion_dirs=$(find ${VALIDATED_AGF_DIR} -mindepth 1 -maxdepth 1 -type d | wc -l)
 empty_marker=$(find ${VALIDATED_AGF_DIR} -name ".empty" -type f | wc -l)
 
 log_message "Number of AGFusion directories found: $agfusion_dirs"
@@ -47,6 +47,85 @@ if [ $agfusion_dirs -eq 0 ] || [ $empty_marker -gt 0 ]; then
 	log_message "RESULT: Skipping neopeptide prediction process gracefully"
 	log_message "Process Completed: $(date)"
 	log_message "STATUS: SKIPPED - No valid input data"
+	exit 0
+fi
+
+# NEW: Pre-validate AGFusion directories for required files
+log_message ""
+log_message "PRE-VALIDATION: Checking AGFusion directories for required files..."
+
+VALID_AGF_DIR="${SAMPLE_NAME}_pvacfuse_validated_agfusion"
+mkdir -p "${VALID_AGF_DIR}"
+
+total_dirs=0
+valid_dirs=0
+invalid_dirs=0
+missing_files_list=""
+
+# Use find instead of glob to avoid expansion issues
+while IFS= read -r -d '' dir; do
+	# Skip the parent directory itself
+	if [ "$dir" = "${VALIDATED_AGF_DIR}" ] || [ "$dir" = "${VALIDATED_AGF_DIR%/}" ]; then
+		continue
+	fi
+	
+	if [ -d "$dir" ]; then
+		total_dirs=$((total_dirs + 1))
+		dir_name=$(basename "$dir")
+		
+		# Check for required AGFusion files
+		# Look for both .csv and .txt extensions (AGFusion version compatibility)
+		has_protein=$(find "$dir" -maxdepth 1 -name "*_protein.fa" 2>/dev/null | wc -l)
+		has_exons_csv=$(find "$dir" -maxdepth 1 -name "*.exons.csv" 2>/dev/null | wc -l)
+		has_exons_txt=$(find "$dir" -maxdepth 1 -name "*.exons.txt" 2>/dev/null | wc -l)
+		
+		if [ $has_protein -gt 0 ] && ([ $has_exons_csv -gt 0 ] || [ $has_exons_txt -gt 0 ]); then
+			# Valid directory - copy to validated location
+			if cp -r "$dir" "${VALID_AGF_DIR}/" 2>/dev/null; then
+				valid_dirs=$((valid_dirs + 1))
+			else
+				log_message "WARNING: Failed to copy $dir_name, skipping..."
+				invalid_dirs=$((invalid_dirs + 1))
+				missing_files_list="${missing_files_list}${dir_name}: copy failed\n"
+			fi
+		else
+			# Invalid directory - log what's missing
+			invalid_dirs=$((invalid_dirs + 1))
+			missing=""
+			[ $has_protein -eq 0 ] && missing="${missing}protein.fa "
+			[ $has_exons_csv -eq 0 ] && [ $has_exons_txt -eq 0 ] && missing="${missing}exons.csv/txt "
+			missing_files_list="${missing_files_list}${dir_name}: missing ${missing}\n"
+		fi
+	fi
+done < <(find "${VALIDATED_AGF_DIR}" -mindepth 1 -maxdepth 1 -type d -print0)
+
+log_message "Total AGFusion directories scanned: $total_dirs"
+log_message "Valid directories (with protein.fa AND exons files): $valid_dirs"
+log_message "Invalid directories (missing required files): $invalid_dirs"
+
+if [ $invalid_dirs -gt 0 ]; then
+	log_message ""
+	log_message "SKIPPED DIRECTORIES (missing required files):"
+	echo -e "$missing_files_list" | tee -a "$REPORT_FILE"
+fi
+
+# Check if we have any valid directories to process
+if [ $valid_dirs -eq 0 ]; then
+	log_message ""
+	log_message "WARNING: No valid AGFusion directories found after pre-validation"
+	log_message "RESULT: All directories are missing required files (protein.fa and/or exons.csv)"
+	log_message "Process Completed: $(date)"
+	log_message "STATUS: SKIPPED - No processable AGFusion data"
+	
+	# Create empty output files for workflow consistency
+	mkdir -p "${SAMPLE_NAME}_sample-level-HLA-pred/MHC_Class_I"
+	touch "${SAMPLE_NAME}_sample-level-HLA-pred/MHC_Class_I/${SAMPLE_NAME}.filtered.tsv"
+	touch "${SAMPLE_NAME}_sample-level-HLA-pred/MHC_Class_I/${SAMPLE_NAME}.all_epitopes.tsv"
+	touch "${SAMPLE_NAME}_sample-level-HLA-pred/MHC_Class_I/${SAMPLE_NAME}.all_epitopes.aggregated.tsv"
+	touch "${SAMPLE_NAME}_sample-level-HLA-pred/MHC_Class_I/${SAMPLE_NAME}.all_epitopes.aggregated.reference_matches.tsv"
+	touch "${SAMPLE_NAME}_sample-level-HLA-pred/MHC_Class_I/${SAMPLE_NAME}.fasta"
+	touch "${SAMPLE_NAME}-FI-validated-fusion-sample-HLA-immunogenic-peptides-13aa.fasta"
+	
 	exit 0
 fi
 
@@ -102,9 +181,9 @@ log_message ""
 # Capture start time for duration calculation
 START_TIME=$(date +%s)
 
-# Run pVacFuse with the determined HLA types
+# Run pVacFuse with the determined HLA types - MODIFIED TO USE VALID_AGF_DIR
 log_message "Executing pVacfuse run command..."
-if pvacfuse run ${VALIDATED_AGF_DIR} ${SAMPLE_NAME} ${SSHLA} BigMHC_IM DeepImmuno MHCflurry MHCflurryEL NetMHCpanEL NetMHCcons SMMPMBEC "${OUTPUT_DIR}" --iedb-install-directory /opt/iedb --allele-specific-binding-thresholds --downstream-sequence-length full --run-reference-proteome-similarity --peptide-fasta ${METADATA_DIR}/Homo_sapiens.GRCh38.pep.all.fa.gz --netmhc-stab -t ${NUM_CORES} -a sample_name 2>&1 | tee -a "$REPORT_FILE"; then
+if pvacfuse run ${VALID_AGF_DIR} ${SAMPLE_NAME} ${SSHLA} BigMHC_IM DeepImmuno MHCflurry MHCflurryEL NetMHCpanEL NetMHCcons SMMPMBEC "${OUTPUT_DIR}" --iedb-install-directory /opt/iedb --allele-specific-binding-thresholds --downstream-sequence-length full --run-reference-proteome-similarity --peptide-fasta ${METADATA_DIR}/Homo_sapiens.GRCh38.pep.all.fa.gz --netmhc-stab -t ${NUM_CORES} -a sample_name 2>&1 | tee -a "$REPORT_FILE"; then
 	# Calculate execution time
 	END_TIME=$(date +%s)
 	DURATION=$((END_TIME - START_TIME))
@@ -138,10 +217,10 @@ if pvacfuse run ${VALIDATED_AGF_DIR} ${SAMPLE_NAME} ${SSHLA} BigMHC_IM DeepImmun
 			AGG_COUNT=$(tail -n +2 "$AGGREGATED_FILE" | wc -l)
 			log_message "Aggregated epitopes file found: $AGGREGATED_FILE"
 
-			# now run pvacfuse generate_protein_fasta to create a specialized FASTA file
+			# now run pvacfuse generate_protein_fasta to create a specialized FASTA file - MODIFIED TO USE VALID_AGF_DIR
 			log_message ""
 			log_message "Generating specialized FASTA file with pVacfuse generate_protein_fasta to get 13 aa upstream and downstream of fusion junctions..."
-			if pvacfuse generate_protein_fasta --input-tsv "$AGGREGATED_FILE" --aggregate-report-evaluation Pending ${VALIDATED_AGF_DIR} ${FLANK_LENGTH} ${SAMPLE_NAME}-FI-validated-fusion-sample-HLA-immunogenic-peptides-13aa.fasta 2>&1 | tee -a "$REPORT_FILE"; then
+			if pvacfuse generate_protein_fasta --input-tsv "$AGGREGATED_FILE" --aggregate-report-evaluation Pending ${VALID_AGF_DIR} ${FLANK_LENGTH} ${SAMPLE_NAME}-FI-validated-fusion-sample-HLA-immunogenic-peptides-13aa.fasta 2>&1 | tee -a "$REPORT_FILE"; then
 				log_message "${SAMPLE_NAME}-FI-validated-fusion-sample-HLA-immunogenic-peptides-13aa.fasta created"
 			else
 				log_message "WARNING: pVacfuse generate_protein_fasta execution failed"
