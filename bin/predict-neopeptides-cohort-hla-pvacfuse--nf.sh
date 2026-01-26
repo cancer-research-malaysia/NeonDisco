@@ -34,18 +34,19 @@ log_message ""
 log_message "INPUT VALIDATION:"
 log_message "Path to validated AGFusion directories: ${VALIDATED_AGF_DIR}"
 
-# Check if directory contains actual AGFusion results (ignore .empty files)
+# Check if directory contains actual AGFusion results
 agfusion_dirs=$(find ${VALIDATED_AGF_DIR} -mindepth 1 -maxdepth 1 -type d | wc -l)
-empty_marker=$(find ${VALIDATED_AGF_DIR} -name ".empty" -type f | wc -l)
+empty_marker=$(find ${VALIDATED_AGF_DIR} -name "_empty.txt" -type f | wc -l)
 
 log_message "Number of AGFusion directories found: $agfusion_dirs"
-log_message "Number of .empty marker files: $empty_marker"
+log_message "Number of _empty.txt marker files: $empty_marker"
 
 if [ $agfusion_dirs -eq 0 ] || [ $empty_marker -gt 0 ]; then
 	log_message "WARNING: No validated AGFusion directories found for ${SAMPLE_NAME}"
 	log_message "RESULT: Skipping neopeptide prediction process gracefully"
 	log_message "Process Completed: $(date)"
 	log_message "STATUS: SKIPPED - No valid input data"
+	log_message "Exiting script."
 	exit 0
 fi
 

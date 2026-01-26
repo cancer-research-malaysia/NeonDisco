@@ -18,7 +18,7 @@ process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
         path ctatDB
     
     output:
-        tuple val(sampleName), path("FI/${sampleName}.FusionInspector.fusions.abridged.tsv"), optional: true, emit: fusInspectorTsv
+        tuple val(sampleName), path("FI/${sampleName}.FusionInspector.fusions.abridged.tsv"), emit: fusInspectorTsv
         path("${sampleName}.FAILED"), optional: true
 
     script:
@@ -47,6 +47,7 @@ process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
         else
             echo "FusionInspector run failed. Please check the logs for details."
             echo "FAILED: ${sampleName} at \$(date)" > ${sampleName}.FAILED
+            exit 1
         fi
     fi
 

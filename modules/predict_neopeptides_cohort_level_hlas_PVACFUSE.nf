@@ -15,12 +15,12 @@ process PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE {
         path(metaDataDir) // Directory containing metadata files, including the reference proteome FASTA
 
     output:
-        path("${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.fasta")
-        path("${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"), emit: predictedCohortNeopeptides
-        path("${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.tsv")
-        path("${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.aggregated.tsv"), emit: aggregatedEpitopes
-        path("${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.aggregated.reference_matches.tsv"), emit: referenceMatches
-        path("${sampleName}-FI-validated-fusion-cohort-HLA-immunogenic-peptides-13aa.fasta"), emit: specializedFasta
+        path("${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.fasta"), optional: true
+        path("${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.filtered.tsv"), optional: true, emit: predictedCohortNeopeptides
+        path("${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.tsv"), optional: true
+        path("${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.aggregated.tsv"), optional: true,  emit: aggregatedEpitopes
+        path("${sampleName}_cohort-level-HLA-pred/MHC_Class_I/${sampleName}.all_epitopes.aggregated.reference_matches.tsv"), optional: true, emit: referenceMatches
+        path("${sampleName}-FI-validated-fusion-cohort-HLA-immunogenic-peptides-13aa.fasta"), optional: true, emit: specializedFasta
         path("${sampleName}_cohort_HLA_pvacfuse_execution_report.txt"), emit: executionReport
 
     script:
