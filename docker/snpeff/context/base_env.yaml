@@ -1,0 +1,13 @@
+name: base
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.10
+  - openjdk=21
+  - snpeff=5.2
+  - snpsift=5.2
+  - awscli
+  - pip
+
+    
