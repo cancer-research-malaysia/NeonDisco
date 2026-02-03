@@ -53,7 +53,7 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 
 # install pip packages
-RUN pip install --no-cache-dir REDItools3==3.5 && \
+RUN pip install --no-cache-dir REDItools3==3.6 && \
 python -c "import importlib.metadata; print('Installed Version:', importlib.metadata.version('REDItools3'))"
 
 # set workdir
