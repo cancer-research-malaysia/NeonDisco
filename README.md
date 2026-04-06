@@ -1,4 +1,4 @@
-# NeonDisco (Neoantigen Discovery Orchestrator): An Expanded Neoantigen Discovery Orchestration Framework at Cancer Research Malaysia
+# NeonDisco (Neoantigen Discovery Orchestrator): An Expanded Neoantigen Discovery Framework at Cancer Research Malaysia
 ![NeoNDisco-logo-v2](docs/assets/NeoNDisco-logo-v2.png)
 
 A highly modular Nextflow-based discovery bioinformatics pipeline for prediction of potentially immunogenic recurrent neoantigens from expanded sources of aberrant processes in tumors with RNA-seq datasets.
