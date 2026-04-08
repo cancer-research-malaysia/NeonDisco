@@ -7,5 +7,10 @@ Below are the list of references that form the literature foundation of this pro
 * Schaeffeler, E., Walz, J. & Schwab, M. Personalized cancer vaccination is emerging: lessons learnt from renal cancer and challenges for broader application. Sig Transduct Target Ther 10, 107 (2025). [Cancer vaccine review: Schaeffeler et al., 2025](https://doi.org/10.1038/s41392-025-02204-z)
 * Weber D, Ibn-Salem J, Sorn P, Suchan M, Holtsträter C, Lahrmann U, Vogler I, Schmoldt K, Lang F, Schrörs B, Löwer M, Sahin U. *Accurate detection of tumor-specific gene fusions reveals strongly immunogenic personal neo-antigens.* Nat Biotechnol. 2022 Aug;40(8):1276-1284. [EasyFuse: Weber et al., 2022](https://doi.org/10.1038/s41587-022-01247-9)
 
+### Acknowledgment
 
-**NOTE:** Click here to go to the [homepage of NeonDisco](https://github.com/cancer-research-malaysia/NeonDisco)
+This study is supported by various donors (private and corporate) to Cancer Research Malaysia. We thank patients, investigators, and support staff for their contributions. This study obtained ethic approval from the UMMC MREC 202149-10050 and SJMC IRB 201208.1.
+
+### NeonDisco Github Main Page
+
+Click here to go to the [homepage of NeonDisco](https://github.com/cancer-research-malaysia/NeonDisco).
