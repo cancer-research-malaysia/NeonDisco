@@ -88,6 +88,15 @@ RUN pip install --upgrade setuptools \
     && pip install git+https://github.com/griffithlab/ImmuScope.git#egg=ImmuScope \
     && immuscope-download-weights
 
+# ── Fix: MHCflurry calls a TF1-compat Keras API (tf.compat.v1.keras.backend.
+# set_session) that no longer exists in Keras 3.x. One of the predictors
+# installed above almost certainly pulled in a newer TensorFlow/Keras as a
+# transitive dependency, silently breaking MHCflurry underneath it. Installing
+# tf-keras and forcing the legacy backend restores the old API surface for
+# MHCflurry without touching whatever TF version the newer tools actually need.
+RUN pip install tf-keras
+ENV TF_USE_LEGACY_KERAS=1
+
 # ── Switch to root for /opt installations ────────────────────────────────────
 USER root
 
@@ -105,6 +114,14 @@ RUN git clone https://github.com/GfellerLab/PRIME.git \
     && chmod +x /opt/PRIME/PRIME
 ENV PATH="/opt/PRIME:${PATH}"
 
+# PRIME ships its scoring engine as uncompiled C++ source (lib/PRIME.cc).
+# Per PRIME's Linux install instructions, this must be compiled manually —
+# nothing does this automatically, and the wrapper script calls the compiled
+# binary directly.
+RUN cd /opt/PRIME/lib \
+    && g++ -O3 PRIME.cc -o PRIME.x \
+    && chmod +x PRIME.x
+
 # ── BLAST 2.17.0 (from NCBI FTP per official docs) ───────────────────────────
 WORKDIR /opt
 RUN wget -q https://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/ncbi-blast-2.17.0+-x64-linux.tar.gz \
@@ -117,6 +134,11 @@ RUN mkdir -p /opt/ref_proteome \
     && wget -q https://ftp.ensembl.org/pub/current_fasta/homo_sapiens/pep/Homo_sapiens.GRCh38.pep.all.fa.gz \
         -O /opt/ref_proteome/Homo_sapiens.GRCh38.pep.all.fa.gz \
     && gunzip /opt/ref_proteome/Homo_sapiens.GRCh38.pep.all.fa.gz
+
+# set permissions
+RUN chown -R $MAMBA_USER:$MAMBA_USER /opt/PRIME /opt/MixMHCpred /opt/ncbi-blast-2.17.0+ /opt/ref_proteome
+# change user
+USER $MAMBA_USER
 
 # set workdir
 WORKDIR /home/ec2-user
