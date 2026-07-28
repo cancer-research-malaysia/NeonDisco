@@ -12,6 +12,7 @@ awscli = "*"
 openjdk = ">=21"
 curl = "*"
 plotly = ">=6.5.0,<7"
+go = ">=1.26.5,<2"
 
 [feature.nf-testing.dependencies]
 nf-test = ">=0.9.3"
