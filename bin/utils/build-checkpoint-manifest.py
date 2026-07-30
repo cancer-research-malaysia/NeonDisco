@@ -26,16 +26,11 @@ AS ACTUALLY RESOLVED FOR THE RUN BEING RECOVERED (profile params override base.c
           i.e. ${sampleName}/RECURRENT-VALIDATED-FUSIONS-out/FI-validated-recurrent-agfusion-dirs/
     Use --recurrent-only to switch.
  
-Note: params.metaDataDir (base.config: "${projectDir}/metadata") is a local
-repo path staged fresh from disk every run -- not a prior-run S3 artifact --
-so it's deliberately excluded from this manifest; nothing to validate there.
- 
 Usage:
     python3 build-checkpoint-manifest.py \\
-        --output-dir s3://crmy-gb-main/neondisco/main-analyses/MSA/running/NeonDisco-outputs/MYBRCA-n990-dataset-awsbatch-dualMode-ND-v0-2-2-RERUN-FINAL-v5 \\
+        --output-dir s3://crmy-gb-main/neondisco/main-analyses/MSA/running/NeonDisco-outputs/MYBRCA-n990-dataset-awsbatch-dualMode-ND-v0-2-2-RERUN-FINAL-v5/ \\
         --manifest-out checkpoint_manifest.tsv
-        # add --recurrent-only if the run used sharedHLANeoPredMode (or otherwise
-        # had recurrentFusionsNeoPredOnly=true)
+        # add --recurrent-only if the run used sharedHLANeoPredMode (or otherwise had recurrentFusionsNeoPredOnly=true)
 """
  
 import argparse
@@ -53,7 +48,7 @@ AGFUSION_SUBPATH_RECURRENT_ONLY = "RECURRENT-VALIDATED-FUSIONS-out/FI-validated-
 HLA_TSV_SUBPATH = "Cohortwide-HLA-typing-OUT/Cohortwide_HLA_types.tsv"
  
 # Top-level prefixes under outputDir that are NOT sample directories.
-NON_SAMPLE_PREFIXES = {"Cohortwide-HLA-typing-OUT", "reports", "pipeline_info"}
+NON_SAMPLE_PREFIXES = {"Cohortwide-HLA-typing-OUT", "Cohortwide-Fusions-OUT"}
  
  
 def parse_s3_uri(uri):
@@ -90,7 +85,14 @@ def main():
  
     session = boto3.Session(profile_name=args.profile, region_name=args.region)
     s3 = session.client("s3")
- 
+    sts = session.client("sts")
+    identity = sts.get_caller_identity()
+    resolved_region = session.region_name or "unset"
+    print(f"Using AWS identity: {identity['Arn']} (account {identity['Account']}), " f"region: {resolved_region}", file=sys.stderr)
+    if resolved_region != "ap-southeast-5":
+        print(f"WARNING: resolved region '{resolved_region}' does not match " f"NeonDisco's configured aws.region 'ap-southeast-5'", file=sys.stderr)
+
+
     output_dir = args.output_dir.rstrip("/")
     print(f"Listing sample directories under {output_dir} ...", file=sys.stderr)
     samples = list_sample_names(s3, output_dir)

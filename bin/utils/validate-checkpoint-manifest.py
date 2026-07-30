@@ -153,6 +153,12 @@ def main():
 
     session = boto3.Session(profile_name=args.profile, region_name=args.region)
     s3 = session.client("s3", config=Config(max_pool_connections=args.max_workers))
+    sts = session.client("sts")
+    identity = sts.get_caller_identity()
+    resolved_region = session.region_name or "unset"
+    print(f"Using AWS identity: {identity['Arn']} (account {identity['Account']}), " f"region: {resolved_region}", file=sys.stderr)
+    if resolved_region != "ap-southeast-5":
+        print(f"WARNING: resolved region '{resolved_region}' does not match " f"NeonDisco's configured aws.region 'ap-southeast-5'", file=sys.stderr)
 
     with open(args.manifest, newline="") as f:
         rows = list(csv.DictReader(f, delimiter="\t"))
