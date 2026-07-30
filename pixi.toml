@@ -22,3 +22,6 @@ curl = "<8"        # Give it the older curl it wants
 [environments]
 # Add 'no-default-feature = true' to stop it from grabbing Java 21
 nf-testing = { features = ["nf-testing"], no-default-feature = true }
+
+[pypi-dependencies]
+boto3 = ">=1.43.59, <2"
