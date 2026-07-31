@@ -116,8 +116,8 @@ def main():
             w.writerow([sample, "hla_tsv", hla_tsv_uri])
  
     print(f"Wrote {args.manifest_out}: {len(samples)} samples x 2 roles "
-          f"({len(samples) * 2} rows, hla_tsv deduplicated during validation). "
-          f"metaDataDir intentionally excluded (local path, not an S3 checkpoint concern).",
+          f"({len(samples) * 2} rows, hla_tsv will be deduplicated during validation). "
+          f"metaDataDir intentionally excluded (local path).",
           file=sys.stderr)
     print("Next: python3 validate_checkpoint_manifest.py --manifest "
           f"{args.manifest_out} --report validation_report.tsv --ready-manifest ready_manifest.tsv",
