@@ -3,6 +3,7 @@ process ALIGN_READS_STAR_GENERAL {
     // maxForks 10
     cpus params.numCores
     
+    tag { sampleName }
     label 'alignReadsGeneral'
     
     container "${params.container__preproc}"

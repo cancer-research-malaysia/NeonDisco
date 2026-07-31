@@ -1,9 +1,8 @@
-
 process AGGREGATE_CUSTOM_PONS_PYENV {
-    cpus 1
-
-    label 'aggregateCustomPons'
     
+    label 'aggregateCustomPons'
+
+    cpus 1
     container "${params.container__pyenv}"
     
     publishDir "${params.outputDir}", mode: 'copy',

@@ -3,6 +3,7 @@ process FIXMATES_MARKDUPES_SAMTOOLS {
     //maxForks 2
     cpus params.numCores
     
+    tag { sampleName }
     label 'fixmatesMarkdupes'
     
     container "${params.container__preproc}"

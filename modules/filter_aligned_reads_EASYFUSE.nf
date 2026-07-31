@@ -2,6 +2,7 @@
 process FILTER_ALIGNED_READS_EASYFUSE {
     cpus params.numCores / 2
     
+    tag { sampleName }
     label 'filterReads'
     
     container "${params.container__pyenv}"

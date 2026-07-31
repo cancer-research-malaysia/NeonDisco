@@ -3,6 +3,7 @@ process CALL_FUSIONS_STARFUSION {
     //maxForks 2
     cpus params.numCores
     
+    tag { sampleName }
     label 'callFusionsSF'
     
     container "${params.container__starfusion}"

@@ -1,6 +1,7 @@
 process FILTER_FUSIONS_PYENV {
     cpus 2
     
+    tag { sampleName }
     label 'filterFusions'
 
     container "${params.container__pyenv}"

@@ -1,6 +1,7 @@
 process TRANSLATE_IN_SILICO_AGFUSION {
     cpus params.numCores
     
+    tag { sampleName }
     label 'translateInSilico'
     
     container "${params.container__agfusion}"

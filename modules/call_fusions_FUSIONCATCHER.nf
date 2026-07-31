@@ -3,13 +3,13 @@ process CALL_FUSIONS_FUSIONCATCHER {
     //maxForks 3
     cpus params.numCores
     
+    tag { sampleName }
     label 'callFusionsFC'
     
     container "${params.container__fuscat}"
 
     publishDir "${params.outputDir}/${sampleName}/AGGREGATE-FUSION-CALLING-out/FUSIONCATCHER-out", mode: 'copy',
         saveAs: { filename -> workflow.stubRun ? filename + ".stub" : filename }
-    
     
     
     input:

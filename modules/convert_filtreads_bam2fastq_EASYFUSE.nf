@@ -2,6 +2,7 @@
 process CONVERT_FILTREADS_BAM2FASTQ_EASYFUSE {
     cpus params.numCores
     
+    tag { sampleName }
     label 'convertFilteredReads'
 
     container "${params.container__preproc}"

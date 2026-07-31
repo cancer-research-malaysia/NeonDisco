@@ -2,6 +2,7 @@
 process TYPE_HLAS_WITH_FALLBACK_ARCASHLA {
     cpus params.numCores
     
+    tag { sampleName }
     label 'typeHLAs'
     
     container "${params.container__hlatyping}"  // Container with both tools

@@ -2,6 +2,7 @@
 process COLLATE_CUSTOM_PONS_PYENV {
     cpus 1
     
+    tag { sampleName }
     label 'collateCustomPons'
     
     container "${params.container__pyenv}"

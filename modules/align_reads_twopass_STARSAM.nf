@@ -3,6 +3,7 @@ process ALIGN_READS_TWOPASS_STARSAM {
     //maxForks 5
     cpus params.numCores
 
+    tag { sampleName }
     label 'alignReads2Pass'
     
     container "${params.container__preproc}"

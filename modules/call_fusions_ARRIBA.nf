@@ -3,6 +3,7 @@ process CALL_FUSIONS_ARRIBA {
     //maxForks 1
     cpus params.numCores
     
+    tag { sampleName }
     label 'callFusionsAR'
     
     container "${params.container__arriba}"

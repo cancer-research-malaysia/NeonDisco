@@ -2,6 +2,7 @@
 process WRANGLE_RAW_FUSIONS_PYENV {
     cpus 4
     
+    tag { sampleName }
     label 'wrangleRawFusions'
 
     container "${params.container__pyenv}"
