@@ -1,6 +1,7 @@
 process PREDICT_NEOPEPTIDES_COHORT_LEVEL_HLAS_PVACFUSE {
     cpus params.numCores * 2
     
+    tag { sampleName }
     label 'predictCohortNeopeptides'
     
     container "${params.container__pvactools}"

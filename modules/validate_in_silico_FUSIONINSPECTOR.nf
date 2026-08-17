@@ -2,6 +2,7 @@ process VALIDATE_IN_SILICO_FUSIONINSPECTOR {
     //maxForks 1
     cpus params.numCores
 
+    tag { sampleName }
     label 'validateInSilico'
 
     container "${params.container__starfusion}"

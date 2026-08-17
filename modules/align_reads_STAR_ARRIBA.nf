@@ -1,7 +1,7 @@
-//
 process ALIGN_READS_STAR_ARRIBA {
     cpus params.numCores
     
+    tag { sampleName }
     label 'alignReadsArriba'
 
     container "${params.container__preproc}"

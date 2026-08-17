@@ -2,6 +2,7 @@
 process TRIM_READS_FASTP {
     cpus params.numCores / 2 
     
+    tag { sampleName }
     label 'trimReads'
     
     afterScript params.deleteStagedFiles ? "find ./ -name \"${sampleName}*_*.f*q*\" -type l -exec sh -c 'rm -f \$(readlink -f \"{}\")' \\; -delete" : "echo 'Skipping staged file cleanup...'"

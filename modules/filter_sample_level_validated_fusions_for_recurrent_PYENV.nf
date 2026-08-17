@@ -2,6 +2,7 @@
 process FILTER_SAMPLE_LEVEL_VALIDATED_FUSIONS_FOR_RECURRENT_PYENV {
     cpus 1
     
+    tag { sampleName }
     label 'getSampleRecurrentFusions'
 
     container "${params.container__pyenv}"

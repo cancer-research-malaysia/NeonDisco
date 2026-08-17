@@ -37,7 +37,6 @@ case $READ1 in
         STAR --runThreadN "${CORES}" \
         --genomeDir "${INDEX}" \
         --readFilesIn "${READ1}" "${READ2}" \
-        --readFilesCommand zcat \
         --outFileNamePrefix "${SAMPLE_ID}-STAR-ARR_" \
         --outFilterMultimapNmax 50 \
         --peOverlapNbasesMin 10 \

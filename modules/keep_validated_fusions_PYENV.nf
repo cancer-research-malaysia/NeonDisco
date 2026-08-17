@@ -2,6 +2,7 @@
 process KEEP_VALIDATED_FUSIONS_PYENV {
     cpus 1
     
+    tag { sampleName }
     label 'keepValidatedFusions'
     
     container "${params.container__pyenv}"

@@ -2,6 +2,7 @@
 process COLLATE_FUSIONS_PYENV {
     cpus 2
     
+    tag { sampleName }
     label 'collateFusions'
 
     container "${params.container__pyenv}"

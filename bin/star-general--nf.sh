@@ -38,7 +38,6 @@ case $READ1 in
         STAR --runThreadN "${CORES}" \
         --genomeDir "${INDEX}" \
         --readFilesIn "${READ1}" "${READ2}" \
-        --readFilesCommand zcat \
         --outFileNamePrefix "${SAMPLE_ID}-STAR-GEN_" \
         --outFilterMultimapNmax 1000 \
         --outSAMmultNmax 1 \
