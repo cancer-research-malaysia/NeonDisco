@@ -1,14 +1,14 @@
 FROM mambaorg/micromamba
 
 LABEL maintainer="Suffian Azizan"
-LABEL version="2.0"
-LABEL description="minimal container image for Reditools3 (v3.7) for CRMY"
+LABEL version="3.0"
+LABEL description="minimal container image for Reditools3 (v3.71-stable-hotfix) for CRMY"
 
 # change to root user
 USER root
 
 # update Debian OS packages and install additional Linux system utilities with procps; also install R, then finally remove cached package lists
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential procps curl wget tar pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed nano less \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential procps curl wget tar pigz gzip zip unzip gcc g++ bzip2 procps coreutils gawk grep sed nano less git \
 && rm -rf /var/lib/apt/lists/*
 
 ARG NEW_MAMBA_USER=ec2-user
@@ -53,7 +53,7 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 
 # install pip packages
-RUN pip install --no-cache-dir REDItools3 && \
+RUN pip install --no-cache-dir git+https://github.com/BioinfoUNIBA/REDItools3.git@b3c3d0bce5f5d5de8d4127170592dfc9b8987379 && \
 python -c "import importlib.metadata; print('Installed Version:', importlib.metadata.version('REDItools3'))"
 
 # set workdir
