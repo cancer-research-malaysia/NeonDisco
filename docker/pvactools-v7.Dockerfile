@@ -2,11 +2,11 @@
 FROM mambaorg/micromamba as micromamba
 
 # add micromamba to:
-FROM griffithlab/pvactools:latest
+FROM griffithlab/pvactools:7.1.2
 
 LABEL maintainer="sufyazi@outlook.com" \
-      version="7-extended" \
-      description="pvactools v7 with PRIME, MixMHCpred, ImmuScope added"
+      version="7.1.2" \
+      description="pvactools v7.1.2 (pinned) with PRIME, MixMHCpred, ImmuScope added"
 
 # Switch to root
 USER root
@@ -82,7 +82,7 @@ ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 
 # ── Upgrade pvactools to v7 + pip-installable predictors ─────────────────────
 RUN pip install --upgrade setuptools \
-    && pip install pvactools --upgrade \
+    && pip install git+https://github.com/griffithlab/pvactools.git@7e5bd2bd41cc4fa5a55c138be472c0b4de814ee1 \
     && pip install git+https://github.com/griffithlab/bigmhc.git#egg=bigmhc \
     && pip install git+https://github.com/griffithlab/deepimmuno.git#egg=deepimmuno \
     && pip install git+https://github.com/griffithlab/ImmuScope.git#egg=ImmuScope \
@@ -100,27 +100,29 @@ ENV TF_USE_LEGACY_KERAS=1
 # ── Switch to root for /opt installations ────────────────────────────────────
 USER root
 
-# ── MixMHCpred (required by PRIME as a direct dependency) ────────────────────
-WORKDIR /opt
-RUN git clone https://github.com/GfellerLab/MixMHCpred.git \
-    && cd /opt/MixMHCpred \
-    && chmod +x MixMHCpred \
-    && pip install -r ./code/setup_pythonLibrary.txt
-ENV PATH="/opt/MixMHCpred:${PATH}"
+## commented out because somehow the new pvactools v7.1.2 now includes MixMHCpred and PRIME?? Will need testing
+# # ── MixMHCpred (required by PRIME as a direct dependency) ────────────────────
+# WORKDIR /opt
+# RUN rm -rf /opt/MixMHCpred \
+#     && git clone https://github.com/GfellerLab/MixMHCpred.git \
+#     && cd /opt/MixMHCpred \
+#     && chmod +x MixMHCpred \
+#     && pip install -r ./code/setup_pythonLibrary.txt
+# ENV PATH="/opt/MixMHCpred:${PATH}"
 
-# ── PRIME (depends on MixMHCpred being in PATH) ───────────────────────────────
-WORKDIR /opt
-RUN git clone https://github.com/GfellerLab/PRIME.git \
-    && chmod +x /opt/PRIME/PRIME
-ENV PATH="/opt/PRIME:${PATH}"
+# # ── PRIME (depends on MixMHCpred being in PATH) ───────────────────────────────
+# WORKDIR /opt
+# RUN git clone https://github.com/GfellerLab/PRIME.git \
+#     && chmod +x /opt/PRIME/PRIME
+# ENV PATH="/opt/PRIME:${PATH}"
 
-# PRIME ships its scoring engine as uncompiled C++ source (lib/PRIME.cc).
-# Per PRIME's Linux install instructions, this must be compiled manually —
-# nothing does this automatically, and the wrapper script calls the compiled
-# binary directly.
-RUN cd /opt/PRIME/lib \
-    && g++ -O3 PRIME.cc -o PRIME.x \
-    && chmod +x PRIME.x
+# # PRIME ships its scoring engine as uncompiled C++ source (lib/PRIME.cc).
+# # Per PRIME's Linux install instructions, this must be compiled manually —
+# # nothing does this automatically, and the wrapper script calls the compiled
+# # binary directly.
+# RUN cd /opt/PRIME/lib \
+#     && g++ -O3 PRIME.cc -o PRIME.x \
+#     && chmod +x PRIME.x
 
 # ── BLAST 2.17.0 (from NCBI FTP per official docs) ───────────────────────────
 WORKDIR /opt
