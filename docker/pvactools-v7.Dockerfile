@@ -80,13 +80,14 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 
 
-# ── Upgrade pvactools to v7 + pip-installable predictors ─────────────────────
-RUN pip install --upgrade setuptools \
-    && pip install git+https://github.com/griffithlab/pvactools.git@7e5bd2bd41cc4fa5a55c138be472c0b4de814ee1 \
+# ── Upgrade pvactools to v7 + pip-installable predictors + pin setuptools version so it carries the pkg_resources dependency    ─────────────────────
+RUN pip install --upgrade "setuptools<82" \
+    && pip install pvactools --upgrade \
     && pip install git+https://github.com/griffithlab/bigmhc.git#egg=bigmhc \
     && pip install git+https://github.com/griffithlab/deepimmuno.git#egg=deepimmuno \
     && pip install git+https://github.com/griffithlab/ImmuScope.git#egg=ImmuScope \
-    && immuscope-download-weights
+    && immuscope-download-weights \
+    && pip install --force-reinstall "setuptools<82"
 
 # ── Fix: MHCflurry calls a TF1-compat Keras API (tf.compat.v1.keras.backend.
 # set_session) that no longer exists in Keras 3.x. One of the predictors
