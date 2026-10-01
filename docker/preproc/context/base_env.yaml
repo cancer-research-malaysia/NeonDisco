@@ -4,6 +4,8 @@ channels:
   - bioconda
 dependencies:
   - python
+  - fastqc
+  - multiqc
   - samtools
   - fastp
   - picard
