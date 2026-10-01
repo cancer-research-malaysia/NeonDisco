@@ -6,6 +6,8 @@ environments:
     - url: https://conda.anaconda.org/conda-forge/
     indexes:
     - https://pypi.org/simple
+    options:
+      pypi-prerelease-mode: if-necessary-or-explicit
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_go_select-2.3.0-cgo.tar.bz2
@@ -85,6 +87,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/narwhals-2.14.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/ncurses-6.5-h2d0b736_3.conda
       - conda: https://conda.anaconda.org/bioconda/noarch/nextflow-24.04.4-hdfd78af_0.tar.bz2
+      - conda: https://conda.anaconda.org/bioconda/noarch/nf-test-0.9.5-h2a3209d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/openjdk-21.0.0-haa376d0_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/openssl-3.5.1-h7b32b05_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-25.0-pyh29332c3_1.conda
@@ -135,6 +138,8 @@ environments:
     channels:
     - url: https://conda.anaconda.org/bioconda/
     - url: https://conda.anaconda.org/conda-forge/
+    options:
+      pypi-prerelease-mode: if-necessary-or-explicit
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -1338,6 +1343,17 @@ packages:
   license: MIT
   size: 25224738
   timestamp: 1759228333585
+- conda: https://conda.anaconda.org/bioconda/noarch/nf-test-0.9.5-h2a3209d_0.conda
+  sha256: a99f62b01c74b01854c01bdebe765110f4754e2245ec536df10a521ad96befd5
+  md5: 394b91381c88e5c7df30b7e34fefd6e5
+  depends:
+  - coreutils
+  - curl
+  - openjdk >=17,<26
+  license: MIT
+  purls: []
+  size: 16542781
+  timestamp: 1773937784890
 - conda: https://conda.anaconda.org/conda-forge/linux-64/openjdk-17.0.7.4-0_graalvm230b10.conda
   build_number: 0
   sha256: 9191fecb66517cf65aa105816506bbc7d0db41843b799e6542c3f77beffb9f8e
