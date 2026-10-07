@@ -16,7 +16,7 @@ go = ">=1.26.5,<2"
 nf-test = ">=0.9.5,<0.10"
 
 [feature.nf-testing.dependencies]
-nf-test = ">=0.9.3"
+nf-test = ">=0.9.5,<0.10"
 openjdk = "17.*"   # Give nf-test the specific Java version it wants
 curl = "<8"        # Give it the older curl it wants
 
