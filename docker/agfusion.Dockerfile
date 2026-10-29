@@ -1,7 +1,7 @@
 FROM mambaorg/micromamba
 LABEL maintainer="Suffian Azizan"
 LABEL version="4.0"
-LABEL description="container image of AGFusion program v1.4.4 (sufyazi-forked; correct 5'UTR bug) - revision removed MatchHostFsOwner"
+LABEL description="container image of AGFusion program v1.4.3 (sufyazi-forked; correct 5'UTR bug) - revision removed MatchHostFsOwner"
 
 # change to root user
 USER root
@@ -51,8 +51,8 @@ micromamba clean --all --yes
 # activate the environment during container startup
 ARG MAMBA_DOCKERFILE_ACTIVATE=1
 
-# install pip packages
-RUN pip install agfusion
+# install pinned AGFusion version matching the patched files
+RUN pip install --no-cache-dir agfusion==1.4.3
 
 # replace the cli.py of agfusion with my edited one that handles running agfusion cli with no arguments
 COPY --chown=$MAMBA_USER:$MAMBA_USER agfusion/src/cli-v2.py /tmp/cli-v2.py
